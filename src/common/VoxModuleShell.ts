@@ -1,6 +1,6 @@
 
-import { ModuleLoader } from "../cospace/modules/loaders/ModuleLoader";
-import { VoxRScene } from "../cospace/voxengine/VoxRScene";
+import { ModuleLoader } from "../engine/cospace/modules/loaders/ModuleLoader";
+import { VoxRScene } from "../engine/cospace/voxengine/VoxRScene";
 
 export default class VoxModuleShell {
     constructor() { }
