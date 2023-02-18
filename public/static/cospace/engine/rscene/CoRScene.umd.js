@@ -7041,6 +7041,11 @@ class MouseEventEntity extends DisplayEntity_1.default {
     }
   }
 
+  getEvtDispatcher(evtClassType) {
+    this.m_eventDispatcher.uuid = this.uuid;
+    return this.m_eventDispatcher;
+  }
+
   destroy() {
     super.destroy();
     this.m_dispatcher = null;

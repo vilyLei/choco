@@ -37,7 +37,7 @@ export class Primitives {
 
         let tex = this.m_rscene.textureBlock.createImageTex2D(64, 64, false);
         let img = new Image();
-        img.onload = (evt: any): void => {
+        img.onload = (): void => {
             tex.setDataFromImage(img);
         };
         img.src = url;
