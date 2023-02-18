@@ -3,10 +3,11 @@ import { VoxRScene } from "../engine/cospace/voxengine/VoxRScene";
 import { VoxUIInteraction } from "../engine/cospace/voxengine/ui/VoxUIInteraction";
 import { VoxEntity } from "../engine/cospace/voxentity/VoxEntity";
 import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
+import { VoxMath } from "../engine/cospace/math/VoxMath";
 import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
 
-export class SceneParameter {
+export class Shader {
 
     private m_rscene: IRendererScene = null;
     constructor() { }
@@ -27,7 +28,13 @@ export class SceneParameter {
     }
     private initRenderer(): void {
 
+        let RD = VoxRScene.RendererDevice;
+        RD.SHADERCODE_TRACE_ENABLED = false;
+        RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
+        RD.SetWebBodyColor("#888888");
+
         let rparam = VoxRScene.createRendererSceneParam();
+        rparam.setAttriAntialias(!RD.IsMobileWeb());
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
         this.m_rscene = VoxRScene.createRendererScene( rparam );
@@ -45,14 +52,12 @@ export class SceneParameter {
     }
     private init3DScene(): void {
 
-        this.m_rscene.addEntity(VoxRScene.createAxis3DEntity());
-
         let boxMaterial = VoxMaterial.createDefaultMaterial();
         boxMaterial.setRGB3f(0.7, 1.0, 1.0);
         boxMaterial.normalEnabled = true;
 
         let cube = VoxEntity.createCube(200, boxMaterial);
-        cube.setXYZ(-300, 0, 0);
+        cube.setXYZ(-300, 200, 0);
         this.m_rscene.addEntity(cube);
 
         let sphMaterial = VoxMaterial.createDefaultMaterial();
@@ -60,13 +65,13 @@ export class SceneParameter {
         sphMaterial.setRGB3f(0.7, 1.0, 0.3);
         sphMaterial.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
         let sph = VoxEntity.createSphere(150, 20, 20, false, sphMaterial);
-        sph.setXYZ(300, 0, 0);
+        sph.setXYZ(300, 200, 0);
         this.m_rscene.addEntity(sph);
 
         let planeMaterial = VoxMaterial.createDefaultMaterial();
         planeMaterial.normalEnabled = true;
         let plane = VoxEntity.createXOZPlane(-50, -50, 100, 100, planeMaterial);
-        plane.setXYZ(-300, 0, 300);
+        plane.setScaleXYZ(10.0, 1.0, 10.0)
         this.m_rscene.addEntity(plane);
     }
     run(): void {
@@ -76,4 +81,4 @@ export class SceneParameter {
     }
 }
 
-export default SceneParameter;
+export default Shader;
