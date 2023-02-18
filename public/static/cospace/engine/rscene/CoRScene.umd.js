@@ -7015,7 +7015,6 @@ class MouseEventEntity extends DisplayEntity_1.default {
   constructor(transform = null) {
     super(transform);
     this.m_dispatcher = null;
-    this.uuid = "";
     this.initializeEvent();
   }
 
@@ -7039,11 +7038,6 @@ class MouseEventEntity extends DisplayEntity_1.default {
       this.m_dispatcher.uuid = this.uuid;
       this.setEvtDispatcher(this.m_dispatcher);
     }
-  }
-
-  getEvtDispatcher(evtClassType) {
-    this.m_eventDispatcher.uuid = this.uuid;
-    return this.m_eventDispatcher;
   }
 
   destroy() {
@@ -11559,7 +11553,7 @@ class DisplayEntity {
      */
 
     this.__$rseFlag = RSEntityFlag_1.default.DEFAULT;
-    this.name = "DisplayEntity";
+    this.uuid = "";
     /**
      * 可见性裁剪是否开启, 如果不开启，则摄像机和遮挡剔除都不会裁剪, 取值于 SpaceCullingMask, 默认只会有摄像机裁剪
      */
@@ -11668,6 +11662,7 @@ class DisplayEntity {
   }
 
   getEvtDispatcher(evtClassType) {
+    if (this.uuid != "") this.m_eventDispatcher.uuid = this.uuid;
     return this.m_eventDispatcher;
   }
 
@@ -12113,7 +12108,7 @@ class DisplayEntity {
           this.__activeMesh(material); //  // for debug
 
 
-          this.m_display.name = this.name;
+          this.m_display.uuid = this.uuid;
         }
       }
     }
@@ -12357,7 +12352,7 @@ class DisplayEntity {
   }
 
   toString() {
-    return "DisplayEntity(name=" + this.name + ",uid = " + this.m_uid + ", rseFlag = " + this.__$rseFlag + ")";
+    return "DisplayEntity(uuid=" + this.uuid + ",uid = " + this.m_uid + ", rseFlag = " + this.__$rseFlag + ")";
   }
 
 }
@@ -26865,7 +26860,7 @@ class DisplayEntityContainer {
 
     this.__$parent = null;
     this.__$renderer = null;
-    this.name = "DisplayEntityContainer"; // mouse interaction enabled
+    this.uuid = ""; // mouse interaction enabled
 
     this.mouseEnabled = false;
     this.m_entities = [];
@@ -35181,7 +35176,7 @@ class RODisplay {
     this.m_material = null; // 只是持有引用不做任何管理操作
 
     this.m_matFS32 = null;
-    this.name = "RODisplay"; // render yes or no
+    this.uuid = ""; // render yes or no
 
     this.visible = true;
     this.ivsIndex = 0;
@@ -35301,7 +35296,7 @@ class RODisplay {
   }
 
   toString() {
-    return "RODisplay(name=" + this.name + ",uid=" + this.getUid() + ", __$ruid=" + this.__$ruid + ")";
+    return "RODisplay(uuid=" + this.uuid + ",uid=" + this.getUid() + ", __$ruid=" + this.__$ruid + ")";
   }
 
   destroy() {
