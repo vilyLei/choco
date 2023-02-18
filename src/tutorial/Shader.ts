@@ -3,10 +3,37 @@ import { VoxRScene } from "../engine/cospace/voxengine/VoxRScene";
 import { VoxUIInteraction } from "../engine/cospace/voxengine/ui/VoxUIInteraction";
 import { VoxEntity } from "../engine/cospace/voxentity/VoxEntity";
 import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
-import { VoxMath } from "../engine/cospace/math/VoxMath";
 import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
+import IRenderMaterial from "../engine/vox/render/IRenderMaterial";
 
+const vertShaderCode = `#version 300 es
+precision mediump float;
+layout(location = 0) in vec3 a_vs;
+layout(location = 1) in vec2 a_uvs;
+uniform mat4 u_objMat;
+uniform mat4 u_viewMat;
+uniform mat4 u_projMat;
+out vec2 v_uv;
+void main()
+{
+    gl_Position = u_projMat * u_viewMat * u_objMat * vec4(a_vs,1.0);
+    v_uv = a_uvs;
+}
+`;
+const fragShaderCode = `#version 300 es
+precision mediump float;
+uniform sampler2D u_sampler0;
+uniform vec4 u_color;
+in vec2 v_uv;
+layout(location = 0) out vec4 FragColor0;
+void main()
+{
+    FragColor0 = texture(u_sampler0, v_uv.xy) * u_color;
+    // FragColor0 = u_color;
+    // FragColor0 = texture(u_sampler0, v_uv.xy);
+}
+`;
 export class Shader {
 
     private m_rscene: IRendererScene = null;
@@ -29,7 +56,7 @@ export class Shader {
     private initRenderer(): void {
 
         let RD = VoxRScene.RendererDevice;
-        RD.SHADERCODE_TRACE_ENABLED = false;
+        RD.SHADERCODE_TRACE_ENABLED = true;
         RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
         RD.SetWebBodyColor("#888888");
 
@@ -37,7 +64,7 @@ export class Shader {
         rparam.setAttriAntialias(!RD.IsMobileWeb());
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
-        this.m_rscene = VoxRScene.createRendererScene( rparam );
+        this.m_rscene = VoxRScene.createRendererScene(rparam);
     }
 
     private getTexByUrl(url: string): IRenderTexture {
@@ -50,29 +77,44 @@ export class Shader {
         img.src = url;
         return tex;
     }
+
+    private createMaterial(r: number, g: number, b: number, texUrl: string): IRenderMaterial {
+
+        let material = VoxMaterial.createShaderMaterial("tutorial_shader");
+        material.setFragShaderCode(fragShaderCode);
+        material.setVtxShaderCode(vertShaderCode);
+        material.addUniformDataAt("u_color", new Float32Array([r, g, b, 1.0]));
+        material.setTextureList([this.getTexByUrl( texUrl )]);
+
+        return material;
+    }
     private init3DScene(): void {
+        //"static/assets/box.png"
+        let material = VoxMaterial.createDefaultMaterial();
+        material.setRGB3f(0.7, 1.0, 1.0);
+        material.normalEnabled = true;
+        material.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
 
-        let boxMaterial = VoxMaterial.createDefaultMaterial();
-        boxMaterial.setRGB3f(0.7, 1.0, 1.0);
-        boxMaterial.normalEnabled = true;
-
-        let cube = VoxEntity.createCube(200, boxMaterial);
+        // let material = this.createMaterial(1.0, 0.0, 0.0, "static/assets/box.jpg");
+        let cube = VoxEntity.createCube(200, material);
         cube.setXYZ(-300, 200, 0);
         this.m_rscene.addEntity(cube);
 
-        let sphMaterial = VoxMaterial.createDefaultMaterial();
-        sphMaterial.normalEnabled = true;
-        sphMaterial.setRGB3f(0.7, 1.0, 0.3);
-        sphMaterial.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
+        // let sphMaterial = VoxMaterial.createDefaultMaterial();
+        // sphMaterial.normalEnabled = true;
+        // sphMaterial.setRGB3f(0.7, 1.0, 0.3);
+        // sphMaterial.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
+
+        let sphMaterial = this.createMaterial(0.1, 1.0, 0.2, "static/assets/box.jpg");
         let sph = VoxEntity.createSphere(150, 20, 20, false, sphMaterial);
         sph.setXYZ(300, 200, 0);
         this.m_rscene.addEntity(sph);
 
-        let planeMaterial = VoxMaterial.createDefaultMaterial();
-        planeMaterial.normalEnabled = true;
-        let plane = VoxEntity.createXOZPlane(-50, -50, 100, 100, planeMaterial);
-        plane.setScaleXYZ(10.0, 1.0, 10.0)
-        this.m_rscene.addEntity(plane);
+        // let planeMaterial = VoxMaterial.createDefaultMaterial();
+        // planeMaterial.normalEnabled = true;
+        // let plane = VoxEntity.createXOZPlane(-50, -50, 100, 100, planeMaterial);
+        // plane.setScaleXYZ(10.0, 1.0, 10.0)
+        // this.m_rscene.addEntity(plane);
     }
     run(): void {
         if (this.m_rscene != null) {
