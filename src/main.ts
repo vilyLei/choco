@@ -1,7 +1,8 @@
 
-// import {EmptyScene as Demo} from "./tutorial/EmptyScene";
-// import {MouseInteraction as Demo} from "./tutorial/MouseInteraction";
-import {Primitives as Demo} from "./tutorial/Primitives";
+// import { EmptyScene as Demo } from "./tutorial/EmptyScene";
+// import { MouseInteraction as Demo } from "./tutorial/MouseInteraction";
+// import { Primitives as Demo } from "./tutorial/Primitives";
+import { SceneParameter as Demo } from "./tutorial/SceneParameter";
 
 document.title = "choco app";
 let ins = new Demo();

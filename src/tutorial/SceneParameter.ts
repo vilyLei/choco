@@ -3,11 +3,10 @@ import { VoxRScene } from "../engine/cospace/voxengine/VoxRScene";
 import { VoxUIInteraction } from "../engine/cospace/voxengine/ui/VoxUIInteraction";
 import { VoxEntity } from "../engine/cospace/voxentity/VoxEntity";
 import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
-import { VoxMath } from "../engine/cospace/math/VoxMath";
 import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
 
-export class Primitives {
+export class SceneParameter {
 
     private m_rscene: IRendererScene = null;
     constructor() { }
@@ -28,9 +27,16 @@ export class Primitives {
     }
     private initRenderer(): void {
 
-        this.m_rscene = VoxRScene.createRendererScene();
-        this.m_rscene.initialize(null);
-        this.m_rscene.addEntity(VoxRScene.createAxis3DEntity());
+        let RD = VoxRScene.RendererDevice;
+        RD.SHADERCODE_TRACE_ENABLED = false;
+        RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
+        RD.SetWebBodyColor("#888888");
+
+        let rparam = VoxRScene.createRendererSceneParam();
+        rparam.setAttriAntialias(!RD.IsMobileWeb());
+        rparam.setCamPosition(1000.0, 1000.0, 1000.0);
+        rparam.setCamProject(45, 20.0, 9000.0);
+        this.m_rscene = VoxRScene.createRendererScene( rparam );
     }
 
     private getTexByUrl(url: string): IRenderTexture {
@@ -45,17 +51,11 @@ export class Primitives {
     }
     private init3DScene(): void {
 
+        this.m_rscene.addEntity(VoxRScene.createAxis3DEntity());
+
         let boxMaterial = VoxMaterial.createDefaultMaterial();
         boxMaterial.setRGB3f(0.7, 1.0, 1.0);
         boxMaterial.normalEnabled = true;
-
-        let size = 50;
-        let minPos = VoxMath.createVec3(-size, -size, -size);
-        let maxPos = minPos.clone().scaleBy(-1.0);
-        let box = VoxEntity.createBox(minPos, maxPos, boxMaterial);
-        box.setXYZ(0, -200, 0);
-        box.setScaleXYZ(10, 0.5, 10);
-        this.m_rscene.addEntity(box);
 
         let cube = VoxEntity.createCube(200, boxMaterial);
         cube.setXYZ(-300, 0, 0);
@@ -69,18 +69,10 @@ export class Primitives {
         sph.setXYZ(300, 0, 0);
         this.m_rscene.addEntity(sph);
 
-        let coneMaterial = VoxMaterial.createDefaultMaterial();
-        coneMaterial.normalEnabled = true;
-        coneMaterial.setRGB3f(0.5, 0.8, 0.2);
-        let cone = VoxEntity.createCone(100, 150, 20, -0.5, coneMaterial);
-        cone.setXYZ(300, 0, -300);
-        this.m_rscene.addEntity(cone);
-
         let planeMaterial = VoxMaterial.createDefaultMaterial();
         planeMaterial.normalEnabled = true;
         let plane = VoxEntity.createXOZPlane(-50, -50, 100, 100, planeMaterial);
         plane.setXYZ(-300, 0, 300);
-        plane.setRotationXYZ(60, 50, 0);
         this.m_rscene.addEntity(plane);
     }
     run(): void {
@@ -90,4 +82,4 @@ export class Primitives {
     }
 }
 
-export default Primitives;
+export default SceneParameter;
