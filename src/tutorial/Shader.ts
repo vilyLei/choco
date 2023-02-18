@@ -30,8 +30,6 @@ layout(location = 0) out vec4 FragColor0;
 void main()
 {
     FragColor0 = texture(u_sampler0, v_uv.xy) * u_color;
-    // FragColor0 = u_color;
-    // FragColor0 = texture(u_sampler0, v_uv.xy);
 }
 `;
 export class Shader {
@@ -82,39 +80,25 @@ export class Shader {
 
         let material = VoxMaterial.createShaderMaterial("tutorial_shader");
         material.setFragShaderCode(fragShaderCode);
-        material.setVtxShaderCode(vertShaderCode);
+        material.setVertShaderCode(vertShaderCode);
         material.addUniformDataAt("u_color", new Float32Array([r, g, b, 1.0]));
         material.setTextureList([this.getTexByUrl( texUrl )]);
 
         return material;
     }
     private init3DScene(): void {
-        //"static/assets/box.png"
-        let material = VoxMaterial.createDefaultMaterial();
-        material.setRGB3f(0.7, 1.0, 1.0);
-        material.normalEnabled = true;
-        material.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
+        
+        let material = this.createMaterial(0.1, 1.0, 0.2, "static/assets/metal.png");
 
-        // let material = this.createMaterial(1.0, 0.0, 0.0, "static/assets/box.jpg");
         let cube = VoxEntity.createCube(200, material);
         cube.setXYZ(-300, 200, 0);
         this.m_rscene.addEntity(cube);
 
-        // let sphMaterial = VoxMaterial.createDefaultMaterial();
-        // sphMaterial.normalEnabled = true;
-        // sphMaterial.setRGB3f(0.7, 1.0, 0.3);
-        // sphMaterial.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
+        let sphMaterial = this.createMaterial(1.0, 0.1, 0.2, "static/assets/box.jpg");
 
-        let sphMaterial = this.createMaterial(0.1, 1.0, 0.2, "static/assets/box.jpg");
         let sph = VoxEntity.createSphere(150, 20, 20, false, sphMaterial);
         sph.setXYZ(300, 200, 0);
         this.m_rscene.addEntity(sph);
-
-        // let planeMaterial = VoxMaterial.createDefaultMaterial();
-        // planeMaterial.normalEnabled = true;
-        // let plane = VoxEntity.createXOZPlane(-50, -50, 100, 100, planeMaterial);
-        // plane.setScaleXYZ(10.0, 1.0, 10.0)
-        // this.m_rscene.addEntity(plane);
     }
     run(): void {
         if (this.m_rscene != null) {

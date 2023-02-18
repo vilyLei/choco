@@ -4567,7 +4567,7 @@ class RawCodeShaderBuffer extends ShaderCodeBuffer_1.default {
     return this.m_fragCode;
   }
 
-  setVtxShaderCode(codeStr) {
+  setVertShaderCode(codeStr) {
     this.m_vtxCode = codeStr;
   }
 
@@ -4627,9 +4627,9 @@ class ShaderMaterial extends MaterialBase_1.default {
     this.m_buffer.setFragShaderCode(codeStr);
   }
 
-  setVtxShaderCode(codeStr) {
+  setVertShaderCode(codeStr) {
     this.m_buffer.shaderBuilder = null;
-    this.m_buffer.setVtxShaderCode(codeStr);
+    this.m_buffer.setVertShaderCode(codeStr);
   }
   /**
    * @param           uniform_name        the name of a uniform in the shader.
@@ -15436,8 +15436,8 @@ class TextureBlock {
     }
   }
   /**
-   * 设置当前的渲染器
-   * @param renderProxy 当前的渲染器
+   * 设置当前的渲染器代理
+   * @param renderProxy 当前的渲染器代理
    */
 
 
@@ -15578,7 +15578,6 @@ class TextureBlock {
 
     tex.__$setRenderProxy(this.m_renderProxy);
 
-    return tex;
     return tex;
   }
 

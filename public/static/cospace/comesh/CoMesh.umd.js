@@ -1589,30 +1589,39 @@ class BoxMeshBuilder extends MeshBuilder_1.MeshBuilder {
         uvs[i + 1] = v + uvs[i + 1] * dv;
       }
     }
-  } // private initUVData(baseI: number, uvs: Float32Array): void {
-  //     let uScale = this.uScale;
-  //     let vScale = this.vScale;
-  //     let i: number = 0;
-  //     if (this.flipVerticalUV) {
-  //         while (i < baseI) {
-  //             uvs[i] = 1.0 * uScale; uvs[i + 1] = 1.0 * vScale;
-  //             uvs[i + 2] = 0.0 * uScale; uvs[i + 3] = 1.0 * vScale;
-  //             uvs[i + 4] = 0.0 * uScale; uvs[i + 5] = 0.0 * vScale;
-  //             uvs[i + 6] = 1.0 * uScale; uvs[i + 7] = 0.0 * vScale;
-  //             i += 8;
-  //         }
-  //     }
-  //     else {
-  //         while (i < baseI) {
-  //             uvs[i] = 0.0 * uScale; uvs[i + 1] = 0.0 * vScale;
-  //             uvs[i + 2] = 1.0 * uScale; uvs[i + 3] = 0.0 * vScale;
-  //             uvs[i + 4] = 1.0 * uScale; uvs[i + 5] = 1.0 * vScale;
-  //             uvs[i + 6] = 0.0 * uScale; uvs[i + 7] = 1.0 * vScale;
-  //             i += 8;
-  //         }
-  //     }
-  // }
+  }
 
+  initUVData(baseI, uvs) {
+    let uScale = this.uScale;
+    let vScale = this.vScale;
+    let i = 0;
+
+    if (this.flipVerticalUV) {
+      while (i < baseI) {
+        uvs[i] = 1.0 * uScale;
+        uvs[i + 1] = 1.0 * vScale;
+        uvs[i + 2] = 0.0 * uScale;
+        uvs[i + 3] = 1.0 * vScale;
+        uvs[i + 4] = 0.0 * uScale;
+        uvs[i + 5] = 0.0 * vScale;
+        uvs[i + 6] = 1.0 * uScale;
+        uvs[i + 7] = 0.0 * vScale;
+        i += 8;
+      }
+    } else {
+      while (i < baseI) {
+        uvs[i] = 0.0 * uScale;
+        uvs[i + 1] = 0.0 * vScale;
+        uvs[i + 2] = 1.0 * uScale;
+        uvs[i + 3] = 0.0 * vScale;
+        uvs[i + 4] = 1.0 * uScale;
+        uvs[i + 5] = 1.0 * vScale;
+        uvs[i + 6] = 0.0 * uScale;
+        uvs[i + 7] = 1.0 * vScale;
+        i += 8;
+      }
+    }
+  }
 
   setMeshData(mesh) {
     let facePosIds = [0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 1, 0, 5, 6, 2, 1, 7, 6, 2, 3, 4, 7, 3, 0];
@@ -1661,6 +1670,7 @@ class BoxMeshBuilder extends MeshBuilder_1.MeshBuilder {
 
     if (mesh.isUVSEnabled()) {
       let uvs = new Float32Array(48);
+      this.initUVData(vtxTotal * 2, uvs);
 
       if (this.uvPartsNumber == 4) {
         this.scaleUVFaceAt(uvs, 0, 0.5, 0.5, 0.5, 0.5);
