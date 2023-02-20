@@ -4,7 +4,8 @@
 // import { Primitives as Demo } from "./tutorial/Primitives";
 // import { SceneParameter as Demo } from "./tutorial/SceneParameter";
 // import { Shader as Demo } from "./tutorial/Shader";
-import { MouseEventTest as Demo } from "./tutorial/MouseEventTest";
+// import { MouseEventTest as Demo } from "./tutorial/MouseEventTest";
+import { TransformTest as Demo } from "./tutorial/TransformTest";
 
 document.title = "choco app";
 let ins = new Demo();
