@@ -6,6 +6,7 @@ import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
 import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
 import IRenderMaterial from "../engine/vox/render/IRenderMaterial";
+import { BinaryTextureLoader } from "../engine/cospace/modules/loaders/BinaryTextureLoader";
 
 const vertShaderCode = `#version 300 es
 precision mediump float;
