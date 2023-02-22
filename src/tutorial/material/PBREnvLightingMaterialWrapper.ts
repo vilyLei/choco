@@ -5,18 +5,43 @@
 /*                                                                         */
 /***************************************************************************/
 
+import IRenderMaterial from "../../engine/vox/render/IRenderMaterial";
 import { PBREnvLighting } from "./shader/PBREnvLighting";
+import { VoxMaterial } from "../../engine/cospace/voxmaterial/VoxMaterial";
+import IRenderTexture from "../../engine/vox/render/texture/IRenderTexture";
+import IShaderMaterial from "../../engine/vox/material/mcase/IShaderMaterial";
 
 class PBREnvLightingMaterialWrapper {
     constructor() {
     }
 
-    private m_albedo: Float32Array = new Float32Array([0.5, 0.0, 0.0, 0.0]);
-    private m_params: Float32Array = new Float32Array([0.0, 0.0, 1.0, 0.0]);
-    private m_F0: Float32Array = new Float32Array([0.0, 0.0, 0.0, 0.0]);
-    private m_lightPositions: Float32Array = new Float32Array(4 * 4);
-    private m_lightColors: Float32Array = new Float32Array(4 * 4);
+    private m_albedo = new Float32Array([0.5, 0.0, 0.0, 0.0]);
+    private m_params = new Float32Array([0.0, 0.0, 1.0, 0.0]);
+    private m_F0 = new Float32Array([0.0, 0.0, 0.0, 0.0]);
+    private m_lightPositions = new Float32Array(4 * 4);
+    private m_lightColors = new Float32Array(4 * 4);
+    private m_material: IShaderMaterial = null;
+    get material(): IRenderMaterial {
 
+        //     oum.uniformNameList = ["u_albedo", "u_params", "u_lightPositions", "u_lightColors", "u_F0"];
+        //     oum.dataList = [this.m_albedo, this.m_params, this.m_lightPositions, this.m_lightColors, this.m_F0];
+        if(this.m_material == null) {
+            let material = VoxMaterial.createShaderMaterial("tutorial_shader");
+            material.setFragShaderCode(PBREnvLighting.frag_body);
+            material.setVertShaderCode(PBREnvLighting.vert_body);
+            material.addUniformDataAt("u_albedo", this.m_albedo);
+            material.addUniformDataAt("u_params", this.m_params);
+            material.addUniformDataAt("u_lightPositions", this.m_lightPositions);
+            material.addUniformDataAt("u_lightColors", this.m_lightColors);
+            material.addUniformDataAt("u_F0", this.m_F0);
+            this.m_material = material;
+        }
+        return this.m_material;
+    }
+    setTextureList(list: IRenderTexture[]): void {
+        let m = this.material;
+        m.setTextureList(list);
+    }
     setMetallic(metallic: number): void {
 
         this.m_params[0] = Math.min(Math.max(metallic, 0.05), 1.0);
@@ -56,13 +81,5 @@ class PBREnvLightingMaterialWrapper {
         this.m_lightColors[i + 1] = pg;
         this.m_lightColors[i + 2] = pb;
     }
-
-    // createSelfUniformData(): ShaderUniformData {
-
-    //     let oum = new ShaderUniformData();
-    //     oum.uniformNameList = ["u_albedo", "u_params", "u_lightPositions", "u_lightColors", "u_F0"];
-    //     oum.dataList = [this.m_albedo, this.m_params, this.m_lightPositions, this.m_lightColors, this.m_F0];
-    //     return oum;
-    // }
 }
-export {PBREnvLightingMaterialWrapper}
+export { PBREnvLightingMaterialWrapper }
