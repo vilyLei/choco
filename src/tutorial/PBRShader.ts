@@ -7,35 +7,12 @@ import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
 import IRenderMaterial from "../engine/vox/render/IRenderMaterial";
 import { BinaryTextureLoader } from "../engine/cospace/modules/loaders/BinaryTextureLoader";
+import { PBREnvLightingMaterialWrapper } from "./material/PBREnvLightingMaterialWrapper";
 
-const vertShaderCode = `#version 300 es
-precision mediump float;
-layout(location = 0) in vec3 a_vs;
-layout(location = 1) in vec2 a_uvs;
-uniform mat4 u_objMat;
-uniform mat4 u_viewMat;
-uniform mat4 u_projMat;
-out vec2 v_uv;
-void main()
-{
-    gl_Position = u_projMat * u_viewMat * u_objMat * vec4(a_vs,1.0);
-    v_uv = a_uvs;
-}
-`;
-const fragShaderCode = `#version 300 es
-precision mediump float;
-uniform sampler2D u_sampler0;
-uniform vec4 u_color;
-in vec2 v_uv;
-layout(location = 0) out vec4 FragColor0;
-void main()
-{
-    FragColor0 = texture(u_sampler0, v_uv.xy) * u_color;
-}
-`;
 export class PBRShader {
 
     private m_rscene: IRendererScene = null;
+    private m_envMap: IRenderTexture;
     constructor() { }
 
     initialize(): void {
@@ -77,27 +54,26 @@ export class PBRShader {
         return tex;
     }
 
-    private createMaterial(r: number, g: number, b: number, texUrl: string): IRenderMaterial {
-
-        let material = VoxMaterial.createShaderMaterial("tutorial_shader");
-        material.setFragShaderCode(fragShaderCode);
-        material.setVertShaderCode(vertShaderCode);
-        material.addUniformDataAt("u_color", new Float32Array([r, g, b, 1.0]));
-        material.setTextureList([this.getTexByUrl( texUrl )]);
-
-        return material;
-    }
     private init3DScene(): void {
         
-        let material = this.createMaterial(0.1, 1.0, 0.2, "static/assets/metal.png");
+        let envMapUrl = "static/assets/bytes/spe.mdf";
 
-        let cube = VoxEntity.createCube(200, material);
+        let loader = new BinaryTextureLoader();
+        loader.loadTextureWithUrl(envMapUrl, this.m_rscene);
+        this.m_envMap = loader.texture;
+
+        let wrapper = new PBREnvLightingMaterialWrapper();
+        wrapper.setTextureList([this.m_envMap]);
+
+        let cube = VoxEntity.createCube(200, wrapper.material);
         cube.setXYZ(-300, 200, 0);
         this.m_rscene.addEntity(cube);
 
-        let sphMaterial = this.createMaterial(1.0, 0.1, 0.2, "static/assets/box.jpg");
-
-        let sph = VoxEntity.createSphere(150, 20, 20, false, sphMaterial);
+        wrapper = new PBREnvLightingMaterialWrapper();
+        wrapper.setTextureList([this.m_envMap]);
+        
+        
+        let sph = VoxEntity.createSphere(150, 20, 20, false, wrapper.material);
         sph.setXYZ(300, 200, 0);
         this.m_rscene.addEntity(sph);
     }
