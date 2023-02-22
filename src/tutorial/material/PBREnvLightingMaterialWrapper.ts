@@ -11,6 +11,8 @@ import { VoxMaterial } from "../../engine/cospace/voxmaterial/VoxMaterial";
 import { RendererDevice } from "../../engine/cospace/voxengine/VoxRScene";
 import IRenderTexture from "../../engine/vox/render/texture/IRenderTexture";
 import IShaderMaterial from "../../engine/vox/material/mcase/IShaderMaterial";
+import IColor4 from "../../engine/vox/material/IColor4";
+import IVector3D from "../../engine/vox/math/IVector3D";
 
 class PBREnvLightingMaterialWrapper {
 
@@ -87,26 +89,26 @@ precision highp float;
         this.m_F0[1] = f0y;
         this.m_F0[2] = f0z;
     }
-    setPosAt(i: number, px: number, py: number, pz: number): void {
+    setPosAt(i: number, pv: IVector3D): void {
         if (i < 4) {
             i *= 4;
-            this.m_lightPositions[i] = px;
-            this.m_lightPositions[i + 1] = py;
-            this.m_lightPositions[i + 2] = pz;
+            this.m_lightPositions[i] = pv.x;
+            this.m_lightPositions[i + 1] = pv.y;
+            this.m_lightPositions[i + 2] = pv.z;
         }
     }
-    setColor(pr: number, pg: number, pb: number): void {
+    setAlbedoColor(color: IColor4): void {
 
-        this.m_albedo[0] = pr;
-        this.m_albedo[1] = pg;
-        this.m_albedo[2] = pb;
+        this.m_albedo[0] = color.r;
+        this.m_albedo[1] = color.g;
+        this.m_albedo[2] = color.b;
     }
-    setColorAt(i: number, pr: number, pg: number, pb: number): void {
+    setColorAt(i: number, color: IColor4): void {
         if (i < 4) {
             i *= 4;
-            this.m_lightColors[i] = pr;
-            this.m_lightColors[i + 1] = pg;
-            this.m_lightColors[i + 2] = pb;
+            this.m_lightColors[i] = color.r;
+            this.m_lightColors[i + 1] = color.g;
+            this.m_lightColors[i + 2] = color.b;
         }
     }
 }

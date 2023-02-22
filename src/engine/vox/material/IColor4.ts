@@ -78,7 +78,7 @@ interface IColor4 {
     copyFromRGB(c: IColor4): IColor4;
     scaleBy(s: number): IColor4;
     inverseRGB(): IColor4;
-    randomRGB(density: number, bias?: number): IColor4;
+    randomRGB(density?: number, bias?: number): IColor4;
     normalizeRandom(density?: number, bias?: number): IColor4;
     normalize(density: number): IColor4;
 
