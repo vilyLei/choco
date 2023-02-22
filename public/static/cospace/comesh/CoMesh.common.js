@@ -123,7 +123,8 @@ class MeshBuilder {
     this.m_bufSortFormat = layoutBit;
   }
 
-  applyMaterial(material, texEnabled) {
+  applyMaterial(material, texEnabled = false) {
+    texEnabled = texEnabled || material.getTextureAt(0) != null;
     material.initializeByCodeBuf(texEnabled);
     this.m_bufSortFormat = material.getBufSortFormat();
   }
@@ -144,14 +145,7 @@ class MeshBuilder {
     return mesh;
   }
 
-  setMeshData(mesh) {
-    /*
-    mesh.addFloat32Data(vs, 3);
-    mesh.addFloat32Data(uvs, 2);
-    mesh.addFloat32Data(nvs, 3);
-    mesh.setIVS(ivs);
-    //*/
-  }
+  setMeshData(mesh) {}
 
 }
 
@@ -386,6 +380,104 @@ if (typeof window !== 'undefined') {
 
 /***/ }),
 
+/***/ "4b06":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const MeshBuilder_1 = __webpack_require__("0f76");
+
+const CoTubeGeometry_1 = __importDefault(__webpack_require__("dae3"));
+
+class TubeMeshBuilder extends MeshBuilder_1.MeshBuilder {
+  constructor() {
+    super();
+    this.geometry = new CoTubeGeometry_1.default();
+    this.uScale = 1.0;
+    this.vScale = 1.0;
+  }
+
+  create(radius, long, longitudeNumSegments = 20, latitudeNumSegments = 1, uvType = 1, alignYRatio = -0.5) {
+    this.m_radius = radius;
+    this.m_long = long;
+    this.m_longitudeNumSegments = longitudeNumSegments;
+    this.m_latitudeNumSegments = latitudeNumSegments;
+    this.m_uvType = uvType;
+    this.m_alignYRatio = alignYRatio;
+    return this.createMesh();
+  }
+
+  setMeshData(mesh) {
+    let g = this.geometry;
+    g.uScale = this.uScale;
+    g.vScale = this.vScale;
+    g.initialize(this.m_radius, this.m_long, this.m_longitudeNumSegments, this.m_latitudeNumSegments, this.m_uvType, this.m_alignYRatio);
+    let nvFlag = mesh.isNVSEnabled();
+    let vs = g.getVS();
+    let ivs = g.getIVS();
+    let uvs = g.getUVS();
+    let nvs = null;
+
+    if (nvFlag) {
+      nvs = new Float32Array(vs.length);
+    }
+
+    if (nvFlag) {
+      let pv = CoMath.createVec3();
+      let nv = CoMath.createVec3();
+
+      for (let i = 0; i <= this.m_latitudeNumSegments; ++i) {
+        g.getCenterAt(i, pv);
+        let cv = pv;
+        let range = g.getRangeAt(i);
+        let pvs = vs.subarray(range[0], range[1]);
+        let pnvs = nvs.subarray(range[0], range[1]);
+        let tot = pvs.length / 3;
+        let k = 0;
+
+        for (let j = 0; j < tot; ++j) {
+          k = j * 3;
+          nv.setXYZ(pvs[k], pvs[k + 1], pvs[k + 2]);
+          nv.subtractBy(cv);
+          nv.normalize();
+          pnvs[k] = nv.x;
+          pnvs[k + 1] = nv.y;
+          pnvs[k + 2] = nv.z;
+        }
+      }
+    }
+
+    mesh.addFloat32Data(vs, 3);
+
+    if (mesh.isUVSEnabled()) {
+      mesh.addFloat32Data(uvs, 2);
+    }
+
+    if (nvFlag) {
+      mesh.addFloat32Data(nvs, 3);
+    }
+
+    mesh.setIVS(ivs);
+    g.reset();
+  }
+
+}
+
+exports.TubeMeshBuilder = TubeMeshBuilder;
+
+/***/ }),
+
 /***/ "5282":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -454,6 +546,328 @@ class MeshVertex {
 }
 
 exports.default = MeshVertex;
+
+/***/ }),
+
+/***/ "5565":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const CoTubeGeometry_1 = __importDefault(__webpack_require__("dae3"));
+
+const MeshBuilder_1 = __webpack_require__("0f76");
+
+class TorusMeshBuilder extends MeshBuilder_1.MeshBuilder {
+  constructor() {
+    super();
+    this.m_ringRadius = 100.0;
+    this.m_axisRadius = 50.0;
+    this.m_uvType = 1;
+    this.m_longitudeNumSegments = 5;
+    this.m_latitudeNumSegments = 10;
+    this.m_alignYRatio = -0.5;
+    this.inverseUV = false;
+    this.uScale = 1.0;
+    this.vScale = 1.0;
+    /**
+     * 0: vertical to x-axis, 1: vertical to y-axis, 2: vertical to z-axis, the default value is 0
+     */
+
+    this.axisType = 0;
+    this.geometry = new CoTubeGeometry_1.default();
+  }
+
+  create(ringRadius = 200, axisRadius = 50, longitudeNumSegments = 30, latitudeNumSegments = 20, uvType = 1, alignYRatio = -0.5) {
+    this.m_ringRadius = ringRadius;
+    this.m_axisRadius = axisRadius;
+    this.m_longitudeNumSegments = longitudeNumSegments;
+    this.m_latitudeNumSegments = latitudeNumSegments;
+    this.m_uvType = uvType;
+    this.m_alignYRatio = alignYRatio;
+    return this.createMesh();
+  }
+
+  setMeshData(mesh) {
+    let ringRadius = this.m_ringRadius;
+    let axisRadius = this.m_axisRadius;
+    let longitudeNumSegments = this.m_longitudeNumSegments;
+    let latitudeNumSegments = this.m_latitudeNumSegments;
+    let uvType = this.m_uvType;
+    let alignYRatio = this.m_alignYRatio;
+    let g = this.geometry;
+
+    switch (this.axisType) {
+      case 1:
+        g.axisType = 2;
+        break;
+
+      case 2:
+        g.axisType = 0;
+        break;
+
+      default:
+        g.axisType = 1;
+        break;
+    }
+
+    g.initialize(axisRadius, 0.0, longitudeNumSegments, latitudeNumSegments, uvType, alignYRatio);
+    let nvFlag = mesh.isNVSEnabled();
+    let vs = g.getVS();
+    let ivs = g.getIVS();
+    let uvs = g.getUVS();
+    let nvs = null;
+
+    if (nvFlag) {
+      nvs = new Float32Array(vs.length);
+    }
+
+    let pi2 = 2.0 * Math.PI;
+    let rad = 0.0;
+    let pv = CoMath.createVec3();
+    let nv = CoMath.createVec3();
+    let mat4 = CoMath.createMat4();
+
+    for (let i = 0; i <= latitudeNumSegments; ++i) {
+      mat4.identity();
+      rad = pi2 * i / latitudeNumSegments;
+
+      switch (this.axisType) {
+        case 1:
+          pv.x = Math.cos(rad) * ringRadius;
+          pv.z = Math.sin(rad) * ringRadius;
+          mat4.rotationY(-rad);
+          break;
+
+        case 2:
+          pv.y = Math.cos(rad) * ringRadius;
+          pv.x = Math.sin(rad) * ringRadius;
+          mat4.rotationZ(-rad);
+          break;
+
+        default:
+          pv.z = Math.cos(rad) * ringRadius;
+          pv.y = Math.sin(rad) * ringRadius;
+          mat4.rotationX(-rad);
+          break;
+      }
+
+      mat4.setTranslation(pv);
+      g.transformAt(i, mat4);
+
+      if (nvFlag) {
+        let cv = pv;
+        let range = g.getRangeAt(i);
+        let pvs = vs.subarray(range[0], range[1]);
+        let pnvs = nvs.subarray(range[0], range[1]);
+        let tot = pvs.length / 3;
+        let k = 0;
+
+        for (let j = 0; j < tot; ++j) {
+          k = j * 3;
+          nv.setXYZ(pvs[k], pvs[k + 1], pvs[k + 2]);
+          nv.subtractBy(cv);
+          nv.normalize();
+          pnvs[k] = nv.x;
+          pnvs[k + 1] = nv.y;
+          pnvs[k + 2] = nv.z;
+        }
+      }
+    }
+
+    mesh.addFloat32Data(vs, 3);
+
+    if (mesh.isUVSEnabled()) {
+      mesh.addFloat32Data(uvs, 2);
+    }
+
+    if (nvFlag) {
+      mesh.addFloat32Data(nvs, 3);
+    }
+
+    mesh.setIVS(ivs);
+    g.reset();
+  }
+
+}
+
+exports.TorusMeshBuilder = TorusMeshBuilder;
+
+/***/ }),
+
+/***/ "6fc6":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class CoGeometry {
+  constructor() {
+    this.m_vs = null;
+    this.m_uvs = null;
+    this.m_nvs = null;
+    this.m_ivs = null;
+    this.vtxTotal = 0;
+    this.trisNumber = 0;
+    this.vtCount = 0;
+    this.bounds = null;
+    /**
+     * 0: vertical to x-axis, 1: vertical to y-axis, 2: vertical to z-axis, the default value is 0
+     */
+
+    this.axisType = 0;
+  }
+
+  clone() {
+    let geometry = new CoGeometry();
+    geometry.copyFrom(this);
+    return geometry;
+  }
+
+  getCenterAt(i, outV) {}
+
+  transformAt(i, mat4) {}
+
+  copyFrom(src) {
+    let geometry = new CoGeometry();
+
+    if (src.m_vs != null) {
+      if (this.m_vs != null) this.m_vs.set(src.m_vs);else this.m_vs = src.m_vs.slice(0);
+    }
+
+    if (src.m_uvs != null) {
+      if (this.m_uvs != null) this.m_uvs.set(src.m_uvs);else this.m_uvs = src.m_uvs.slice(0);
+    }
+
+    if (src.m_nvs != null) {
+      if (this.m_nvs != null) this.m_nvs.set(src.m_nvs);else this.m_nvs = src.m_nvs.slice(0);
+    } // if(src.m_tvs != null) {
+    //     if(this.m_tvs != null)
+    //         this.m_tvs.set(src.m_tvs);
+    //     else
+    //         this.m_tvs = src.m_tvs.slice(0);
+    // }
+    // if(src.m_btvs != null) {
+    //     if(this.m_btvs != null)
+    //         this.m_btvs.set(src.m_btvs);
+    //     else
+    //         this.m_btvs = src.m_btvs.slice(0);
+    // }
+    // if(src.m_cvs != null) {
+    //     if(this.m_cvs != null)
+    //         this.m_cvs.set(src.m_cvs);
+    //     else
+    //         this.m_cvs = src.m_cvs.slice(0);
+    // }
+
+
+    if (src.m_ivs != null) {
+      if (this.m_ivs != null) this.m_ivs.set(src.m_ivs);else this.m_ivs = src.m_ivs.slice(0);
+    }
+
+    geometry.vtxTotal = this.vtxTotal;
+    geometry.trisNumber = this.trisNumber;
+    geometry.vtCount = this.vtCount;
+    if (geometry.bounds != null) geometry.bounds.copyFrom(this.bounds);
+  }
+  /**
+   * @returns vertex position buffer Float32Array
+   */
+
+
+  getVS() {
+    return this.m_vs;
+  }
+  /**
+   * @returns vertex uv buffer Float32Array
+   */
+
+
+  getUVS() {
+    return this.m_uvs;
+  }
+  /**
+   * @returns vertex normal buffer Float32Array
+   */
+
+
+  getNVS() {
+    return this.m_nvs;
+  }
+  /**
+   * @returns vertex tangent buffer Float32Array
+   */
+
+
+  getTVS() {
+    return null;
+  }
+  /**
+   * @returns vertex bitangent buffer Float32Array
+   */
+
+
+  getBTVS() {
+    return null;
+  }
+  /**
+   * @returns vertex color(r,g,b) buffer Float32Array
+   */
+
+
+  getCVS() {
+    return null;
+  }
+  /**
+   * @returns vertex indices buffer Uint16Array or Uint32Array
+   */
+
+
+  getIVS() {
+    return this.m_ivs;
+  }
+
+  reset() {
+    this.m_vs = null;
+    this.m_uvs = null;
+    this.m_nvs = null; // this.m_tvs = null;
+    // this.m_btvs = null;
+
+    this.m_ivs = null;
+    this.vtxTotal = 0;
+    this.trisNumber = 0;
+    this.vtCount = 0;
+  }
+
+}
+
+exports.default = CoGeometry;
 
 /***/ }),
 
@@ -714,6 +1128,12 @@ const BoxMeshBuilder_1 = __webpack_require__("f07f");
 
 const SphereMeshBuilder_1 = __webpack_require__("778d");
 
+const CylinderMeshBuilder_1 = __webpack_require__("9c83");
+
+const TubeMeshBuilder_1 = __webpack_require__("4b06");
+
+const TorusMeshBuilder_1 = __webpack_require__("5565");
+
 const plane = new PlaneMeshBuilder_1.PlaneMeshBuilder();
 exports.plane = plane;
 const line = new LineMeshBuilder_1.LineMeshBuilder();
@@ -724,6 +1144,12 @@ const box = new BoxMeshBuilder_1.BoxMeshBuilder();
 exports.box = box;
 const sphere = new SphereMeshBuilder_1.SphereMeshBuilder();
 exports.sphere = sphere;
+const cylinder = new CylinderMeshBuilder_1.CylinderMeshBuilder();
+exports.cylinder = cylinder;
+const tube = new TubeMeshBuilder_1.TubeMeshBuilder();
+exports.tube = tube;
+const torus = new TorusMeshBuilder_1.TorusMeshBuilder();
+exports.torus = torus;
 
 function createDataMesh() {
   if (typeof CoRScene !== "undefined") {
@@ -839,6 +1265,260 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
   return getCurrentScript
 }));
 
+
+/***/ }),
+
+/***/ "9c83":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const MeshBuilder_1 = __webpack_require__("0f76");
+
+const MeshVertex_1 = __importDefault(__webpack_require__("5282"));
+
+class CylinderMeshBuilder extends MeshBuilder_1.MeshBuilder {
+  constructor() {
+    super();
+    this.inverseUV = false;
+    this.uScale = 1.0;
+    this.vScale = 1.0;
+  }
+
+  create(radius, height, longitudeNumSegments = 20, uvType = 1, alignYRatio = -0.5) {
+    this.m_radius = radius;
+    this.m_height = height;
+    this.m_longitudeNumSegments = longitudeNumSegments;
+    this.m_uvType = uvType;
+    this.m_alignYRatio = alignYRatio;
+    return this.createMesh();
+  }
+
+  setMeshData(mesh) {
+    let radius = this.m_radius;
+    let height = this.m_height;
+    if (radius < 0.0001) radius = 0.0001;
+    let longitudeNumSegments = this.m_longitudeNumSegments;
+    if (longitudeNumSegments < 2) longitudeNumSegments = 2;
+    let latitudeNumSegments = 3;
+    let m_radius = Math.abs(radius);
+    let m_height = Math.abs(height);
+    let i = 1;
+    let j = 0;
+    let trisTot = 0;
+    let yRad = 0;
+    let px = 0;
+    let py = 0;
+    let minY = this.m_alignYRatio * m_height;
+    let vtx = new MeshVertex_1.default();
+    vtx.y = minY; // two independent circles and a cylinder wall
+
+    let vtxVec = [];
+    let vtxRows = [];
+    vtxRows.push([]);
+    let vtxRow = vtxRows[0];
+    vtx.u = 0.5;
+    vtx.v = 0.5;
+    vtx.nx = 0.0;
+    vtx.ny = -1.0;
+    vtx.nz = 0.0;
+    vtxRow.push(vtx.cloneVertex());
+    vtxVec.push(vtxRow[0]);
+
+    for (; i < latitudeNumSegments; ++i) {
+      //
+      vtx.y = minY + m_height * (i - 1);
+      vtxRows.push([]);
+      let row = vtxRows[i];
+
+      for (j = 0; j < longitudeNumSegments; ++j) {
+        yRad = Math.PI * 2 * j / longitudeNumSegments;
+        ++trisTot; //Math::sinCos(&px, &py, yRad);
+
+        px = Math.sin(yRad);
+        py = Math.cos(yRad); //
+
+        vtx.x = px * m_radius;
+        vtx.z = py * m_radius;
+        vtx.index = trisTot; // calc uv
+
+        px *= 0.495;
+        py *= 0.495;
+        vtx.u = 0.5 + px;
+        vtx.v = 0.5 + py; //
+
+        if (i < 2) {
+          vtx.nx = 0.0;
+          vtx.ny = -1.0;
+          vtx.nz = 0.0;
+        } else {
+          vtx.nx = 0.0;
+          vtx.ny = 1.0;
+          vtx.nz = 0.0;
+        } //
+
+
+        row.push(vtx.cloneVertex());
+        vtxVec.push(row[j]);
+      }
+
+      row.push(row[0]);
+    }
+
+    ++trisTot;
+    vtx.index = trisTot;
+    vtx.x = 0;
+    vtx.y = minY + m_height;
+    vtx.z = 0.0;
+    vtx.u = 0.5;
+    vtx.v = 0.5;
+    vtx.nx = 0.0;
+    vtx.ny = 1.0;
+    vtx.nz = 0.0;
+    vtxRows.push([]);
+    let lastRow = vtxRows[3];
+    lastRow.push(vtx.cloneVertex());
+    vtxVec.push(lastRow[0]); // two circles's vertexes calc end;
+    // calc cylinder wall vertexes
+
+    let f = 1.0 / m_radius;
+
+    for (i = 0; i < 2; ++i) {
+      let preRow = vtxRows[i + 1];
+      vtxRows.push([]);
+      let row = vtxRows[vtxRows.length - 1];
+
+      for (j = 0; j <= longitudeNumSegments; ++j) {
+        ++trisTot;
+        vtx.copyFrom(preRow[j]);
+        vtx.index = trisTot;
+
+        if (this.m_uvType < 1) {
+          if (i < 1) {
+            vtx.v = 0.0;
+          } else {
+            vtx.v = this.vScale; //1.0
+          }
+
+          vtx.u = this.uScale * (j / longitudeNumSegments);
+        } else {
+          if (i < 1) {
+            vtx.u = 0.0;
+          } else {
+            vtx.u = this.uScale; //1.0;
+          }
+
+          vtx.v = this.vScale * (j / longitudeNumSegments);
+        }
+
+        vtx.ny = 0.0;
+        vtx.nx = vtx.x * f;
+        vtx.nz = vtx.z * f;
+        row.push(vtx.cloneVertex());
+        vtxVec.push(row[j]);
+      }
+    }
+
+    let pvtx = null;
+    let pivs = [];
+    i = 1;
+    let rowa = null;
+    let rowb = null;
+
+    for (; i <= latitudeNumSegments; ++i) {
+      rowa = vtxRows[i - 1];
+      rowb = vtxRows[i];
+
+      for (j = 1; j <= longitudeNumSegments; ++j) {
+        if (i == 1) {
+          pivs.push(rowa[0].index);
+          pivs.push(rowb[j].index);
+          pivs.push(rowb[j - 1].index);
+        } else if (i == latitudeNumSegments) {
+          pivs.push(rowa[j].index);
+          pivs.push(rowb[0].index);
+          pivs.push(rowa[j - 1].index);
+        }
+      }
+    } // create cylinder wall triangles
+
+
+    rowa = vtxRows[vtxRows.length - 2];
+    rowb = vtxRows[vtxRows.length - 1];
+
+    for (j = 1; j <= longitudeNumSegments; ++j) {
+      pivs.push(rowa[j].index);
+      pivs.push(rowb[j - 1].index);
+      pivs.push(rowa[j - 1].index);
+      pivs.push(rowa[j].index);
+      pivs.push(rowb[j].index);
+      pivs.push(rowb[j - 1].index);
+    }
+
+    let vtxTotal = vtxVec.length;
+    let vs = new Float32Array(vtxTotal * 3);
+    i = 0;
+
+    for (j = 0; j < vtxTotal; ++j) {
+      pvtx = vtxVec[j];
+      vs[i] = pvtx.x;
+      vs[i + 1] = pvtx.y;
+      vs[i + 2] = pvtx.z; //trace(pvtx.x+","+pvtx.y+","+pvtx.z);
+
+      i += 3;
+    }
+
+    mesh.addFloat32Data(vs, 3); // if (mesh.isUVSEnabled()) {
+
+    let ivs = new Uint16Array(pivs);
+    let vtCount = ivs.length;
+
+    if (mesh.isUVSEnabled()) {
+      let uvs = new Float32Array(vtxTotal * 2);
+      i = 0;
+
+      for (j = 0; j < vtxTotal; ++j) {
+        pvtx = vtxVec[j];
+        uvs[i] = pvtx.u;
+        uvs[i + 1] = pvtx.v;
+        i += 2;
+      }
+
+      mesh.addFloat32Data(uvs, 2);
+    }
+
+    if (mesh.isNVSEnabled()) {
+      let nvs = new Float32Array(vtxTotal * 3);
+      i = 0;
+
+      for (j = 0; j < vtxTotal; ++j) {
+        pvtx = vtxVec[j];
+        nvs[i] = pvtx.nx;
+        nvs[i + 1] = pvtx.ny;
+        nvs[i + 2] = pvtx.nz;
+        i += 3;
+      }
+
+      mesh.addFloat32Data(nvs, 3);
+    }
+
+    mesh.setIVS(ivs);
+  }
+
+}
+
+exports.CylinderMeshBuilder = CylinderMeshBuilder;
 
 /***/ }),
 
@@ -1512,6 +2192,211 @@ class PlaneMeshBuilder extends MeshBuilder_1.MeshBuilder {
 }
 
 exports.PlaneMeshBuilder = PlaneMeshBuilder;
+
+/***/ }),
+
+/***/ "dae3":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const CoGeometry_1 = __importDefault(__webpack_require__("6fc6"));
+
+class CoTubeGeometry extends CoGeometry_1.default {
+  constructor() {
+    super();
+    this.m_longitudeNum = 0;
+    this.m_latitudeNum = 0;
+    this.uScale = 1.0;
+    this.vScale = 1.0;
+  }
+
+  clone() {
+    let geometry = new CoTubeGeometry();
+    geometry.m_longitudeNum = this.m_longitudeNum;
+    geometry.m_latitudeNum = this.m_latitudeNum;
+    geometry.uScale = this.uScale;
+    geometry.vScale = this.vScale;
+    geometry.copyFrom(this);
+    return geometry;
+  }
+
+  getCenterAt(i, outV) {
+    if (i >= 0 && i <= this.m_latitudeNum) {
+      if (this.m_vs != null) {
+        outV.setXYZ(0.0, 0.0, 0.0);
+        let pvs = this.m_vs;
+        let end = (i + 1) * (this.m_longitudeNum + 1) * 3;
+        i = i * (this.m_longitudeNum + 1) * 3;
+        end -= 3; //console.log("i: "+i,end);
+
+        for (; i < end; i += 3) {
+          outV.x += pvs[i];
+          outV.y += pvs[i + 1];
+          outV.z += pvs[i + 2];
+        }
+
+        outV.scaleBy(1.0 / this.m_longitudeNum);
+      }
+    }
+  }
+
+  transformAt(i, mat4) {
+    if (i >= 0 && i <= this.m_latitudeNum) {
+      let pvs = this.m_vs;
+      let end = (i + 1) * (this.m_longitudeNum + 1) * 3;
+      i = i * (this.m_longitudeNum + 1) * 3;
+      mat4.transformVectorsRangeSelf(pvs, i, end);
+    }
+  }
+
+  getRangeAt(i, segLen = 3) {
+    if (i >= 0 && i <= this.m_latitudeNum) {
+      let end = (i + 1) * (this.m_longitudeNum + 1) * segLen;
+      i = i * (this.m_longitudeNum + 1) * segLen;
+      return [i, end];
+    }
+
+    return [-1, -1];
+  }
+
+  initialize(radius, height, longitudeNumSegments, latitudeNumSegments, uvType = 1, alignYRatio = -0.5) {
+    let i = 0;
+    let j = 0;
+    if (radius < 0.01) radius = 0.01;
+    if (longitudeNumSegments < 2) longitudeNumSegments = 2;
+    if (latitudeNumSegments < 1) latitudeNumSegments = 1;
+    this.m_longitudeNum = longitudeNumSegments;
+    this.m_latitudeNum = latitudeNumSegments;
+    let m_radius = Math.abs(radius);
+    let ph = Math.abs(height);
+    let yRad = 0;
+    let px = 0;
+    let py = 0;
+    let minY = alignYRatio * ph;
+
+    if (this.bounds != null) {
+      this.bounds.min.setXYZ(-radius, minY, -radius);
+      this.bounds.max.setXYZ(radius, minY + ph, radius);
+      this.bounds.updateFast();
+    }
+
+    let vtx = CoRScene.createVec3();
+    let srcRow = [];
+    let pv;
+    let pi2 = Math.PI * 2;
+
+    for (i = 0; i < 1; ++i) {
+      for (j = 0; j < longitudeNumSegments; ++j) {
+        yRad = pi2 * j / longitudeNumSegments;
+        px = Math.sin(yRad);
+        py = Math.cos(yRad);
+        vtx.x = px * m_radius;
+        vtx.z = py * m_radius;
+        pv = CoRScene.createVec3(vtx.x, vtx.y, vtx.z, 1.0);
+        srcRow.push(pv);
+      }
+
+      srcRow.push(srcRow[0]);
+    }
+
+    this.vtxTotal = (longitudeNumSegments + 1) * (latitudeNumSegments + 1);
+    this.m_vs = new Float32Array(this.vtxTotal * 3);
+    this.m_uvs = new Float32Array(this.vtxTotal * 2); // calc cylinder wall vertexes
+
+    let tot = latitudeNumSegments;
+    let k = 0;
+    let l = 0;
+    console.log("latitudeNumSegments: ", latitudeNumSegments, " vtx tot: ", this.vtxTotal);
+
+    for (i = 0; i <= tot; ++i) {
+      px = i / tot;
+      py = minY + ph * px;
+
+      for (j = 0; j <= longitudeNumSegments; ++j) {
+        if (uvType < 1) {
+          this.m_uvs[l++] = this.uScale * (j / longitudeNumSegments);
+          this.m_uvs[l++] = this.uScale * px;
+        } else {
+          this.m_uvs[l++] = this.uScale * px;
+          this.m_uvs[l++] = this.uScale * (j / longitudeNumSegments);
+        } // this.m_vs[k++] = srcRow[j].x; this.m_vs[k++] = py; this.m_vs[k++] = srcRow[j].z;
+
+
+        const vtx = srcRow[j];
+        const vs = this.m_vs;
+
+        switch (this.axisType) {
+          case 1:
+            vs[k++] = vtx.x;
+            vs[k++] = py;
+            vs[k++] = vtx.z;
+            break;
+
+          case 2:
+            vs[k++] = vtx.z;
+            vs[k++] = vtx.x;
+            vs[k++] = py;
+            break;
+
+          default:
+            vs[k++] = py;
+            vs[k++] = vtx.z;
+            vs[k++] = vtx.x;
+            break;
+        }
+      }
+    }
+
+    let cn = longitudeNumSegments + 1;
+    let a = 0;
+    let b = 0;
+    this.m_ivs = new Uint16Array(tot * longitudeNumSegments * 6);
+    k = 0;
+
+    for (i = 0; i < tot; ++i) {
+      a = i * cn;
+      b = (i + 1) * cn;
+
+      for (j = 1; j <= longitudeNumSegments; ++j) {
+        this.m_ivs[k++] = a + j;
+        this.m_ivs[k++] = b + j - 1;
+        this.m_ivs[k++] = a + j - 1;
+        this.m_ivs[k++] = a + j;
+        this.m_ivs[k++] = b + j;
+        this.m_ivs[k++] = b + j - 1;
+      }
+    }
+
+    this.vtCount = this.m_ivs.length;
+    this.trisNumber = this.vtCount / 3;
+  }
+
+}
+
+exports.default = CoTubeGeometry;
 
 /***/ }),
 

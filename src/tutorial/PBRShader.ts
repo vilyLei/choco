@@ -56,12 +56,12 @@ export class PBRShader {
         this.m_envMap = loader.texture;
 
         let dis = 700.0;
-        let disZ = 400.0;
+        let disY = 400.0;
         this.m_lightPosList = [
-            VoxMath.createVec3(-dis, dis, disZ),
-            VoxMath.createVec3(dis, dis, disZ),
-            VoxMath.createVec3(-dis, -dis, disZ),
-            VoxMath.createVec3(dis, -dis, disZ)
+            VoxMath.createVec3(-dis, disY, -dis),
+            VoxMath.createVec3(dis, disY, dis),
+            VoxMath.createVec3(dis, disY, -dis),
+            VoxMath.createVec3(-dis, disY, dis)
         ];
         let colorSize = 300.0;
         this.m_lightColorList = [
@@ -90,14 +90,10 @@ export class PBRShader {
         
         this.initData();
 
-
-        // material.setMetallic(metallic);
-        // material.setRoughness(roughness);
-        // material.setAO(ao);
-
-        let material = this.createMaterial(0.95, 0.0, 1.0);
+        let material = this.createMaterial(0.90, 0.0, 1.0);
         let sph = VoxEntity.createSphere(150, 20, 20, false, material);
         this.m_rscene.addEntity(sph);
+        
         
     }
     run(): void {
