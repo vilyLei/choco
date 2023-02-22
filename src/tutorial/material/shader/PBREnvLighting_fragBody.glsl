@@ -218,21 +218,8 @@ vec3 rotate(vec3 dir, float radian)
 	result.z = sin(radian) * dir.x + cos(radian) * dir.z;
 	return result;
 }
-//  vec3 getEnvDir(float rotateAngle, vec3 normal)
-//  {
-//  	vec3 worldNormal = inverseTransformDirection( normal, u_viewMat );
-//  	vec3 worldInvE = normalize(v_worldPos.xyz - v_camPos.xyz);
-//  	vec3 worldR = reflect(worldInvE, normalize(worldNormal));
-//  	worldR.z = -worldR.z;
-//  	worldR.y = -worldR.y;
-//  	worldR = rotate(worldR, rotateAngle);
-//  	float preX = worldR.x;
-//  	float preZ = worldR.z;
-//  	return worldR;
-//  }
 vec3 getWorldEnvDir2(float rotateAngle, vec3 worldNormal, vec3 worldInvE)
 {
-	//vec3 worldInvE = normalize(v_worldPos.xyz - v_camPos.xyz);
 	vec3 worldR = reflect(worldInvE, worldNormal);
 	worldR.z = -worldR.z;
 	worldR.y = -worldR.y;
@@ -279,11 +266,6 @@ void main()
     
 	vec3 envDir = -getWorldEnvDir(0.0/*envLightRotateAngle*/, N, -V); // env map upside down
 	envDir.x = -envDir.x;
-    // specularEnvColor = vec3(1.0)/*envMapIntensity*/ * textureCubeLodEXT(sEnvMap, dir, mipLv).xyz;
-    // vec3 sEnvColor3 = texture(u_sampler0, N).xyz;
-    // vec3 sEnvColor3 = textureLod(u_sampler0, N, mipLv).xyz;
-    // vec3 sEnvColor3 = textureCubeLodEXT(u_sampler0, N, mipLv).xyz;
-    // vec3 specularEnvColor3 = VOX_TextureCubeLod(u_sampler0, N, mipLv).xyz;
     
     vec3 specularEnvColor3 = VOX_TextureCubeLod(u_sampler0, envDir, mipLv).xyz;
     specularEnvColor3 = pow(specularEnvColor3, vec3(3.0));
@@ -292,14 +274,13 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    //specularColor = vec3(metallic) * specularColor;
+    
     for(int i = 0; i < 4; ++i) 
     {
         // calculate per-light radiance
         vec3 L = normalize(u_lightPositions[i].xyz - v_worldPos);
         vec3 H = normalize(V + L);
         float distance = length(u_lightPositions[i].xyz - v_worldPos);
-        //float attenuation = 1.0 / (1.0 + (distance * distance));
         
         float attenuation = 1.0 / (1.0 + 0.001 * distance + 0.0003 * distance * distance);
         vec3 radiance = u_lightColors[i].xyz * attenuation;
@@ -307,9 +288,7 @@ void main()
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);
         float G   = GeometrySmith(N, V, L, roughness);
-        //vec3 F    = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
         vec3 F    = fresnelSchlick3(F0,clamp(dot(H, V), 0.0, 1.0), 0.9);
-        //vec3 F    = fresnelSchlick3(F0,dotNV, 0.9);
         
         vec3 nominator    = NDF * G * F;
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
@@ -341,10 +320,6 @@ void main()
 
     // HDR tonemapping
     color = reinhard( color );
-    //color = reinhard_extended( color, 3.0 );
-    //color = reinhard_extended_luminance( color, 5.0 );
-    //color = ACESToneMapping(color, 1.0);
-    //color = LinearTosRGB(color);
     // gamma correct
     color = gammaCorrection(color);
 

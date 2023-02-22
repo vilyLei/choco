@@ -25,10 +25,19 @@ class PBREnvLightingMaterialWrapper {
 
         //     oum.uniformNameList = ["u_albedo", "u_params", "u_lightPositions", "u_lightColors", "u_F0"];
         //     oum.dataList = [this.m_albedo, this.m_params, this.m_lightPositions, this.m_lightColors, this.m_F0];
-        if(this.m_material == null) {
-            let material = VoxMaterial.createShaderMaterial("tutorial_shader");
-            material.setFragShaderCode(PBREnvLighting.frag_body);
-            material.setVertShaderCode(PBREnvLighting.vert_body);
+        if (this.m_material == null) {
+            let material = VoxMaterial.createShaderMaterial("pbr_envLighting_shader");
+
+            let headCode = 
+`#version 300 es
+precision highp float;
+`;
+            let fragCode = headCode + PBREnvLighting.frag_body;
+            let vertCode = headCode + PBREnvLighting.vert_body;
+
+            material.setFragShaderCode(fragCode);
+            material.setVertShaderCode(vertCode);
+
             material.addUniformDataAt("u_albedo", this.m_albedo);
             material.addUniformDataAt("u_params", this.m_params);
             material.addUniformDataAt("u_lightPositions", this.m_lightPositions);
