@@ -65,10 +65,10 @@ export class PBRShader {
         ];
         let colorSize = 300.0;
         this.m_lightColorList = [
-            VoxMaterial.createColor4(Math.random() * colorSize, Math.random() * colorSize, Math.random() * colorSize),
-            VoxMaterial.createColor4(Math.random() * colorSize, Math.random() * colorSize, Math.random() * colorSize),
-            VoxMaterial.createColor4(Math.random() * colorSize, Math.random() * colorSize, Math.random() * colorSize),
-            VoxMaterial.createColor4(Math.random() * colorSize, Math.random() * colorSize, Math.random() * colorSize)
+            VoxMaterial.createColor4().randomRGB(colorSize),
+            VoxMaterial.createColor4().randomRGB(colorSize),
+            VoxMaterial.createColor4().randomRGB(colorSize),
+            VoxMaterial.createColor4().randomRGB(colorSize)
         ];
     }
     private createMaterial(roughness: number, metallic: number, ao: number = 1.0): IRenderMaterial {
@@ -95,10 +95,8 @@ export class PBRShader {
         // material.setRoughness(roughness);
         // material.setAO(ao);
 
-        let material = this.createMaterial(0.2, 0.5, 1.0);
-
+        let material = this.createMaterial(0.95, 0.0, 1.0);
         let sph = VoxEntity.createSphere(150, 20, 20, false, material);
-        sph.setXYZ(300, 200, 0);
         this.m_rscene.addEntity(sph);
         
     }
