@@ -99,6 +99,7 @@ export class Shader {
         let sph = VoxEntity.createSphere(150, 20, 20, sphMaterial);
         sph.setXYZ(300, 200, 0);
         this.m_rscene.addEntity(sph);
+        
     }
     run(): void {
         if (this.m_rscene != null) {

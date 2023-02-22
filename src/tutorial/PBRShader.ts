@@ -94,7 +94,15 @@ export class PBRShader {
         let sph = VoxEntity.createSphere(150, 20, 20, material);
         this.m_rscene.addEntity(sph);
 
-        
+        material = this.createMaterial(0.3, 0.5, 1.0);
+        let cone = VoxEntity.createCone(70, 150, 20, material);
+        cone.setXYZ(-200, 0.0, 200.0);
+        this.m_rscene.addEntity(cone);
+
+        material = this.createMaterial(0.3, 0.5, 1.0);
+        let torus = VoxEntity.createTorus(80, 30, 20, 30, 1, material);
+        torus.setXYZ(200, 0.0, -200.0);
+        this.m_rscene.addEntity(torus);
     }
     run(): void {
         if (this.m_rscene != null) {
