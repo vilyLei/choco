@@ -150,7 +150,7 @@ export class TransformTest {
 
         let sphMaterial = this.createMaterial(1.0, 0.1, 0.2, "static/assets/box.jpg");
 
-        let sph = VoxEntity.createSphere(150, 20, 20, false, sphMaterial.material);
+        let sph = VoxEntity.createSphere(150, 20, 20, sphMaterial.material);
         sph.setXYZ(300, 200, 0);
         this.m_rscene.addEntity(sph);
         this.initEntityMouseEvent(sph, "sph");

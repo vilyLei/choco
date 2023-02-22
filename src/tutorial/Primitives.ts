@@ -65,14 +65,14 @@ export class Primitives {
         sphMaterial.normalEnabled = true;
         sphMaterial.setRGB3f(0.7, 1.0, 0.3);
         sphMaterial.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
-        let sph = VoxEntity.createSphere(150, 20, 20, false, sphMaterial);
+        let sph = VoxEntity.createSphere(150, 20, 20, sphMaterial);
         sph.setXYZ(300, 0, 0);
         this.m_rscene.addEntity(sph);
 
         let coneMaterial = VoxMaterial.createDefaultMaterial();
         coneMaterial.normalEnabled = true;
         coneMaterial.setRGB3f(0.5, 0.8, 0.2);
-        let cone = VoxEntity.createCone(100, 150, 20, -0.5, coneMaterial);
+        let cone = VoxEntity.createCone(100, 150, 20, coneMaterial);
         cone.setXYZ(300, 0, -300);
         this.m_rscene.addEntity(cone);
 

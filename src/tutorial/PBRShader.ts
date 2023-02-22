@@ -91,9 +91,9 @@ export class PBRShader {
         this.initData();
 
         let material = this.createMaterial(0.90, 0.0, 1.0);
-        let sph = VoxEntity.createSphere(150, 20, 20, false, material);
+        let sph = VoxEntity.createSphere(150, 20, 20, material);
         this.m_rscene.addEntity(sph);
-        
+
         
     }
     run(): void {

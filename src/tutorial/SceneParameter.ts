@@ -59,7 +59,7 @@ export class SceneParameter {
         sphMaterial.normalEnabled = true;
         sphMaterial.setRGB3f(0.7, 1.0, 0.3);
         sphMaterial.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
-        let sph = VoxEntity.createSphere(150, 20, 20, false, sphMaterial);
+        let sph = VoxEntity.createSphere(150, 20, 20, sphMaterial);
         sph.setXYZ(300, 0, 0);
         this.m_rscene.addEntity(sph);
 
