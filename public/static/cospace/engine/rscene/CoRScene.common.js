@@ -1655,7 +1655,13 @@ class ROTransform {
     this.m_invMatEnabled = false;
     this.m_rotFlag = false;
     this.m_dt = 0;
+    this.m_updater = null;
     this.version = -1;
+    /**
+     * the default value is 0
+     */
+
+    this.__$transUpdate = 0;
     this.updatedStatus = ROTransform.UPDATE_POSITION;
     this.updateStatus = ROTransform.UPDATE_TRANSFORM; // local to world spcae matrix
 
@@ -1710,18 +1716,21 @@ class ROTransform {
     this.updateStatus |= 1;
     this.updatedStatus |= 1;
     this.m_fs32[12] = p;
+    this.updateTo();
   }
 
   setY(p) {
     this.updateStatus |= 1;
     this.updatedStatus |= 1;
     this.m_fs32[13] = p;
+    this.updateTo();
   }
 
   setZ(p) {
     this.updateStatus |= 1;
     this.updatedStatus |= 1;
     this.m_fs32[14] = p;
+    this.updateTo();
   }
 
   setXYZ(px, py, pz) {
@@ -1730,6 +1739,7 @@ class ROTransform {
     this.m_fs32[14] = pz;
     this.updateStatus |= 1;
     this.updatedStatus |= 1;
+    this.updateTo();
   }
 
   offsetPosition(pv) {
@@ -1738,6 +1748,7 @@ class ROTransform {
     this.m_fs32[14] += pv.z;
     this.updateStatus |= 1;
     this.updatedStatus |= 1;
+    this.updateTo();
   }
 
   setPosition(pv) {
@@ -1746,6 +1757,7 @@ class ROTransform {
     this.m_fs32[14] = pv.z;
     this.updateStatus |= 1;
     this.updatedStatus |= 1;
+    this.updateTo();
   }
 
   getPosition(pv) {
@@ -1761,6 +1773,7 @@ class ROTransform {
       this.m_fs32[14] = t.m_fs32[14];
       this.updateStatus |= ROTransform.UPDATE_POSITION;
       this.updatedStatus |= ROTransform.UPDATE_POSITION;
+      this.updateTo();
     }
   }
 
@@ -1781,6 +1794,7 @@ class ROTransform {
     this.m_rotFlag = true;
     this.updateStatus |= ROTransform.UPDATE_ROTATION;
     this.updatedStatus |= ROTransform.UPDATE_ROTATION;
+    this.updateTo();
   }
 
   setRotationY(degrees) {
@@ -1788,6 +1802,7 @@ class ROTransform {
     this.m_rotFlag = true;
     this.updateStatus |= ROTransform.UPDATE_ROTATION;
     this.updatedStatus |= ROTransform.UPDATE_ROTATION;
+    this.updateTo();
   }
 
   setRotationZ(degrees) {
@@ -1795,6 +1810,7 @@ class ROTransform {
     this.m_rotFlag = true;
     this.updateStatus |= ROTransform.UPDATE_ROTATION;
     this.updatedStatus |= ROTransform.UPDATE_ROTATION;
+    this.updateTo();
   }
 
   setRotationXYZ(rx, ry, rz) {
@@ -1804,6 +1820,7 @@ class ROTransform {
     this.updateStatus |= ROTransform.UPDATE_ROTATION;
     this.updatedStatus |= ROTransform.UPDATE_ROTATION;
     this.m_rotFlag = true;
+    this.updateTo();
   }
 
   getScaleX() {
@@ -1842,6 +1859,7 @@ class ROTransform {
     this.m_fs32[10] = sz;
     this.updateStatus |= ROTransform.UPDATE_SCALE;
     this.updatedStatus |= ROTransform.UPDATE_SCALE;
+    this.updateTo();
   }
 
   setScale(s) {
@@ -1850,6 +1868,7 @@ class ROTransform {
     this.m_fs32[10] = s;
     this.updateStatus |= ROTransform.UPDATE_SCALE;
     this.updatedStatus |= ROTransform.UPDATE_SCALE;
+    this.updateTo();
   }
 
   getRotationXYZ(pv) {
@@ -1935,6 +1954,8 @@ class ROTransform {
         this.updateStatus |= ROTransform.UPDATE_PARENT_MAT;
         this.updatedStatus = this.updateStatus;
       }
+
+      this.updateTo();
     }
   }
 
@@ -1947,6 +1968,7 @@ class ROTransform {
       this.updateStatus = ROTransform.UPDATE_NONE;
       this.m_invMatEnabled = true;
       this.m_omat.copyFrom(matrix);
+      this.updateTo();
     }
   }
 
@@ -1965,6 +1987,7 @@ class ROTransform {
       }
 
       this.m_omat = matrix;
+      this.updateTo();
     }
   }
 
@@ -1990,6 +2013,7 @@ class ROTransform {
     this.m_parentMat = null;
     this.updateStatus = ROTransform.UPDATE_TRANSFORM;
     this.m_fs32 = null;
+    this.m_updater = null;
   }
 
   copyFrom(src) {
@@ -1997,11 +2021,22 @@ class ROTransform {
     this.updatedStatus |= 1;
     this.updateStatus |= ROTransform.UPDATE_TRANSFORM;
     this.m_rotFlag = src.m_rotFlag;
+    this.updateTo();
   }
 
   forceUpdate() {
     this.updateStatus |= ROTransform.UPDATE_TRANSFORM;
     this.update();
+  }
+
+  updateTo() {
+    if (this.m_updater) {
+      this.m_updater.addItem(this);
+    }
+  }
+
+  setUpdater(updater) {
+    this.m_updater = updater;
   }
 
   update() {
@@ -2040,14 +2075,12 @@ class ROTransform {
       this.updateStatus = ROTransform.UPDATE_NONE;
       this.version++;
     }
+
+    this.__$transUpdate = 0;
   }
 
   getMatrixFS32() {
     return this.getMatrix().getLocalFS32();
-  }
-
-  toString() {
-    return "[ROTransform(uid = " + this.m_uid + ")]";
   }
 
   static GetFreeId() {
@@ -9821,9 +9854,9 @@ class RODataBuilder {
   }
 
   createTRO(texList, texTotal) {
-    if (texList != null) {
+    if (texList) {
       for (let i = 0; i < texList.length; ++i) {
-        if (texList[i] != null) {
+        if (texList[i]) {
           texList[i].__$setRenderProxy(this.m_rc);
         }
       }
@@ -9849,7 +9882,7 @@ class RODataBuilder {
           if (shdp != null) {
             if (shdp.getTexTotal() > 0) {
               if (tro == null) {
-                tro = this.createTRO(material.getTextureList(), shdp.getTexTotal()); //tro = TextureRenderObj.Create(texRes, material.getTextureList(), shdp.getTexTotal());
+                tro = this.createTRO(material.getTextureList(), shdp.getTexTotal());
               }
 
               if (runit.tro != tro) {
@@ -9904,7 +9937,7 @@ class RODataBuilder {
         let tro = null;
 
         if (shdp.getTexTotal() > 0) {
-          tro = this.createTRO(material.getTextureList(), shdp.getTexTotal()); //tro = TextureRenderObj.Create(this.m_texRes, material.getTextureList(), shdp.getTexTotal());
+          tro = this.createTRO(material.getTextureList(), shdp.getTexTotal());
 
           if (runit.tro != tro) {
             if (runit.tro != null) {
@@ -10024,20 +10057,16 @@ class RODataBuilder {
       runit.renderState = disp.renderState;
       runit.rcolorMask = disp.rcolorMask;
       runit.trisNumber = disp.trisNumber; // build vertex gpu resoure
-      // let resUid = disp.vbuf.getUid();
 
       let resUid = disp.getVtxResUid();
       let vtx;
       let needBuild = true;
-      let dispVtxVer = disp.getVtxResVer(); // console.log("RODataBuilder::buildVtxRes(), disp.ivsCount: ", disp.ivsCount);
-      // console.log("RODataBuilder::buildVtxRes(), resUid: ", resUid, ", dispVtxVer: ", dispVtxVer);
-      // console.log("RODataBuilder::buildVtxRes(), disp.vbuf: ", disp.vbuf);
+      let dispVtxVer = disp.getVtxResVer();
 
       if (vtxRes.hasResUid(resUid)) {
         vtx = vtxRes.getVertexRes(resUid); // needBuild = vtx.version != disp.vbuf.version;
 
-        needBuild = vtx.version != dispVtxVer; // console.log("RODataBuilder::buildVtxRes(), XXXXXXXXXX AAA 0 ver: ", vtx.version, dispVtxVer);
-        // console.log("RODataBuilder::buildVtxRes(), GpuVtxObject instance repeat to be used,needBuild: ",needBuild,vtx.getAttachCount());
+        needBuild = vtx.version != dispVtxVer;
 
         if (needBuild) {
           vtxRes.destroyRes(resUid);
@@ -10202,7 +10231,7 @@ class RODataBuilder {
       let texTotal = shdp.getTexTotal();
 
       if (texTotal > 0) {
-        tro = this.createTRO(texList, texTotal); //tro = TextureRenderObj.Create(this.m_texRes, texList, texTotal);
+        tro = this.createTRO(texList, texTotal);
       }
 
       if (this.m_shader.getSharedUniformByShd(shdp) == null) {
@@ -10612,12 +10641,9 @@ class Color4 {
   }
 
   randomRGB(density = 1.0, bias = 0.0) {
-    this.r = Math.random() * density;
-    this.g = Math.random() * density;
-    this.b = Math.random() * density;
-    this.r += bias;
-    this.g += bias;
-    this.b += bias;
+    this.r = Math.random() * density + bias;
+    this.g = Math.random() * density + bias;
+    this.b = Math.random() * density + bias;
     return this;
   }
 
@@ -12146,13 +12172,13 @@ class DisplayEntity {
     this.m_trs.setScaleXYZ(sx, sy, sz);
   }
 
-  getRotationXYZ(pv) {
+  getRotationXYZ(pv = null) {
     if (!pv) pv = new Vector3D_1.default();
     this.m_trs.getRotationXYZ(pv);
     return pv;
   }
 
-  getScaleXYZ(pv) {
+  getScaleXYZ(pv = null) {
     if (!pv) pv = new Vector3D_1.default();
     this.m_trs.getScaleXYZ(pv);
     return pv;
@@ -14414,6 +14440,7 @@ class DataMesh extends MeshBase_1.default {
     this.m_boundsChanged = true;
     this.m_vs = null;
     this.m_uvs = null;
+    this.m_uvs2 = null;
     this.m_nvs = null;
     this.m_cvs = null;
     this.m_tvs = null;
@@ -14457,6 +14484,16 @@ class DataMesh extends MeshBase_1.default {
 
   setUVS(uvs) {
     this.m_uvs = uvs;
+    return this;
+  }
+  /**
+   * set second vertex uv data
+   * @param vs vertex uv buffer Float32Array
+   */
+
+
+  setUVS2(uvs) {
+    this.m_uvs2 = uvs;
     return this;
   }
   /**
@@ -14602,6 +14639,10 @@ class DataMesh extends MeshBase_1.default {
         ROVertexBuffer_1.default.AddFloat32Data(this.m_btvs, 3);
       }
 
+      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_UVS2_INDEX)) {
+        ROVertexBuffer_1.default.AddFloat32Data(this.m_uvs2, this.uvsStride);
+      }
+
       ROVertexBuffer_1.default.vbWholeDataEnabled = this.vbWholeDataEnabled;
       this.vtCount = this.m_ivs.length;
 
@@ -14659,6 +14700,7 @@ class DataMesh extends MeshBase_1.default {
 
       this.m_vs = null;
       this.m_uvs = null;
+      this.m_uvs2 = null;
       this.m_nvs = null;
       this.m_cvs = null;
       this.m_tvs = null;
@@ -18118,6 +18160,8 @@ const RunnableQueue_1 = __importDefault(__webpack_require__("9c4d"));
 
 const RendererSceneBase_1 = __importDefault(__webpack_require__("aa80"));
 
+const EntityTransUpdater_1 = __importDefault(__webpack_require__("7c36"));
+
 class RendererSubScene extends RendererSceneBase_1.default {
   constructor(parent, renderer, evtFlowEnabled) {
     super(1024);
@@ -18166,6 +18210,7 @@ class RendererSubScene extends RendererSceneBase_1.default {
 
       let selfT = this;
       selfT.runnableQueue = new RunnableQueue_1.default();
+      this.m_transUpdater = new EntityTransUpdater_1.default();
       this.m_rparam = rparam;
       this.m_perspectiveEnabled = rparam.cameraPerspectiveEnabled;
 
@@ -20590,6 +20635,68 @@ class StageBase {
 }
 
 exports.default = StageBase;
+
+/***/ }),
+
+/***/ "7c36":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class EntityTransUpdater {
+  constructor(size = 8192) {
+    this.m_index = 0;
+    this.m_list = new Array(size);
+  }
+
+  addItem(item) {
+    if (item.__$transUpdate < 1) {
+      item.__$transUpdate = 1;
+      this.m_list[this.m_index] = item;
+      this.m_index++;
+    }
+  }
+
+  update() {
+    for (let i = 0; i < this.m_index; ++i) {
+      const t = this.m_list[i];
+
+      if (t.__$transUpdate > 0) {
+        t.update();
+        t.__$transUpdate = 0;
+      }
+    }
+
+    this.m_index = 0;
+  }
+
+  destroy() {
+    this.m_index = 0;
+
+    for (let i = 0; i < this.m_list.length; ++i) {
+      this.m_list[i] = null;
+    }
+  }
+
+}
+
+exports.default = EntityTransUpdater;
 
 /***/ }),
 
@@ -23669,7 +23776,6 @@ class GpuTexObect {
 
 
 class ROTextureResource {
-  //readonly updater:ROTexDataUpdater = null;
   constructor(rcuid, gl) {
     this.m_resMap = new Map();
     this.m_freeMap = new Map(); // 显存的纹理buffer的总数
@@ -23683,8 +23789,7 @@ class ROTextureResource {
     this.texMid = -1;
     this.unlocked = true;
     this.m_rcuid = rcuid;
-    this.m_gl = gl; //  let selfT:any = this;
-    //  selfT.updater = new ROTexDataUpdater(rcuid, gl, this.m_resMap);
+    this.m_gl = gl;
   }
 
   createBuf() {
@@ -25154,6 +25259,8 @@ const ShaderProgramBuilder_1 = __webpack_require__("a156");
 
 const Matrix4_1 = __importDefault(__webpack_require__("18c7"));
 
+const EntityTransUpdater_1 = __importDefault(__webpack_require__("7c36"));
+
 class RendererSceneBase {
   constructor(uidBase = 0) {
     this.___$$$$$$$Author = "VilyLei(vily313@126.com)";
@@ -25205,6 +25312,7 @@ class RendererSceneBase {
     this.m_rayTestEnabled = true;
     this.m_prependNodes = null;
     this.m_appendNodes = null;
+    this.m_runner = null;
     this.m_uid = uidBase + RendererSceneBase.s_uid++;
   }
 
@@ -25477,6 +25585,7 @@ class RendererSceneBase {
       let camera = new CameraBase_1.default();
       rins.initialize(rparam, camera, new ShaderProgramBuilder_1.ShaderProgramBuilder(rins.getRCUid()));
       this.m_renderer = rins;
+      this.m_transUpdater = new EntityTransUpdater_1.default();
       this.m_processids[0] = 0;
       this.m_processidsLen++;
 
@@ -25637,6 +25746,7 @@ class RendererSceneBase {
       if (re != null && re.__$testSpaceEnabled()) {
         if (re.isPolyhedral()) {
           if (re.hasMesh()) {
+            re.getTransform().setUpdater(this.m_transUpdater);
             this.m_renderer.addEntity(re, this.m_processids[processid], deferred);
 
             if (this.m_rspace != null) {
@@ -25655,6 +25765,7 @@ class RendererSceneBase {
             this.m_nodeWaitLinker.addNode(node);
           }
         } else {
+          re.getTransform().setUpdater(this.m_transUpdater);
           this.m_renderer.addEntity(re, this.m_processids[processid], deferred);
 
           if (this.m_rspace != null) {
@@ -25684,13 +25795,16 @@ class RendererSceneBase {
           let node = this.m_nodeWaitQueue.getNodeByEntity(re);
 
           if (node != null) {
+            re.getTransform().setUpdater(null);
             this.m_nodeWaitLinker.removeNode(node);
+            ;
             this.m_nodeWaitQueue.removeEntity(re);
           }
         }
 
         if (node == null) {
           this.m_renderer.removeEntity(re);
+          re.getTransform().setUpdater(null);
 
           if (this.m_rspace != null) {
             this.m_rspace.removeEntity(re);
@@ -25890,7 +26004,11 @@ class RendererSceneBase {
 
 
   update(autoCycle = true, mouseEventEnabled = true) {
-    // this.stage3D.enterFrame();
+    if (this.m_runner) {
+      this.m_runner();
+    } // this.stage3D.enterFrame();
+
+
     const st = this.m_currStage3D;
     if (st != null) st.enterFrame();
 
@@ -25928,6 +26046,7 @@ class RendererSceneBase {
       }
     }
 
+    this.m_transUpdater.update();
     let i = 0;
 
     for (; i < this.m_containersTotal; ++i) {
@@ -26041,6 +26160,10 @@ class RendererSceneBase {
       }
     }
   }
+
+  setRunner(runner) {
+    this.m_runner = runner;
+  }
   /**
    * run all renderer processes in the renderer instance
    */
@@ -26125,6 +26248,7 @@ class RendererSceneBase {
 
   destroy() {
     this.runnableQueue.destroy();
+    this.m_transUpdater.destroy();
   }
 
 }
@@ -26940,6 +27064,10 @@ class DisplayEntityContainer {
 
   getParent() {
     return this.__$parent;
+  }
+
+  getTransform() {
+    return null;
   }
 
   dispatchEvt(evt) {
@@ -28830,10 +28958,6 @@ class TextureRenderObj {
     this.m_texTotal = 0;
     this.m_texList = null;
     this.m_texRes = null;
-  }
-
-  toString() {
-    return "TextureRenderObj(uid = " + this.m_uid + ", mid=" + this.m_mid + ")";
   }
 
   static Create(texRes, texList, shdTexTotal) {
@@ -33912,12 +34036,12 @@ class RendererSceneGraph {
     return null;
   }
 
-  createRendererParam() {
-    return new RendererParam_1.default();
+  createRendererParam(div = null) {
+    return new RendererParam_1.default(div);
   }
 
-  createRendererSceneParam() {
-    return new RendererParam_1.default();
+  createRendererSceneParam(div = null) {
+    return new RendererParam_1.default(div);
   }
   /**
    * @param rparam IRendererParam instance, the default value is null
@@ -40428,6 +40552,29 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     if (this.normalEnabled) {
       coder.addFragHeadCode("const vec3 direc = normalize(vec3(0.3,0.6,0.9));");
     }
+    /*
+    coder.addVertHeadCode(
+    `
+    float calcValue(float px) {
+    if(px > 1.0) {
+    float t = fract(px);
+    px = t > 0.0 ? t : 1.0;
+    }else if(px < 0.0) {
+    px = abs(px);
+    if(px > 1.0) {
+        float t = fract(px);
+        px = t > 0.0 ? t : 1.0;
+    }
+    px = 1.0 - px;
+    }
+    return px;
+    }
+    vec2 getUV(vec2 uv) {
+    return vec2(calcValue(uv.x), calcValue(uv.y));
+    }
+    `);
+    //*/
+
 
     if (this.vertColorEnabled) {
       coder.addVertLayout("vec3", "a_cvs");

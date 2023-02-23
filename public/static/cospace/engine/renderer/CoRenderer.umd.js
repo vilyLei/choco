@@ -4120,9 +4120,9 @@ class RODataBuilder {
   }
 
   createTRO(texList, texTotal) {
-    if (texList != null) {
+    if (texList) {
       for (let i = 0; i < texList.length; ++i) {
-        if (texList[i] != null) {
+        if (texList[i]) {
           texList[i].__$setRenderProxy(this.m_rc);
         }
       }
@@ -4148,7 +4148,7 @@ class RODataBuilder {
           if (shdp != null) {
             if (shdp.getTexTotal() > 0) {
               if (tro == null) {
-                tro = this.createTRO(material.getTextureList(), shdp.getTexTotal()); //tro = TextureRenderObj.Create(texRes, material.getTextureList(), shdp.getTexTotal());
+                tro = this.createTRO(material.getTextureList(), shdp.getTexTotal());
               }
 
               if (runit.tro != tro) {
@@ -4203,7 +4203,7 @@ class RODataBuilder {
         let tro = null;
 
         if (shdp.getTexTotal() > 0) {
-          tro = this.createTRO(material.getTextureList(), shdp.getTexTotal()); //tro = TextureRenderObj.Create(this.m_texRes, material.getTextureList(), shdp.getTexTotal());
+          tro = this.createTRO(material.getTextureList(), shdp.getTexTotal());
 
           if (runit.tro != tro) {
             if (runit.tro != null) {
@@ -4323,20 +4323,16 @@ class RODataBuilder {
       runit.renderState = disp.renderState;
       runit.rcolorMask = disp.rcolorMask;
       runit.trisNumber = disp.trisNumber; // build vertex gpu resoure
-      // let resUid = disp.vbuf.getUid();
 
       let resUid = disp.getVtxResUid();
       let vtx;
       let needBuild = true;
-      let dispVtxVer = disp.getVtxResVer(); // console.log("RODataBuilder::buildVtxRes(), disp.ivsCount: ", disp.ivsCount);
-      // console.log("RODataBuilder::buildVtxRes(), resUid: ", resUid, ", dispVtxVer: ", dispVtxVer);
-      // console.log("RODataBuilder::buildVtxRes(), disp.vbuf: ", disp.vbuf);
+      let dispVtxVer = disp.getVtxResVer();
 
       if (vtxRes.hasResUid(resUid)) {
         vtx = vtxRes.getVertexRes(resUid); // needBuild = vtx.version != disp.vbuf.version;
 
-        needBuild = vtx.version != dispVtxVer; // console.log("RODataBuilder::buildVtxRes(), XXXXXXXXXX AAA 0 ver: ", vtx.version, dispVtxVer);
-        // console.log("RODataBuilder::buildVtxRes(), GpuVtxObject instance repeat to be used,needBuild: ",needBuild,vtx.getAttachCount());
+        needBuild = vtx.version != dispVtxVer;
 
         if (needBuild) {
           vtxRes.destroyRes(resUid);
@@ -4501,7 +4497,7 @@ class RODataBuilder {
       let texTotal = shdp.getTexTotal();
 
       if (texTotal > 0) {
-        tro = this.createTRO(texList, texTotal); //tro = TextureRenderObj.Create(this.m_texRes, texList, texTotal);
+        tro = this.createTRO(texList, texTotal);
       }
 
       if (this.m_shader.getSharedUniformByShd(shdp) == null) {
@@ -9322,7 +9318,6 @@ class GpuTexObect {
 
 
 class ROTextureResource {
-  //readonly updater:ROTexDataUpdater = null;
   constructor(rcuid, gl) {
     this.m_resMap = new Map();
     this.m_freeMap = new Map(); // 显存的纹理buffer的总数
@@ -9336,8 +9331,7 @@ class ROTextureResource {
     this.texMid = -1;
     this.unlocked = true;
     this.m_rcuid = rcuid;
-    this.m_gl = gl; //  let selfT:any = this;
-    //  selfT.updater = new ROTexDataUpdater(rcuid, gl, this.m_resMap);
+    this.m_gl = gl;
   }
 
   createBuf() {
@@ -10249,10 +10243,6 @@ class TextureRenderObj {
     this.m_texTotal = 0;
     this.m_texList = null;
     this.m_texRes = null;
-  }
-
-  toString() {
-    return "TextureRenderObj(uid = " + this.m_uid + ", mid=" + this.m_mid + ")";
   }
 
   static Create(texRes, texList, shdTexTotal) {

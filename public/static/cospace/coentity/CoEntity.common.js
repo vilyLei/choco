@@ -322,14 +322,14 @@ function createTube(radius, long, longitudeNumSegments = 20, latitudeNumSegments
 
 exports.createTube = createTube;
 
-function createTorus(radius, height, longitudeNumSegments = 20, latitudeNumSegments = 1, axisType = 0, material = null, texEnabled = false, uvType = 1, alignYRatio = -0.5) {
+function createTorus(radius, axisRadius, longitudeNumSegments = 20, latitudeNumSegments = 1, axisType = 0, material = null, texEnabled = false, uvType = 1, alignYRatio = -0.5) {
   if (typeof CoMesh !== "undefined") {
     let builder = CoMesh.torus;
     builder.axisType = axisType;
     material = initAMaterial(material, texEnabled, (pm, pt) => {
       builder.applyMaterial(pm, pt);
     });
-    let mesh = builder.create(radius, height, longitudeNumSegments, latitudeNumSegments, uvType, alignYRatio);
+    let mesh = builder.create(radius, axisRadius, longitudeNumSegments, latitudeNumSegments, uvType, alignYRatio);
     return createAMouseEventEntity(mesh, material);
   }
 
