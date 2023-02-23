@@ -8,13 +8,11 @@ import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
 import IRenderMaterial from "../engine/vox/render/IRenderMaterial";
 import IMouseEvent from "../engine/vox/event/IMouseEvent";
-import IMouseEventEntity from "../engine/vox/entity/IMouseEventEntity";
 
 import { PBREnvLightingMaterialWrapper } from "./material/PBREnvLightingMaterialWrapper";
 import ITransformEntity from "../engine/vox/entity/ITransformEntity";
 import IVector3D from "../engine/vox/math/IVector3D";
 import IEventBase from "../engine/vox/event/IEventBase";
-import IColor4 from "../engine/vox/material/IColor4";
 import { BinaryTextureLoader } from "../engine/cospace/modules/loaders/BinaryTextureLoader";
 
 class AnimationScene {
@@ -82,14 +80,14 @@ class AnimationScene {
     private makeMaterial(metallic: number, roughness: number, ao: number): IRenderMaterial {
         let dis = 700.0;
         let disZ = 400.0;
-        let posList: IVector3D[] = [
+        let posList = [
             VoxMath.createVec3(-dis, dis, disZ),
             VoxMath.createVec3(dis, dis, disZ),
             VoxMath.createVec3(-dis, -dis, disZ),
             VoxMath.createVec3(dis, -dis, disZ)
         ];
         let colorSize = 300.0;
-        let colorList: IColor4[] = [
+        let colorList = [
             VoxMaterial.createColor4().randomRGB(colorSize),
             VoxMaterial.createColor4().randomRGB(colorSize),
             VoxMaterial.createColor4().randomRGB(colorSize),
@@ -101,7 +99,7 @@ class AnimationScene {
         material.setRoughness(roughness);
         material.setAO(ao);
 
-        for (let i: number = 0; i < 4; ++i) {
+        for (let i = 0; i < 4; ++i) {
             material.setPosAt(i, posList[i]);
             material.setColorAt(i, colorList[i]);
         }
@@ -125,8 +123,7 @@ export class TransformTest {
         );
     }
     private mouseDown(evt: IMouseEvent):void {
-        console.log("evt: ", evt);
-        this.m_rscene.setClearRGBColor3f(Math.random() * 0.3, Math.random() * 0.3, Math.random() * 0.3);
+        this.m_rscene.setClearColor(VoxMaterial.createColor4().randomRGB(0.3));
     }
     private initMouseInteract(): void {
 
@@ -160,8 +157,8 @@ export class TransformTest {
         this.m_envMap = loader.texture;
     }
     private init3DScene(): void {
-        this.initRenderingData();
 
+        this.initRenderingData();
         new AnimationScene(this.m_rscene, this.m_envMap).initialize();
     }
     run(): void {
