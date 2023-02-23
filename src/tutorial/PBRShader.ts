@@ -47,7 +47,7 @@ export class PBRShader {
     }
     private m_lightPosList: IVector3D[];
     private m_lightColorList: IColor4[];
-    private initData(): void {
+    private initRenderingData(): void {
         
         let envMapUrl = "static/assets/bytes/spe.mdf";
 
@@ -88,7 +88,7 @@ export class PBRShader {
     }
     private init3DScene(): void {
         
-        this.initData();
+        this.initRenderingData();
 
         let material = this.createMaterial(0.90, 0.0, 1.0);
         let sph = VoxEntity.createSphere(150, 20, 20, material);

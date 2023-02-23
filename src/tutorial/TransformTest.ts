@@ -15,6 +15,7 @@ import ITransformEntity from "../engine/vox/entity/ITransformEntity";
 import IVector3D from "../engine/vox/math/IVector3D";
 import IEventBase from "../engine/vox/event/IEventBase";
 import IColor4 from "../engine/vox/material/IColor4";
+import { BinaryTextureLoader } from "../engine/cospace/modules/loaders/BinaryTextureLoader";
 
 class AnimationScene {
 
@@ -34,7 +35,7 @@ class AnimationScene {
         for (let i = 0; i < 20; ++i) {
             this.createSphere(15, VoxMath.createVec3().copyFrom(offsetV).scaleBy(i).addBy(begin));
         }
-        this.m_rscene.addEventListener(EventBase.ENTER_FRAME, this, this.run);
+        this.m_rscene.addEventListener(EventBase.ENTER_FRAME, this, this.animate);
     }
     private createSphere(radius: number, pv: IVector3D): ITransformEntity {
 
@@ -49,7 +50,7 @@ class AnimationScene {
             sph.copyMeshFrom(this.m_sphEntity);
         } else {
             //sph.initialize(radius, 20, 20);
-            this.m_sphEntity = VoxEntity.createSphere(radius, 20, 20, material);
+            sph = this.m_sphEntity = VoxEntity.createSphere(radius, 20, 20, material);
         }
 
         sph.setPosition(pv);
@@ -59,7 +60,7 @@ class AnimationScene {
         return sph;
     }
     private m_time = 0.0;
-    private run(evt: IEventBase = null): void {
+    private animate(evt: IEventBase = null): void {
 
         let ls = this.m_entities;
         let len = this.m_entities.length;
@@ -76,7 +77,7 @@ class AnimationScene {
             et.setPosition(pos);
             et.setScaleXYZ(scale, scale, scale);
         }
-        this.m_time += 0.05;
+        this.m_time += 0.01;
     }
     private makeMaterial(metallic: number, roughness: number, ao: number): IRenderMaterial {
         let dis = 700.0;
@@ -112,6 +113,7 @@ class AnimationScene {
 export class TransformTest {
 
     private m_rscene: IRendererScene = null;
+    private m_envMap: IRenderTexture;
     constructor() { }
 
     initialize(): void {
@@ -150,8 +152,17 @@ export class TransformTest {
         this.m_rscene.addEventListener(MouseEvent.MOUSE_DOWN, this, this.mouseDown);
     }
 
-    private init3DScene(): void {
+    private initRenderingData(): void {
         
+        let envMapUrl = "static/assets/bytes/spe.mdf";
+        let loader = new BinaryTextureLoader();
+        loader.loadTextureWithUrl(envMapUrl, this.m_rscene);
+        this.m_envMap = loader.texture;
+    }
+    private init3DScene(): void {
+        this.initRenderingData();
+
+        new AnimationScene(this.m_rscene, this.m_envMap).initialize();
     }
     run(): void {
         if (this.m_rscene != null) {
