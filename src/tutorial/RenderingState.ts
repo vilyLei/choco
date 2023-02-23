@@ -1,5 +1,5 @@
 import IRendererScene from "../engine/vox/scene/IRendererScene";
-import { VoxRScene } from "../engine/cospace/voxengine/VoxRScene";
+import { RendererState, VoxRScene } from "../engine/cospace/voxengine/VoxRScene";
 import { VoxUIInteraction } from "../engine/cospace/voxengine/ui/VoxUIInteraction";
 import { VoxEntity } from "../engine/cospace/voxentity/VoxEntity";
 import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
@@ -44,6 +44,8 @@ export class RenderingState {
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
         this.m_rscene = VoxRScene.createRendererScene(rparam);
+
+        // RendererState.COLOR_MASK_ALL_TRUE
     }
     private m_lightPosList: IVector3D[];
     private m_lightColorList: IColor4[];
