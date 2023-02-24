@@ -52,8 +52,50 @@ export class MeshCreation {
         return tex;
     }
 
+	private testHasNotIndicesMesh(): void {
+		// 不推荐的模型数据组织形式
+		let material = VoxMaterial.createDefaultMaterial();
+		material.normalEnabled = true;
+		material.setTextureList([this.getTexByUrl("static/assets/broken_iron.jpg")]);
+
+		let nvs = new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]);
+		let uvs = new Float32Array([1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0]);
+		let vs = new Float32Array([-1, 0, 1, 1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, -1, 0, -1]);
+		let model: IGeomModelData = {vertices: vs, uvsList: [uvs], normals: nvs};
+		let mesh = VoxRScene.createDataMeshFromModel(model, material);
+
+		let scale = 30.0;
+		let entity = VoxEntity.createDisplayEntity();
+		entity.setMaterial(material);
+		entity.setMesh(mesh);
+		entity.setScaleXYZ(scale, scale, scale);
+		this.m_rscene.addEntity(entity);
+	}
+	private testHasIndicesMesh(): void {
+		// 推荐的模型数据组织形式
+		let material = VoxMaterial.createDefaultMaterial();
+		// material.normalEnabled = true;
+		material.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
+
+		let nvs = new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]);
+		let uvs = new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]);
+		let vs = new Float32Array([10, 0, -10, -10, 0, -10, -10, 0, 10, 10, 0, 10]);
+		let ivs = new Uint16Array([0, 1, 2, 0, 2, 3]);
+		let model: IGeomModelData = {vertices: vs, uvsList: [uvs], normals: nvs, indices: ivs};
+		// let mesh = VoxRScene.createDataMeshFromModel(model, material);
+		let mesh = VoxRScene.createDataMeshFromModel(model);
+
+		let scale = 10.0;
+		let entity = VoxEntity.createDisplayEntity();
+		entity.setMaterial(material);
+		entity.setMesh(mesh);
+		entity.setScaleXYZ(scale, scale, scale);
+		this.m_rscene.addEntity(entity);
+	}
     private init3DScene(): void {
-        
+
+        this.testHasNotIndicesMesh();
+        // this.testHasIndicesMesh();
         
     }
     run(): void {
