@@ -127,14 +127,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-function createDisplayEntityFromModel(model, material = null, vbWhole = false) {
-  return CoRScene.createDisplayEntityFromModel(model, material, vbWhole);
+function createDisplayEntityFromModel(model, material = null, texEnabled = false) {
+  return CoRScene.createDisplayEntityFromModel(model, material, texEnabled);
 }
 
 exports.createDisplayEntityFromModel = createDisplayEntityFromModel;
 
-function createDisplayEntityWithDataMesh(mesh, pmaterial, texEnabled = true, vbWhole = false) {
-  return CoRScene.createDisplayEntityWithDataMesh(mesh, pmaterial, texEnabled, vbWhole);
+function createDisplayEntityWithDataMesh(mesh, pmaterial, texEnabled = false) {
+  return CoRScene.createDisplayEntityWithDataMesh(mesh, pmaterial, texEnabled);
 }
 
 exports.createDisplayEntityWithDataMesh = createDisplayEntityWithDataMesh;

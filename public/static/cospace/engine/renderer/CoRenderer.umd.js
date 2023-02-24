@@ -3297,7 +3297,8 @@ class RenderSortBlock {
   run(rc) {
     this.m_shader.resetUniform();
     let unit = null;
-    let nodes = this.m_nodes; //let info:string = "";
+    let nodes = this.m_nodes;
+    let info = "";
 
     for (let i = 0; i < this.m_renderTotal; ++i) {
       unit = nodes[i];
@@ -3308,8 +3309,9 @@ class RenderSortBlock {
         unit.drawThis(rc);
       } else {
         unit.drawPart(rc);
-      } //info += unit.value+",";
+      }
 
+      info += unit.value + ",";
     } //console.log(info);
 
   }
@@ -3335,7 +3337,6 @@ class RenderSortBlock {
 
   sort() {
     if (this.m_nodesTotal > 0) {
-      //console.log("this.m_nodesTotal: ",this.m_nodesTotal);
       // 整个sort执行过程放在渲染运行时渲染执行阶段是不妥的,但是目前还没有好办法
       // 理想的情况是运行时不会被复杂计算打断，复杂计算应该再渲染执行之前完成
       let next = this.m_begin;
@@ -8263,6 +8264,7 @@ class Stencil {
     this.m_depfs[1] = 1;
     this.m_enabled = true;
     if (this.m_rstate) this.m_rstate.setDepthTestEnable(enable);
+    return this;
   }
   /**
    * 设置 gpu stencilFunc 状态
@@ -8280,6 +8282,7 @@ class Stencil {
     ls[3] = 1;
     this.m_enabled = true;
     if (this.m_rstate) this.m_rstate.setStencilFunc(func, ref, mask);
+    return this;
   }
   /**
    * 设置 gpu stencilMask 状态
@@ -8292,6 +8295,7 @@ class Stencil {
     this.m_maskfs[1] = 1;
     this.m_enabled = true;
     if (this.m_rstate) this.m_rstate.setStencilMask(mask);
+    return this;
   }
   /**
    * 设置 gpu stencilOp 状态
@@ -8309,6 +8313,7 @@ class Stencil {
     ls[3] = 1;
     this.m_enabled = true;
     if (this.m_rstate) this.m_rstate.setStencilOp(fail, zfail, zpass);
+    return this;
   }
 
   reset() {
@@ -8341,6 +8346,27 @@ class Stencil {
         rstate.setStencilOp(ps[0], ps[1], ps[2]);
       }
     }
+
+    return this;
+  }
+
+  clone() {
+    let st = new Stencil();
+    st.m_enabled = this.m_enabled;
+    st.m_depfs = this.m_depfs.slice();
+    st.m_maskfs = this.m_maskfs.slice();
+    st.m_funcfs = this.m_funcfs.slice();
+    st.m_opfs = this.m_opfs.slice();
+    return this;
+  }
+
+  copyFrom(src) {
+    this.m_enabled = src.m_enabled;
+    this.m_depfs = src.m_depfs.slice();
+    this.m_maskfs = src.m_maskfs.slice();
+    this.m_funcfs = src.m_funcfs.slice();
+    this.m_opfs = src.m_opfs.slice();
+    return this;
   }
 
 }

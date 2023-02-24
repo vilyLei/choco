@@ -1654,8 +1654,9 @@ class ROTransform {
 
     this.m_invMatEnabled = false;
     this.m_rotFlag = false;
-    this.m_dt = 0;
-    this.m_updater = null;
+    this.m_dt = 0; // private m_updater: ITransUpdater = null;
+
+    this.wrapper = null;
     this.version = -1;
     /**
      * the default value is 0
@@ -2013,7 +2014,8 @@ class ROTransform {
     this.m_parentMat = null;
     this.updateStatus = ROTransform.UPDATE_TRANSFORM;
     this.m_fs32 = null;
-    this.m_updater = null;
+    this.wrapper = null;
+    this.wrapper = null;
   }
 
   copyFrom(src) {
@@ -2030,13 +2032,11 @@ class ROTransform {
   }
 
   updateTo() {
-    if (this.m_updater) {
-      this.m_updater.addItem(this);
-    }
+    this.wrapper.updateTo();
   }
 
   setUpdater(updater) {
-    this.m_updater = updater;
+    this.wrapper.setUpdater(updater);
   }
 
   update() {
@@ -2974,6 +2974,12 @@ class MaterialBase {
 
     this.pipeTypes = null;
     this.renderState = 0;
+    this.colorMask = 0;
+    /**
+     * the default value is null
+     */
+
+    this.stencil = null;
     this.multiPass = false;
     this.m_texList = null;
     this.m_texListLen = 0;
@@ -3040,11 +3046,10 @@ class MaterialBase {
     }
 
     return false;
-  }
+  } // initializeByRenderer(texEnabled: boolean = false): void {
+  //     this.initializeByCodeBuf(texEnabled);
+  // }
 
-  initializeByRenderer(texEnabled = false) {
-    this.initializeByCodeBuf(texEnabled);
-  }
 
   initializeByCodeBuf(texEnabled = false) {
     texEnabled = texEnabled || this.getTextureTotal() > 0;
@@ -8175,7 +8180,8 @@ class RenderSortBlock {
   run(rc) {
     this.m_shader.resetUniform();
     let unit = null;
-    let nodes = this.m_nodes; //let info:string = "";
+    let nodes = this.m_nodes;
+    let info = "";
 
     for (let i = 0; i < this.m_renderTotal; ++i) {
       unit = nodes[i];
@@ -8186,8 +8192,9 @@ class RenderSortBlock {
         unit.drawThis(rc);
       } else {
         unit.drawPart(rc);
-      } //info += unit.value+",";
+      }
 
+      info += unit.value + ",";
     } //console.log(info);
 
   }
@@ -8213,7 +8220,6 @@ class RenderSortBlock {
 
   sort() {
     if (this.m_nodesTotal > 0) {
-      //console.log("this.m_nodesTotal: ",this.m_nodesTotal);
       // 整个sort执行过程放在渲染运行时渲染执行阶段是不妥的,但是目前还没有好办法
       // 理想的情况是运行时不会被复杂计算打断，复杂计算应该再渲染执行之前完成
       let next = this.m_begin;
@@ -11225,19 +11231,56 @@ function createBoundsMesh() {
 
 exports.createBoundsMesh = createBoundsMesh;
 
-function createDataMeshFromModel(model, material = null, vbWhole = false) {
-  const dataMesh = new DataMesh_1.default();
-  dataMesh.vbWholeDataEnabled = vbWhole;
-  dataMesh.setVS(model.vertices);
-  dataMesh.setUVS(model.uvsList[0]);
-  dataMesh.setNVS(model.normals);
-  dataMesh.setIVS(model.indices);
-
+function createDataMeshFromModel(model, material = null, texEnabled = false) {
   if (material != null) {
-    dataMesh.setVtxBufRenderData(material);
-    dataMesh.initialize();
+    texEnabled = texEnabled || material.getTextureAt(0) != null;
   }
 
+  const vbWhole = model.vbWhole ? model.vbWhole : false;
+  let stride = Math.round(model.stride ? model.stride : 3);
+  stride = stride > 0 && stride < 4 ? stride : 3;
+  const dataMesh = new DataMesh_1.default();
+  dataMesh.vbWholeDataEnabled = vbWhole;
+  let vtxTotal = model.vertices.length / stride;
+  dataMesh.setVS(model.vertices);
+
+  if (model.uvsList && model.uvsList.length > 0) {
+    dataMesh.setUVS(model.uvsList[0]);
+
+    if (model.uvsList.length > 1) {
+      dataMesh.setUVS2(model.uvsList[0]);
+    }
+  } else if (texEnabled) {
+    dataMesh.setUVS(new Float32Array(Math.floor(model.vertices.length / 3) * 2));
+    console.error("hasn't uv data !!!, in the createDataMeshFromModel(...) function.");
+  }
+
+  if (model.normals) {
+    dataMesh.setNVS(model.normals);
+  }
+
+  if (model.indices) {
+    dataMesh.setIVS(model.indices);
+  } else {
+    let ivs = vtxTotal <= 65535 ? new Uint16Array(vtxTotal) : new Uint32Array(vtxTotal);
+
+    for (let i = 0; i < vtxTotal; ++i) {
+      ivs[i] = i;
+    } // console.log("crate a new ivs: ", ivs);
+
+
+    dataMesh.setIVS(ivs);
+    console.warn("hasn't indices data !, in the createDataMeshFromModel(...) function.");
+  }
+
+  if (material != null) {
+    material.initializeByCodeBuf(texEnabled);
+    dataMesh.setVtxBufRenderData(material);
+  } else {
+    console.warn("the material parameter value is null, so this mesh will build all vtx bufs.");
+  }
+
+  dataMesh.initialize();
   return dataMesh;
 }
 
@@ -11281,42 +11324,39 @@ function createMaterial(dcr) {
 
 exports.createMaterial = createMaterial;
 
-function createDisplayEntityFromModel(model, material = null, texEnabled = true, vbWhole = false) {
+function createDisplayEntityFromModel(model, material = null, texEnabled = false) {
   if (!material) {
     material = new Default3DMaterial_1.default();
     material.initializeByCodeBuf(texEnabled);
-  } else {
-    material.initializeByCodeBuf(texEnabled || material.getTextureAt(0) != null);
-  }
+  } // else {
+  // 	material.initializeByCodeBuf(texEnabled || material.getTextureAt(0) != null);
+  // }
+  // if (material.getCodeBuf() == null || material.getBufSortFormat() < 0x1) {
+  // 	throw Error("the material does not call the initializeByCodeBuf() function. !!!");
+  // }
+  // let ivs = model.indices;
+  // let vs = model.vertices;
+  // let uvs: Float32Array;
+  // if (model.uvsList) {
+  // 	uvs = model.uvsList[0];
+  // } else {
+  // 	uvs = new Float32Array( 2 * vs.length / 3 );
+  // }
+  // let nvs = model.normals;
+  // if (nvs && typeof CoAGeom !== "undefined") {
+  // 	CoAGeom.SurfaceNormal.ClacTrisNormal(vs, vs.length, ivs.length / 3, ivs, nvs);
+  // }
+  // const dataMesh = new DataMesh();
+  // dataMesh.vbWholeDataEnabled = vbWhole;
+  // dataMesh.setVS(vs);
+  // dataMesh.setUVS(uvs);
+  // dataMesh.setNVS(nvs);
+  // dataMesh.setIVS(ivs);
+  // dataMesh.setVtxBufRenderData(material);
+  // dataMesh.initialize();
 
-  if (material.getCodeBuf() == null || material.getBufSortFormat() < 0x1) {
-    throw Error("the material does not call the initializeByCodeBuf() function. !!!");
-  }
 
-  let ivs = model.indices;
-  let vs = model.vertices;
-  let uvs;
-
-  if (model.uvsList) {
-    uvs = model.uvsList[0];
-  } else {
-    uvs = new Float32Array(2 * vs.length / 3);
-  }
-
-  let nvs = model.normals;
-
-  if (nvs && typeof CoAGeom !== "undefined") {
-    CoAGeom.SurfaceNormal.ClacTrisNormal(vs, vs.length, ivs.length / 3, ivs, nvs);
-  }
-
-  const dataMesh = new DataMesh_1.default();
-  dataMesh.vbWholeDataEnabled = vbWhole;
-  dataMesh.setVS(vs);
-  dataMesh.setUVS(uvs);
-  dataMesh.setNVS(nvs);
-  dataMesh.setIVS(ivs);
-  dataMesh.setVtxBufRenderData(material);
-  dataMesh.initialize();
+  let dataMesh = this.createDataMeshFromModel(model, material, texEnabled);
   const entity = new DisplayEntity_1.default();
   entity.setMesh(dataMesh);
   entity.setMaterial(material);
@@ -11325,11 +11365,10 @@ function createDisplayEntityFromModel(model, material = null, texEnabled = true,
 
 exports.createDisplayEntityFromModel = createDisplayEntityFromModel;
 
-function createDisplayEntityWithDataMesh(mesh, pmaterial, texEnabled = true, vbWhole = false) {
+function createDisplayEntityWithDataMesh(mesh, pmaterial, texEnabled = false) {
   if (pmaterial != null) {
     pmaterial.initializeByCodeBuf(texEnabled);
     mesh.setBufSortFormat(pmaterial.getBufSortFormat());
-    mesh.vbWholeDataEnabled = vbWhole;
     mesh.initialize();
   }
 
@@ -11538,6 +11577,8 @@ const RendererState_1 = __importDefault(__webpack_require__("29ef"));
 
 const ROTransform_1 = __importDefault(__webpack_require__("0929"));
 
+const ROTransUpdateWrapper_1 = __importDefault(__webpack_require__("f26a"));
+
 const SpaceCullingMask_1 = __webpack_require__("cc48");
 
 const RODisplay_1 = __importDefault(__webpack_require__("dc2b"));
@@ -11547,6 +11588,7 @@ class DisplayEntity {
     this.m_uid = 0;
     this.m_trs = null;
     this.m_eventDispatcher = null;
+    this.m_trw = null;
     this.m_visible = true;
     this.m_drawEnabled = true;
     this.m_rcolorMask = 0;
@@ -11612,6 +11654,9 @@ class DisplayEntity {
       }
     }
 
+    this.m_trw = new ROTransUpdateWrapper_1.default();
+    this.m_trw.__$target = this;
+    this.m_trs.wrapper = this.m_trw;
     this.createBounds();
   }
 
@@ -11955,6 +12000,10 @@ class DisplayEntity {
           let ivs = this.m_mesh.getIVS();
           this.m_localBounds.addFloat32AndIndicesArr(this.m_mesh.getVS(), ivs.subarray(ivsIndex, ivsIndex + ivsCount));
           this.m_localBounds.update();
+
+          if (this.m_trw != null) {
+            this.m_trw.updateTo();
+          }
         }
       }
     }
@@ -12366,6 +12415,11 @@ class DisplayEntity {
     this.m_globalBounds = null;
     this.m_localBounds = null;
     this.m_pipeLine = null;
+
+    if (this.m_trw != null) {
+      this.m_trw.destroy();
+      this.m_trw = null;
+    }
   }
 
   toString() {
@@ -14478,7 +14532,7 @@ class DataMesh extends MeshBase_1.default {
   }
   /**
    * set vertex uv data
-   * @param vs vertex uv buffer Float32Array
+   * @param uvs vertex uv buffer Float32Array
    */
 
 
@@ -14488,7 +14542,7 @@ class DataMesh extends MeshBase_1.default {
   }
   /**
    * set second vertex uv data
-   * @param vs vertex uv buffer Float32Array
+   * @param uvs vertex uv buffer Float32Array
    */
 
 
@@ -14607,16 +14661,17 @@ class DataMesh extends MeshBase_1.default {
       this.m_boundsVersion = this.bounds.version;
       this.m_boundsChanged = false;
       this.m_ivs = this.m_initIVS;
+      let free = this.getBufSortFormat() < 1;
       ROVertexBuffer_1.default.Reset();
       ROVertexBuffer_1.default.AddFloat32Data(this.m_vs, this.vsStride);
 
-      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_UVS_INDEX)) {
+      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_UVS_INDEX) || free && this.m_uvs != null) {
         ROVertexBuffer_1.default.AddFloat32Data(this.m_uvs, this.uvsStride);
       } else {
         console.warn("DataMesh hasn't uv data.");
       }
 
-      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_NVS_INDEX)) {
+      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_NVS_INDEX) || free && this.m_nvs != null) {
         if (this.m_nvs == null) {
           let trisNumber = this.m_ivs.length / 3;
           this.m_nvs = new Float32Array(this.m_vs.length);
@@ -14628,18 +14683,19 @@ class DataMesh extends MeshBase_1.default {
         console.warn("DataMesh hasn't normal(nvs) data.");
       }
 
-      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_CVS_INDEX)) {
+      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_CVS_INDEX) || free && this.m_cvs != null) {
         ROVertexBuffer_1.default.AddFloat32Data(this.m_cvs, this.cvsStride);
-      } else {
-        console.warn("DataMesh hasn't color(cvs) data.");
-      }
+      } // else {
+      // 	console.warn("DataMesh hasn't color(cvs) data.");
+      // }
+
 
       if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_TVS_INDEX)) {
         ROVertexBuffer_1.default.AddFloat32Data(this.m_tvs, 3);
         ROVertexBuffer_1.default.AddFloat32Data(this.m_btvs, 3);
       }
 
-      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_UVS2_INDEX)) {
+      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_UVS2_INDEX) || free && this.m_uvs2 != null) {
         ROVertexBuffer_1.default.AddFloat32Data(this.m_uvs2, this.uvsStride);
       }
 
@@ -20741,6 +20797,7 @@ class Stencil {
     this.m_depfs[1] = 1;
     this.m_enabled = true;
     if (this.m_rstate) this.m_rstate.setDepthTestEnable(enable);
+    return this;
   }
   /**
    * 设置 gpu stencilFunc 状态
@@ -20758,6 +20815,7 @@ class Stencil {
     ls[3] = 1;
     this.m_enabled = true;
     if (this.m_rstate) this.m_rstate.setStencilFunc(func, ref, mask);
+    return this;
   }
   /**
    * 设置 gpu stencilMask 状态
@@ -20770,6 +20828,7 @@ class Stencil {
     this.m_maskfs[1] = 1;
     this.m_enabled = true;
     if (this.m_rstate) this.m_rstate.setStencilMask(mask);
+    return this;
   }
   /**
    * 设置 gpu stencilOp 状态
@@ -20787,6 +20846,7 @@ class Stencil {
     ls[3] = 1;
     this.m_enabled = true;
     if (this.m_rstate) this.m_rstate.setStencilOp(fail, zfail, zpass);
+    return this;
   }
 
   reset() {
@@ -20819,6 +20879,27 @@ class Stencil {
         rstate.setStencilOp(ps[0], ps[1], ps[2]);
       }
     }
+
+    return this;
+  }
+
+  clone() {
+    let st = new Stencil();
+    st.m_enabled = this.m_enabled;
+    st.m_depfs = this.m_depfs.slice();
+    st.m_maskfs = this.m_maskfs.slice();
+    st.m_funcfs = this.m_funcfs.slice();
+    st.m_opfs = this.m_opfs.slice();
+    return this;
+  }
+
+  copyFrom(src) {
+    this.m_enabled = src.m_enabled;
+    this.m_depfs = src.m_depfs.slice();
+    this.m_maskfs = src.m_maskfs.slice();
+    this.m_funcfs = src.m_funcfs.slice();
+    this.m_opfs = src.m_opfs.slice();
+    return this;
   }
 
 }
@@ -25312,7 +25393,6 @@ class RendererSceneBase {
     this.m_rayTestEnabled = true;
     this.m_prependNodes = null;
     this.m_appendNodes = null;
-    this.m_runner = null;
     this.m_uid = uidBase + RendererSceneBase.s_uid++;
   }
 
@@ -25707,7 +25787,7 @@ class RendererSceneBase {
     this.m_renderer.setProcessSortEnabled(process, sortEnabled);
 
     if (sortEnabled && process != null && !process.hasSorter()) {
-      sorter = sorter != null ? sorter : this.m_camDisSorter;
+      sorter = sorter ? sorter : this.m_camDisSorter;
       process.setSorter(sorter);
     }
   }
@@ -26004,11 +26084,10 @@ class RendererSceneBase {
 
 
   update(autoCycle = true, mouseEventEnabled = true) {
-    if (this.m_runner) {
-      this.m_runner();
-    } // this.stage3D.enterFrame();
-
-
+    // if (this.m_runner) {
+    //     this.m_runner();
+    // }
+    // this.stage3D.enterFrame();
     const st = this.m_currStage3D;
     if (st != null) st.enterFrame();
 
@@ -26159,11 +26238,11 @@ class RendererSceneBase {
         }
       }
     }
-  }
+  } // private m_runner: () => void = null;
+  // setRunner(runner: () => void): void {
+  //     this.m_runner = runner;
+  // }
 
-  setRunner(runner) {
-    this.m_runner = runner;
-  }
   /**
    * run all renderer processes in the renderer instance
    */
@@ -32927,16 +33006,13 @@ class MeshBase {
     this.m_bufStatusList = null;
     this.m_bufTypeList = null;
     this.m_bufSizeList = null;
-    this.m_polyhedral = true; //private m_isDyn:boolean = false;
-    // very important!!!
+    this.m_polyhedral = true; // very important!!!
 
     this.m_layoutBit = 0x0;
     this.m_transMatrix = null;
     this.m_vbuf = null;
     this.m_ivbuf = null;
-    this.m_ivs = null; // setIVtxBuffer(ivbuf: ROIVertexBuffer): void {
-    // }
-
+    this.m_ivs = null;
     /**
      * 强制更新 vertex indices buffer 数据, 默认值为false
      */
@@ -32947,6 +33023,11 @@ class MeshBase {
      */
 
     this.wireframe = false;
+    /**
+     * 是否启用形状模式数据, 默认值为true
+     */
+
+    this.shape = true;
     /**
      * vtx positons bounds AABB in the local space
      */
@@ -32965,7 +33046,7 @@ class MeshBase {
     this.drawInsStride = 0;
     this.drawInsTotal = 0;
     this.m_attachCount = 0;
-    this.m_bufDataUsage = bufDataUsage; //this.m_isDyn = bufDataUsage == VtxBufConst.VTX_DYNAMIC_DRAW;
+    this.m_bufDataUsage = bufDataUsage;
   }
 
   isUVSEnabled() {
@@ -34481,7 +34562,7 @@ class CameraDsistanceSorter {
     let camPos = this.m_rc.getCamera().getPosition();
 
     for (let i = 0; i < nodesTotal; ++i) {
-      nodes[i].value = -Vector3D_1.default.DistanceSquared(nodes[i].bounds.center, camPos); //nodes[i].value = nodes[i].pos.y;
+      nodes[i].value = -Vector3D_1.default.DistanceSquared(nodes[i].bounds.center, camPos); // nodes[i].value = nodes[i].pos.y;
     }
 
     return 0;
@@ -39814,6 +39895,64 @@ class ShaderCompileInfo {
 }
 
 exports.default = ShaderCompileInfo;
+
+/***/ }),
+
+/***/ "f26a":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class ROTransUpdateWrapper {
+  constructor() {
+    this.m_updater = null;
+    /**
+     * the default value is 0
+     */
+
+    this.__$transUpdate = 0;
+    this.__$target = null;
+  }
+
+  destroy() {
+    this.m_updater = null;
+  }
+
+  updateTo() {
+    if (this.m_updater) {
+      this.m_updater.addItem(this);
+    }
+  }
+
+  setUpdater(updater) {
+    this.m_updater = updater;
+  }
+
+  update() {
+    this.__$target.update();
+
+    this.__$transUpdate = 0;
+  }
+
+}
+
+exports.default = ROTransUpdateWrapper;
 
 /***/ }),
 

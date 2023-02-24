@@ -1151,6 +1151,16 @@ exports.tube = tube;
 const torus = new TorusMeshBuilder_1.TorusMeshBuilder();
 exports.torus = torus;
 
+function createDataMeshFromModel(model, material = null, texEnabled = false) {
+  if (typeof CoRScene !== "undefined") {
+    return CoRScene.createDataMeshFromModel(model, material, texEnabled);
+  }
+
+  return null;
+}
+
+exports.createDataMeshFromModel = createDataMeshFromModel;
+
 function createDataMesh() {
   if (typeof CoRScene !== "undefined") {
     return CoRScene.createDataMesh();
