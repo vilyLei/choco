@@ -64,7 +64,7 @@ export class MeshCreation {
 		let model: IGeomModelData = {vertices: vs, uvsList: [uvs], normals: nvs};
 		let mesh = VoxRScene.createDataMeshFromModel(model, material);
 
-		let scale = 30.0;
+		let scale = 150.0;
 		let entity = VoxEntity.createDisplayEntity();
 		entity.setMaterial(material);
 		entity.setMesh(mesh);
@@ -85,7 +85,7 @@ export class MeshCreation {
 		// let mesh = VoxRScene.createDataMeshFromModel(model, material);
 		let mesh = VoxRScene.createDataMeshFromModel(model);
 
-		let scale = 10.0;
+		let scale = 20.0;
 		let entity = VoxEntity.createDisplayEntity();
 		entity.setMaterial(material);
 		entity.setMesh(mesh);
@@ -94,8 +94,8 @@ export class MeshCreation {
 	}
     private init3DScene(): void {
 
-        this.testHasNotIndicesMesh();
-        // this.testHasIndicesMesh();
+        // this.testHasNotIndicesMesh();
+        this.testHasIndicesMesh();
         
     }
     run(): void {
