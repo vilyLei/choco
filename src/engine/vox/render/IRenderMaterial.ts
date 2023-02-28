@@ -13,6 +13,9 @@ import IRenderTexture from "../../vox/render/texture/IRenderTexture";
 import { IMaterialPipeline } from "../../vox/material/pipeline/IMaterialPipeline";
 import { MaterialPipeType } from "../material/pipeline/MaterialPipeType";
 import { IStencil } from "./rendering/IStencil";
+import IVtxDrawingInfo from "./vtx/IVtxDrawingInfo";
+
+import IPassGraph from "./pass/IPassGraph";
 
 interface IRenderMaterial {
 
@@ -22,23 +25,24 @@ interface IRenderMaterial {
      * pipes type list for material pipeline
      */
     pipeTypes: MaterialPipeType[];
-    /**
-     * the default value is 0x0
-     */
-    renderState: number;
-    /**
-     * the default value is 0x0
-     */
-    colorMask: number;
-    /**
-     * the default value is null
-     */
-    stencil: IStencil;
-
     // /**
-    //  * @param texEnabled the default value is false
+    //  * the default value is 0x0
     //  */
-    // initializeByRenderer(texEnabled: boolean): void;
+    // renderState: number;
+    // /**
+    //  * the default value is 0x0
+    //  */
+    // colorMask: number;
+    // /**
+    //  * the default value is null
+    //  */
+    // stencil: IStencil;
+    /**
+     * vtx drawing info representation
+     */
+    readonly vtxInfo: IVtxDrawingInfo;
+    graph: IPassGraph;
+
     /**
      * @param texEnabled the default value is false
      */
@@ -74,6 +78,7 @@ interface IRenderMaterial {
     getMaterialPipeline(): IMaterialPipeline;
 
     destroy(): void;
+    update(): void;
     __$attachThis(): void;
     __$detachThis(): void;
 }

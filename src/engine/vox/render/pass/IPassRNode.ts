@@ -5,8 +5,8 @@
 /*                                                                         */
 /***************************************************************************/
 
-interface IPassGraph {
+export default interface IPassRNode {
     
+    addNode(node: IPassRNode): void;
     destroy(): void;
 }
-export { IPassGraph }
