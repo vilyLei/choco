@@ -53,8 +53,8 @@ export class RenderingState {
         
         let envMapUrl = "static/assets/bytes/spe.mdf";
 
-        let loader = new BinaryTextureLoader();
-        loader.loadTextureWithUrl(envMapUrl, this.m_rscene);
+        let loader = new BinaryTextureLoader(this.m_rscene);
+        loader.loadTextureWithUrl(envMapUrl);
         this.m_envMap = loader.texture;
 
         let dis = 700.0;

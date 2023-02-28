@@ -4,10 +4,9 @@
 /*  Vily(vily313@126.com)                                                  */
 /*                                                                         */
 
-import EventBase from "../event/EventBase";
+import { EventBase } from "../../cospace/voxengine/VoxRScene";
 import IEventBase from "../event/IEventBase";
 import IRendererScene from "./IRendererScene";
-
 /***************************************************************************/
 interface I_RenderStatusDisplay {
 
