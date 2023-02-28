@@ -6,7 +6,7 @@ import VoxModuleShell from "../common/VoxModuleShell";
 export class MouseInteraction {
 
     private m_rscene: IRendererScene;
-    constructor(){}
+    constructor() { }
     initialize(): void {
         new VoxModuleShell().initialize(
             (): void => { this.initMouseInteract(); },
@@ -14,20 +14,13 @@ export class MouseInteraction {
         );
     }
     private initMouseInteract(): void {
-        const mi = VoxUIInteraction.createMouseInteraction();
-        mi.initialize(this.m_rscene, 0, true);
-        mi.setAutoRunning( true );
+        VoxUIInteraction.createMouseInteraction().initialize(this.m_rscene).setAutoRunning(true);
     }
     private initRenderer(): void {
+
         this.m_rscene = VoxRScene.createRendererScene();
-        this.m_rscene.initialize(null);
+        this.m_rscene.initialize(null).setAutoRunning(true);
         this.m_rscene.addEntity(VoxRScene.createAxis3DEntity());
     }
-    run(): void {
-        if (this.m_rscene) {
-            this.m_rscene.run();
-        }
-    }
 }
-
 export default MouseInteraction;
