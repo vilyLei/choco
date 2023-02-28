@@ -542,6 +542,7 @@ class GeometryBufferParser {
   parseMeshGeometryBuffer(relationships, geoNode, deformers, fbxTree) {
     //console.log("GeometryBufferParser::genGeometryBuffers(), skeleton: ",skeleton);
     // let time = Date.now();
+    console.log("geoNode: ", geoNode);
     const geoInfo = this.parseGeoNode(geoNode); // let lossTime: number = Date.now() - time;
     // console.log("XXX geoInfo lossTime: ", lossTime);
 
@@ -598,6 +599,7 @@ class GeometryBufferParser {
     let advancedModel = geoInfo.vertexPositions.length == 5;
 
     if (advancedModel) {
+      // console.log("advancedModel, geoInfo: ", geoInfo);
       geoInfo.vertexIndices = this.parseData(geoInfo.vertexIndices);
       geoInfo.vertexPositions = this.parseData(geoInfo.vertexPositions);
 
@@ -615,9 +617,9 @@ class GeometryBufferParser {
 
       return this.m_egd.createBufObject(geoInfo);
     } // console.log("A1 geoInfo: ", geoInfo);
+    // console.log("VVV-XXX advancedModel is False.");
 
 
-    console.log("VVV-XXX advancedModel is False.");
     const bufObj = new FBXBufferObject_1.FBXBufferObject();
     bufObj.isEntity = true;
     let vivs = geoInfo.vertexIndices; // let vvs = geoInfo.vertexPositions;
@@ -740,6 +742,7 @@ class GeometryBufferParser {
 
 
   genFace(bufObj, geoInfo, facePositionIndexes, materialIndex, faceNormals, faceColors, faceUVs, faceWeights, faceWeightIndices, faceLength) {
+    console.log("XXXX genFace() bufObj.uvs: ", bufObj.uvs);
     let vps = geoInfo.vertexPositions;
     let vs = bufObj.vertex;
     let nvs = bufObj.normal;
@@ -804,6 +807,7 @@ class GeometryBufferParser {
 
     bufObj.i3 = i3;
     bufObj.i2 = i2;
+    console.log("XXXX bufObj.uvs: ", bufObj.uvs);
   } // Parse normal from FBXTree.Objects.Geometry.LayerElementNormal if it exists
 
 
@@ -2710,16 +2714,102 @@ class ElementGeomData {
     return ivs;
   }
 
-  buildBufs(obj, sivs, svs, snvs) {
+  buildVS(sivs, svs, sivsLen) {
     let vsLen = sivs.length * 3;
-    let nvs = null;
-    let ivs = this.calcVtxIVS(sivs);
     let vs = new Float32Array(vsLen);
-    let sivsLen = sivs.length;
     let sk = 0;
     let k = 0;
 
-    if (snvs == null || snvs.length == vs.length) {
+    for (let i = 0; i < sivsLen; ++i) {
+      k = i * 3;
+      sk = sivs[i];
+      if (sk < 0) sk = sk * -1 - 1;
+      sk *= 3;
+      vs[k] = svs[sk];
+      vs[k + 1] = svs[sk + 1];
+      vs[k + 2] = svs[sk + 2];
+      k += 3;
+    }
+
+    return vs;
+  }
+
+  buildNVS(sivs, snvs, sivsLen) {
+    let nvs = null;
+    let vsLen = sivs.length * 3;
+
+    if (snvs == null || snvs.length == vsLen) {
+      if (snvs != null) {
+        nvs = new Float32Array(snvs);
+      }
+    } else {
+      let sk = 0;
+      let k = 0;
+      nvs = new Float32Array(vsLen);
+
+      for (let i = 0; i < sivsLen; ++i) {
+        k = i * 3;
+        sk = sivs[i];
+        if (sk < 0) sk = sk * -1 - 1;
+        sk *= 3;
+        nvs[k] = snvs[sk];
+        nvs[k + 1] = snvs[sk + 1];
+        nvs[k + 2] = snvs[sk + 2];
+        k += 3;
+      }
+    }
+
+    return nvs;
+  }
+
+  buildUVS(sivs, suvs) {
+    let uvs = null;
+    let vsLen = sivs.length * 2;
+
+    if (suvs == null || suvs.length == vsLen) {
+      if (suvs != null) {
+        uvs = new Float32Array(suvs);
+      }
+    } else {
+      let sk = 0;
+      let k = 0;
+      uvs = new Float32Array(vsLen);
+
+      for (let i = 0; i < vsLen; ++i) {
+        k = i * 2;
+        sk = sivs[i];
+        if (sk < 0) sk = sk * -1 - 1;
+        sk *= 2;
+        uvs[k] = suvs[sk];
+        uvs[k + 1] = suvs[sk + 1];
+        k += 2;
+      }
+    }
+
+    return uvs;
+  }
+
+  buildBufs(obj, sivs, svs, snvs, suvs, suvivs) {
+    let vsLen = sivs.length * 3;
+    let sivsLen = sivs.length;
+    let nvs = null;
+    let ivs = this.calcVtxIVS(sivs);
+    obj.vertex = this.buildVS(sivs, svs, sivsLen);
+    obj.normal = this.buildNVS(sivs, snvs, sivsLen);
+
+    if (suvs) {
+      obj.uvs = [this.buildUVS(suvivs, suvs)];
+    } else {
+      obj.uvs = null;
+    }
+
+    obj.indices = ivs;
+    return;
+    let vs = new Float32Array(vsLen);
+    let sk = 0;
+    let k = 0;
+
+    if (snvs == null || snvs.length == vsLen) {
       if (snvs != null) {
         nvs = new Float32Array(snvs);
       }
@@ -2771,19 +2861,40 @@ class ElementGeomData {
   }
 
   createBufObject(geoInfo) {
+    console.log("createBufObject(), geoInfo: ", geoInfo);
     let obj = new FBXBufferObject_1.FBXBufferObject();
+    let puvs = null;
+    let uvList = geoInfo.uv;
 
-    if (geoInfo.normal != null) {
-      this.buildBufs(obj, geoInfo.vertexIndices, geoInfo.vertexPositions, geoInfo.normal.buffer);
-    } else {
-      this.buildBufs(obj, geoInfo.vertexIndices, geoInfo.vertexPositions, null);
-      console.error("当前FBX模型法线数据缺失!!!");
+    if (uvList && uvList.length > 0) {
+      puvs = uvList[0];
     }
 
-    let uvsLen = 2 * obj.vertex.length / 3;
-    let uvs = new Float32Array(uvsLen);
-    obj.isEntity = true;
-    obj.uvs = [uvs];
+    let uv_buffer = null;
+    let uv_indices = null;
+
+    if (puvs != null) {
+      uv_buffer = puvs.buffer;
+      uv_indices = puvs.indices;
+    }
+
+    if (geoInfo.normal != null) {
+      this.buildBufs(obj, geoInfo.vertexIndices, geoInfo.vertexPositions, geoInfo.normal.buffer, uv_buffer, uv_indices);
+    } else {
+      this.buildBufs(obj, geoInfo.vertexIndices, geoInfo.vertexPositions, null, uv_buffer, uv_indices);
+      console.error("Error: 当前FBX模型法线数据缺失!!!");
+    }
+
+    if (obj.uvs == null) {
+      obj.uvs = [new Float32Array(2 * obj.indices.length / 3)];
+      console.error("Error: uvs data is empty !!!");
+      obj.errorStatus = 1;
+    } // let uvsLen = 2 * obj.vertex.length / 3;
+    // let uvs = new Float32Array(uvsLen);
+
+
+    obj.isEntity = true; // obj.uvs = [uvs];
+
     return obj;
   }
 
@@ -3121,6 +3232,7 @@ class FBXBufferObject {
     this.weightsIndices = [];
     this.isEntity = false;
     this.transform = null;
+    this.errorStatus = 0;
   }
 
   toGeometryModel() {

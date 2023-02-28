@@ -2802,6 +2802,42 @@ exports.default = DispEntity3DManager;
 
 /***/ }),
 
+/***/ "13b1":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+class RenderDrawMode {}
+
+RenderDrawMode.ELEMENTS_TRIANGLES = 1;
+RenderDrawMode.ELEMENTS_TRIANGLE_STRIP = 2;
+RenderDrawMode.ELEMENTS_TRIANGLE_FAN = 3;
+RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES = 4;
+RenderDrawMode.ARRAYS_LINES = 5;
+RenderDrawMode.ARRAYS_LINE_STRIP = 6;
+RenderDrawMode.ARRAYS_POINTS = 7;
+RenderDrawMode.ELEMENTS_LINES = 8;
+RenderDrawMode.DISABLE = 0;
+exports.default = RenderDrawMode;
+
+/***/ }),
+
 /***/ "1e15":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3048,6 +3084,29 @@ if (typeof window !== 'undefined') {
 
 /***/ }),
 
+/***/ "1f32":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+/***/ }),
+
 /***/ "1f61":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3288,21 +3347,22 @@ class RenderSortBlock {
   run(rc) {
     this.m_shader.resetUniform();
     let unit = null;
-    let nodes = this.m_nodes;
-    let info = "";
+    let nodes = this.m_nodes; // let info = "";
 
     for (let i = 0; i < this.m_renderTotal; ++i) {
       unit = nodes[i];
       this.m_shader.bindToGpu(unit.shdUid);
+
+      unit.vdrInfo.__$$copyToRDP();
+
       unit.run(rc);
 
       if (unit.partTotal < 1) {
         unit.drawThis(rc);
       } else {
         unit.drawPart(rc);
-      }
+      } // info += unit.value+",";
 
-      info += unit.value + ",";
     } //console.log(info);
 
   }
@@ -3315,6 +3375,9 @@ class RenderSortBlock {
     for (let i = 0; i < this.m_renderTotal; ++i) {
       unit = nodes[i];
       this.m_shader.bindToGpu(unit.shdUid);
+
+      unit.vdrInfo.__$$copyToRDP();
+
       unit.vro.run();
       unit.runLockMaterial2(null);
 
@@ -3492,10 +3555,10 @@ class RPONode {
     this.drawEnabled = true;
     this.uid = -1;
     this.index = -1; // only for show info
+    // drawMode = 0;
+    // ivsIndex = 0;
+    // ivsCount = 0;
 
-    this.drawMode = 0;
-    this.ivsIndex = 0;
-    this.ivsCount = 0;
     this.insCount = 0;
     this.shdUid = -1;
     this.vtxUid = -1;
@@ -3519,12 +3582,12 @@ class RPONode {
   }
 
   updateData() {
-    let p = this.unit;
-    this.drawMode = p.drawMode;
-    this.ivsIndex = p.ivsIndex;
-    this.ivsCount = p.ivsCount;
-    this.insCount = p.insCount;
-    p.drawOffset = p.ivsIndex * p.ibufStep;
+    let p = this.unit; // this.drawMode = p.drawMode;
+    // this.ivsIndex = p.ivsIndex;
+    // this.ivsCount = p.ivsCount;
+
+    this.insCount = p.insCount; // p.drawOffset = p.ivsIndex * p.ibufStep;
+
     this.vtxUid = p.vtxUid;
     this.vro = p.vro; // material info etc.
 
@@ -3536,10 +3599,10 @@ class RPONode {
   reset() {
     this.drawEnabled = true;
     this.uid = -1;
-    this.index = -1;
-    this.drawMode = 0;
-    this.ivsIndex = 0;
-    this.ivsCount = 0;
+    this.index = -1; // this.drawMode = 0;
+    // this.ivsIndex = 0;
+    // this.ivsCount = 0;
+
     this.insCount = 0;
     this.shdUid = -1;
     this.vtxUid = -1;
@@ -4031,6 +4094,8 @@ const RenderShader_1 = __importDefault(__webpack_require__("b30a"));
 const ROTransPool_1 = __importDefault(__webpack_require__("9156"));
 
 const GpuVtxObject_1 = __webpack_require__("670e");
+
+const EmptyVDRInfo_1 = __importDefault(__webpack_require__("744d"));
 /**
  * 本类实现了将 系统内存数据 合成为 渲染运行时系统所需的数据资源(包括: 渲染运行时管理数据和显存数据)
  */
@@ -4181,13 +4246,12 @@ class RODataBuilder {
       let rc = this.m_rc;
       let material = disp.getMaterial();
 
-      if (material != null) {
+      if (material) {
         if (material.getShaderData() == null) {
           let texList = material.getTextureList();
           let texEnabled = texList != null && texList != null && texList.length > 0;
           material.initializeByCodeBuf(texEnabled);
-        } // shdp = this.m_shader.create(material.getShaderData());
-
+        }
 
         shdp = this.m_shdpBuilder.create(material.getShaderData());
         shdp.upload(rc.RContext, rc.getUid());
@@ -4226,7 +4290,7 @@ class RODataBuilder {
         if (this.m_shader.getSharedUniformByShd(shdp) == null) {
           let sharedMList = this.createsharedMList(material, shdp);
 
-          if (sharedMList != null) {
+          if (sharedMList) {
             for (let i = 0; i < sharedMList.length; ++i) {
               sharedMList[i].program = shdp.getGPUProgram();
             }
@@ -4306,15 +4370,10 @@ class RODataBuilder {
   buildVtxRes(disp, runit, shdp) {
     if (disp.vbuf != null) {
       let vtxRes = this.m_vtxRes;
-      runit.ivsIndex = disp.ivsIndex;
-      runit.ivsCount = disp.ivsCount;
       runit.insCount = disp.insCount;
       runit.visible = disp.visible;
-      runit.setVisible(disp.visible);
-      runit.drawMode = disp.drawMode;
       runit.renderState = disp.renderState;
-      runit.rcolorMask = disp.rcolorMask;
-      runit.trisNumber = disp.trisNumber; // build vertex gpu resoure
+      runit.rcolorMask = disp.rcolorMask; // build vertex gpu resoure
 
       let resUid = disp.getVtxResUid();
       let vtx;
@@ -4322,8 +4381,7 @@ class RODataBuilder {
       let dispVtxVer = disp.getVtxResVer();
 
       if (vtxRes.hasResUid(resUid)) {
-        vtx = vtxRes.getVertexRes(resUid); // needBuild = vtx.version != disp.vbuf.version;
-
+        vtx = vtxRes.getVertexRes(resUid);
         needBuild = vtx.version != dispVtxVer;
 
         if (needBuild) {
@@ -4342,10 +4400,9 @@ class RODataBuilder {
         // vtx.indices.ibufStep = disp.vbuf.getIBufStep();
         // vtx.createVertexByVtxUid(disp.vbuf.getUid());
         let ivbuf = disp.ivbuf == null ? disp.vbuf : disp.ivbuf; // console.log("RODataBuilder::buildVtxRes(), XXX OOO XXX ivbuf: ", ivbuf);
+        // vtx.indices.ibufStep = ivbuf.getIBufStep();
 
-        vtx.indices.ibufStep = ivbuf.getIBufStep(); //disp.vbuf.getIBufStep();
-
-        vtx.indices.initialize(this.m_roVtxBuild, ivbuf);
+        vtx.indices.initialize(this.m_rc, this.m_roVtxBuild, ivbuf, disp);
         vtx.createVertex(this.m_roVtxBuild, shdp, disp.vbuf); // vtx.vertex.initialize(this.m_roVtxBuild, shdp, disp.vbuf);
         // vtx.version = disp.vbuf.version;
 
@@ -4354,16 +4411,26 @@ class RODataBuilder {
 
       vtxRes.__$attachRes(resUid);
 
-      runit.vro = vtx.createVRO(this.m_roVtxBuild, shdp, true); // console.log("RODataBuilder::buildVtxRes(), runit.vro: ", runit.vro);
-
+      runit.vro = vtx.createVRO(this.m_roVtxBuild, shdp, true);
       runit.indicesRes = runit.vro.indicesRes;
 
-      runit.vro.__$attachThis(); // runit.vtxUid = disp.vbuf.getUid();
-
+      runit.vro.__$attachThis();
 
       runit.vtxUid = resUid;
-      runit.ibufStep = runit.vro.ibufStep;
-      runit.ibufType = runit.ibufStep != 4 ? this.m_rc.UNSIGNED_SHORT : this.m_rc.UNSIGNED_INT;
+      let material = disp.getMaterial();
+      let vdrInfo = runit.vdrInfo = material.vtxInfo;
+
+      if (vdrInfo) {
+        if (vdrInfo.rdp == null) {
+          vdrInfo.rdp = runit.indicesRes.initRdp.clone();
+        }
+      } else {
+        vdrInfo = new EmptyVDRInfo_1.default();
+        vdrInfo.rdp = runit.indicesRes.initRdp.clone();
+      }
+
+      runit.rdp = vdrInfo.rdp;
+      runit.setVisible(disp.visible);
     }
   }
 
@@ -4374,15 +4441,17 @@ class RODataBuilder {
         let runit = this.m_rpoUnitBuilder.create();
         disp.__$ruid = runit.uid;
         disp.__$$runit = runit;
+        const group = disp.getPartGroup();
 
-        if (disp.getPartGroup() != null) {
-          runit.partGroup = disp.getPartGroup().slice(0);
-          runit.partTotal = runit.partGroup.length;
+        if (group) {
+          runit.partGroup = group.slice(0);
+          runit.partTotal = group.length;
           let fs = runit.partGroup;
+          let ibufStride = runit.indicesRes.rdp.rd.stride;
 
           for (let i = 0, len = runit.partTotal; i < len;) {
             i++;
-            fs[i++] *= runit.ibufStep;
+            fs[i++] *= ibufStride;
           }
         }
 
@@ -4481,8 +4550,7 @@ class RODataBuilder {
         material.initializeByCodeBuf(texEnabled);
       } else {
         texList = material.getTextureList();
-      } // shdp = this.m_shader.create(material.getShaderData());
-
+      }
 
       shdp = this.m_shdpBuilder.create(material.getShaderData());
       shdp.upload(rc.RContext, rc.getUid());
@@ -5253,8 +5321,8 @@ class ROVertexRes {
           }
         }
 
-        pvro = vro;
-        vro.ibuf = ibufRes.getGpuBuf(); // rc.bindEleBuf(vro.ibuf);
+        pvro = vro; // vro.ibuf = ibufRes.getGpuBuf();
+        // rc.bindEleBuf(vro.ibuf);
 
         rc.bindVertexArray(null);
       } else {
@@ -5279,8 +5347,8 @@ class ROVertexRes {
           }
         }
 
-        vro.attribTypesLen = vro.attribTypes.length;
-        vro.ibuf = ibufRes.getGpuBuf();
+        vro.attribTypesLen = vro.attribTypes.length; // vro.ibuf = ibufRes.getGpuBuf();
+
         pvro = vro;
       }
 
@@ -6034,11 +6102,13 @@ class RPOBlock {
       this.m_shader.resetUniform();
       let unit = null;
 
-      while (nextNode != null) {
+      while (nextNode) {
         if (nextNode.drawEnabled) {
           unit = nextNode.unit;
 
           if (unit.drawEnabled) {
+            unit.vdrInfo.__$$copyToRDP();
+
             unit.run(rc);
 
             if (unit.partTotal < 1) {
@@ -6064,7 +6134,7 @@ class RPOBlock {
       let vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
       let texTotal = this.m_nodeLinker.getTexTotalAt(nextNode.rtroI);
       let vtxFlag = vtxTotal > 0;
-      let texFlag = texTotal > 0; //console.log("run1",vtxFlag,texFlag);
+      let texFlag = texTotal > 0; // console.log("run1", vtxFlag, texFlag);
 
       while (nextNode != null) {
         if (vtxTotal < 1) {
@@ -6083,8 +6153,11 @@ class RPOBlock {
 
         if (nextNode.drawEnabled) {
           unit = nextNode.unit; // if(DebugFlag.Flag_0 > 0) console.log("unit.drawEnabled: ",unit.drawEnabled);
+          // console.log("unit.rdp.getUid(): ", unit.rdp.getUid(), unit.vdrInfo.rdp.getUid());
 
           if (unit.drawEnabled) {
+            vtxFlag = unit.vdrInfo.__$$copyToRDP() || vtxFlag;
+
             if (vtxFlag) {
               nextNode.vro.run();
               vtxFlag = false;
@@ -6141,6 +6214,7 @@ class RPOBlock {
 
         if (nextNode.drawEnabled) {
           unit = nextNode.unit;
+          vtxFlag = unit.vdrInfo.__$$copyToRDP() || vtxFlag;
 
           if (unit.drawEnabled) {
             if (vtxFlag) {
@@ -6195,6 +6269,7 @@ class RPOBlock {
 
           vtxTotal--;
           unit = nextNode.unit;
+          vtxFlag = unit.vdrInfo.__$$copyToRDP() || vtxFlag;
 
           if (nextNode.drawEnabled && unit.drawEnabled) {
             if (vtxFlag) {
@@ -6220,6 +6295,8 @@ class RPOBlock {
       } else {
         while (nextNode != null) {
           unit = nextNode.unit;
+
+          unit.vdrInfo.__$$copyToRDP();
 
           if (nextNode.drawEnabled && unit.drawEnabled) {
             unit.runLockMaterial();
@@ -6247,6 +6324,9 @@ class RPOBlock {
   drawUnit(rc, unit, disp) {
     if (unit.drawEnabled) {
       this.m_shader.bindToGpu(unit.shdUid);
+
+      unit.vdrInfo.__$$copyToRDP();
+
       unit.run(rc);
 
       if (unit.partTotal < 1) {
@@ -6262,8 +6342,10 @@ class RPOBlock {
     if (unit.drawEnabled) {
       if (forceUpdateUniform) {
         this.m_shader.resetUniform();
-      } // console.log("***8** drawLockMaterialByUnit(), unit: ",unit);
+      } // console.log("****** drawLockMaterialByUnit(), unit: ",unit);
 
+
+      unit.vdrInfo.__$$copyToRDP();
 
       if (RendererDevice_1.default.IsMobileWeb()) {
         // 如果不这么做，vro和shader attributes没有完全匹配的时候可能在某些设备上会有问题(例如ip6s上无法正常绘制)
@@ -6320,10 +6402,6 @@ class RPOBlock {
 
   getUid() {
     return this.m_uid;
-  }
-
-  toString() {
-    return "[RPOBlock(uid = " + this.m_uid + ", index = " + this.index + ", shdUid = " + this.shdUid + ")]";
   }
 
 }
@@ -6552,10 +6630,8 @@ class GpuVtxObject {
 
     this.rcuid = 0; // texture resource unique id
 
-    this.resUid = 0; // vertex = new ROVertexRes();
-
-    this.vertex = null; // = new ROVertexRes();
-
+    this.resUid = 0;
+    this.vertex = null;
     this.indices = new ROIndicesRes_1.ROIndicesRes();
   }
 
@@ -6584,8 +6660,8 @@ class GpuVtxObject {
 
   createVRO(rc, shdp, vaoEnabled) {
     // console.log("GpuVtxObject::createVRO(), this.resUid: ", this.resUid, ", uid: ", this.m_uid, ", this.indices.getUid(): ", this.indices.getUid());
-    let vro = this.vertex.createVRO(rc, shdp, vaoEnabled, this.indices);
-    vro.ibufStep = this.indices.ibufStep;
+    let vro = this.vertex.createVRO(rc, shdp, vaoEnabled, this.indices); // vro.ibufStep = this.indices.ibufStep;
+
     return vro;
   }
 
@@ -7438,6 +7514,96 @@ exports.default = ShaderGlobalUniform;
 
 /***/ }),
 
+/***/ "72bb":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var DisplayRenderSign;
+
+(function (DisplayRenderSign) {
+  // 还没有加入 renderer
+  DisplayRenderSign[DisplayRenderSign["NOT_IN_RENDERER"] = -1] = "NOT_IN_RENDERER"; // 正在进入 renderer
+
+  DisplayRenderSign[DisplayRenderSign["GO_TO_RENDERER"] = 1] = "GO_TO_RENDERER"; // 真正存在于 renderer, 也就是直接可以在 process 中使用了
+
+  DisplayRenderSign[DisplayRenderSign["LIVE_IN_RENDERER"] = 2] = "LIVE_IN_RENDERER";
+})(DisplayRenderSign || (DisplayRenderSign = {}));
+
+exports.DisplayRenderSign = DisplayRenderSign;
+
+/***/ }),
+
+/***/ "744d":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class EmptyVDRInfo {
+  constructor() {
+    this.rdp = null;
+  }
+
+  destroy() {
+    if (this.rdp != null) {
+      this.rdp.clear();
+      this.rdp = null;
+    }
+  }
+
+  toStatic() {}
+
+  toDynamic() {}
+
+  setWireframe(wireframe) {}
+
+  applyIvsDataAt(index) {}
+
+  setIvsParam(ivsIndex = -1, ivsCount = -1) {}
+
+  reset() {}
+
+  __$$copyToRDP() {
+    return false;
+  }
+
+}
+
+exports.default = EmptyVDRInfo;
+
+/***/ }),
+
 /***/ "7499":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -7951,11 +8117,10 @@ class RenderProcess {
     let node = this.m_rpoNodeBuilder.getNodeByUid(runit.__$rpuid);
 
     if (node != null) {
-      node.drawMode = runit.drawMode;
-      node.ivsIndex = runit.ivsIndex;
-      node.ivsCount = runit.ivsCount;
-      node.insCount = runit.insCount;
-      runit.drawOffset = runit.ivsIndex * runit.ibufStep;
+      // node.ivsIndex = runit.ivsIndex;
+      // node.ivsCount = runit.ivsCount;
+      node.insCount = runit.insCount; // runit.drawOffset = runit.ivsIndex * runit.ibufStep;
+
       node.vtxUid = runit.vtxUid;
       node.vro = runit.vro;
       this.m_blockList[node.index].rejoinNode(node);
@@ -8214,158 +8379,6 @@ exports.default = RenderProcess;
 
 /***/ }),
 
-/***/ "8171":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class Stencil {
-  constructor(rstate = null) {
-    this.m_rstate = null;
-    this.m_depfs = [0, 0];
-    this.m_maskfs = [0, 0];
-    this.m_funcfs = [0, 0, 0, 0];
-    this.m_opfs = [0, 0, 0, 0];
-    this.m_enabled = false;
-    this.m_rstate = rstate;
-  }
-
-  isEnabled() {
-    return this.m_enabled;
-  }
-
-  setDepthTestEnable(enable) {
-    this.m_depfs[0] = enable ? 1 : 0;
-    this.m_depfs[1] = 1;
-    this.m_enabled = true;
-    if (this.m_rstate) this.m_rstate.setDepthTestEnable(enable);
-    return this;
-  }
-  /**
-   * 设置 gpu stencilFunc 状态
-   * @param func Specifies the test function. Eight symbolic constants are valid: GL_NEVER, GL_LESS, GL_LEQUAL, GL_GREATER, GL_GEQUAL, GL_EQUAL, GL_NOTEQUAL, and GL_ALWAYS. The initial value is GL_ALWAYS.
-   * @param ref a GLint type number, value range: [0,2n−1];
-   * @param mask GLint type number
-   */
-
-
-  setStencilFunc(func, ref, mask) {
-    const ls = this.m_funcfs;
-    ls[0] = func;
-    ls[1] = ref;
-    ls[2] = mask;
-    ls[3] = 1;
-    this.m_enabled = true;
-    if (this.m_rstate) this.m_rstate.setStencilFunc(func, ref, mask);
-    return this;
-  }
-  /**
-   * 设置 gpu stencilMask 状态
-   * @param mask GLint type number
-   */
-
-
-  setStencilMask(mask) {
-    this.m_maskfs[0] = mask;
-    this.m_maskfs[1] = 1;
-    this.m_enabled = true;
-    if (this.m_rstate) this.m_rstate.setStencilMask(mask);
-    return this;
-  }
-  /**
-   * 设置 gpu stencilOp 状态
-   * @param fail Specifies the action to take when the stencil test fails. Eight symbolic constants are accepted: GL_KEEP, GL_ZERO, GL_REPLACE, GL_INCR, GL_INCR_WRAP, GL_DECR, GL_DECR_WRAP, and GL_INVERT. The initial value is GL_KEEP.
-   * @param zfail Specifies the stencil action when the stencil test passes, but the depth test fails. dpfail accepts the same symbolic constants as sfail. The initial value is GL_KEEP.
-   * @param zpass Specifies the stencil action when both the stencil test and the depth test pass, or when the stencil test passes and either there is no depth buffer or depth testing is not enabled. dppass accepts the same symbolic constants as sfail. The initial value is GL_KEEP.
-   */
-
-
-  setStencilOp(fail, zfail, zpass) {
-    const ls = this.m_opfs;
-    ls[0] = fail;
-    ls[1] = zfail;
-    ls[2] = zpass;
-    ls[3] = 1;
-    this.m_enabled = true;
-    if (this.m_rstate) this.m_rstate.setStencilOp(fail, zfail, zpass);
-    return this;
-  }
-
-  reset() {
-    this.m_depfs[1] = 0;
-    this.m_maskfs[1] = 0;
-    this.m_funcfs[3] = 0;
-    this.m_opfs[3] = 0;
-    this.m_enabled = false;
-  }
-
-  apply(rstate) {
-    if (rstate && this.m_enabled) {
-      if (this.m_depfs[1] > 0) {
-        rstate.setDepthTestEnable(this.m_depfs[0] > 0);
-      }
-
-      if (this.m_maskfs[1] > 0) {
-        rstate.setStencilMask(this.m_maskfs[0]);
-      }
-
-      const fs = this.m_funcfs;
-
-      if (fs[1] > 0) {
-        rstate.setStencilFunc(fs[0], fs[1], fs[2]);
-      }
-
-      const ps = this.m_opfs;
-
-      if (ps[1] > 0) {
-        rstate.setStencilOp(ps[0], ps[1], ps[2]);
-      }
-    }
-
-    return this;
-  }
-
-  clone() {
-    let st = new Stencil();
-    st.m_enabled = this.m_enabled;
-    st.m_depfs = this.m_depfs.slice();
-    st.m_maskfs = this.m_maskfs.slice();
-    st.m_funcfs = this.m_funcfs.slice();
-    st.m_opfs = this.m_opfs.slice();
-    return this;
-  }
-
-  copyFrom(src) {
-    this.m_enabled = src.m_enabled;
-    this.m_depfs = src.m_depfs.slice();
-    this.m_maskfs = src.m_maskfs.slice();
-    this.m_funcfs = src.m_funcfs.slice();
-    this.m_opfs = src.m_opfs.slice();
-    return this;
-  }
-
-}
-
-exports.Stencil = Stencil;
-
-/***/ }),
-
 /***/ "8333":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8607,7 +8620,6 @@ Object.defineProperty(exports, "__esModule", {
 const BitConst_1 = __importDefault(__webpack_require__("ca6c"));
 
 class VtxBufConst {
-  //
   static ToGL(gl, param) {
     const vbc = VtxBufConst;
 
@@ -8799,7 +8811,7 @@ VtxBufConst.VBUF_VS2_INDEX = BitConst_1.default.BIT_ONE_5;
 VtxBufConst.VBUF_UVS2_INDEX = BitConst_1.default.BIT_ONE_6;
 VtxBufConst.VBUF_NVS2_INDEX = BitConst_1.default.BIT_ONE_7;
 VtxBufConst.VBUF_CVS2_INDEX = BitConst_1.default.BIT_ONE_8;
-VtxBufConst.VBUF_TVS2_INDEX = BitConst_1.default.BIT_ONE_9; // name
+VtxBufConst.VBUF_TVS2_INDEX = BitConst_1.default.BIT_ONE_9; // attributes name
 
 VtxBufConst.VBUF_VS_NS = "a_vs";
 VtxBufConst.VBUF_VS2_NS = "a_vs2";
@@ -8838,19 +8850,296 @@ exports.default = VtxBufConst;
 
 /***************************************************************************/
 
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+const RenderDrawMode_1 = __importDefault(__webpack_require__("13b1"));
+
+const IROIvsRDP_1 = __webpack_require__("1f32");
+
+exports.IROIvsRDP = IROIvsRDP_1.IROIvsRDP;
+
+class BufRData {
+  constructor() {
+    this.m_uid = BufRData.s_uid++;
+    this.buf = null; // type = 0;
+
+    this.ivsSize = 0;
+    this.ivsInitSize = 0;
+    this.ivsIndex = 0;
+    /**
+     * ivs buffer stride
+     */
+
+    this.stride = 2;
+    this.drawMode = RenderDrawMode_1.default.ELEMENTS_TRIANGLES;
+    this.common = true;
+    this.bufType = 0;
+    this.ivsOffset = 0;
+    this.rdpIndex = 0;
+    this.trisNumber = 0;
+  }
+
+  getUid() {
+    return this.m_uid;
+  }
+
+  clone() {
+    let rd = new BufRData();
+    rd.buf = this.buf;
+    rd.ivsIndex = this.ivsIndex;
+    rd.ivsSize = this.ivsSize;
+    rd.ivsInitSize = this.ivsInitSize;
+    rd.stride = this.stride;
+    rd.drawMode = this.drawMode;
+    rd.common = this.common;
+    rd.bufType = this.bufType;
+    rd.ivsOffset = this.ivsOffset;
+    rd.rdpIndex = this.rdpIndex;
+    rd.trisNumber = this.trisNumber;
+    return rd;
+  }
+
+  setIvsParam(ivsIndex, ivsSize) {
+    let pI = this.ivsIndex;
+    let pS = this.ivsSize;
+
+    if (ivsIndex >= 0) {
+      pI = ivsIndex;
+    }
+
+    if (ivsSize >= 0) {
+      pS = ivsSize;
+    }
+
+    ivsIndex = pI;
+    ivsSize = pS;
+    const rd = this;
+    rd.ivsIndex = rd.common ? ivsIndex : ivsIndex * 2;
+    if (rd.ivsIndex < 0) rd.ivsIndex = 0;else if (rd.ivsIndex >= this.ivsInitSize) rd.ivsIndex = this.ivsInitSize - 1;
+    rd.ivsOffset = rd.ivsIndex * rd.stride; // console.log(" >>> #### !rd.common: ", !rd.common, ", uid: ",this.getUid());
+    // console.log("!rd.common: ", !rd.common, pI, pS);
+
+    if (!rd.common) {
+      ivsSize *= 2;
+    }
+
+    if (ivsSize + rd.ivsIndex >= this.ivsInitSize) {
+      ivsSize = this.ivsInitSize - rd.ivsIndex;
+    }
+
+    this.ivsSize = ivsSize;
+    this.trisNumber = Math.floor(ivsSize / 3); // console.log("OOOO BufRData !rd.common #####: ", !rd.common, rd.ivsIndex, this.ivsSize, ", uid: ",this.getUid());
+  }
+
+  destroy(vrc) {
+    if (this.buf != null) {
+      vrc.deleteBuf(this.buf);
+      this.buf = null;
+    }
+  }
+
+  clear() {
+    this.buf = null;
+  }
+
+}
+
+BufRData.s_uid = 0;
+
+class BufRDataPair {
+  constructor(index) {
+    this.m_uid = BufRDataPair.s_uid++;
+    this.m_rdpVer = 0;
+    this.m_st = 101;
+    this.m_tst = 0;
+    this.m_rdpIndex = 0;
+    this.r0 = null;
+    this.r1 = null;
+    this.rd = null;
+    this.buf = null;
+    this.roiRes = null;
+    this.m_rdpIndex = index;
+  }
+
+  getRDPIndex() {
+    return this.m_rdpIndex;
+  }
+
+  getUid() {
+    return this.m_uid;
+  }
+
+  destroy(vrc) {
+    this.r0.destroy(vrc);
+    this.r1.destroy(vrc);
+    this.r0 = null;
+    this.r1 = null;
+    this.rd = null;
+    this.buf = null;
+  }
+
+  clearBuf() {
+    if (this.r0 != null) {
+      this.r0.clear();
+      this.r1.clear();
+      this.roiRes = null;
+      this.r0 = null;
+      this.r1 = null;
+      this.rd = null;
+      this.buf = null;
+    }
+  }
+
+  clear() {
+    this.clearBuf();
+  }
+
+  updateStatus() {
+    this.m_st++;
+    this.m_tst = (this.m_st * 131 + this.m_rdpVer) * 131 + this.m_uid;
+  }
+
+  setIvsParam(ivsIndex, ivsSize) {
+    // console.log(">>> >>>>>>>>>>>> #### BufRDataPair::setIvsParam(), uid: ", this.getUid());
+    this.updateStatus();
+    this.r0.setIvsParam(ivsIndex, ivsSize);
+
+    if (this.r0 != this.r1) {
+      this.r1.setIvsParam(ivsIndex, ivsSize);
+    } // let rd = this.rd;
+    // console.log("BufRDataPair::setIvsParam(), ivsIndex, ivsSize: ", ivsIndex, ivsSize);
+    // console.log("****** ###### !rd.common: ", !rd.common, ", rd.getUid(): ",rd.getUid());
+    // console.log("BufRDataPair::setIvsParam(), rd.ivsIndex, rd.ivsSize: ", rd.ivsIndex, rd.ivsSize);
+
+  }
+
+  applyRDPAt(index) {
+    if (this.roiRes != null && this.m_rdpIndex != index) {
+      let rd = this.rd; // console.log("AAAA index: ",index);
+      // console.log("AAAA 0 rd.getUid(): ",rd.getUid(), ", r0.getUid(): ",this.r0.getUid(), ", r0.ivsSize: ", this.r0.ivsSize, ", r0.rdpIndex: ", this.r0.rdpIndex);
+
+      let rdp = this.roiRes.getRDPDataAt(index);
+
+      if (rdp) {
+        this.updateStatus();
+        this.clearBuf();
+        this.m_rdpIndex = rdp.getRDPIndex(); // console.log("ROInidcesRes::applyRDPAt(), index: ", index);
+
+        this.copyFrom(rdp, true, false);
+        rd = this.rd; // console.log("AAAA 1 rd.getUid(): ",rd.getUid(), ", r0.getUid(): ",this.r0.getUid(), ", r0.ivsSize: ",  this.r0.ivsSize, ", r0.rdpIndex: ", this.r0.rdpIndex);
+      }
+    }
+  }
+
+  getVersion() {
+    return this.m_tst;
+  }
+
+  toWireframe() {
+    this.m_rdpVer = 1;
+    this.rd = this.r1;
+    this.buf = this.rd.buf;
+    this.roiRes.rdp = this;
+    this.updateStatus();
+    console.log("BufRDataPair::toWireframe()............, uid: ", this.m_uid);
+  }
+
+  toShape() {
+    this.m_rdpVer = 0;
+    this.rd = this.r0;
+    this.buf = this.rd.buf;
+    this.roiRes.rdp = this;
+    this.updateStatus();
+    console.log("BufRDataPair::toShape()............, uid: ", this.m_uid);
+  }
+
+  toCommon() {
+    this.toShape();
+  }
+
+  isCommon() {
+    return this.m_rdpVer == 0;
+  }
+
+  test() {
+    // console.log("AAA this.getType(): ", this.getType(), this.getUid());
+    this.roiRes.rdp = this;
+    return this.roiRes.test();
+  }
+
+  copyFrom(rdp, auto = true, force = true) {
+    // console.log("AAAA 0 copyFrom(), rdp.r0.getUid(): ",rdp.r0.getUid(), ", r0.ivsSize: ", rdp.r0.ivsSize, ", r0.rdpIndex: ", rdp.r0.rdpIndex);
+    this.roiRes = rdp.roiRes;
+    if (force) this.m_rdpVer = rdp.m_rdpVer;
+    this.r0 = rdp.r0.clone();
+
+    if (rdp.r0 != rdp.r1) {
+      this.r1 = rdp.r1.clone();
+    } else {
+      this.r1 = this.r0;
+    }
+
+    if (auto) {
+      if (this.isCommon()) {
+        this.toCommon();
+      } else {
+        this.toWireframe();
+      }
+    }
+  }
+
+  copyTo(rdp, auto = true, force = true) {
+    rdp.roiRes = this.roiRes;
+    if (force) rdp.m_rdpVer = this.m_rdpVer;
+    rdp.r0 = this.r0.clone();
+
+    if (this.r0 != this.r1) {
+      rdp.r1 = this.r1.clone();
+    } else {
+      rdp.r1 = rdp.r0;
+    }
+
+    if (auto) {
+      if (rdp.isCommon()) {
+        rdp.toCommon();
+      } else {
+        rdp.toWireframe();
+      }
+    }
+  }
+
+  clone() {
+    let rdp = new BufRDataPair(this.getRDPIndex());
+    this.copyTo(rdp);
+    return rdp;
+  }
+
+}
+
+BufRDataPair.s_uid = 0;
+exports.BufRDataPair = BufRDataPair;
 
 class ROIndicesRes {
   constructor() {
     this.m_uid = ROIndicesRes.s_uid++;
     this.m_vtx = null;
-    this.m_vtxUid = 0;
-    this.m_gpuBuf = null;
-    this.m_ivsSize = 0;
+    this.m_vtxUid = 0; // private m_index = 0;
+
+    this.m_ivsData = null;
+    this.m_rdps = [];
+    this.m_rdpVer = -2;
+    this.rdp = null;
+    this.initRdp = null;
     this.version = -1;
-    this.ibufStep = 0;
+    this.m_rdps.fill(null);
   }
 
   getUid() {
@@ -8861,74 +9150,279 @@ class ROIndicesRes {
     return this.m_vtxUid;
   }
 
-  getGpuBuf() {
-    return this.m_gpuBuf;
-  }
+  getRDPDataAt(index) {
+    if (index >= 0 && index < this.m_rdps.length) {
+      // console.log("getRDPDataAt(), index: ", index);
+      return this.m_rdps[index]; // let rdp = this.m_rdps[index];
+      // console.log("getRDPDataAt(), rdp: ", rdp);
+      // return rdp;
+    }
 
-  getVTCount() {
-    return this.m_ivsSize;
+    return null;
+  } // applyRDPAt(index: number): boolean {
+  //     if (this.m_index != index && index >= 0 && index < this.m_rdps.length) {
+  //         let rdp = this.m_rdps[this.m_index];
+  //         this.m_index = index;
+  //         this.rdp = this.m_rdps[index];
+  //         this.m_rdpVer = -2;
+  //         if (rdp.isCommon) {
+  //             this.rdp.toShape();
+  //         } else {
+  //             this.rdp.toWireframe();
+  //         }
+  //         this.initRdp = rdp;
+  //         return true;
+  //     }
+  //     return false;
+  // }
+
+
+  test() {
+    return this.m_rdpVer != this.rdp.getVersion();
+  }
+  /**
+   * @param force the default value is false
+   */
+
+
+  bindToGPU(force = false) {
+    force = force || this.m_rdpVer != this.rdp.getVersion(); // console.log("B this.rdp.getType(): ", this.rdp.getType(), this.rdp.getUid());
+
+    if (this.m_vrc.testRIOUid(this.m_vtxUid) || force) {
+      // console.log(this.rdp.buf.wireframe);
+      // console.log("bindToGPU()");
+      this.m_vrc.bindEleBuf(this.rdp.buf);
+      this.m_rdpVer = this.rdp.getVersion();
+    }
   }
 
   updateToGpu(rc) {
-    if (this.m_gpuBuf != null && this.m_ivsSize > 0) {
+    let rd = this.m_rdps.length > 0 ? this.m_rdps[0].r0 : null;
+
+    if (rc != null && rd.buf != null) {
       let vtx = this.m_vtx; // console.log("indeces updateToGpu vtx.getUId(): ",vtx.getUid(), ", this.version != vtx.indicesVer: ", this.version != vtx.indicesVer);
 
       if (this.version != vtx.indicesVer) {
-        this.m_ivs = vtx.getIvsData();
-        rc.bindEleBuf(this.m_gpuBuf);
+        let ird = vtx.getIvsDataAt();
+        this.m_ivsData = ird;
+        const ivs = ird.ivs;
+        rc.bindEleBuf(rd.buf);
+        let size = this.m_rdps[0].r0.ivsSize;
 
-        if (this.m_ivsSize >= this.m_ivs.length) {
-          //console.log("A indeces updateToGpu vtx.getUId(): ",vtx.getUid(), ", ivs.length", this.m_ivs.length);
-          rc.eleBufSubData(this.m_ivs, vtx.getBufDataUsage());
+        if (size >= ivs.length) {
+          //console.log("A indeces updateToGpu vtx.getUId(): ",vtx.getUid(), ", ivs.length", ivs.length);
+          rc.eleBufSubData(ivs, ird.status);
         } else {
-          //console.log("B indeces updateToGpu vtx.getUId(): ",vtx.getUid(), ", ivs.length", this.m_ivs.length);
-          rc.eleBufData(this.m_ivs, vtx.getBufDataUsage());
+          //console.log("B indeces updateToGpu vtx.getUId(): ",vtx.getUid(), ", ivs.length", ivs.length);
+          rc.eleBufData(ivs, vtx.getBufDataUsage());
         }
 
-        this.m_ivsSize = this.m_ivs.length;
+        rd.ivsSize = ivs.length;
         this.version = vtx.indicesVer;
       }
     }
   }
 
-  initialize(rc, ivtx) {
-    if (this.m_gpuBuf == null && ivtx.getIvsData() != null) {
-      // console.log("ROIndicesRes::initialize(), uid: ", this.m_uid, ", ivtx: ", ivtx);
+  initialize(rc, vrc, ivtx, disp) {
+    this.m_vrc = vrc; // let wireframe = false;
+
+    let rdp = null;
+
+    if (this.m_rdps.length < 1 && ivtx.getIvsDataAt() != null) {
       this.version = ivtx.indicesVer;
       this.m_vtx = ivtx;
       this.m_vtxUid = ivtx.getUid();
-      this.m_ivs = ivtx.getIvsData();
-      this.m_gpuBuf = rc.createBuf();
-      rc.bindEleBuf(this.m_gpuBuf);
+      rdp = this.createRDPAt(0, rc, vrc, disp);
+    } else {
+      rdp = new BufRDataPair(0);
+      let rd = new BufRData();
+      rd.buf = null;
+      rd.ivsSize = disp.ivsCount;
+      rd.ivsIndex = disp.ivsIndex;
+      rd.stride = 2;
+      rd.drawMode = disp.drawMode;
+      rdp.r0 = rd;
+      rdp.r1 = rd;
+    }
 
-      if (ivtx.bufData == null) {
-        rc.eleBufData(this.m_ivs, ivtx.getBufDataUsage());
-        this.m_ivsSize = this.m_ivs.length;
-      } else {
-        rc.eleBufDataMem(ivtx.bufData.getIndexDataTotalBytes(), ivtx.getBufDataUsage());
-        let uintArr = null;
-        let offset = 0;
-        this.m_ivsSize = 0;
+    this.rdp = this.m_rdps[0] = rdp;
+    this.initRdp = rdp;
+    rdp.roiRes = this;
+    rdp.toShape();
+    let total = ivtx.getIvsDataTotal(); // console.log("ROIndicesRes::initialize(), total: ", total);
 
-        for (let i = 0, len = ivtx.bufData.getIndexDataTotal(); i < len; ++i) {
-          uintArr = ivtx.bufData.getIndexDataAt(i);
-          rc.eleBufSubData(uintArr, offset);
-          offset += uintArr.byteLength;
-          this.m_ivsSize += uintArr.length;
-        }
-      }
+    for (let i = 1; i < total; ++i) {
+      rdp = this.createRDPAt(i, rc, vrc, disp);
+      this.m_rdps.push(rdp);
     }
   }
 
-  destroy(rc) {
-    if (this.m_gpuBuf != null) {
+  createRDPAt(rdpIndex, rc, vrc, disp) {
+    let rdp = new BufRDataPair(rdpIndex);
+    rdp.roiRes = this;
+    const ivtx = this.m_vtx;
+    let ird = ivtx.getIvsDataAt(rdpIndex); // console.log("ird: ", ird);
+
+    this.m_ivsData = ird;
+    let wireframe = ird.wireframe;
+    let shape = ird.shape;
+    let r0 = null;
+    let r1 = null;
+
+    if (shape) {
+      r0 = this.createBuf(rdpIndex, rc, vrc, ivtx, disp.ivsIndex, false);
+    }
+
+    if (wireframe) {
+      r1 = this.createBuf(rdpIndex, rc, vrc, ivtx, disp.ivsIndex, wireframe);
+    } // console.log("createRDPAt(), r0: ", r0, ", r1: ", r1);
+
+
+    if (r0 == null && r1 == null) {
+      r0 = this.createBuf(rdpIndex, rc, vrc, ivtx, disp.ivsIndex, false);
+    }
+
+    if (r0 == null) {
+      r0 = r1;
+    } else if (r1 == null) {
+      r1 = r0;
+    }
+
+    rdp.r0 = r0;
+    rdp.r1 = r1; // console.log("createRDPAt(), rdpIndex: ", rdpIndex, ", wireframe: ", wireframe,", rdp.r0.getUid(): ", rdp.r0.getUid());
+    // console.log("       rdp.r0.ivsSize: ", rdp.r0.ivsSize, ", r0.rdpIndex: ",rdp.r0.rdpIndex);
+
+    return rdp;
+  }
+
+  createBuf(rdpIndex, rc, vrc, ivtx, ivsIndex, wireframe = false) {
+    // console.log("createBuf(), wireframe:", wireframe, ivtx);
+    let ird = ivtx.getIvsDataAt(rdpIndex);
+    let ivs = ird.ivs;
+    let size = 0;
+    let stride = 2;
+    let gbuf = vrc.createBuf();
+    vrc.bindEleBuf(gbuf);
+
+    if (ivtx.bufData == null) {
+      if (wireframe) {
+        ivs = this.createWireframeIvs(ivs);
+      }
+
+      vrc.eleBufData(ivs, ivtx.getBufDataUsage());
+      size = ivs.length;
+      stride = size > 65536 ? 4 : 2;
+    } else {
+      let offset = 0;
+      let list = [];
+
+      for (let i = 0, len = ivtx.bufData.getIndexDataTotal(); i < len; ++i) {
+        const rd = ivtx.bufData.getIndexDataAt(i);
+        ivs = rd.ivs;
+
+        if (wireframe) {
+          ivs = this.createWireframeIvs(ivs);
+        }
+
+        list[i] = ivs;
+        size += ivs.length;
+      }
+
+      if (size > 65536) {
+        stride = 4;
+
+        for (let i = 0, len = list.length; i < len; ++i) {
+          ivs = list[i];
+          list[i] = ivs instanceof Uint32Array ? ivs : new Uint32Array(ivs);
+        }
+      } else {
+        stride = 2;
+
+        for (let i = 0, len = list.length; i < len; ++i) {
+          ivs = list[i];
+          list[i] = ivs instanceof Uint16Array ? ivs : new Uint16Array(ivs);
+        }
+      }
+
+      size = 0;
+
+      for (let i = 0, len = list.length; i < len; ++i) {
+        size += list[i].byteLength;
+      }
+
+      vrc.eleBufDataMem(size, ivtx.getBufDataUsage());
+      offset = 0;
+      size = 0;
+
+      for (let i = 0, len = list.length; i < len; ++i) {
+        ivs = list[i];
+        vrc.eleBufSubData(ivs, offset);
+        offset += ivs.byteLength;
+        size += ivs.length;
+      }
+    }
+
+    gbuf.rdpIndex = rdpIndex;
+    gbuf.wireframe = wireframe;
+    let rd = new BufRData();
+    rd.buf = gbuf;
+    rd.rdpIndex = rdpIndex;
+    rd.ivsSize = size;
+    rd.ivsInitSize = size;
+    rd.stride = stride;
+    rd.trisNumber = Math.floor(size / 3);
+    rd.common = !wireframe;
+    rd.ivsIndex = rd.common ? ivsIndex : ivsIndex * 2;
+    rd.ivsOffset = rd.ivsIndex * rd.stride;
+    rd.bufType = stride != 4 ? rc.UNSIGNED_SHORT : rc.UNSIGNED_INT;
+    rd.drawMode = wireframe ? RenderDrawMode_1.default.ELEMENTS_LINES : RenderDrawMode_1.default.ELEMENTS_TRIANGLES; // rd.type = wireframe ? 1 : 0;
+
+    return rd;
+  }
+
+  destroy(vrc) {
+    this.m_vrc = null;
+
+    if (this.m_rdps.length > 0) {
       this.m_vtx = null;
-      rc.deleteBuf(this.m_gpuBuf);
-      this.m_gpuBuf = null;
-      this.m_ivs = null;
-      this.m_ivsSize = 0;
+
+      for (let i = 0; i < this.m_rdps.length; ++i) {
+        this.m_rdps[i].destroy(vrc);
+      }
+
+      this.m_ivsData = null;
+      this.rdp = null;
       console.log("ROIndicesRes::destroy() this.m_uid: ", this.m_uid);
     }
+  }
+
+  createWireframeIvs(ivs) {
+    if (ivs !== null) {
+      const len = ivs.length * 2;
+      const wivs = len > 65536 ? new Uint32Array(len) : new Uint16Array(len);
+      let a;
+      let b;
+      let c;
+      let k = 0;
+
+      for (let i = 0, l = ivs.length; i < l; i += 3) {
+        a = ivs[i + 0];
+        b = ivs[i + 1];
+        c = ivs[i + 2];
+        wivs[k] = a;
+        wivs[k + 1] = b;
+        wivs[k + 2] = b;
+        wivs[k + 3] = c;
+        wivs[k + 4] = c;
+        wivs[k + 5] = a;
+        k += 6;
+      } // console.log("createWireframeIvs(), wivs.length:", wivs.length);
+
+
+      return wivs;
+    }
+
+    return ivs;
   }
 
 }
@@ -8982,17 +9476,18 @@ class VertexRenderObj extends VROBase_1.default {
   }
 
   run() {
-    if (this.m_rc.testVROUid(this.m_uid)) {
+    if (this.m_rc.testVROUid(this.m_uid) || this.indicesRes.test()) {
       //console.log("VertexRenderObj::run(), B:",rc.getUid(),this.m_vtxUid,this.m_uid);
       if (this.vbuf != null) {
         this.m_rc.useVtxAttribsPtrTypeFloat(this.shdp, this.vbuf, this.attribTypes, this.attribTypesLen, this.wholeOffsetList, this.wholeStride);
       } else {
         this.m_rc.useVtxAttribsPtrTypeFloatMulti(this.shdp, this.vbufs, this.attribTypes, this.attribTypesLen, this.wholeOffsetList, this.wholeStride);
-      }
+      } // if (this.m_rc.testRIOUid(this.m_vtxUid)) {
+      //     this.m_rc.bindEleBuf(this.ibuf);
+      // }
 
-      if (this.m_rc.testRIOUid(this.m_vtxUid)) {
-        this.m_rc.bindEleBuf(this.ibuf);
-      }
+
+      this.indicesRes.bindToGPU();
     }
   }
 
@@ -9004,8 +9499,9 @@ class VertexRenderObj extends VROBase_1.default {
     this.m_rc = null;
     this.shdp = null;
     this.vbufs = null;
-    this.vbuf = null;
-    this.ibuf = null;
+    this.vbuf = null; // this.ibuf = null;
+
+    this.indicesRes = null;
     this.attribTypes = null;
     this.attribTypesLen = 0;
     this.wholeStride = 0;
@@ -9174,18 +9670,7 @@ class VROBase {
     this.m_vtxUid = 0;
     this.m_rc = null;
     this.indicesRes = null;
-    this.ibuf = null;
-    /**
-     * be used by the renderer runtime, the value is 2 or 4.
-     */
-
-    this.ibufStep = 2;
     this.m_attachCount = 0;
-  }
-
-  getVTCount() {
-    if (this.indicesRes != null) return this.indicesRes.getVTCount();
-    return 0;
   }
 
   setRC(rc) {
@@ -9234,8 +9719,8 @@ class VROBase {
     //console.log("VROBase::__$destroy()..., ("+this.m_uid+")this.m_attachCount: "+this.m_attachCount);
     VROBase.s_midMap.delete(this.m_mid);
     this.m_mid = 0;
-    this.m_vtxUid = -1;
-    this.ibuf = null;
+    this.m_vtxUid = -1; // this.ibuf = null;
+
     this.m_rc = null;
     this.indicesRes = null;
   }
@@ -9555,6 +10040,82 @@ class RPStatus {
 }
 
 exports.RPStatus = RPStatus;
+
+/***/ }),
+
+/***/ "a4f8":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class RenderingStencil {
+  constructor(rstate) {
+    this.m_rstate = null;
+    this.m_rstate = rstate;
+  }
+
+  isEnabled() {
+    return true;
+  }
+
+  setDepthTestEnable(enable) {
+    if (this.m_rstate) this.m_rstate.setDepthTestEnable(enable);
+    return this;
+  }
+  /**
+   * 设置 gpu stencilFunc 状态
+   * @param func Specifies the test function. Eight symbolic constants are valid: GL_NEVER, GL_LESS, GL_LEQUAL, GL_GREATER, GL_GEQUAL, GL_EQUAL, GL_NOTEQUAL, and GL_ALWAYS. The initial value is GL_ALWAYS.
+   * @param ref a GLint type number, value range: [0,2n−1];
+   * @param mask GLint type number
+   */
+
+
+  setStencilFunc(func, ref, mask) {
+    this.m_rstate.setStencilFunc(func, ref, mask);
+    return this;
+  }
+  /**
+   * 设置 gpu stencilMask 状态
+   * @param mask GLint type number
+   */
+
+
+  setStencilMask(mask) {
+    this.m_rstate.setStencilMask(mask);
+    return this;
+  }
+  /**
+   * 设置 gpu stencilOp 状态
+   * @param fail Specifies the action to take when the stencil test fails. Eight symbolic constants are accepted: GL_KEEP, GL_ZERO, GL_REPLACE, GL_INCR, GL_INCR_WRAP, GL_DECR, GL_DECR_WRAP, and GL_INVERT. The initial value is GL_KEEP.
+   * @param zfail Specifies the stencil action when the stencil test passes, but the depth test fails. dpfail accepts the same symbolic constants as sfail. The initial value is GL_KEEP.
+   * @param zpass Specifies the stencil action when both the stencil test and the depth test pass, or when the stencil test passes and either there is no depth buffer or depth testing is not enabled. dppass accepts the same symbolic constants as sfail. The initial value is GL_KEEP.
+   */
+
+
+  setStencilOp(fail, zfail, zpass) {
+    this.m_rstate.setStencilOp(fail, zfail, zpass);
+    return this;
+  }
+
+}
+
+exports.RenderingStencil = RenderingStencil;
 
 /***/ }),
 
@@ -10909,21 +11470,13 @@ class RPOUnit {
     this.pos = null;
     this.bounds = null; // 记录对应的RODisplay的渲染所需的状态数据
 
-    this.ibufType = 0; // UNSIGNED_SHORT or UNSIGNED_INT
+    this.insCount = 0; // drawOffset = 0;
 
-    this.ibufStep = 2; // 2 or 4
-
-    this.ivsIndex = 0;
-    this.ivsCount = 0;
-    this.insCount = 0;
-    this.drawOffset = 0;
     this.partTotal = 0; // partTotal = partGroup.length
 
     this.partGroup = null;
-    this.trisNumber = 0;
     this.visible = true;
     this.drawEnabled = true;
-    this.drawMode = 0;
     this.renderState = 0;
     this.rcolorMask = 0; // 用于记录 renderState(低10位)和ColorMask(高10位) 的状态组合
 
@@ -10945,6 +11498,9 @@ class RPOUnit {
      */
 
     this.polygonOffset = null;
+    this.rdp = null;
+    this.vdrInfo = null;
+    this.rgraph = null;
   }
 
   testDrawFlag() {
@@ -10972,15 +11528,19 @@ class RPOUnit {
   }
 
   setIvsParam(ivsIndex, ivsCount) {
-    this.ivsIndex = ivsIndex;
-    this.ivsCount = ivsCount;
-    this.drawOffset = ivsIndex * this.ibufStep;
-    this.drawEnabled = this.visible && this.ivsCount > 0;
+    console.log("RPOUint::setIvsParam(), ivsIndex: ", ivsIndex, ", ivsCount: ", ivsCount); // this.indicesRes.setIvsParam(ivsIndex, ivsCount);
+
+    this.rdp.setIvsParam(ivsIndex, ivsCount);
+    this.testVisible();
+  }
+
+  testVisible() {
+    this.drawEnabled = this.visible && this.indicesRes.rdp.rd.ivsSize > 0;
   }
 
   setVisible(boo) {
     this.visible = boo;
-    this.drawEnabled = boo && this.ivsCount > 0; // if(DebugFlag.Flag_0 > 0) console.log("#### setVisible(): ", boo, "this.drawEnabled: ",this.drawEnabled);
+    this.testVisible(); // if(DebugFlag.Flag_0 > 0) console.log("#### setVisible(): ", boo, "this.drawEnabled: ",this.drawEnabled);
   }
 
   setDrawFlag(renderState, rcolorMask) {
@@ -10992,10 +11552,13 @@ class RPOUnit {
   drawThis(rc) {
     const st = rc.status;
     st.drawCallTimes++;
-    st.drawTrisNumber += this.trisNumber; // TODO(Vily): 下面这个判断流程需要优化(由于几何数据更改之后上传gpu的动作是一帧上传16个这样的速度下实现的，所以需要下面这句代码来保证不出错: [.WebGL-000037DC02C2B800] GL_INVALID_OPERATION: Insufficient buffer size)
+    const rd = this.rdp.rd;
+    st.drawTrisNumber += rd.trisNumber; // console.log("this.rdp.getUid(): ", this.rdp.getUid());
+    // TODO(Vily): 下面这个判断流程需要优化(由于几何数据更改之后上传gpu的动作是一帧上传16个这样的速度下实现的，所以需要下面这句代码来保证不出错: [.WebGL-000037DC02C2B800] GL_INVALID_OPERATION: Insufficient buffer size)
+    // let ivsCount = ir.getVTCount();
 
-    let ivsCount = this.indicesRes.getVTCount();
-    if (this.ivsCount <= ivsCount) ivsCount = this.ivsCount;
+    let ivsCount = rd.ivsSize; // if (this.ivsCount <= ivsCount && ir.isCommon()) ivsCount = this.ivsCount;
+    // console.log("runit::drawThis(), ivsCount: ", ivsCount, ",ivsOffset: ", rd.ivsOffset, this.rdp.getUid(), rd.getUid());
 
     if (this.polygonOffset != null) {
       rc.setPolygonOffset(this.polygonOffset[0], this.polygonOffset[1]);
@@ -11003,48 +11566,47 @@ class RPOUnit {
       rc.resetPolygonOffset();
     }
 
-    const rdm = RenderConst_1.RenderDrawMode;
     let gl = rc.RContext;
 
-    switch (this.drawMode) {
-      case rdm.ELEMENTS_TRIANGLES:
+    switch (rd.drawMode) {
+      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES:
         // if(DebugFlag.Flag_0 > 0)console.log("RPOUnit::run(), TRIANGLES drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+"),drawOffset: "+this.drawOffset);
-        //rc.RContext.drawElements(rc.TRIANGLES, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLES, ivsCount, this.ibufType, this.drawOffset);
+        //rc.RContext.drawElements(rc.TRIANGLES, this.ivsCount, rd.ibufType,this.ivsIndex * this.ibufStep);
+        gl.drawElements(rc.TRIANGLES, ivsCount, rd.bufType, rd.ivsOffset);
         break;
 
-      case rdm.ELEMENTS_LINES:
-        //console.log("RPOUnit::run(), ELEMENTS_LINES drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+"),drawOffset: "+this.drawOffset);
-        //rc.RContext.drawElements(rc.ELEMENTS_LINES, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.LINES, ivsCount, this.ibufType, this.drawOffset);
+      case RenderConst_1.RenderDrawMode.ELEMENTS_LINES:
+        // console.log("RPOUnit::run(), ELEMENTS_LINES drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+"),drawOffset: "+this.drawOffset);
+        //rc.RContext.drawElements(rc.ELEMENTS_LINES, this.ivsCount, rd.bufType,this.ivsIndex * this.ibufStep);
+        gl.drawElements(rc.LINES, ivsCount, rd.bufType, rd.ivsOffset);
         break;
 
-      case rdm.ELEMENTS_TRIANGLE_STRIP:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_STRIP:
         //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        //rc.RContext.drawElements(rc.TRIANGLE_STRIP, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_STRIP, ivsCount, this.ibufType, this.drawOffset);
+        //rc.RContext.drawElements(rc.TRIANGLE_STRIP, this.ivsCount, rd.bufType,this.ivsIndex * this.ibufStep);
+        gl.drawElements(rc.TRIANGLE_STRIP, ivsCount, rd.bufType, rd.ivsOffset);
         break;
 
-      case rdm.ELEMENTS_INSTANCED_TRIANGLES:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES:
         //console.log("RPOUnit::run(), drawElementsInstanced(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+", insCount: "+this.insCount+")");
-        //rc.RContext.drawElementsInstanced(rc.TRIANGLES,this.ivsCount, this.ibufType, this.ivsIndex * this.ibufStep, this.insCount);
-        gl.drawElementsInstanced(rc.TRIANGLES, ivsCount, this.ibufType, this.drawOffset, this.insCount);
+        //rc.RContext.drawElementsInstanced(rc.TRIANGLES,this.ivsCount, rd.bufType, this.ivsIndex * this.ibufStep, this.insCount);
+        gl.drawElementsInstanced(rc.TRIANGLES, ivsCount, rd.bufType, rd.ivsOffset, this.insCount);
         break;
 
-      case rdm.ELEMENTS_TRIANGLE_FAN:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_FAN:
         //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        //rc.RContext.drawElements(rc.TRIANGLE_FAN, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_FAN, ivsCount, this.ibufType, this.drawOffset);
+        //rc.RContext.drawElements(rc.TRIANGLE_FAN, this.ivsCount, rd.bufType,this.ivsIndex * this.ibufStep);
+        gl.drawElements(rc.TRIANGLE_FAN, ivsCount, rd.bufType, rd.ivsOffset);
         break;
 
-      case rdm.ARRAYS_LINES:
+      case RenderConst_1.RenderDrawMode.ARRAYS_LINES:
         //console.log("RPOUnit::run(), ARRAYS_LINES drawArrays(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        gl.drawArrays(rc.LINES, this.ivsIndex, this.ivsCount);
+        gl.drawArrays(rc.LINES, rd.ivsIndex, ivsCount);
         break;
 
-      case rdm.ARRAYS_LINE_STRIP:
+      case RenderConst_1.RenderDrawMode.ARRAYS_LINE_STRIP:
         //console.log("RPOUnit::run(), ARRAYS_LINE_STRIP drawArrays(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        gl.drawArrays(rc.LINE_STRIP, this.ivsIndex, this.ivsCount);
+        gl.drawArrays(rc.LINE_STRIP, rd.ivsIndex, ivsCount);
         break;
 
       default:
@@ -11054,11 +11616,12 @@ class RPOUnit {
 
   drawPart(rc) {
     const st = rc.status;
-    st.drawCallTimes++;
-    st.drawTrisNumber += this.trisNumber; // TODO(Vily): 下面这个判断流程需要优化(由于几何数据更改之后上传gpu的动作是一帧上传16个这样的速度下实现的，所以需要下面这句代码来保证不出错: [.WebGL-000037DC02C2B800] GL_INVALID_OPERATION: Insufficient buffer size)
+    st.drawCallTimes++; // const ir = this.indicesRes;
 
-    let ivsCount = this.indicesRes.getVTCount();
-    if (this.ivsCount <= ivsCount) ivsCount = this.ivsCount;
+    const rd = this.rdp.rd;
+    st.drawTrisNumber += rd.trisNumber; // TODO(Vily): 下面这个判断流程需要优化(由于几何数据更改之后上传gpu的动作是一帧上传16个这样的速度下实现的，所以需要下面这句代码来保证不出错: [.WebGL-000037DC02C2B800] GL_INVALID_OPERATION: Insufficient buffer size)
+
+    let ivsCount = rd.ivsSize; // if (this.ivsCount <= ivsCount && ir.isCommon()) ivsCount = this.ivsCount;
 
     if (this.polygonOffset != null) {
       rc.setPolygonOffset(this.polygonOffset[0], this.polygonOffset[1]);
@@ -11066,61 +11629,60 @@ class RPOUnit {
       rc.resetPolygonOffset();
     }
 
-    const rdm = RenderConst_1.RenderDrawMode;
     let i = 0;
     let gl = rc.RContext;
 
-    switch (this.drawMode) {
-      case rdm.ELEMENTS_TRIANGLES:
+    switch (rd.drawMode) {
+      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES:
         for (; i < this.partTotal;) {
           // 这里面可以增加一个回调函数,这个回调函数可以对uniform(或者transformUniform)做一些数据改变，进而来控制相应的状态
           // 因此可以通过改变uniform实现大量的显示绘制
           //  let count:number = this.partGroup[i++];
           //  let offset:number = this.partGroup[i++];
           //  gl.drawElements(rc.TRIANGLES, count, this.ibufType, offset);
-          gl.drawElements(rc.TRIANGLES, this.partGroup[i++], this.ibufType, this.partGroup[i++]);
+          gl.drawElements(rc.TRIANGLES, this.partGroup[i++], rd.bufType, this.partGroup[i++]);
         }
 
         break;
 
-      case rdm.ELEMENTS_LINES:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_LINES:
         for (; i < this.partTotal;) {
           // 这里面可以增加一个回调函数,这个回调函数可以对uniform(或者transformUniform)做一些数据改变，进而来控制相应的状态
           // 因此可以通过改变uniform实现大量的显示绘制
           //  let count:number = this.partGroup[i++];
           //  let offset:number = this.partGroup[i++];
           //  gl.drawElements(rc.TRIANGLES, count, this.ibufType, offset);
-          gl.drawElements(rc.LINES, this.partGroup[i++], this.ibufType, this.partGroup[i++]);
+          gl.drawElements(rc.LINES, this.partGroup[i++], rd.bufType, this.partGroup[i++]);
         }
 
         break;
 
-      case rdm.ELEMENTS_TRIANGLE_STRIP:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_STRIP:
         //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
         //rc.RContext.drawElements(rc.TRIANGLE_STRIP, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_STRIP, this.ivsCount, this.ibufType, this.drawOffset);
+        gl.drawElements(rc.TRIANGLE_STRIP, ivsCount, rd.bufType, rd.ivsOffset);
         break;
 
-      case rdm.ELEMENTS_INSTANCED_TRIANGLES:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES:
         //console.log("RPOUnit::run(), drawElementsInstanced(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+", insCount: "+this.insCount+")");
         //rc.RContext.drawElementsInstanced(rc.TRIANGLES,this.ivsCount, this.ibufType, this.ivsIndex * this.ibufStep, this.insCount);
-        gl.drawElementsInstanced(rc.TRIANGLES, this.ivsCount, this.ibufType, this.drawOffset, this.insCount);
+        gl.drawElementsInstanced(rc.TRIANGLES, ivsCount, rd.bufType, rd.ivsOffset, this.insCount);
         break;
 
-      case rdm.ELEMENTS_TRIANGLE_FAN:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_FAN:
         //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
         //rc.RContext.drawElements(rc.TRIANGLE_FAN, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_FAN, this.ivsCount, this.ibufType, this.drawOffset);
+        gl.drawElements(rc.TRIANGLE_FAN, ivsCount, rd.bufType, rd.ivsOffset);
         break;
 
-      case rdm.ARRAYS_LINES:
+      case RenderConst_1.RenderDrawMode.ARRAYS_LINES:
         //console.log("RPOUnit::run(), drawArrays(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        gl.drawArrays(rc.LINES, this.ivsIndex, this.ivsCount);
+        gl.drawArrays(rc.LINES, rd.ivsIndex, ivsCount);
         break;
 
-      case rdm.ARRAYS_LINE_STRIP:
+      case RenderConst_1.RenderDrawMode.ARRAYS_LINE_STRIP:
         //console.log("RPOUnit::run(), drawArrays(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        gl.drawArrays(rc.LINE_STRIP, this.ivsIndex, this.ivsCount);
+        gl.drawArrays(rc.LINE_STRIP, rd.ivsIndex, ivsCount);
         break;
 
       default:
@@ -11169,36 +11731,41 @@ class RPOUnit {
 
   reset() {
     //  console.log("RPOUnit::reset(), uid: ",this.getUid());
-    this.indicesRes = null;
-    this.polygonOffset = null;
+    if (this.vdrInfo) {
+      this.indicesRes = null;
+      this.polygonOffset = null;
 
-    this.vro.__$detachThis();
+      this.vro.__$detachThis();
 
-    this.vro = null;
+      this.vro = null;
 
-    this.tro.__$detachThis();
+      this.tro.__$detachThis();
 
-    this.tro = null;
-    this.texMid = -1;
-    this.__$rprouid = -1;
-    this.ubo = null;
-    this.shdUid = -1;
-    this.vtxUid = -1;
-    this.uniform = null;
-    this.transUniform = null;
-    this.partGroup = null;
-    this.ivsIndex = 0;
-    this.ivsCount = 0;
-    this.insCount = 0;
-    this.partTotal = 0;
-    this.drawMode = 0;
-    this.drawFlag = 0x0;
-    this.renderState = 0;
-    this.rcolorMask = 0;
-    this.drawEnabled = true;
-    this.shader = null;
-    this.bounds = null;
-    this.pos = null;
+      this.tro = null;
+      this.texMid = -1;
+      this.__$rprouid = -1;
+      this.ubo = null;
+      this.shdUid = -1;
+      this.vtxUid = -1;
+      this.uniform = null;
+      this.transUniform = null;
+      this.partGroup = null; // this.ivsIndex = 0;
+      // this.ivsCount = 0;
+
+      this.insCount = 0;
+      this.partTotal = 0; // this.drawMode = 0;
+
+      this.drawFlag = 0x0;
+      this.renderState = 0;
+      this.rcolorMask = 0;
+      this.drawEnabled = true;
+      this.shader = null;
+      this.bounds = null;
+      this.pos = null;
+      this.vdrInfo = null;
+      this.rdp = null;
+      this.rgraph = null;
+    }
   }
 
   destroy() {
@@ -12236,7 +12803,7 @@ const RSTBuilder_1 = __importDefault(__webpack_require__("e035"));
 
 const RendererState_1 = __importDefault(__webpack_require__("29ef"));
 
-const Stencil_1 = __webpack_require__("8171");
+const RenderingStencil_1 = __webpack_require__("a4f8");
 
 const VROBase_1 = __importDefault(__webpack_require__("919c"));
 
@@ -12628,7 +13195,7 @@ class RenderProxy {
     new RSTBuilder_1.default().initialize(obj, rstate, new VROBase_1.default());
     selfT.RState = rstate;
     selfT.RContext = this.m_rc;
-    selfT.stencil = new Stencil_1.Stencil(rstate);
+    selfT.stencil = new RenderingStencil_1.RenderingStencil(rstate);
     selfT.renderingState = new RenderingState_1.RenderingState(RendererState_1.default);
     selfT.colorMask = new RenderingColorMask_1.RenderingColorMask(RendererState_1.default);
     this.buildCameraParam();
@@ -13161,7 +13728,7 @@ class RPONodeLinker {
       while (nextNode != null) {
         vtxStr += nextNode.vtxUid + ",";
         texStr += nextNode.texMid + ",";
-        ivsCountStr += nextNode.ivsCount + ",";
+        ivsCountStr += nextNode.unit.indicesRes.rdp.rd.ivsSize + ",";
         nextNode = nextNode.next;
       }
 
@@ -13425,10 +13992,6 @@ exports.default = RSTBuilder;
 
 "use strict";
 
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 /***************************************************************************/
 
 /*                                                                         */
@@ -13441,18 +14004,23 @@ Object.defineProperty(exports, "__esModule", {
 
 /***************************************************************************/
 
-class RenderDrawMode {}
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
 
-RenderDrawMode.ELEMENTS_TRIANGLES = 1;
-RenderDrawMode.ELEMENTS_TRIANGLE_STRIP = 2;
-RenderDrawMode.ELEMENTS_TRIANGLE_FAN = 3;
-RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES = 4;
-RenderDrawMode.ARRAYS_LINES = 5;
-RenderDrawMode.ARRAYS_LINE_STRIP = 6;
-RenderDrawMode.ARRAYS_POINTS = 7;
-RenderDrawMode.ELEMENTS_LINES = 8;
-RenderDrawMode.DISABLE = 0;
-exports.RenderDrawMode = RenderDrawMode;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const RenderDrawMode_1 = __importDefault(__webpack_require__("13b1"));
+
+exports.RenderDrawMode = RenderDrawMode_1.default;
+
+const DisplayRenderSign_1 = __webpack_require__("72bb");
+
+exports.DisplayRenderSign = DisplayRenderSign_1.DisplayRenderSign;
 
 class RenderBlendMode {}
 
@@ -13580,16 +14148,6 @@ DepthTestMode.TRUE_GREATER = 14; //glDepthMask(true); glDepthFunc(GL_GEQUAL);
 DepthTestMode.TRUE_GEQUAL = 15;
 DepthTestMode.DISABLE = 0;
 exports.DepthTestMode = DepthTestMode;
-var DisplayRenderSign;
-
-(function (DisplayRenderSign) {
-  // 还没有加入 renderer
-  DisplayRenderSign[DisplayRenderSign["NOT_IN_RENDERER"] = -1] = "NOT_IN_RENDERER"; // 正在进入 renderer
-
-  DisplayRenderSign[DisplayRenderSign["GO_TO_RENDERER"] = 1] = "GO_TO_RENDERER"; // 真正存在于 renderer, 也就是直接可以在 process 中使用了
-
-  DisplayRenderSign[DisplayRenderSign["LIVE_IN_RENDERER"] = 2] = "LIVE_IN_RENDERER";
-})(DisplayRenderSign = exports.DisplayRenderSign || (exports.DisplayRenderSign = {}));
 
 /***/ }),
 
@@ -14201,16 +14759,16 @@ class VaoVertexRenderObj extends VROBase_1.default {
   }
 
   run() {
-    if (this.m_rc.testVROUid(this.m_uid)) {
+    if (this.m_rc.testVROUid(this.m_uid) || this.indicesRes.test()) {
       // console.log("VaoVertexRenderObj::run(), rcuid: ",this.m_rc.getRCUid(),this.m_vtxUid, this.m_uid);
       this.m_rc.bindVertexArray(this.vao);
-
-      if (this.m_rc.testRIOUid(this.m_vtxUid) || VROBase_1.default.s_mid != this.m_mid) {
-        // if (this.m_rc.testRIOUid(this.m_vtxUid)) {
-        // console.log("VaoVertexRenderObj::run(), testRIOUid()..");
-        VROBase_1.default.s_mid = this.m_mid;
-        this.m_rc.bindEleBuf(this.ibuf);
-      }
+      this.indicesRes.bindToGPU(VROBase_1.default.s_mid != this.m_mid);
+      VROBase_1.default.s_mid = this.m_mid; // if (this.m_rc.testRIOUid(this.m_vtxUid) || VROBase.s_mid != this.m_mid) {
+      // // if (this.m_rc.testRIOUid(this.m_vtxUid)) {
+      //     // console.log("VaoVertexRenderObj::run(), testRIOUid()..");
+      //     this.m_rc.bindEleBuf(this.ibuf);
+      // }
+      // VROBase.s_mid = this.m_mid;
     }
   }
 
@@ -14219,9 +14777,9 @@ class VaoVertexRenderObj extends VROBase_1.default {
     VROBase_1.default.s_midMap.delete(this.m_mid);
     this.m_mid = 0;
     this.m_vtxUid = -1;
-    this.ibuf = null;
     this.vao = null;
     this.m_rc = null;
+    this.indicesRes = null;
   }
 
   restoreThis() {

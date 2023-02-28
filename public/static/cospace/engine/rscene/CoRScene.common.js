@@ -87,6 +87,222 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
+/***/ "0053":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const RendererSceneNode_1 = __importDefault(__webpack_require__("9693"));
+
+const RendererParam_1 = __importDefault(__webpack_require__("c497"));
+
+class RSCGraph {
+  constructor() {
+    this.m_map = new Map();
+    this.m_nodes = [];
+    this.rayPickFlag = false;
+  }
+
+  clear() {
+    const ls = this.m_nodes;
+    let tot = ls.length;
+    let i = 0;
+
+    for (; i < tot; ++i) {
+      ls[i].clear();
+    }
+
+    this.m_nodes = [];
+    this.m_map.clear();
+  }
+
+  addSceneNode(node, index = -1) {
+    if (node != null && node.getRScene() != null) {
+      const ls = this.m_nodes;
+      let tot = ls.length;
+      let i = 0;
+
+      for (; i < tot; ++i) {
+        if (ls[i] == node) {
+          break;
+        }
+      }
+
+      if (i >= tot) {
+        const sc = node.getRScene();
+
+        if (!this.m_map.has(sc.getUid())) {
+          ls.push(node);
+          this.m_map.set(sc.getUid(), node);
+        }
+      }
+    }
+  }
+
+  getNodesTotal() {
+    return this.m_nodes.length;
+  }
+
+  getNodes() {
+    return this.m_nodes;
+  }
+
+  getNodeAt(i) {
+    if (i >= 0 && i < this.m_nodes.length) return this.m_nodes[i];
+    return null;
+  }
+
+  getSceneAt(i) {
+    if (i >= 0 && i < this.m_nodes.length) return this.m_nodes[i].getRScene();
+    return null;
+  }
+
+  createRendererParam(div = null) {
+    return new RendererParam_1.default(div);
+  }
+
+  createRendererSceneParam(div = null) {
+    return new RendererParam_1.default(div);
+  }
+
+  createRScene() {
+    return null;
+  }
+  /**
+   * @param rparam IRendererParam instance, the default value is null
+   * @param renderProcessesTotal the default value is 3
+   * @param createNewCamera the default value is true
+   */
+
+
+  createScene(rparam = null, renderProcessesTotal = 3, createNewCamera = true) {
+    // let sc = new RendererScene();
+    let sc = this.createRScene();
+    sc.initialize(rparam, renderProcessesTotal, createNewCamera);
+    let node = new RendererSceneNode_1.default(sc);
+    this.m_nodes.push(node);
+    this.m_map.set(sc.getUid(), node);
+    return sc;
+  }
+  /**
+   * @param rparam IRendererParam instance, the default value is null
+   * @param renderProcessesTotal the default value is 3
+   * @param createNewCamera the default value is true
+   */
+
+
+  createSubScene(rparam, renderProcessesTotal, createNewCamera) {
+    if (this.m_nodes.length > 0) {
+      let sc = this.m_nodes[0].getRScene().createSubScene(rparam, renderProcessesTotal, createNewCamera);
+      let node = new RendererSceneNode_1.default(sc);
+      this.m_nodes.push(node);
+      this.m_map.set(sc.getUid(), node);
+      return sc;
+    }
+
+    return null;
+  }
+
+  addScene(sc) {
+    if (sc != null) {
+      let ls = this.m_nodes;
+
+      for (let i = 0; i < ls.length; ++i) {
+        if (ls[i].getRScene() == sc) {
+          return ls[i];
+        }
+      }
+
+      let node = new RendererSceneNode_1.default(sc);
+      ls.push(node);
+      this.m_map.set(sc.getUid(), node);
+      return node;
+    }
+
+    return null;
+  }
+
+  getNodeBySceneUid(uid) {
+    if (this.m_map.has(uid)) {
+      return this.m_map.get(uid);
+    }
+
+    return null;
+  }
+
+  createNode(sc) {
+    if (sc != null) {
+      return new RendererSceneNode_1.default(sc);
+    }
+
+    return null;
+  }
+
+  run() {
+    let pickFlag = true;
+    let list = this.m_nodes;
+    let total = list.length;
+    let i = total - 1;
+    const node = list[i];
+    let scene = list[i].getRScene();
+    if (node.p0Call0) node.p0Call0(scene, this);
+    scene.runBegin(true, true);
+    scene.update(false, true);
+    pickFlag = scene.isRayPickSelected();
+    this.rayPickFlag = pickFlag;
+    if (node.p0Call1) node.p0Call1(scene, this);
+    i -= 1;
+
+    for (; i >= 0; --i) {
+      const node = list[i];
+      scene = list[i].getRScene();
+      if (node.p0Call0) node.p0Call0(scene, this);
+      scene.runBegin(false, true);
+      scene.update(false, !pickFlag);
+      pickFlag = pickFlag || scene.isRayPickSelected();
+      this.rayPickFlag = pickFlag;
+      if (node.p0Call1) node.p0Call1(scene, this);
+    } /////////////////////////////////////////////////////// ---- mouseTest end.
+    /////////////////////////////////////////////////////// ---- rendering begin.
+
+
+    for (i = 0; i < total; ++i) {
+      const node = list[i];
+      scene = list[i].getRScene();
+      if (node.p1Call0) node.p0Call0(scene, this);
+      scene.renderBegin(node.contextResetEnabled);
+      const idList = node.processIdList;
+
+      if (idList == null) {
+        scene.run(false);
+      } else {
+        for (let j = 0; j < idList.length; ++j) {
+          scene.runAt(idList[j]);
+        }
+      }
+
+      scene.runEnd();
+      if (node.p1Call0) node.p0Call1(scene, this);
+    }
+  }
+
+}
+
+exports.default = RSCGraph;
+
+/***/ }),
+
 /***/ "0236":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -227,6 +443,118 @@ exports.default = SubStage3D;
 
 /***/ }),
 
+/***/ "0238":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2023 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const DataMesh_1 = __importDefault(__webpack_require__("519e"));
+
+class MeshFactory {
+  /**
+   * @param model geometry model data
+   * @param material IRenderMaterial instance, the default value is null.
+   * @param texEnabled the default value is false;
+   */
+  static createDataMeshFromModel(model, material = null, texEnabled = false) {
+    if (material != null) {
+      texEnabled = texEnabled || material.getTextureAt(0) != null;
+    }
+
+    const vbWhole = model.vbWhole ? model.vbWhole : false;
+    let stride = Math.round(model.stride ? model.stride : 3);
+    stride = stride > 0 && stride < 4 ? stride : 3;
+    const dataMesh = new DataMesh_1.default();
+    dataMesh.wireframe = model.wireframe ? model.wireframe : false;
+    dataMesh.vbWholeDataEnabled = vbWhole;
+    let vtxTotal = model.vertices.length / stride;
+    dataMesh.setVS(model.vertices);
+
+    if (model.uvsList && model.uvsList.length > 0) {
+      dataMesh.setUVS(model.uvsList[0]);
+
+      if (model.uvsList.length > 1) {
+        dataMesh.setUVS2(model.uvsList[0]);
+      }
+    } else if (texEnabled) {
+      dataMesh.setUVS(new Float32Array(Math.floor(model.vertices.length / stride) * 2));
+      console.error("hasn't uv data !!!, it happened in the MeshFactory::createDataMeshFromModel(...) function.");
+    }
+
+    if (model.normals) {
+      dataMesh.setNVS(model.normals);
+    }
+
+    let extraIvsList = model.extraIndicesList ? model.extraIndicesList : null;
+    let ivsIndex = 0;
+
+    if (model.indices) {
+      dataMesh.setIVS(model.indices);
+      ivsIndex++;
+    } else if (extraIvsList == null) {
+      let ivs = vtxTotal <= 65535 ? new Uint16Array(vtxTotal) : new Uint32Array(vtxTotal);
+
+      for (let i = 0; i < vtxTotal; ++i) {
+        ivs[i] = i;
+      }
+
+      dataMesh.setIVS(ivs);
+      console.warn("hasn't indices data !, it happened in the MeshFactory::createDataMeshFromModel(...) function.");
+    } // console.log("%%%%%%% extraIvsList != null: ", extraIvsList != null, ", ivsIndex: ", ivsIndex);
+
+
+    if (extraIvsList != null) {
+      for (let i = 0; i < extraIvsList.length; ++i) {
+        const item = extraIvsList[i]; // console.log("	%%%%%%% (item && item.indices): ", (item && item.indices));
+
+        if (item && item.indices) {
+          // console.log("		%%%%%%% item.indices: ", item.indices);
+          const wireframe = item.wireframe ? item.wireframe : false;
+          const shape = item.shape ? item.shape : true;
+          dataMesh.setIVSAt(item.indices, ivsIndex + i, wireframe, shape);
+        }
+      }
+    }
+
+    if (material != null) {
+      material.initializeByCodeBuf(texEnabled);
+      dataMesh.setVtxBufRenderData(material);
+    } else {
+      console.warn("the material parameter value is null, so this mesh will build all vtx bufs.");
+    }
+
+    dataMesh.initialize();
+    return dataMesh;
+  }
+
+}
+
+exports.default = MeshFactory;
+
+/***/ }),
+
 /***/ "030e":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -349,148 +677,6 @@ RCExtension.EXT_blend_minmax = null;
 RCExtension.WEBGL_depth_texture = null;
 RCExtension.WEBGL_debug_renderer_info = null;
 exports.default = RCExtension;
-
-/***/ }),
-
-/***/ "070b":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class RenderColorMask {
-  //private m_state: number = 0;
-  constructor(rBoo, gBoo, bBoo, aBoo) {
-    this.m_uid = -1;
-    this.m_rBoo = true;
-    this.m_gBoo = true;
-    this.m_bBoo = true;
-    this.m_aBoo = true;
-    this.m_uid = RenderColorMask.s_uid++;
-    this.m_rBoo = rBoo;
-    this.m_gBoo = gBoo;
-    this.m_bBoo = bBoo;
-    this.m_aBoo = aBoo;
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-
-  getR() {
-    return this.m_rBoo;
-  }
-
-  getG() {
-    return this.m_gBoo;
-  }
-
-  getB() {
-    return this.m_bBoo;
-  }
-
-  getA() {
-    return this.m_aBoo;
-  }
-
-  use() {
-    if (RenderColorMask.s_state != this.m_uid) {
-      RenderColorMask.Rstate.setColorMask(this.m_rBoo, this.m_gBoo, this.m_bBoo, this.m_aBoo);
-      RenderColorMask.s_state = this.m_uid;
-    }
-  }
-
-  static Create(objName, rBoo, gBoo, bBoo, aBoo) {
-    if (RenderColorMask.s_stsNameMap.has(objName)) {
-      let po = RenderColorMask.s_stsNameMap.get(objName);
-      return po.getUid();
-    }
-
-    let key = (rBoo ? 1 << 6 : 1 << 5) | (gBoo ? 1 << 4 : 1 << 3) | (bBoo ? 1 << 2 : 1 << 1) | (aBoo ? 1 : 0);
-
-    if (RenderColorMask.s_stsMap.has(key)) {
-      let po = RenderColorMask.s_stsMap.get(key);
-      key = po.getUid();
-    } else {
-      let po = new RenderColorMask(rBoo, gBoo, bBoo, aBoo);
-      key = po.getUid();
-      RenderColorMask.s_stsMap.set(key, po);
-      RenderColorMask.s_stsNameMap.set(objName, po);
-      RenderColorMask.s_states.push(po);
-      ++RenderColorMask.s_statesLen;
-    }
-
-    return key;
-  }
-
-  static GetColorMaskByName(objName) {
-    if (RenderColorMask.s_stsNameMap.has(objName)) {
-      let po = RenderColorMask.s_stsNameMap.get(objName);
-      return po.getUid();
-    }
-
-    return -1;
-  } // @param           state come from RODisp::renderState
-
-
-  static UseRenderState(state) {
-    if (RenderColorMask.s_unlocked && RenderColorMask.Rstate.roColorMask != state) {
-      if (state > -1 && state < RenderColorMask.s_statesLen) {
-        RenderColorMask.s_states[state].use();
-      }
-    }
-  }
-
-  static UseColorMaskByName(stateName) {
-    let state = RenderColorMask.GetColorMaskByName(stateName); //trace("state: "+state+", stateName: "+stateName);
-
-    if (RenderColorMask.s_unlocked && RenderColorMask.Rstate.roColorMask != state) {
-      if (state > -1 && state < RenderColorMask.s_statesLen) {
-        RenderColorMask.s_states[state].use();
-      }
-    }
-  }
-
-  static Lock() {
-    RenderColorMask.s_unlocked = false;
-  }
-
-  static Unlock() {
-    RenderColorMask.s_unlocked = true;
-  }
-
-  static Reset() {
-    RenderColorMask.s_state = -1;
-  }
-
-}
-
-RenderColorMask.s_uid = 0;
-RenderColorMask.s_state = -1;
-RenderColorMask.s_states = [];
-RenderColorMask.s_statesLen = 1;
-RenderColorMask.s_stsMap = new Map();
-RenderColorMask.s_stsNameMap = new Map();
-RenderColorMask.s_unlocked = true;
-RenderColorMask.ALL_TRUE_COLOR_MASK = 0;
-RenderColorMask.ALL_FALSE_COLOR_MASK = 1;
-RenderColorMask.Rstate = null;
-exports.RenderColorMask = RenderColorMask;
 
 /***/ }),
 
@@ -1119,499 +1305,10 @@ class TextureProxy {
     }
   }
 
-  toString() {
-    return "[TextureProxy(name:" + this.name + ",uid=" + this.getUid() + ",width=" + this.getWidth() + ",height=" + this.getHeight() + ")]";
-  }
-
 }
 
 exports.TextureProxy = TextureProxy;
 exports.default = TextureProxy;
-
-/***/ }),
-
-/***/ "090c":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RCExtension_1 = __importDefault(__webpack_require__("030e"));
-
-const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
-
-const RViewElement_1 = __importDefault(__webpack_require__("b0ef"));
-
-const ContextMouseEvtDispatcher_1 = __importDefault(__webpack_require__("0c85"));
-
-const RenderConst_1 = __webpack_require__("e08e");
-
-const AABB2D_1 = __importDefault(__webpack_require__("e2fe"));
-
-class RAdapterContext {
-  constructor() {
-    this.m_mouseEvtDisplather = new ContextMouseEvtDispatcher_1.default();
-    this.m_div = null;
-    this.m_canvas = null;
-    this.m_scissorEnabled = false;
-    this.m_depthTestEnabled = true;
-    this.m_stencilTestEnabled = true;
-    this.m_offcanvas = null;
-    this.m_gl = null;
-    this.m_stage = null;
-    this.m_viewPortRect = new AABB2D_1.default(0, 0, 800, 600);
-    this.m_maxWebGLVersion = 2;
-    this.m_webGLVersion = 2;
-    this.m_devicePixelRatio = 1.0;
-    this.m_viewEle = new RViewElement_1.default(); // display 3d view buf size auto sync window size
-
-    this.autoSyncRenderBufferAndWindowSize = true;
-    this.offscreenRenderEnabled = false;
-    this.m_resizeFlag = true;
-    this.m_WEBGL_lose_context = null;
-    this.m_displayWidth = 0;
-    this.m_displayHeight = 0;
-    this.m_rcanvasWidth = 0;
-    this.m_rcanvasHeight = 0;
-    this.m_resizeCallback = null;
-  }
-
-  contextrestoredHandler(evt) {
-    console.log("webglcontextrestored...!!!");
-    console.log(evt);
-  }
-
-  contextlostHandler(evt) {
-    console.log("webglcontextlost...!!!");
-    console.log(evt);
-  }
-
-  setWebGLMaxVersion(webgl_ver) {
-    if (webgl_ver == 1 || webgl_ver == 2) {
-      this.m_maxWebGLVersion = webgl_ver;
-    }
-  }
-
-  getWebGLVersion() {
-    return this.m_webGLVersion;
-  }
-
-  getDiv() {
-    return this.m_div;
-  }
-
-  setDivStyleLeftAndTop(px, py) {
-    this.m_viewEle.setDivStyleLeftAndTop(px, py);
-  }
-
-  setDivStyleSize(pw, ph) {
-    this.m_viewEle.setDivStyleSize(pw, ph);
-  }
-
-  getCanvas() {
-    return this.m_canvas;
-  }
-
-  isDepthTestEnabled() {
-    return this.m_depthTestEnabled;
-  }
-
-  isStencilTestEnabled() {
-    return this.m_stencilTestEnabled;
-  }
-
-  initialize(rcuid, stage, div, rattr = null) {
-    this.m_stage = stage;
-    var pdocument = null;
-    var pwindow = null;
-
-    try {
-      if (document != undefined) {
-        pdocument = document;
-        pwindow = window;
-      }
-    } catch (err) {
-      console.log("RAdapterContext::initialize(), document is undefined.");
-    }
-
-    if (pdocument != null) {
-      this.m_devicePixelRatio = window.devicePixelRatio;
-      RendererDevice_1.default.SetDevicePixelRatio(this.m_devicePixelRatio);
-      this.m_viewEle.setDiv(div);
-      this.m_viewEle.createViewEle(pdocument, this.autoSyncRenderBufferAndWindowSize);
-      this.m_div = div = this.m_viewEle.getDiv();
-      let canvas = this.m_canvas = this.m_viewEle.getCanvas();
-      this.m_devicePixelRatio = window.devicePixelRatio;
-      this.m_mouseEvtDisplather.dpr = this.m_devicePixelRatio;
-      let attr = rattr;
-
-      if (rattr == null) {
-        attr = {
-          depth: this.m_depthTestEnabled,
-          premultipliedAlpha: false,
-          alpha: true,
-          antialias: false,
-          stencil: this.m_stencilTestEnabled,
-          preserveDrawingBuffer: true,
-          powerPreference: "default"
-        };
-      } else {
-        this.m_depthTestEnabled = attr.depth;
-        this.m_stencilTestEnabled = attr.stencil;
-      }
-
-      console.log("this.m_devicePixelRatio: " + this.m_devicePixelRatio + ",rattr == null: " + (rattr == null));
-      console.log("depthTestEnabled: " + attr.depth);
-      console.log("stencilTestEnabled: " + attr.stencil);
-      console.log("antialiasEnabled: " + attr.antialias);
-      console.log("alphaEnabled: " + attr.alpha);
-      let offscreen = null;
-
-      if (this.offscreenRenderEnabled) {
-        offscreen = canvas.transferControlToOffscreen();
-      }
-
-      this.m_offcanvas = offscreen;
-
-      if (this.m_maxWebGLVersion == 2) {
-        this.m_gl = offscreen == null ? canvas.getContext('webgl2', attr) : offscreen.getContext('webgl2', attr);
-
-        if (this.m_gl != null) {
-          console.log("Use WebGL2 success!");
-          this.m_webGLVersion = 2;
-        } else {
-          console.log("WebGL2 can not support!");
-        }
-      }
-
-      if (this.m_gl == null) {
-        if (offscreen == null) {
-          this.m_gl = canvas.getContext('webgl', attr) || canvas.getContext("experimental-webgl", attr);
-        } else {
-          this.m_gl = offscreen.getContext('webgl', attr) || offscreen.getContext("experimental-webgl", attr);
-        }
-
-        if (this.m_gl != null) {
-          console.log("Use WebGL1 success!");
-          this.m_webGLVersion = 1;
-        } else {
-          console.log("WebGL1 can not support!");
-        }
-      }
-
-      if (!this.m_gl) {
-        this.m_webGLVersion = -1;
-        alert('Unable to initialize WebGL. Your browser or machine may not support it.');
-        throw Error("WebGL initialization failure.");
-        return;
-      }
-
-      let gl = this.m_gl;
-      gl.rcuid = rcuid;
-      let glStencilFunc = RenderConst_1.GLStencilFunc;
-      glStencilFunc.NEVER = gl.NEVER;
-      glStencilFunc.LESS = gl.LESS;
-      glStencilFunc.EQUAL = gl.EQUAL;
-      glStencilFunc.GREATER = gl.GREATER;
-      glStencilFunc.NOTEQUAL = gl.NOTEQUAL;
-      glStencilFunc.GEQUAL = gl.GEQUAL;
-      glStencilFunc.ALWAYS = gl.ALWAYS;
-      let stendilOp = RenderConst_1.GLStencilOp;
-      stendilOp.KEEP = gl.KEEP;
-      stendilOp.ZERO = gl.ZERO;
-      stendilOp.REPLACE = gl.REPLACE;
-      stendilOp.INCR = gl.INCR;
-      stendilOp.INCR_WRAP = gl.INCR_WRAP;
-      stendilOp.DECR = gl.DECR;
-      stendilOp.DECR_WRAP = gl.DECR_WRAP;
-      stendilOp.INVERT = gl.INVERT;
-      let glBlendMode = RenderConst_1.GLBlendMode;
-      glBlendMode.ZERO = gl.ZERO;
-      glBlendMode.ONE = gl.ONE;
-      glBlendMode.SRC_COLOR = gl.SRC_COLOR;
-      glBlendMode.DST_COLOR = gl.DST_COLOR;
-      glBlendMode.SRC_ALPHA = gl.SRC_ALPHA;
-      glBlendMode.DST_ALPHA = gl.DST_ALPHA;
-      glBlendMode.ONE_MINUS_SRC_ALPHA = gl.ONE_MINUS_SRC_ALPHA;
-      let glBlendEq = RenderConst_1.GLBlendEquation;
-      glBlendEq.FUNC_ADD = gl.FUNC_ADD;
-      glBlendEq.FUNC_SUBTRACT = gl.FUNC_SUBTRACT;
-      glBlendEq.FUNC_REVERSE_SUBTRACT = gl.FUNC_REVERSE_SUBTRACT;
-      glBlendEq.MIN_EXT = gl.MIN_EXT;
-      glBlendEq.MAX_EXT = gl.MAX_EXT;
-      glBlendEq.MIN = gl.MIN;
-      glBlendEq.MAX = gl.MAX;
-      let glFaceCull = RenderConst_1.CullFaceMode;
-      glFaceCull.BACK = gl.BACK;
-      glFaceCull.FRONT = gl.FRONT;
-      glFaceCull.FRONT_AND_BACK = gl.FRONT_AND_BACK;
-      let device = RendererDevice_1.default; //MAX_RENDERBUFFER_SIZE
-
-      device.MAX_TEXTURE_SIZE = this.m_gl.getParameter(this.m_gl.MAX_TEXTURE_SIZE);
-      device.MAX_RENDERBUFFER_SIZE = this.m_gl.getParameter(this.m_gl.MAX_RENDERBUFFER_SIZE);
-      let viewPortIMS = this.m_gl.getParameter(this.m_gl.MAX_VIEWPORT_DIMS);
-      device.MAX_VIEWPORT_WIDTH = viewPortIMS[0];
-      device.MAX_VIEWPORT_HEIGHT = viewPortIMS[1];
-      RCExtension_1.default.Initialize(this.m_webGLVersion, this.m_gl);
-      RendererDevice_1.default.Initialize([this.m_webGLVersion]);
-      console.log("RadapterContext stage: ", stage);
-      if (stage != null) this.m_mouseEvtDisplather.initialize(canvas, div, stage); //  console.log("viewPortIMS: ",viewPortIMS);
-
-      console.log("MAX_TEXTURE_SIZE: ", RendererDevice_1.default.MAX_TEXTURE_SIZE);
-      console.log("IsMobileWeb: ", RendererDevice_1.default.IsMobileWeb());
-      console.log("IsAndroidOS: ", RendererDevice_1.default.IsAndroidOS());
-      console.log("IsIOS: ", RendererDevice_1.default.IsIOS()); //  console.log("MAX_RENDERBUFFER_SIZE: ",RendererDevice.MAX_RENDERBUFFER_SIZE);
-      //  console.log("MAX_VIEWPORT_WIDTH: ",RendererDevice.MAX_VIEWPORT_WIDTH);
-      //  console.log("MAX_VIEWPORT_HEIGHT: ",RendererDevice.MAX_VIEWPORT_HEIGHT);
-      //  DivLog.ShowLogOnce("MAX_TEXTURE_SIZE: "+RendererDevice.MAX_TEXTURE_SIZE);
-      //  DivLog.ShowLog("MAX_RENDERBUFFER_SIZE: "+RendererDevice.MAX_RENDERBUFFER_SIZE);
-      //  DivLog.ShowLog("MAX_VIEWPORT_WIDTH: "+RendererDevice.MAX_VIEWPORT_WIDTH);
-      //  DivLog.ShowLog("MAX_VIEWPORT_HEIGHT: "+RendererDevice.MAX_VIEWPORT_HEIGHT);
-      //  let rc_vendor:any = this.m_gl.getParameter(this.m_gl.VENDOR);
-      //  let rc_renderer:any = this.m_gl.getParameter(this.m_gl.RENDERER);
-      //  console.log("rc_vendor: ",rc_vendor);
-      //  console.log("rc_renderer: ",rc_renderer);
-
-      let debugInfo = RCExtension_1.default.WEBGL_debug_renderer_info;
-
-      if (debugInfo != null) {
-        let webgl_vendor = this.m_gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
-        let webgl_renderer = this.m_gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-        device.GPU_VENDOR = webgl_vendor;
-        device.GPU_RENDERER = webgl_renderer;
-        console.log("webgl_vendor: ", webgl_vendor);
-        console.log("webgl_renderer: ", webgl_renderer);
-
-        if (!RendererDevice_1.default.IsWinExternalVideoCard()) {
-          console.warn("当前浏览器没有使用独立显卡");
-        } // DivLog.ShowLog("webgl_vendor: " + webgl_vendor);
-        // DivLog.ShowLog("webgl_renderer: " + webgl_renderer);
-
-      }
-
-      pwindow.onresize = evt => {
-        if (this.autoSyncRenderBufferAndWindowSize) {
-          this.m_resizeFlag = true;
-          this.updateRenderBufferSize();
-        }
-      };
-
-      canvas.addEventListener('webglcontextrestored', this.contextrestoredHandler, false);
-      canvas.addEventListener('webglcontextlost', this.contextlostHandler, false);
-      this.updateRenderBufferSize();
-    } else {
-      console.log("initialize WebGL failure!");
-    }
-  }
-
-  loseContext() {
-    if (this.m_WEBGL_lose_context == null) {
-      this.m_WEBGL_lose_context = this.m_gl.getExtension('WEBGL_lose_context');
-    }
-
-    if (this.m_WEBGL_lose_context == null) {
-      this.m_WEBGL_lose_context.loseContext();
-    }
-  }
-  /**
-   * @returns return gpu context lost status
-   */
-
-
-  isContextLost() {
-    return this.m_gl.isContextLost();
-  }
-  /**
-   * @returns return system gpu context
-   */
-
-
-  getRC() {
-    return this.m_gl;
-  }
-
-  setScissorEnabled(boo) {
-    if (boo) {
-      if (!this.m_scissorEnabled) {
-        this.m_scissorEnabled = true;
-        this.m_gl.enable(this.m_gl.SCISSOR_TEST);
-      }
-    } else {
-      if (this.m_scissorEnabled) {
-        this.m_scissorEnabled = false;
-        this.m_gl.disable(this.m_gl.SCISSOR_TEST);
-      }
-    }
-  }
-
-  setScissorRect(px, py, pw, ph) {
-    //this.m_gl.scissor(Math.floor(px*this.m_devicePixelRatio),Math.floor(py*this.m_devicePixelRatio), pw,ph);
-    this.m_gl.scissor(px, py, pw, ph);
-  }
-
-  setResizeCallback(resizeCallback) {
-    this.m_resizeCallback = resizeCallback;
-  }
-
-  getDevicePixelRatio() {
-    return this.m_devicePixelRatio;
-  }
-
-  resizeBufferSize(pw, ph) {
-    pw = Math.floor(pw);
-    ph = Math.floor(ph);
-    let k = window.devicePixelRatio;
-    let dprChanged = Math.abs(k - this.m_devicePixelRatio) > 0.01 || this.m_resizeFlag;
-    this.m_devicePixelRatio = k;
-    this.m_mouseEvtDisplather.dpr = k;
-    RendererDevice_1.default.SetDevicePixelRatio(this.m_devicePixelRatio); // console.log("this.m_devicePixelRatio: "+this.m_devicePixelRatio);
-
-    this.m_resizeFlag = false;
-
-    if (this.m_displayWidth != pw || this.m_displayHeight != ph || dprChanged) {
-      this.m_displayWidth = pw;
-      this.m_displayHeight = ph;
-      this.m_rcanvasWidth = Math.floor(pw * k);
-      this.m_rcanvasHeight = Math.floor(ph * k);
-
-      if (this.m_offcanvas == null) {
-        this.m_canvas.width = this.m_rcanvasWidth;
-        this.m_canvas.height = this.m_rcanvasHeight;
-      } else {
-        this.m_offcanvas.width = this.m_rcanvasWidth;
-        this.m_offcanvas.height = this.m_rcanvasHeight;
-      }
-
-      this.m_canvas.style.width = this.m_displayWidth + 'px';
-      this.m_canvas.style.height = this.m_displayHeight + 'px';
-
-      if (this.m_stage != null) {
-        this.m_stage.stageWidth = this.m_rcanvasWidth;
-        this.m_stage.stageHeight = this.m_rcanvasHeight;
-        this.m_stage.viewWidth = this.m_displayWidth;
-        this.m_stage.viewHeight = this.m_displayHeight;
-        this.m_stage.pixelRatio = k;
-        console.log("size to stage size: ", this.m_stage.stageWidth, this.m_stage.stageHeight);
-        console.log("size to view size: ", this.m_stage.viewWidth, this.m_stage.viewHeight); //  DivLog.ShowLogOnce("stageSize: "+this.m_stage.stageWidth+","+this.m_stage.stageHeight);
-        //  DivLog.ShowLog("canvasSize: "+this.m_canvas.width+","+this.m_canvas.height);
-        //  DivLog.ShowLog("dispSize: "+this.m_displayWidth+","+this.m_displayHeight);
-        //  DivLog.ShowLog("pixelRatio:"+this.m_devicePixelRatio);
-        //  console.log("display size: "+this.m_displayWidth+","+this.m_displayHeight);
-        //  console.log("RAdapterContext::resize(), canvas.width:"+this.m_canvas.width+", canvas.height:"+this.m_canvas.height);
-        //  console.log("RAdapterContext::resize(), stageWidth:"+this.m_stage.stageWidth+", stageHeight:"+this.m_stage.stageHeight);
-        //  console.log("RAdapterContext::resize(), m_rcanvasWidth:"+this.m_rcanvasWidth+", m_rcanvasHeight:"+this.m_rcanvasHeight);
-        //  console.log("RAdapterContext::resize(), stw:"+this.m_stage.stageWidth+", sth:"+this.m_stage.stageHeight);
-
-        this.m_stage.update();
-      }
-
-      if (this.m_resizeCallback != null) {
-        this.m_resizeCallback();
-      }
-    }
-  }
-
-  getStage() {
-    return this.m_stage;
-  }
-
-  getStageWidth() {
-    return this.m_stage.stageWidth;
-  }
-
-  getStageHeight() {
-    return this.m_stage.stageHeight;
-  }
-
-  getDisplayWidth() {
-    return this.m_displayWidth;
-  }
-
-  getDisplayHeight() {
-    return this.m_displayHeight;
-  }
-
-  setViewport(px, py, pw, ph) {
-    this.m_viewPortRect.setTo(px, py, pw, ph);
-  }
-
-  setViewportSize(pw, ph) {
-    this.m_viewPortRect.setSize(pw, ph);
-  }
-
-  testViewPortChanged(px, py, pw, ph) {
-    return this.m_viewPortRect.testEqualWithParams(px, py, pw, ph);
-  }
-
-  getViewportX() {
-    return this.m_viewPortRect.x;
-  }
-
-  getViewportY() {
-    return this.m_viewPortRect.y;
-  }
-
-  getViewportWidth() {
-    return this.m_viewPortRect.width;
-  }
-
-  getViewportHeight() {
-    return this.m_viewPortRect.height;
-  }
-
-  getViewPortSize() {
-    return this.m_viewPortRect;
-  }
-
-  getFBOWidth() {
-    return this.m_viewPortRect.width < RendererDevice_1.default.MAX_RENDERBUFFER_SIZE ? this.m_viewPortRect.width : RendererDevice_1.default.MAX_RENDERBUFFER_SIZE;
-  }
-
-  getFBOHeight() {
-    return this.m_viewPortRect.height < RendererDevice_1.default.MAX_RENDERBUFFER_SIZE ? this.m_viewPortRect.height : RendererDevice_1.default.MAX_RENDERBUFFER_SIZE;
-  }
-
-  getRCanvasWidth() {
-    return this.m_rcanvasWidth;
-  }
-
-  getRCanvasHeight() {
-    return this.m_rcanvasHeight;
-  }
-
-  updateRenderBufferSize() {
-    let rect = this.m_div.getBoundingClientRect();
-    console.log("updateRenderBufferSize() rect.width, rect.height: ", rect.width, rect.height);
-    this.m_canvas.style.width = Math.floor(rect.width) + 'px';
-    this.m_canvas.style.height = Math.floor(rect.height) + 'px';
-    rect = this.m_div.getBoundingClientRect();
-    this.resizeBufferSize(rect.width, rect.height);
-  }
-
-}
-
-exports.default = RAdapterContext;
 
 /***/ }),
 
@@ -2156,773 +1853,6 @@ exports.default = ROTransform;
 
 /***/ }),
 
-/***/ "0c85":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
-
-class ContextMouseEvtDispatcher {
-  constructor() {
-    this.m_singleDown = false;
-    this.m_mouseX = 0;
-    this.m_mouseY = 0;
-    this.m_mouseClickTime = 0;
-    this.dpr = 1.0;
-  }
-
-  initMobile(canvas, div, stage) {
-    var pdocument = null;
-
-    try {
-      if (document != undefined) {
-        pdocument = document;
-      }
-    } catch (err) {
-      console.log("ContextMouseEvtDispatcher::initMobile(), document is undefined.");
-    }
-
-    if (pdocument != null) {
-      let selfT = this;
-      div.addEventListener('touchstart', evt => {
-        /*
-        e.touches：当前位于屏幕上的所有手指的列表
-        e.targetTouches：位于当前DOM元素上手指的列表
-        e.changedTouches：涉及当前事件手指的列表
-        */
-        //获取手指的位置
-        let list = evt.targetTouches;
-        let px = 0;
-        let py = 0;
-
-        if (list.length < 2) {
-          px = 0 | this.dpr * evt.targetTouches[0].pageX;
-          py = 0 | this.dpr * evt.targetTouches[0].pageY;
-          stage.mouseX = px;
-          stage.mouseY = stage.stageHeight - py;
-          stage.mouseViewX = px;
-          stage.mouseViewY = py;
-          this.m_singleDown = true;
-          this.m_mouseX = stage.mouseX;
-          this.m_mouseY = stage.mouseY;
-          this.m_mouseClickTime = Date.now();
-          stage.mouseDown(1);
-        } else {
-          let posArray = [];
-
-          for (let i = 0; i < list.length; ++i) {
-            px = 0 | this.dpr * evt.targetTouches[i].pageX;
-            py = 0 | this.dpr * evt.targetTouches[i].pageY;
-            posArray.push({
-              x: px,
-              y: py
-            });
-          }
-
-          stage.mouseMultiDown(posArray);
-          this.m_singleDown = false;
-        }
-
-        evt.preventDefault();
-        evt.stopPropagation();
-      }, false);
-      div.addEventListener('touchend', evt => {
-        //获取手指的位置
-        this.m_singleDown = false;
-        let list = evt.targetTouches;
-        let px = 0;
-        let py = 0;
-
-        if (list.length < 1) {
-          stage.mouseUp(1);
-          this.m_mouseClickTime = Date.now() - this.m_mouseClickTime;
-
-          if (Math.abs(this.m_mouseX - stage.mouseX) < 2 && Math.abs(this.m_mouseY - stage.mouseY) < 2 && this.m_mouseClickTime < 900) {
-            this.m_mouseX = stage.mouseX;
-            this.m_mouseY = stage.mouseY;
-            stage.mouseClick();
-          }
-        } else {
-          let posArray = [];
-
-          for (let i = 0; i < list.length; ++i) {
-            px = 0 | this.dpr * evt.targetTouches[i].pageX;
-            py = 0 | this.dpr * evt.targetTouches[i].pageY;
-            posArray.push({
-              x: px,
-              y: py
-            });
-          }
-
-          stage.mouseMultiUp(posArray);
-        }
-
-        evt.preventDefault();
-      }, false);
-      div.addEventListener('touchcancel', e => {
-        //获取手指的位置
-        selfT.m_singleDown = false;
-        let list = e.targetTouches;
-        stage.mouseCancel();
-        e.preventDefault();
-      }, false);
-      div.addEventListener('touchmove', evt => {
-        evt.preventDefault(); //阻止屏幕滚动的默认行为
-
-        let list = evt.targetTouches;
-        let px = 0;
-        let py = 0;
-
-        if (this.m_singleDown) {
-          px = 0 | this.dpr * list[0].pageX;
-          py = 0 | this.dpr * list[0].pageY;
-          stage.mouseViewX = px;
-          stage.mouseViewY = py;
-          stage.mouseX = px;
-          stage.mouseY = stage.stageHeight - py;
-          stage.mouseMove();
-        }
-
-        if (list.length > 1) {
-          let posArray = [];
-
-          for (let i = 0; i < list.length; ++i) {
-            px = 0 | this.dpr * evt.targetTouches[i].pageX;
-            py = 0 | this.dpr * evt.targetTouches[i].pageY;
-            posArray.push({
-              x: px,
-              y: py
-            });
-          }
-
-          stage.mouseMultiMove(posArray);
-        } //DivLog.ShowLog("touchmove "+list.length+", px,py: "+(px|0)+","+(0|py));
-
-      }, {
-        passive: false
-      }, false);
-
-      if (RendererDevice_1.default.IsIpadOS()) {
-        let meta = document.createElement('meta');
-        meta.name = "viewport";
-        meta.content = "width=device-width,initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no";
-        document.getElementsByTagName('head')[0].appendChild(meta);
-      }
-    }
-  }
-
-  initialize(canvas, div, stage) {
-    if (RendererDevice_1.default.IsMobileWeb() || RendererDevice_1.default.IsIpadOS()) {
-      this.initMobile(canvas, div, stage);
-    } else {
-      this.initPC(canvas, div, stage);
-      this.initMobile(canvas, div, stage);
-    }
-  }
-
-  initPC(canvas, div, stage) {
-    var pdocument = null;
-
-    try {
-      if (document != undefined) {
-        pdocument = document;
-      }
-    } catch (err) {
-      console.log("ContextMouseEvtDispatcher::initPC(), document is undefined.");
-    }
-
-    if (pdocument != null) {
-      if (canvas.onmousewheel == undefined && canvas.addEventListener != undefined) {
-        //use firefox browser mousewheel evt
-        let func = function (evt) {
-          evt.wheelDeltaY = -evt.detail;
-          stage.mouseWheel(evt);
-        };
-
-        canvas.addEventListener('DOMMouseScroll', func, false);
-      }
-
-      canvas.onmousewheel = evt => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        stage.mouseWheel(evt);
-      };
-
-      canvas.onmousedown = evt => {
-        let rect = div.getBoundingClientRect();
-        let px = 0 | this.dpr * (evt.clientX - rect.left);
-        let py = 0 | this.dpr * (evt.clientY - rect.top);
-        stage.mouseX = px;
-        stage.mouseY = stage.stageHeight - py;
-        stage.mouseViewX = px;
-        stage.mouseViewY = py;
-        this.m_mouseX = stage.mouseX;
-        this.m_mouseY = stage.mouseY;
-        this.m_mouseClickTime = Date.now(); // console.log("ContextMouseEvtDispatcher::onmousedown(),evt.button: ", evt.button);
-
-        if (evt.button == 0) {
-          stage.mouseDown(1);
-        } else if (evt.button == 1) {
-          stage.mouseMiddleDown();
-        } else if (evt.button == 2) {
-          stage.mouseRightDown(1);
-        }
-      };
-
-      canvas.onmouseup = evt => {
-        let rect = div.getBoundingClientRect();
-        let px = 0 | this.dpr * (evt.clientX - rect.left);
-        let py = 0 | this.dpr * (evt.clientY - rect.top);
-        stage.mouseX = px;
-        stage.mouseY = stage.stageHeight - py; // console.log("ContextMouseEvtDispatcher::onmouseup(),evt.button: ", evt.button);
-
-        if (evt.button == 0) {
-          stage.mouseUp(1);
-        } else if (evt.button == 1) {
-          stage.mouseMiddleUp();
-        } else if (evt.button == 2) {
-          stage.mouseRightUp(1);
-        }
-      };
-
-      document.onmouseup = evt => {
-        if (evt.button == 0) {
-          stage.mouseWindowUp(1);
-        } else if (evt.button == 1) {// stage.mouseMiddleUp();
-        } else if (evt.button == 2) {
-          stage.mouseWindowRightUp(1);
-        }
-      };
-
-      canvas.onmousemove = evt => {
-        // console.log("ContextMouseEvtDispatcher::onmouseMove"+evt.pageX+","+evt.pageY);
-        let rect = div.getBoundingClientRect();
-        let px = 0 | this.dpr * (evt.clientX - rect.left);
-        let py = 0 | this.dpr * (evt.clientY - rect.top);
-        stage.mouseX = px;
-        stage.mouseY = stage.stageHeight - py;
-        stage.mouseViewX = px;
-        stage.mouseViewY = py;
-        stage.mouseMove();
-      };
-
-      canvas.onclick = evt => {
-        let rect = div.getBoundingClientRect();
-        let px = 0 | this.dpr * (evt.clientX - rect.left);
-        let py = 0 | this.dpr * (evt.clientY - rect.top);
-        stage.mouseX = px;
-        stage.mouseY = stage.stageHeight - py;
-        stage.mouseViewX = px;
-        stage.mouseViewY = py;
-        this.m_mouseClickTime = Date.now() - this.m_mouseClickTime;
-
-        if (Math.abs(this.m_mouseX - stage.mouseX) < 2 && Math.abs(this.m_mouseY - stage.mouseY) < 2 && this.m_mouseClickTime < 900) {
-          this.m_mouseX = stage.mouseX;
-          this.m_mouseY = stage.mouseY; //console.log("ContextMouseEvtDispatcher::onclick()," + stage.mouseViewX + "," + stage.mouseViewY + ",evt.button: " + evt.button);
-
-          if (evt.button == 0) {
-            stage.mouseClick();
-          } else if (evt.button == 2) {
-            stage.mouseRightClick();
-          }
-        }
-      };
-
-      canvas.ondblclick = evt => {
-        let rect = div.getBoundingClientRect();
-        let px = 0 | this.dpr * (evt.clientX - rect.left);
-        let py = 0 | this.dpr * (evt.clientY - rect.top);
-        stage.mouseX = px;
-        stage.mouseY = stage.stageHeight - py;
-        stage.mouseViewX = px;
-        stage.mouseViewY = py; // console.log("ContextMouseEvtDispatcher::ondoubleclick()," + stage.mouseViewX + "," + stage.mouseViewY + ",evt.button: " + evt.button);
-
-        if (evt.button == 0) {
-          stage.mouseDoubleClick();
-        } else if (evt.button == 2) {// stage.mouseRightDoubleClick();
-        }
-      };
-    }
-  }
-
-}
-
-exports.default = ContextMouseEvtDispatcher;
-
-/***/ }),
-
-/***/ "0e01":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const FrameBufferType_1 = __importDefault(__webpack_require__("baae"));
-
-const RendererState_1 = __importDefault(__webpack_require__("29ef"));
-
-const RenderMaterialProxy_1 = __importDefault(__webpack_require__("7499"));
-
-const RenderProxy_1 = __webpack_require__("de9d");
-
-class RendererInstanceContextParam {
-  constructor() {
-    this.camera = null;
-    this.stage = null;
-    this.builder = null;
-    this.vtxBuilder = null;
-    this.uniformContext = null;
-    this.shaderProgramBuilder = null;
-  }
-
-}
-
-exports.RendererInstanceContextParam = RendererInstanceContextParam;
-/**
- * 渲染器实例上下文
- */
-
-class RendererInstanceContext {
-  constructor(rcuid) {
-    this.m_adapter = null;
-    this.m_renderProxy = null;
-    this.m_materialProxy = null;
-    this.m_cameraNear = 0.1;
-    this.m_cameraFar = 5000.0;
-    this.m_cameraFov = 45.0;
-    this.m_rcuid = 0;
-    this.m_rcuid = rcuid;
-    this.m_renderProxy = new RenderProxy_1.RenderProxy(rcuid);
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_rcuid;
-  }
-
-  getDiv() {
-    return this.m_adapter.getDiv();
-  }
-
-  getCanvas() {
-    return this.m_adapter.getCanvas();
-  }
-
-  getRenderAdapter() {
-    return this.m_adapter;
-  }
-
-  getRenderMaterialProxy() {
-    return this.m_materialProxy;
-  }
-
-  getRenderProxy() {
-    return this.m_renderProxy;
-  }
-
-  getTextureResTotal() {
-    return this.m_renderProxy.Texture.getTextureResTotal();
-  }
-
-  getTextureAttachTotal() {
-    return this.m_renderProxy.Texture.getAttachTotal();
-  }
-
-  getDevicePixelRatio() {
-    return this.m_adapter.getDevicePixelRatio();
-  }
-
-  getStage3D() {
-    return this.m_renderProxy.getStage3D();
-  }
-
-  getCamera() {
-    if (this.m_renderProxy != null) {
-      return this.m_renderProxy.getCamera();
-    }
-
-    return null;
-  }
-
-  cameraLock() {
-    this.m_renderProxy.cameraLock();
-  }
-
-  cameraUnlock() {
-    this.m_renderProxy.cameraUnlock();
-  }
-
-  updateCamera() {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.updateCamera();
-    }
-  }
-
-  updateCameraDataFromCamera(cam) {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.updateCameraDataFromCamera(cam);
-    }
-  }
-
-  lockRenderColorMask() {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.lockRenderColorMask();
-    }
-  }
-
-  unlockRendererColorMask() {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.unlockRenderState();
-    }
-  }
-
-  useGlobalRenderColorMask(colorMask) {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.unlockRenderColorMask();
-      this.m_renderProxy.useRenderColorMask(colorMask);
-      this.m_renderProxy.lockRenderColorMask();
-    }
-  }
-
-  useGlobalRenderColorMaskByName(colorMaskNS) {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.unlockRenderColorMask();
-      this.m_renderProxy.useRenderColorMask(RendererState_1.default.GetRenderColorMaskByName(colorMaskNS));
-      this.m_renderProxy.lockRenderColorMask();
-    }
-  }
-
-  getRenderColorMaskByName(scolorMaskNS) {
-    return RendererState_1.default.GetRenderColorMaskByName(scolorMaskNS);
-  }
-
-  lockRenderState() {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.lockRenderState();
-    }
-  }
-
-  unlockRenderState() {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.unlockRenderState();
-    }
-  }
-
-  useGlobalRenderState(state) {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.unlockRenderState();
-      this.m_renderProxy.useRenderState(state);
-      this.m_renderProxy.lockRenderState();
-    }
-  }
-
-  useGlobalRenderStateByName(stateNS) {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.unlockRenderState();
-      this.m_renderProxy.useRenderState(RendererState_1.default.GetRenderStateByName(stateNS));
-      this.m_renderProxy.lockRenderState();
-    }
-  }
-
-  getRenderStateByName(stateNS) {
-    return RendererState_1.default.GetRenderStateByName(stateNS);
-  }
-
-  lockMaterial() {
-    if (this.m_materialProxy != null) {
-      this.m_materialProxy.lockMaterial();
-    }
-  }
-
-  unlockMaterial() {
-    if (this.m_materialProxy != null) {
-      this.m_materialProxy.unlockMaterial();
-    }
-  }
-
-  isUnlockMaterial() {
-    return this.m_materialProxy.isUnlockMatrial();
-  }
-
-  useGlobalMaterial(material, texUnlock = false, materialUniformUpdate = false) {
-    if (this.m_materialProxy != null) {
-      this.m_materialProxy.unlockMaterial();
-
-      if (texUnlock) {
-        this.m_materialProxy.unlockTexture();
-      } else {
-        this.m_materialProxy.lockTexture();
-      }
-
-      this.m_materialProxy.useGlobalMaterial(material, materialUniformUpdate);
-      this.m_materialProxy.lockMaterial();
-    }
-  }
-
-  updateMaterialUniform(material) {
-    this.m_materialProxy.updateMaterialUniform(material);
-  }
-
-  clearBackBuffer() {
-    this.m_renderProxy.clearBackBuffer();
-  }
-
-  setScissorRect(px, py, pw, ph) {
-    this.m_adapter.setScissorRect(px, py, pw, ph);
-  }
-
-  setScissorEnabled(enabled) {
-    this.m_adapter.setScissorEnabled(enabled);
-  }
-
-  setViewPort(px, py, pw, ph) {
-    this.m_renderProxy.setViewPort(px, py, pw, ph);
-  }
-
-  synFBOSizeWithViewport() {
-    this.m_adapter.synFBOSizeWithViewport();
-  }
-
-  asynFBOSizeWithViewport() {
-    this.m_adapter.asynFBOSizeWithViewport();
-  } // if synFBOSizeWithViewport is true, fbo size = factor * view port size;
-
-
-  setFBOSizeFactorWithViewPort(factor) {
-    this.m_adapter.setFBOSizeFactorWithViewPort(factor);
-  }
-
-  createFBOAt(index, fboType, pw, ph, enableDepth = false, enableStencil = false, multisampleLevel = 0) {
-    this.m_adapter.createFBOAt(index, fboType, pw, ph, enableDepth, enableStencil, multisampleLevel);
-  }
-
-  bindFBOAt(index, fboType) {
-    this.m_adapter.bindFBOAt(index, fboType);
-  }
-  /**
-   * bind a texture to fbo attachment by attachment index
-   * @param texProxy  RTTTextureProxy instance
-   * @param enableDepth  enable depth buffer yes or no
-   * @param enableStencil  enable stencil buffer yes or no
-   * @param attachmentIndex  fbo attachment index
-   */
-
-
-  setRenderToTexture(texProxy, enableDepth = false, enableStencil = false, attachmentIndex = 0) {
-    this.m_adapter.setRenderToTexture(texProxy, enableDepth, enableStencil, attachmentIndex);
-  }
-
-  useFBO(clearColorBoo = false, clearDepthBoo = false, clearStencilBoo = false) {
-    this.m_adapter.useFBO(clearColorBoo, clearDepthBoo, clearStencilBoo);
-  }
-
-  resetFBOAttachmentMask(boo) {
-    this.m_adapter.resetFBOAttachmentMask(boo);
-  }
-
-  setFBOAttachmentMaskAt(index, boo) {
-    this.m_adapter.setFBOAttachmentMaskAt(index, boo);
-  }
-
-  setRenderToBackBuffer() {
-    if (this.m_adapter != null) {
-      this.m_adapter.setRenderToBackBuffer(FrameBufferType_1.default.FRAMEBUFFER);
-      this.m_renderProxy.rshader.resetRenderState();
-      this.m_materialProxy.renderBegin();
-    }
-  }
-
-  lockViewport() {
-    this.m_adapter.lockViewport();
-  }
-
-  unlockViewport() {
-    this.m_adapter.unlockViewport();
-  }
-
-  setClearDepth(depth) {
-    this.m_adapter.setClearDepth(depth);
-  }
-
-  getClearDepth() {
-    return this.m_adapter.getClearDepth();
-  }
-
-  getViewportX() {
-    return this.m_adapter.getViewportX();
-  }
-
-  getViewportY() {
-    return this.m_adapter.getViewportY();
-  }
-
-  getViewportWidth() {
-    return this.m_adapter.getViewportWidth();
-  }
-
-  getViewportHeight() {
-    return this.m_adapter.getViewportHeight();
-  }
-  /**
-   * 设置用于3D绘制的canvas的宽高尺寸,如果调用了此函数，则不会自动匹配窗口尺寸改变，默认是自动匹配窗口尺寸改变的
-   * @param       pw 像素宽度
-   * @param       ph 像素高度
-  */
-
-
-  setContextViewSize(pw, ph) {
-    this.m_adapter.setContextViewSize(pw, ph);
-  }
-
-  setCameraParam(fov, near, far) {
-    this.m_cameraFov = fov;
-    this.m_cameraNear = near;
-    this.m_cameraFar = far;
-
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.setCameraParam(fov, near, far);
-    }
-  }
-
-  initialize(param, camera, contextParam) {
-    if (this.m_adapter == null) {
-      this.m_renderProxy.setCameraParam(this.m_cameraFov, this.m_cameraNear, this.m_cameraFar);
-      this.m_renderProxy.setWebGLMaxVersion(param.maxWebGLVersion);
-      let proxyParam = new RenderProxy_1.RenderProxyParam();
-      proxyParam.uniformContext = contextParam.uniformContext;
-      proxyParam.vtxBufUpdater = contextParam.builder;
-      proxyParam.materialUpdater = contextParam.builder;
-      proxyParam.vtxBuilder = contextParam.vtxBuilder;
-      this.m_renderProxy.initialize(param, camera, contextParam.stage, proxyParam);
-      this.m_rcuid = this.m_renderProxy.getRCUid();
-      contextParam.vtxBuilder.initialize(this.m_rcuid, this.m_renderProxy.getRC(), this.m_renderProxy.getGLVersion());
-      this.m_adapter = this.m_renderProxy.getRenderAdapter();
-      let context = this.m_renderProxy.getContext();
-      context.setViewport(0, 0, context.getRCanvasWidth(), context.getRCanvasHeight());
-    }
-  }
-
-  initManager(builder) {
-    if (this.m_materialProxy == null) {
-      this.m_materialProxy = new RenderMaterialProxy_1.default();
-      this.m_materialProxy.setDispBuilder(builder);
-    }
-  }
-
-  setClearRGBColor3f(pr, pg, pb) {
-    this.m_renderProxy.setClearRGBColor3f(pr, pg, pb);
-  }
-
-  setClearRGBAColor4f(pr, pg, pb, pa) {
-    this.m_renderProxy.setClearRGBAColor4f(pr, pg, pb, pa);
-  }
-
-  getClearRGBAColor4f(color4) {
-    color4.fromArray4(this.m_adapter.bgColor);
-  }
-
-  updateRenderBufferSize() {
-    this.m_adapter.updateRenderBufferSize();
-  }
-
-  vertexRenderBegin() {
-    this.m_renderProxy.Vertex.renderBegin();
-  }
-  /**
-   * the function resets the renderer instance rendering status.
-   * you should use it on the frame starting time.
-   */
-
-
-  renderBegin(cameraDataUpdate = true) {
-    if (this.m_adapter != null) {
-      this.m_adapter.unlockViewport(); //this.m_adapter.resetPolygonOffset();
-
-      this.m_adapter.setClearDepth(1.0);
-      this.m_renderProxy.Vertex.renderBegin();
-      this.m_materialProxy.renderBegin();
-      this.m_adapter.update();
-      this.m_adapter.setClearMaskClearAll();
-      this.m_adapter.renderBegin();
-      this.m_renderProxy.status.reset();
-      RendererState_1.default.Reset(this.m_renderProxy.getRenderContext());
-
-      if (cameraDataUpdate) {
-        this.m_renderProxy.useCameraData();
-        this.m_renderProxy.updateCameraDataFromCamera(this.m_renderProxy.getCamera());
-      }
-    }
-  }
-
-  resetState() {
-    RendererState_1.default.ResetState();
-    this.m_materialProxy.renderBegin();
-  }
-
-  resetmaterial() {
-    this.m_materialProxy.renderBegin();
-  }
-
-  resetUniform() {
-    this.m_materialProxy.resetUniform();
-  }
-
-  runEnd() {}
-
-}
-
-exports.RendererInstanceContext = RendererInstanceContext;
-exports.default = RendererInstanceContext;
-
-/***/ }),
-
 /***/ "0fc4":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2954,6 +1884,8 @@ const MaterialResource_1 = __importDefault(__webpack_require__("9666"));
 
 const ShaderCodeBuffer_1 = __importDefault(__webpack_require__("faa5"));
 
+const VtxDrawingInfo_1 = __importDefault(__webpack_require__("d031"));
+
 class MaterialBase {
   constructor() {
     this.m_shduns = "";
@@ -2972,15 +1904,16 @@ class MaterialBase {
      * pipes type list for material pipeline
      */
 
-    this.pipeTypes = null;
-    this.renderState = 0;
-    this.colorMask = 0;
-    /**
-     * the default value is null
-     */
+    this.pipeTypes = null; // renderState = 0;
+    // colorMask = 0;
+    // /**
+    //  * the default value is null
+    //  */
+    // stencil: Stencil = null;
+    // multiPass = false;
 
-    this.stencil = null;
-    this.multiPass = false;
+    this.vtxInfo = new VtxDrawingInfo_1.default();
+    this.graph = null;
     this.m_texList = null;
     this.m_texListLen = 0;
     this.m_texDataEnabled = false;
@@ -3316,12 +2249,17 @@ class MaterialBase {
 
         this.__$uniform = null;
       }
+
+      this.vtxInfo.destroy();
+
+      if (this.graph) {
+        this.graph.destroy();
+        this.graph = null;
+      }
     }
   }
 
-  toString() {
-    return "[MaterialBase()]";
-  }
+  update() {}
 
 }
 
@@ -3481,1047 +2419,6 @@ RSEntityFlag.RENDERER_LOAD_NOT_FLAG = -0x30000001; // ~0x30000000;
 RSEntityFlag.RENDERER_ADN_LOAD_FLAG = 0x37F00000; // 0x7f00000 | 0x30000000;
 
 exports.default = RSEntityFlag;
-
-/***/ }),
-
-/***/ "1216":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const FrameBufferType_1 = __importDefault(__webpack_require__("baae"));
-
-const RenderFilter_1 = __importDefault(__webpack_require__("722e"));
-
-const RenderMaskBitfield_1 = __importDefault(__webpack_require__("8333"));
-
-const FrameBufferObject_1 = __importDefault(__webpack_require__("6d49"));
-
-const RenderConst_1 = __webpack_require__("e08e");
-
-const TextureFormat_1 = __importDefault(__webpack_require__("ffc0"));
-
-const TextureDataType_1 = __importDefault(__webpack_require__("1f61"));
-
-const RenderColorMask_1 = __webpack_require__("070b");
-
-const RenderStateObject_1 = __webpack_require__("a5ba");
-
-const RendererState_1 = __importDefault(__webpack_require__("29ef"));
-
-const AABB2D_1 = __importDefault(__webpack_require__("e2fe"));
-
-class RenderAdapter {
-  constructor(rcuid, texResource) {
-    // renderer context uid
-    this.m_rcuid = 0;
-    this.m_texResource = null;
-    this.m_gl = null;
-    this.m_fontFaceFlipped = false; // default ccw
-
-    this.m_colorMask = {
-      mr: true,
-      mg: true,
-      mb: true,
-      ma: true
-    };
-    this.m_rcontext = null;
-    this.m_clearMask = 0x0;
-    this.m_fboBuf = null;
-    this.m_fboIndex = 0;
-    this.m_fboType = FrameBufferType_1.default.FRAMEBUFFER;
-    this.m_fboBufList = [null, null, null, null, null, null, null, null];
-    this.m_fboClearBoo = true;
-    this.m_fboViewportRectBoo = false;
-    this.m_polygonOffsetFlag = false;
-    this.m_polygonOffset = false;
-    this.m_clearDepth = 1.0;
-    this.m_preDepth = 0.0;
-    this.m_viewPortRect = new AABB2D_1.default(0, 0, 800, 600);
-    this.m_fboViewportRect = new AABB2D_1.default(0, 0, 800, 600);
-    this.m_fboSizeFactor = 1.0;
-    this.m_clearStencil = 0x0;
-    this.m_fboBiltRectData = new Uint16Array(8);
-    this.m_fboViewportRectData = new Uint16Array(4);
-    this.m_activeAttachmentTotal = 1;
-    this.m_scissorEnabled = false;
-    this.m_rState = null;
-    this.m_webglVer = 2;
-    this.bgColor = new Float32Array([0, 0, 0, 1]);
-    this.uViewProbe = null;
-    this.m_devPRatio = 1.0;
-    this.m_viewportUnlock = true;
-    this.m_synFBOSizeWithViewport = false;
-    this.m_texResource = texResource;
-    this.m_rcuid = rcuid;
-  }
-
-  initialize(context, param, rState, uViewProbe) {
-    if (this.m_rcontext == null) {
-      this.m_webglVer = context.getWebGLVersion();
-      this.m_rState = rState;
-      this.m_rcontext = context;
-      this.m_gl = context.getRC();
-      this.m_gl.disable(this.m_gl.SCISSOR_TEST);
-      if (context.isDepthTestEnabled()) this.m_gl.enable(this.m_gl.DEPTH_TEST);else this.m_gl.disable(this.m_gl.DEPTH_TEST);
-
-      if (context.isStencilTestEnabled()) {
-        this.m_gl.enable(this.m_gl.STENCIL_TEST);
-      } else {
-        console.warn("STENCIL_TEST disable !!!");
-        this.m_gl.disable(this.m_gl.STENCIL_TEST);
-      }
-
-      if (param.getPolygonOffsetEanbled()) this.enabledPolygonOffset();else this.disabledPolygonOffset();
-      this.m_gl.enable(this.m_gl.CULL_FACE);
-      this.m_gl.cullFace(this.m_gl.BACK);
-      this.m_gl.enable(this.m_gl.BLEND);
-      if (param.getDitherEanbled()) this.m_gl.enable(this.m_gl.DITHER);else this.m_gl.disable(this.m_gl.DITHER);
-      this.m_gl.frontFace(this.m_gl.CCW); //m_gl.hint(m_gl.PERSPECTIVE_CORRECTION_HINT, m_gl.NICEST);	// Really Nice Perspective Calculations
-
-      this.m_clearMask = this.m_gl.COLOR_BUFFER_BIT | this.m_gl.DEPTH_BUFFER_BIT | this.m_gl.STENCIL_BUFFER_BIT; //
-      //this.m_rState = context.getRenderState();
-      //console.log("RenderAdapter::initialize() finish...");
-
-      if (this.uViewProbe == null) {
-        let size = this.m_viewPortRect;
-        let self = this;
-        self.uViewProbe = uViewProbe;
-        this.uViewProbe.setVec4DataWithArr4([size.x, size.y, size.width, size.height]);
-      }
-    }
-  }
-  /**
-   * @param faceFlipped the value is true, frontFace is CW. the value is false, frontFace is CCW.
-   */
-
-
-  setFrontFaceFlipped(faceFlipped) {
-    if (this.m_fontFaceFlipped != faceFlipped) {
-      if (faceFlipped) {
-        this.m_gl.frontFace(this.m_gl.CW);
-      } else {
-        this.m_gl.frontFace(this.m_gl.CCW);
-      }
-
-      this.m_fontFaceFlipped = faceFlipped;
-    }
-  }
-
-  enabledPolygonOffset() {
-    if (!this.m_polygonOffset) {
-      this.m_polygonOffset = true;
-      console.warn("POLYGON_OFFSET_FILL enable !!!");
-      this.m_gl.enable(this.m_gl.POLYGON_OFFSET_FILL);
-    }
-  }
-
-  disabledPolygonOffset() {
-    if (this.m_polygonOffset) {
-      this.m_polygonOffset = false;
-      console.warn("POLYGON_OFFSET_FILL disable !!!");
-      this.m_gl.disable(this.m_gl.POLYGON_OFFSET_FILL);
-    }
-  }
-  /*
-   * specifies the scale factors and units to calculate depth values.
-   * @param factor the value is a GLfloat which sets the scale factor for the variable depth offset for each polygon. The default value is 0.
-   * @param units the value is a which sets the multiplier by which an implementation-specific value is multiplied with to create a constant depth offset. The default value is 0.
-   */
-
-
-  setPolygonOffset(factor, units = 0.0) {
-    this.m_gl.polygonOffset(factor, units);
-    this.m_polygonOffsetFlag = true;
-  }
-  /*
-   * reset the scale factors and units value is default value(0.0).
-   */
-
-
-  resetPolygonOffset() {
-    if (this.m_polygonOffsetFlag) {
-      this.m_gl.polygonOffset(0.0, 0.0);
-      this.m_polygonOffsetFlag = false;
-    }
-  }
-
-  getDiv() {
-    return this.m_rcontext.getDiv();
-  }
-
-  getCanvas() {
-    return this.m_rcontext.getCanvas();
-  }
-
-  setClearDepth(depth) {
-    this.m_clearDepth = depth;
-  }
-
-  getClearDepth() {
-    return this.m_clearDepth;
-  }
-
-  setContextViewSize(pw, ph) {
-    this.m_rcontext.autoSyncRenderBufferAndWindowSize = false;
-    this.m_rcontext.resizeBufferSize(pw, ph);
-  }
-
-  getViewportX() {
-    return this.m_rcontext.getViewportX();
-  }
-
-  getViewportY() {
-    return this.m_rcontext.getViewportY();
-  }
-
-  getViewportWidth() {
-    return this.m_rcontext.getViewportWidth();
-  }
-
-  getViewportHeight() {
-    return this.m_rcontext.getViewportHeight();
-  }
-
-  getFBOFitWidth() {
-    return this.m_rcontext.getFBOWidth();
-  }
-
-  getFBOFitHeight() {
-    return this.m_rcontext.getFBOHeight();
-  }
-
-  getRCanvasWidth() {
-    return this.m_rcontext.getRCanvasWidth();
-  }
-
-  getRCanvasHeight() {
-    return this.m_rcontext.getRCanvasHeight();
-  }
-
-  setColorMask(mr, mg, mb, ma) {
-    this.m_colorMask.mr = mr;
-    this.m_colorMask.mg = mg;
-    this.m_colorMask.mb = mb;
-    this.m_colorMask.ma = ma;
-  }
-
-  setClearMaskClearAll() {
-    this.m_clearMask = this.m_gl.COLOR_BUFFER_BIT | this.m_gl.DEPTH_BUFFER_BIT | this.m_gl.STENCIL_BUFFER_BIT;
-  }
-
-  setClearMaskClearOnlyColor() {
-    this.m_clearMask = this.m_gl.COLOR_BUFFER_BIT;
-  }
-
-  setClearMaskClearOnlyDepthAndStencil() {
-    this.m_clearMask = this.m_gl.DEPTH_BUFFER_BIT | this.m_gl.STENCIL_BUFFER_BIT;
-  }
-
-  setScissorRect(px, py, pw, ph) {
-    if (this.m_scissorEnabled) {
-      this.m_gl.scissor(px, py, pw, ph);
-    }
-  }
-
-  setScissorEnabled(enabled) {
-    if (enabled) {
-      if (!this.m_scissorEnabled) {
-        this.m_scissorEnabled = true;
-        this.m_gl.enable(this.m_gl.SCISSOR_TEST);
-      }
-    } else if (this.m_scissorEnabled) {
-      this.m_scissorEnabled = false;
-      this.m_gl.disable(this.m_gl.SCISSOR_TEST);
-    }
-  }
-  /**
-   * only clear up depth buffer
-   * @param depth depth buffer depth value
-   */
-
-
-  clearDepth(depth = 1.0) {
-    let mode = this.m_rState.getDepthTestMode();
-    this.m_rState.setDepthTestMode(RenderConst_1.DepthTestMode.OPAQUE);
-    this.m_clearDepth = depth;
-
-    if (this.m_preDepth !== this.m_clearDepth) {
-      this.m_preDepth = this.m_clearDepth;
-      this.m_gl.clearDepth(this.m_clearDepth);
-    }
-
-    this.m_gl.clear(this.m_gl.DEPTH_BUFFER_BIT);
-    this.m_rState.setDepthTestMode(mode);
-  }
-  /**
-   * only clear up color buffer
-   * @param color color data
-   */
-
-
-  clearColor(color) {
-    this.m_gl.clearColor(color.r, color.g, color.b, color.a);
-    this.m_gl.clear(this.m_gl.COLOR_BUFFER_BIT);
-  }
-
-  clear() {
-    // console.log("clear back buffer.");
-    // let mode = this.m_rState.getDepthTestMode();
-    // this.m_rState.setDepthTestMode(DepthTestMode.OPAQUE);
-    if (this.m_preDepth !== this.m_clearDepth) {
-      this.m_preDepth = this.m_clearDepth;
-      this.m_gl.clearDepth(this.m_clearDepth);
-    }
-
-    if (this.m_rcontext.isStencilTestEnabled()) {
-      this.m_gl.clearStencil(this.m_clearStencil);
-    }
-
-    let cvs = this.bgColor;
-    this.m_gl.clearColor(cvs[0], cvs[1], cvs[2], cvs[3]);
-    this.m_gl.clear(this.m_clearMask); // this.m_rState.setDepthTestMode(mode);
-    //	if (this.m_rcontext.isStencilTestEnabled()) {
-    //		this.m_gl.stencilMask(0x0);
-    //	}
-  }
-
-  reset() {
-    this.m_rState.setCullFaceMode(RenderConst_1.CullFaceMode.BACK);
-    this.m_rState.setDepthTestMode(RenderConst_1.DepthTestMode.OPAQUE);
-    RendererState_1.default.Reset(this.m_rcontext);
-  }
-
-  getRenderContext() {
-    return this.m_rcontext;
-  }
-
-  renderBegin() {
-    if (this.m_rcontext != null) {
-      this.m_fboSizeFactor = 1.0;
-      this.reseizeViewPort();
-      RenderStateObject_1.RenderStateObject.Unlock();
-      RenderStateObject_1.RenderStateObject.UseRenderState(RendererState_1.default.NORMAL_STATE);
-      RenderColorMask_1.RenderColorMask.Unlock();
-      RenderColorMask_1.RenderColorMask.UseRenderState(RenderColorMask_1.RenderColorMask.ALL_TRUE_COLOR_MASK); // for back buffer
-      //this.m_gl.clearDepth(1.0);
-
-      this.clear();
-    }
-  }
-
-  updateViewPort() {
-    let size = this.m_viewPortRect;
-    this.uViewProbe.setVec4Data(size.x, size.y, size.width, size.height);
-    this.uViewProbe.update(); //DivLog.ShowLog("reseizeFBOViewPort: " + this.m_viewX + "," + this.m_viewY + "," + this.m_viewWidth + "," + this.m_viewHeight);
-    //console.log("reseizeFBOViewPort: "+this.m_viewX+","+this.m_viewY+","+this.m_viewWidth+","+this.m_viewHeight);
-
-    this.m_gl.viewport(size.x, size.y, size.width, size.height);
-  }
-
-  checkViewPort(dstSize) {
-    let srcSize = this.m_viewPortRect;
-    let k = this.m_rcontext.getDevicePixelRatio();
-    let boo = srcSize.testEqual(dstSize);
-    boo = boo || Math.abs(this.m_devPRatio - k) > 0.01;
-
-    if (boo) {
-      this.m_devPRatio = k;
-      srcSize.copyFrom(dstSize);
-      this.updateViewPort();
-    }
-  }
-
-  reseizeViewPort() {
-    if (this.m_viewportUnlock) {
-      this.checkViewPort(this.m_rcontext.getViewPortSize());
-    }
-  }
-
-  reseizeFBOViewPort() {
-    if (this.m_viewportUnlock) {
-      this.checkViewPort(this.m_fboViewportRect);
-    }
-  }
-
-  setViewProbeValue(x, y, width, height) {
-    this.uViewProbe.setVec4Data(x, y, width, height);
-    this.uViewProbe.update();
-  }
-
-  lockViewport() {
-    this.m_viewportUnlock = false;
-  }
-
-  unlockViewport() {
-    this.m_viewportUnlock = true;
-  }
-
-  renderEnd() {}
-
-  update() {}
-
-  updateRenderBufferSize() {
-    this.m_rcontext.updateRenderBufferSize();
-  }
-
-  destroy() {
-    this.m_rcontext = null;
-    this.m_rState = null;
-  }
-
-  getDevicePixelRatio() {
-    return this.m_rcontext.getDevicePixelRatio();
-  }
-
-  loseContext() {
-    this.m_rcontext.loseContext();
-  }
-  /**
-   * @returns return gpu context lost status
-   */
-
-
-  isContextLost() {
-    return this.m_rcontext.isContextLost();
-  } // read data format include float or unsigned byte ,etc.
-
-
-  readPixels(px, py, width, height, format, dataType, pixels) {
-    this.m_gl.readPixels(px, py, width, height, TextureFormat_1.default.ToGL(this.m_gl, format), TextureDataType_1.default.ToGL(this.m_gl, dataType), pixels);
-  }
-
-  setFBOViewportRect(px, py, pw, ph) {
-    this.m_fboViewportRectData[0] = px;
-    this.m_fboViewportRectData[1] = py;
-    this.m_fboViewportRectData[2] = pw;
-    this.m_fboViewportRectData[3] = ph;
-    this.m_fboViewportRectBoo = true;
-  }
-
-  createFBOAt(index, fboType, pw, ph, enableDepth = false, enableStencil = false, multisampleLevel = 0) {
-    if (this.m_fboBufList[index] == null) {
-      if (index > 7) {
-        index = 7;
-      }
-
-      this.m_fboType = fboType;
-      this.m_fboBuf = new FrameBufferObject_1.default(this.m_rcuid, this.m_texResource, this.m_fboType);
-      this.m_fboBuf.multisampleEnabled = multisampleLevel > 0;
-      this.m_fboBuf.multisampleLevel = multisampleLevel;
-      this.m_fboBuf.writeDepthEnabled = enableDepth;
-      this.m_fboBuf.writeStencilEnabled = enableStencil;
-      this.m_fboBuf.initialize(this.m_gl, pw, ph);
-      this.m_fboBufList[index] = this.m_fboBuf;
-      this.m_fboBuf.sizeFixed = true;
-    }
-  }
-
-  resizeFBOAt(index, pw, ph) {
-    if (index > 7) {
-      index = 7;
-    } else if (index < 0) {
-      index = 0;
-    }
-
-    if (this.m_fboBufList[index] != null) {
-      this.m_fboBufList[index].resize(pw, ph);
-    }
-  }
-
-  getFBOWidthAt(index) {
-    if (this.m_fboBufList[index] != null) {
-      return this.m_fboBufList[index].getWidth();
-    }
-
-    return 0;
-  }
-
-  getFBOHeightAt(index) {
-    if (this.m_fboBufList[index] != null) {
-      return this.m_fboBufList[index].getHeight();
-    }
-
-    return 0;
-  }
-
-  synFBOSizeWithViewport() {
-    this.m_synFBOSizeWithViewport = true;
-  }
-
-  asynFBOSizeWithViewport() {
-    this.m_synFBOSizeWithViewport = false;
-  } // 
-
-  /**
-   * if synFBOSizeWithViewport is true, fbo size = factor * view port size;
-   * @param factor exmple: the value of factor is 0.5
-   */
-
-
-  setFBOSizeFactorWithViewPort(factor) {
-    this.m_fboSizeFactor = factor;
-  }
-
-  bindFBOAt(index, fboType) {
-    if (index > 7) {
-      index = 7;
-    } else if (index < 0) {
-      index = 0;
-    }
-
-    this.m_fboBuf = this.m_fboBufList[index];
-
-    if (this.m_fboBuf != null) {
-      this.m_fboIndex = index;
-      this.m_fboType = fboType;
-      this.m_fboBuf.bind(fboType);
-      this.m_fboClearBoo = true;
-    } else {
-      throw Error("Fatal Error!!! this.m_fboBuf == null.");
-    }
-  }
-
-  clearFBODepthAt(index, clearDepth = 1.0) {
-    let fboBuf = this.m_fboBufList[index];
-
-    if (fboBuf != null) {
-      fboBuf.clearOnlyDepth(clearDepth);
-    }
-  }
-
-  resetFBOAttachmentMask(boo) {
-    if (this.m_fboBuf != null) {
-      this.m_fboBuf.resetAttachmentMask(boo);
-    }
-  }
-
-  setFBOAttachmentMaskAt(index, boo) {
-    if (this.m_fboBuf != null) {
-      this.m_fboBuf.setAttachmentMaskAt(index, boo);
-    }
-  }
-
-  getFBOAttachmentTotal() {
-    if (this.m_fboBuf != null) {
-      return this.m_fboBuf.getAttachmentTotal();
-    }
-
-    return 0;
-  }
-  /**
-   * bind a texture to fbo attachment by attachment index
-   * @param texProxy  IRenderTexture instance
-   * @param enableDepth  enable depth buffer yes or no
-   * @param enableStencil  enable stencil buffer yes or no
-   * @param attachmentIndex  fbo attachment index
-   */
-
-
-  setRenderToTexture(texProxy, enableDepth = false, enableStencil = false, attachmentIndex = 0) {
-    if (attachmentIndex < 0 || attachmentIndex >= 8) {
-      attachmentIndex = 0;
-    } //console.log("attachmentIndex: ",attachmentIndex);
-
-
-    if (texProxy == null && attachmentIndex == 0) {
-      this.setRenderToBackBuffer(FrameBufferType_1.default.FRAMEBUFFER);
-    } else {
-      if (attachmentIndex == 0) {
-        if (this.m_fboBuf != null) {
-          if (this.m_synFBOSizeWithViewport) {
-            this.m_fboBuf.initialize(this.m_gl, Math.floor(this.m_rcontext.getFBOWidth() * this.m_fboSizeFactor), Math.floor(this.m_rcontext.getFBOHeight() * this.m_fboSizeFactor));
-          } else {
-            if (this.m_fboViewportRectBoo) {
-              this.m_fboBuf.initialize(this.m_gl, this.m_fboViewportRectData[2], this.m_fboViewportRectData[3]);
-            } else if (!this.m_fboBuf.sizeFixed) {
-              this.m_fboBuf.initialize(this.m_gl, texProxy.getWidth(), texProxy.getHeight());
-            }
-          }
-        }
-
-        if (this.m_fboIndex >= 0) {
-          if (this.m_fboBuf == null) {
-            this.m_fboBuf = new FrameBufferObject_1.default(this.m_rcuid, this.m_texResource, this.m_fboType);
-            this.m_fboBufList[this.m_fboIndex] = this.m_fboBuf;
-            this.m_fboBuf.writeDepthEnabled = enableDepth;
-            this.m_fboBuf.writeStencilEnabled = enableStencil;
-
-            if (this.m_synFBOSizeWithViewport) {
-              this.m_fboBuf.initialize(this.m_gl, Math.floor(this.m_rcontext.getFBOWidth() * this.m_fboSizeFactor), Math.floor(this.m_rcontext.getFBOHeight() * this.m_fboSizeFactor));
-            } else {
-              if (this.m_fboViewportRectBoo) {
-                this.m_fboBuf.initialize(this.m_gl, this.m_fboViewportRectData[2], this.m_fboViewportRectData[3]);
-              } else {
-                this.m_fboBuf.initialize(this.m_gl, texProxy.getWidth(), texProxy.getHeight());
-              }
-            }
-          }
-        }
-      }
-
-      if (this.m_fboBuf != null) {
-        this.m_fboBuf.renderToTexAt(this.m_gl, texProxy, attachmentIndex); //console.log("RenderProxy::setRenderToTexture(), fbo: ",this.m_fboBuf.getFBO());
-      }
-
-      this.m_fboClearBoo = true;
-    }
-  }
-
-  getActiveAttachmentTotal() {
-    return this.m_activeAttachmentTotal;
-  }
-
-  getAttachmentTotal() {
-    return this.m_activeAttachmentTotal;
-  }
-
-  useFBO(clearColorBoo = false, clearDepthBoo = false, clearStencilBoo = false) {
-    if (this.m_fboBuf != null) {
-      if (this.m_fboClearBoo) {
-        this.m_fboClearBoo = false;
-        this.m_fboBuf.use(this.m_gl);
-        this.m_activeAttachmentTotal = this.m_fboBuf.getActiveAttachmentTotal();
-
-        if (clearColorBoo) {
-          this.m_fboBuf.clearOnlyColor(this.bgColor);
-        }
-
-        if (this.m_fboBuf.writeDepthEnabled) {
-          if (this.m_fboBuf.writeStencilEnabled) {
-            if (clearDepthBoo && clearStencilBoo) {
-              this.m_fboBuf.clearOnlyDepthAndStencil(this.m_clearDepth, 0xffffffff);
-            } else if (clearDepthBoo) {
-              this.m_fboBuf.clearOnlyDepth(this.m_clearDepth);
-            } else if (clearStencilBoo) {
-              this.m_fboBuf.clearOnlyStencil(0xff);
-            }
-          } else if (clearDepthBoo) {
-            this.m_fboBuf.clearOnlyDepth(this.m_clearDepth);
-          }
-        } else if (clearStencilBoo && this.m_fboBuf.writeStencilEnabled) {
-          this.m_fboBuf.clearOnlyStencil(0xff);
-        }
-
-        if (this.m_webglVer == 1) {
-          // m_gl.colorMask(m_colorMask.mr,m_colorMask.mg,m_colorMask.mb,m_colorMask.ma);
-          this.m_gl.clear(this.m_clearMask);
-        }
-
-        let size = this.m_viewPortRect;
-        this.m_fboBiltRectData[4] = this.m_fboBiltRectData[0] = size.x;
-        this.m_fboBiltRectData[5] = this.m_fboBiltRectData[1] = size.y;
-        this.m_fboBiltRectData[6] = this.m_fboBiltRectData[2] = size.getRight();
-        this.m_fboBiltRectData[7] = this.m_fboBiltRectData[3] = size.getTop();
-
-        if (this.m_fboViewportRectBoo) {
-          this.m_fboViewportRectBoo = false;
-          this.m_fboViewportRect.setTo(this.m_fboViewportRectData[0], this.m_fboViewportRectData[1], this.m_fboViewportRectData[2], this.m_fboViewportRectData[3]);
-          this.reseizeFBOViewPort();
-        } else {
-          if (this.m_synFBOSizeWithViewport) {
-            //console.log("this.m_fboSizeFactor: "+this.m_fboSizeFactor);
-            this.m_fboViewportRect.setTo(0, 0, Math.floor(this.m_rcontext.getFBOWidth() * this.m_fboSizeFactor), Math.floor(this.m_rcontext.getFBOHeight() * this.m_fboSizeFactor));
-          } else {
-            if (this.m_fboBuf.isSizeChanged()) {
-              this.m_fboBuf.initialize(this.m_gl, this.m_fboBuf.getWidth(), this.m_fboBuf.getHeight());
-            }
-
-            this.m_fboViewportRect.setTo(0, 0, this.m_fboBuf.getWidth(), this.m_fboBuf.getHeight());
-          }
-
-          this.reseizeFBOViewPort();
-        }
-      }
-    }
-  }
-
-  setRenderToBackBuffer(frameBufferType = FrameBufferType_1.default.FRAMEBUFFER) {
-    this.m_activeAttachmentTotal = 1;
-    FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, frameBufferType);
-    this.reseizeViewPort();
-  }
-
-  bindFBOToDraw() {
-    if (this.m_fboBuf != null) {
-      this.m_fboBuf.bind(FrameBufferType_1.default.DRAW_FRAMEBUFFER);
-    }
-  }
-
-  bindFBOToWrite() {
-    if (this.m_fboBuf != null) {
-      this.m_fboBuf.bind(FrameBufferType_1.default.READ_FRAMEBUFFER);
-    }
-  }
-
-  setBlitFboSrcRect(px, py, pw, ph) {
-    this.m_fboBiltRectData[0] = px;
-    this.m_fboBiltRectData[1] = py;
-    this.m_fboBiltRectData[2] = px + pw;
-    this.m_fboBiltRectData[3] = py + ph;
-  }
-
-  setBlitFboDstRect(px, py, pw, ph) {
-    this.m_fboBiltRectData[4] = px;
-    this.m_fboBiltRectData[5] = py;
-    this.m_fboBiltRectData[6] = px + pw;
-    this.m_fboBiltRectData[7] = py + ph;
-  }
-  /**
-   * @oaram			clearType, it is RenderProxy.COLOR or RenderProxy.DEPTH or RenderProxy.STENCIL or RenderProxy.DEPTH_STENCIL
-  */
-
-
-  blitFBO(readFBOIndex = 0, writeFBOIndex = 0, mask_bitfiled = RenderMaskBitfield_1.default.COLOR_BUFFER_BIT, filter = RenderFilter_1.default.NEAREST, clearType = 0, clearIndex = 0, dataArr = null) {
-    if (readFBOIndex > 7) {
-      readFBOIndex = 7;
-    }
-
-    if (writeFBOIndex > 7) {
-      writeFBOIndex = 7;
-    }
-
-    if (readFBOIndex >= 0 && this.m_fboBufList[readFBOIndex] != null) {
-      this.m_fboBufList[readFBOIndex].bind(FrameBufferType_1.default.READ_FRAMEBUFFER);
-    } else {
-      FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, FrameBufferType_1.default.READ_FRAMEBUFFER);
-    }
-
-    if (writeFBOIndex >= 0 && this.m_fboBufList[writeFBOIndex] != null) {
-      this.m_fboBufList[writeFBOIndex].bind(FrameBufferType_1.default.DRAW_FRAMEBUFFER);
-    } else {
-      FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, FrameBufferType_1.default.DRAW_FRAMEBUFFER);
-    }
-
-    if (clearType > 0) {
-      if (clearIndex < 0) {
-        clearIndex = 0;
-      } // clearType 默认是 gl.COLOR
-      // clearIndex 默认是0
-      // dataArr 默认值是 [0.0, 0.0, 0.0, 1.0]
-
-
-      if (dataArr == null) {
-        dataArr = [0.0, 0.0, 0.0, 1.0];
-      }
-
-      this.m_gl.clearBufferfv(clearType, clearIndex, dataArr);
-    }
-
-    let fs = this.m_fboBiltRectData; //copyTexSubImage2D 可以在gles2中代替下面的函数
-
-    this.m_gl.blitFramebuffer(fs[0], fs[1], fs[2], fs[3], fs[4], fs[5], fs[6], fs[7], mask_bitfiled, filter);
-  }
-
-}
-
-exports.default = RenderAdapter;
-
-/***/ }),
-
-/***/ "1264":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RSEntityFlag_1 = __importDefault(__webpack_require__("11e6"));
-
-const RenderConst_1 = __webpack_require__("e08e");
-
-const RPOUnitBuilder_1 = __webpack_require__("eca0");
-
-class DispEntity3DManager {
-  constructor(rendererUid, RODataBuilder, rpoUnitBuilder, processBuider) {
-    this.m_rpoUnitBuilder = null;
-    this.m_dataBuilder = null;
-    this.m_processBuider = null;
-    this.m_waitList = [];
-    this.m_processUidList = [];
-    this.m_rendererUid = -1;
-    this.m_existencetotal = 0;
-    this.m_rprocess = null;
-    this.m_entityManaListener = null;
-    this.version = 0;
-    this.m_rendererUid = rendererUid;
-    this.m_dataBuilder = RODataBuilder;
-    this.m_rpoUnitBuilder = rpoUnitBuilder;
-    this.m_processBuider = processBuider;
-  }
-
-  setListener(entityManaListener) {
-    this.m_entityManaListener = entityManaListener;
-  }
-
-  isEmpty() {
-    return this.m_existencetotal < 1;
-  }
-
-  isHaveEntity() {
-    return this.m_existencetotal > 0;
-  }
-
-  removeEntity(entity) {
-    this.m_existencetotal--; // 从所有相关process中移除这个display
-
-    let display = entity.getDisplay();
-
-    if (display != null && display.__$$runit != null) {
-      let puid = display.__$ruid;
-      let po = this.m_rpoUnitBuilder.getRCRPObj(puid);
-
-      if (po != null) {
-        if (po.count > 0) {
-          if (po.count < 2) {
-            if (po.rprocessUid > -1) {
-              this.m_rprocess = this.m_processBuider.getNodeByUid(po.rprocessUid);
-              this.m_rprocess.removeDisp(display);
-              po.rprocessUid = -1;
-            }
-          } else {
-            let len = RPOUnitBuilder_1.RCRPObj.RenerProcessMaxTotal;
-
-            for (let i = 0; i < len; ++i) {
-              if ((po.idsFlag & 1 << i) > 0) {
-                // the value of list[i] is the uid of a node;
-                this.m_rprocess = this.m_processBuider.getNodeByUid(i);
-                this.m_rprocess.removeDisp(display);
-              }
-            }
-          }
-        }
-      } else {
-        this.m_rprocess = this.m_processBuider.getNodeByUid(display.__$$runit.getRPROUid());
-        this.m_rprocess.removeDisp(display);
-      }
-
-      if (po.count == 0) {
-        //console.log("DispEntity3DManager::removeEntity(), remove a entity from all processes.");
-        if (display.__$$rsign != RenderConst_1.DisplayRenderSign.LIVE_IN_RENDERER) {
-          // error!!!
-          console.error("DispEntity3DManager::removeEntity(), Error: display.__$$rsign != RODisplay.LIVE_IN_RENDERER.");
-        }
-
-        display.__$$rsign = RenderConst_1.DisplayRenderSign.NOT_IN_RENDERER; // 准备移除和当前 display 对应的 RPOUnit
-
-        this.m_rpoUnitBuilder.restoreByUid(puid);
-      } else {
-        console.warn("Error: DispEntity3DManager::removeEntity(), remove a entity from all processes failed.");
-      }
-
-      this.version++;
-    }
-
-    entity.__$rseFlag = RSEntityFlag_1.default.RemoveRendererUid(entity.__$rseFlag);
-    entity.__$rseFlag = RSEntityFlag_1.default.RemoveRendererLoad(entity.__$rseFlag);
-    entity.__$rseFlag = RSEntityFlag_1.default.RemoveSortEnabled(entity.__$rseFlag);
-
-    if (this.m_entityManaListener != null) {
-      this.m_entityManaListener.removeFromRenderer(entity, this.m_rendererUid, -1);
-    }
-  }
-
-  addEntity(entity, processUid, deferred = false) {
-    if (entity != null) {
-      //console.log("add entity into entity 3d manager.");
-      let disp = entity.getDisplay();
-
-      if (disp != null) {
-        if (disp.__$$rsign == RenderConst_1.DisplayRenderSign.LIVE_IN_RENDERER) {
-          if (!this.m_rpoUnitBuilder.testRPNodeNotExists(disp.__$ruid, processUid)) {
-            //console.log("DispEntity3DManager::addEntity(), A, this display("+disp.__$ruid+") has existed in processid("+processUid+").");
-            return;
-          }
-        }
-
-        this.m_rprocess = this.m_processBuider.getNodeByUid(processUid);
-        entity.__$rseFlag = this.m_rprocess.getSortEnabled() ? RSEntityFlag_1.default.AddSortEnabled(entity.__$rseFlag) : RSEntityFlag_1.default.RemoveSortEnabled(entity.__$rseFlag);
-
-        if (deferred) {
-          if (disp.__$$rsign == RenderConst_1.DisplayRenderSign.NOT_IN_RENDERER) {
-            disp.__$$rsign = RenderConst_1.DisplayRenderSign.GO_TO_RENDERER;
-          }
-
-          entity.__$rseFlag = RSEntityFlag_1.default.AddRendererLoad(entity.__$rseFlag);
-          entity.__$rseFlag = RSEntityFlag_1.default.AddRendererUid(entity.__$rseFlag, this.m_rendererUid);
-          this.m_waitList.push(entity);
-          this.m_processUidList.push(processUid); //console.log("DispEntity3DManager::addEntity(), B, this display("+disp+") has existed in processid("+processUid+").");
-        } else {
-          // 检查数据完整性
-          if (this.testValidData(entity)) {
-            this.ensureAdd(entity, disp, processUid);
-          } else {
-            //console.log("DispEntity3DManager::addEntity(), add a ready ok entity to process.");
-            if (disp.__$$rsign == RenderConst_1.DisplayRenderSign.NOT_IN_RENDERER) {
-              disp.__$$rsign = RenderConst_1.DisplayRenderSign.GO_TO_RENDERER;
-            }
-
-            entity.__$rseFlag = RSEntityFlag_1.default.AddRendererLoad(entity.__$rseFlag);
-            this.m_waitList.push(entity);
-            this.m_processUidList.push(processUid);
-          }
-        }
-      } else {
-        entity.__$rseFlag = RSEntityFlag_1.default.AddRendererUid(entity.__$rseFlag, this.m_rendererUid);
-      }
-    }
-
-    return false;
-  }
-
-  testValidData(entity) {
-    if (entity.getMaterial() != null && entity.hasMesh()) {
-      if (entity.getMaterial().hasShaderData()) {
-        return true;
-      } else if (entity.getMaterial().getCodeBuf() != null) {
-        entity.activeDisplay();
-      }
-    }
-
-    return false;
-  }
-
-  ensureAdd(entity, disp, processUid) {
-    entity.update();
-    entity.__$rseFlag = RSEntityFlag_1.default.AddRendererUid(entity.__$rseFlag, this.m_rendererUid);
-    entity.__$rseFlag = RSEntityFlag_1.default.RemoveRendererLoad(entity.__$rseFlag);
-
-    entity.__$setRenderProxy(this.m_dataBuilder.getRenderProxy());
-
-    this.m_existencetotal++;
-
-    if (disp.__$$rsign == RenderConst_1.DisplayRenderSign.NOT_IN_RENDERER) {
-      disp.__$$rsign = RenderConst_1.DisplayRenderSign.GO_TO_RENDERER;
-    }
-
-    this.m_rprocess = this.m_processBuider.getNodeByUid(processUid); //console.log("DispEntity3DManager::addEntity(), add a ready ok entity to process.");
-
-    if (disp.__$ruid > -1) {
-      this.m_rprocess.addDisp(disp);
-    } else {
-      if (this.m_dataBuilder.buildGpuDisp(disp)) {
-        this.m_rprocess.addDisp(disp);
-      }
-    }
-
-    if (this.m_entityManaListener != null) {
-      this.m_entityManaListener.addToRenderer(entity, this.m_rendererUid, processUid);
-    }
-
-    if (entity.getGlobalBounds() != null) {
-      disp.__$$runit.bounds = entity.getGlobalBounds();
-      disp.__$$runit.pos = disp.__$$runit.bounds.center;
-    }
-
-    this.version++;
-  }
-
-  updateWaitList() {
-    let len = this.m_waitList.length;
-    let entity = null;
-    let disp = null;
-
-    for (let i = 0; i < len; ++i) {
-      entity = this.m_waitList[i];
-
-      if ((RSEntityFlag_1.default.RENDERER_LOAD_FLAG & entity.__$rseFlag) == RSEntityFlag_1.default.RENDERER_LOAD_FLAG) {
-        if (this.testValidData(entity)) {
-          disp = entity.getDisplay();
-
-          if (disp.__$$rsign == RenderConst_1.DisplayRenderSign.LIVE_IN_RENDERER) {
-            if (!this.m_rpoUnitBuilder.testRPNodeNotExists(disp.__$ruid, this.m_processUidList[i])) {
-              //console.log("DispEntity3DManager::update(), this display("+disp.__$ruid+") has existed in processid("+m_processUidList[i]+").");
-              this.m_waitList.splice(i, 1);
-              this.m_processUidList.splice(i, 1);
-              --len;
-              --i;
-              continue;
-            }
-          }
-
-          this.ensureAdd(entity, disp, this.m_processUidList[i]);
-          this.m_waitList.splice(i, 1);
-          this.m_processUidList.splice(i, 1);
-          --len;
-          --i;
-        }
-      } else {
-        disp = entity.getDisplay();
-
-        if (disp != null && disp.__$$rsign == RenderConst_1.DisplayRenderSign.GO_TO_RENDERER) {
-          disp.__$$rsign = RenderConst_1.DisplayRenderSign.NOT_IN_RENDERER;
-        } //console.log("DispEntity3DManager::update(), remove a ready entity.");
-
-
-        entity.__$rseFlag = RSEntityFlag_1.default.RemoveRendererLoad(entity.__$rseFlag);
-        entity.__$rseFlag = RSEntityFlag_1.default.RemoveRendererUid(entity.__$rseFlag);
-        entity.__$rseFlag = RSEntityFlag_1.default.RemoveSortEnabled(entity.__$rseFlag);
-        this.m_waitList.splice(i, 1);
-        this.m_processUidList.splice(i, 1);
-        --len;
-        --i;
-
-        if (this.m_entityManaListener != null) {
-          this.m_entityManaListener.removeFromRenderer(entity, this.m_rendererUid, -1);
-        }
-      }
-    }
-  }
-
-  update() {
-    if (this.m_waitList.length > 0) {
-      this.updateWaitList();
-    }
-
-    this.m_dataBuilder.update();
-  }
-
-}
-
-exports.default = DispEntity3DManager;
 
 /***/ }),
 
@@ -4700,6 +2597,42 @@ class ShaderMaterial extends MaterialBase_1.default {
 }
 
 exports.default = ShaderMaterial;
+
+/***/ }),
+
+/***/ "13b1":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+class RenderDrawMode {}
+
+RenderDrawMode.ELEMENTS_TRIANGLES = 1;
+RenderDrawMode.ELEMENTS_TRIANGLE_STRIP = 2;
+RenderDrawMode.ELEMENTS_TRIANGLE_FAN = 3;
+RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES = 4;
+RenderDrawMode.ARRAYS_LINES = 5;
+RenderDrawMode.ARRAYS_LINE_STRIP = 6;
+RenderDrawMode.ARRAYS_POINTS = 7;
+RenderDrawMode.ELEMENTS_LINES = 8;
+RenderDrawMode.DISABLE = 0;
+exports.default = RenderDrawMode;
 
 /***/ }),
 
@@ -6703,7 +4636,7 @@ class RawMesh extends MeshBase_1.default {
     }
 
     if (this.ivsEnabled) {
-      this.m_vbuf.setUintIVSData(this.m_ivs);
+      this.m_vbuf.setIVSDataAt(this.crateROIvsData().setData(this.m_ivs));
     }
 
     this.buildEnd();
@@ -6760,222 +4693,6 @@ class RawMesh extends MeshBase_1.default {
 }
 
 exports.default = RawMesh;
-
-/***/ }),
-
-/***/ "1e15":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const VtxBufConst_1 = __importDefault(__webpack_require__("8a0a"));
-
-const RCExtension_1 = __importDefault(__webpack_require__("030e"));
-
-class ROVtxBuilder {
-  constructor() {
-    this.m_rcuid = 0;
-    this.m_glVer = 2;
-    this.m_rc = null;
-    this.RGBA = 0;
-    this.UNSIGNED_BYTE = 0;
-    this.TRIANGLE_STRIP = 0;
-    this.TRIANGLE_FAN = 0;
-    this.TRIANGLES = 0;
-    this.LINES = 0;
-    this.LINE_STRIP = 0;
-    this.UNSIGNED_SHORT = 0;
-    this.UNSIGNED_INT = 0;
-    this.COLOR = 0;
-    this.DEPTH = 0;
-    this.STENCIL = 0;
-    this.DEPTH_STENCIL = 0;
-    this.MAX = 0;
-    this.MIN = 0;
-    this.RContext = null;
-    this.vroUid = 0;
-    this.rioUid = 0;
-  }
-  /**
-   * @returns return system gpu context
-   */
-
-
-  getRC() {
-    return this.m_rc;
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_rcuid;
-  }
-
-  createBuf() {
-    return this.m_rc.createBuffer();
-  }
-
-  deleteBuf(buf) {
-    this.m_rc.deleteBuffer(buf);
-  }
-
-  bindArrBuf(buf) {
-    this.m_rc.bindBuffer(this.m_rc.ARRAY_BUFFER, buf);
-  }
-
-  bindEleBuf(buf) {
-    this.m_rc.bindBuffer(this.m_rc.ELEMENT_ARRAY_BUFFER, buf);
-  }
-
-  arrBufSubData(float32Arr, offset) {
-    this.m_rc.bufferSubData(this.m_rc.ARRAY_BUFFER, offset, float32Arr);
-  }
-
-  arrBufData(float32Arr, usage) {
-    this.m_rc.bufferData(this.m_rc.ARRAY_BUFFER, float32Arr, VtxBufConst_1.default.ToGL(this.m_rc, usage));
-  }
-
-  eleBufSubData(uintDataArr, offset) {
-    this.m_rc.bufferSubData(this.m_rc.ELEMENT_ARRAY_BUFFER, offset, uintDataArr);
-  }
-
-  eleBufData(uintDataArr, usage) {
-    this.m_rc.bufferData(this.m_rc.ELEMENT_ARRAY_BUFFER, uintDataArr, VtxBufConst_1.default.ToGL(this.m_rc, usage));
-  }
-
-  arrBufDataMem(bytesSize, usage) {
-    this.m_rc.bufferData(this.m_rc.ARRAY_BUFFER, bytesSize, VtxBufConst_1.default.ToGL(this.m_rc, usage));
-  }
-
-  eleBufDataMem(bytesSize, usage) {
-    this.m_rc.bufferData(this.m_rc.ELEMENT_ARRAY_BUFFER, bytesSize, VtxBufConst_1.default.ToGL(this.m_rc, usage));
-  }
-
-  useVtxAttribsPtrTypeFloat(shdp, buf, attribTypes, attribTypesLen, wholeOffsetList, wholeStride) {
-    this.m_rc.bindBuffer(this.m_rc.ARRAY_BUFFER, buf);
-
-    for (let i = 0; i < attribTypesLen; ++i) {
-      shdp.vertexAttribPointerTypeFloat(attribTypes[i], wholeStride, wholeOffsetList[i]);
-    }
-  }
-
-  useVtxAttribsPtrTypeFloatMulti(shdp, bufs, attribTypes, attribTypesLen, wholeOffsetList, wholeStride) {
-    for (let i = 0; i < attribTypesLen; ++i) {
-      this.m_rc.bindBuffer(this.m_rc.ARRAY_BUFFER, bufs[i]);
-      shdp.vertexAttribPointerTypeFloat(attribTypes[i], wholeStride, wholeOffsetList[i]);
-    }
-  }
-
-  createVertexArray() {
-    let vao = null;
-
-    if (this.m_glVer == 2) {
-      vao = this.m_rc.createVertexArray();
-    } else {
-      vao = RCExtension_1.default.OES_vertex_array_object.createVertexArrayOES();
-    }
-
-    return vao;
-  }
-
-  bindVertexArray(vao) {
-    if (this.m_glVer == 2) {
-      this.m_rc.bindVertexArray(vao);
-    } else {
-      RCExtension_1.default.OES_vertex_array_object.bindVertexArrayOES(vao);
-    }
-
-    return vao;
-  }
-
-  deleteVertexArray(vao) {
-    if (this.m_glVer == 2) {
-      this.m_rc.deleteVertexArray(vao);
-    } else {
-      RCExtension_1.default.OES_vertex_array_object.deleteVertexArrayOES(vao);
-    }
-  }
-
-  testVROUid(vroUid) {
-    if (this.vroUid != vroUid) {
-      this.vroUid = vroUid;
-      return true;
-    }
-
-    return false;
-  }
-
-  testRIOUid(rioUid) {
-    if (this.rioUid != rioUid) {
-      this.rioUid = rioUid;
-      return true;
-    }
-
-    return false;
-  }
-
-  initialize(rcuid, gl, glVer) {
-    this.m_rc = gl;
-    this.m_rcuid = rcuid;
-    this.m_glVer = glVer;
-    let selfT = this;
-    selfT.RGBA = gl.RGBA;
-    selfT.UNSIGNED_BYTE = gl.UNSIGNED_BYTE;
-    selfT.TRIANGLE_STRIP = gl.TRIANGLE_STRIP;
-    selfT.TRIANGLE_FAN = gl.TRIANGLE_FAN;
-    selfT.TRIANGLES = gl.TRIANGLES;
-    selfT.LINES = this.m_rc.LINES;
-    selfT.LINE_STRIP = gl.LINE_STRIP;
-    selfT.UNSIGNED_SHORT = gl.UNSIGNED_SHORT;
-    selfT.UNSIGNED_INT = gl.UNSIGNED_INT;
-    selfT.COLOR = gl.COLOR;
-    selfT.DEPTH = gl.DEPTH;
-    selfT.STENCIL = gl.STENCIL;
-    selfT.DEPTH_STENCIL = gl.DEPTH_STENCIL;
-
-    if (this.m_glVer > 1) {
-      selfT.MIN = gl.MIN;
-      selfT.MAX = gl.MAX;
-    } else {
-      selfT.MIN = RCExtension_1.default.EXT_blend_minmax.MIN_EXT;
-      selfT.MAX = RCExtension_1.default.EXT_blend_minmax.MAX_EXT;
-    }
-
-    selfT.RContext = gl;
-  }
-
-  renderBegin() {
-    this.vroUid = -2;
-    this.rioUid = -3;
-  }
-
-}
-
-exports.default = ROVtxBuilder;
 
 /***/ }),
 
@@ -7178,6 +4895,79 @@ TextureDataType.UNSIGNED_SHORT_4_4_4_4 = 1215;
 TextureDataType.UNSIGNED_SHORT_5_5_5_1 = 1216;
 TextureDataType.UNSIGNED_INT_24_8_WEBGL = 1217;
 exports.default = TextureDataType;
+
+/***/ }),
+
+/***/ "2048":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const VtxBufConst_1 = __importDefault(__webpack_require__("8a0a"));
+
+class ROIvsData {
+  constructor() {
+    this.bufStep = 4;
+    this.status = VtxBufConst_1.default.VTX_STATIC_DRAW;
+    this.wireframe = false;
+    this.shape = false;
+    this.ivs = null;
+    this.version = -2;
+  }
+
+  setData(ivs, status = VtxBufConst_1.default.VTX_STATIC_DRAW) {
+    if (ivs instanceof Uint16Array) {
+      this.bufStep = 2;
+
+      if (ivs.length > 65536) {
+        throw Error("ivs.length > 65536, but its type is not Uint32Array.");
+      }
+    } else if (ivs instanceof Uint32Array) {
+      this.bufStep = 4;
+    } else {
+      throw Error("Error: ivs is not an Uint32Array or an Uint16Array bufferArray instance !!!!");
+    }
+
+    this.ivs = ivs;
+
+    if (ivs != null) {
+      this.version++;
+    }
+
+    return this;
+  }
+
+  destroy() {
+    this.wireframe = false;
+    this.version = -1;
+    this.ivs = null;
+  }
+
+}
+
+exports.default = ROIvsData;
 
 /***/ }),
 
@@ -8041,22 +5831,11 @@ exports.RenderableEntityBlock = RenderableEntityBlock;
 
 /***/ }),
 
-/***/ "2560":
+/***/ "289c":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
 
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
@@ -8068,389 +5847,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-const UniformConst_1 = __importDefault(__webpack_require__("ab73"));
+const RSCGraph_1 = __importDefault(__webpack_require__("0053"));
 
-class CameraUniformBuilder {
-  create(rc, shdp) {
-    let cam = rc.getCamera();
+const CoRendererScene_1 = __importDefault(__webpack_require__("52d0"));
 
-    if (shdp.hasUniformByName(UniformConst_1.default.CameraViewMatUNS) && shdp.hasUniformByName(UniformConst_1.default.CameraProjectiveMatUNS)) {
-      return rc.uniformContext.createShaderGlobalUniformFromProbe(cam.matUProbe, "u_viewAndProjMat", [UniformConst_1.default.CameraViewMatUNS, UniformConst_1.default.CameraProjectiveMatUNS]);
-    } else if (shdp.hasUniformByName(UniformConst_1.default.CameraViewMatUNS)) {
-      return rc.uniformContext.createShaderGlobalUniformFromProbeAt(cam.matUProbe, "u_viewMat", [UniformConst_1.default.CameraViewMatUNS], 0);
-    } else if (shdp.hasUniformByName(UniformConst_1.default.CameraProjectiveMatUNS)) {
-      return rc.uniformContext.createShaderGlobalUniformFromProbeAt(cam.matUProbe, "u_projMat", [UniformConst_1.default.CameraProjectiveMatUNS], 1);
-    }
-
-    return null;
-  }
-
-  getIDNS() {
-    return "CameraUniformBuilder";
+class RendererSceneGraph extends RSCGraph_1.default {
+  // private m_map: Map<number, IRendererSceneNode> = new Map();
+  // private m_nodes: IRendererSceneNode[] = [];
+  // rayPickFlag = false;
+  // constructor() {
+  // }
+  createRScene() {
+    return new CoRendererScene_1.default();
   }
 
 }
 
-exports.default = CameraUniformBuilder;
-
-/***/ }),
-
-/***/ "264c":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class RenderSortBlock {
-  constructor(shader) {
-    this.m_begin = null;
-    this.m_end = null;
-    this.m_next = null;
-    this.m_node = null;
-    this.m_nodes = [];
-    this.m_nodesTotal = 0;
-    this.m_shader = null;
-    this.m_renderTotal = 0;
-    this.m_sorter = null;
-    this.sortEnabled = true;
-    this.m_shader = shader;
-  }
-
-  setSorter(sorter) {
-    this.m_sorter = sorter;
-  }
-
-  showInfo() {
-    let info = "";
-    let next = this.m_begin;
-
-    while (next != null) {
-      //info += "("+next.unit.value+","+next.uid+"),";
-      info += next.unit.value + ",";
-      next = next.next;
-    }
-
-    console.log("RenderSortBlock info: \n", info);
-  }
-
-  clear() {
-    if (this.m_shader != null) {
-      if (this.m_nodes.length > 0) this.m_nodes = [];
-      let next = this.m_begin;
-      let curr = null;
-
-      while (next != null) {
-        curr = next;
-        next = next.next;
-        curr.prev = null;
-        curr.next = null;
-      }
-
-      this.m_begin = this.m_end = null;
-      this.m_nodesTotal = 0;
-      this.m_renderTotal = 0;
-      this.sortEnabled = true;
-      this.m_shader = null;
-    }
-
-    this.m_sorter = null;
-  }
-
-  update() {
-    if (this.sortEnabled) {
-      this.sort();
-    }
-  }
-
-  run(rc) {
-    this.m_shader.resetUniform();
-    let unit = null;
-    let nodes = this.m_nodes;
-    let info = "";
-
-    for (let i = 0; i < this.m_renderTotal; ++i) {
-      unit = nodes[i];
-      this.m_shader.bindToGpu(unit.shdUid);
-      unit.run(rc);
-
-      if (unit.partTotal < 1) {
-        unit.drawThis(rc);
-      } else {
-        unit.drawPart(rc);
-      }
-
-      info += unit.value + ",";
-    } //console.log(info);
-
-  }
-
-  runLockMaterial(rc) {
-    this.m_shader.resetUniform();
-    let unit = null;
-    let nodes = this.m_nodes;
-
-    for (let i = 0; i < this.m_renderTotal; ++i) {
-      unit = nodes[i];
-      this.m_shader.bindToGpu(unit.shdUid);
-      unit.vro.run();
-      unit.runLockMaterial2(null);
-
-      if (unit.partTotal < 1) {
-        unit.drawThis(rc);
-      } else {
-        unit.drawPart(rc);
-      }
-    }
-  }
-
-  sort() {
-    if (this.m_nodesTotal > 0) {
-      // 整个sort执行过程放在渲染运行时渲染执行阶段是不妥的,但是目前还没有好办法
-      // 理想的情况是运行时不会被复杂计算打断，复杂计算应该再渲染执行之前完成
-      let next = this.m_begin;
-
-      if (this.m_nodes.length < this.m_nodesTotal) {
-        this.m_nodes = new Array(Math.round(this.m_nodesTotal * 1.1) + 1);
-      }
-
-      let i = 0;
-
-      while (next != null) {
-        if (next.drawEnabled && next.unit.drawEnabled) {
-          this.m_nodes[i] = next.unit;
-          ++i;
-        }
-
-        next = next.next;
-      }
-
-      this.m_renderTotal = i;
-      let flat = 0;
-
-      if (this.m_sorter != null) {
-        flat = this.m_sorter.sortRODisplay(this.m_nodes, i);
-      }
-
-      if (flat < 1) {
-        this.snsort(0, i - 1);
-      }
-    }
-  }
-
-  sorting(low, high) {
-    let arr = this.m_nodes;
-    this.m_node = arr[low];
-    let pvalue = this.m_node.value;
-
-    while (low < high) {
-      while (low < high && arr[high].value >= pvalue) {
-        --high;
-      }
-
-      arr[low] = arr[high];
-
-      while (low < high && arr[low].value <= pvalue) {
-        ++low;
-      }
-
-      arr[high] = arr[low];
-    }
-
-    arr[low] = this.m_node;
-    return low;
-  }
-
-  snsort(low, high) {
-    if (low < high) {
-      let pos = this.sorting(low, high);
-      this.snsort(low, pos - 1);
-      this.snsort(pos + 1, high);
-    }
-  }
-
-  getNodesTotal() {
-    return this.m_nodesTotal;
-  }
-
-  getBegin() {
-    this.m_next = this.m_begin;
-    return this.m_begin;
-  }
-
-  getNext() {
-    if (this.m_next != null) {
-      this.m_next = this.m_next.next;
-    }
-
-    return this.m_next;
-  }
-
-  isEmpty() {
-    return this.m_nodesTotal < 1; // return this.m_begin == null;
-  }
-
-  addNode(node) {
-    //console.log("sort add node: ",node);
-    if (node.prev == null && node.next == null) {
-      if (this.m_begin == null) {
-        this.m_end = this.m_begin = node;
-      } else {
-        if (this.m_end.prev != null) {
-          this.m_end.next = node;
-          node.prev = this.m_end;
-          this.m_end = node;
-        } else {
-          this.m_begin.next = node;
-          node.prev = this.m_end;
-          this.m_end = node;
-        }
-      }
-
-      this.m_end.next = null;
-      this.m_nodesTotal++; //console.log("sort add node,this.m_nodesTotal: ",this.m_nodesTotal);
-    }
-  }
-
-  removeNode(node) {
-    //console.log("sort remove node: ",node);
-    if (node.prev != null || node.next != null || node == this.m_begin) {
-      if (node == this.m_begin) {
-        if (node == this.m_end) {
-          this.m_begin = this.m_end = null;
-        } else {
-          this.m_begin = node.next;
-          this.m_begin.prev = null;
-        }
-      } else if (node == this.m_end) {
-        this.m_end = node.prev;
-        this.m_end.next = null;
-      } else {
-        node.next.prev = node.prev;
-        node.prev.next = node.next;
-      }
-
-      node.prev = null;
-      node.next = null;
-      this.m_nodesTotal--; //console.log("sort remove node,this.m_nodesTotal: ",this.m_nodesTotal);
-    }
-  }
-
-}
-
-exports.default = RenderSortBlock;
-
-/***/ }),
-
-/***/ "265e":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2019-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-// 真正被高频运行的渲染管线中的被执行对象
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-}); // 为了渲染循环执行中持有RPOUnit和对应的Disp
-
-class RPONode {
-  constructor() {
-    this.__$ruid = -1;
-    this.drawEnabled = true;
-    this.uid = -1;
-    this.index = -1; // only for show info
-
-    this.drawMode = 0;
-    this.ivsIndex = 0;
-    this.ivsCount = 0;
-    this.insCount = 0;
-    this.shdUid = -1;
-    this.vtxUid = -1;
-    this.texMid = -1;
-    this.rtokey = -1;
-    this.prev = null;
-    this.next = null;
-    this.unit = null;
-    this.vro = null;
-    this.tro = null;
-    this.rvroI = -1;
-    this.rtroI = -1;
-  }
-
-  setValue(value) {
-    this.unit.value = value;
-  }
-
-  isVsible() {
-    return this.unit == null || this.unit.drawEnabled;
-  }
-
-  updateData() {
-    let p = this.unit;
-    this.drawMode = p.drawMode;
-    this.ivsIndex = p.ivsIndex;
-    this.ivsCount = p.ivsCount;
-    this.insCount = p.insCount;
-    p.drawOffset = p.ivsIndex * p.ibufStep;
-    this.vtxUid = p.vtxUid;
-    this.vro = p.vro; // material info etc.
-
-    this.shdUid = p.shdUid;
-    this.texMid = p.texMid;
-    this.tro = p.tro;
-  }
-
-  reset() {
-    this.drawEnabled = true;
-    this.uid = -1;
-    this.index = -1;
-    this.drawMode = 0;
-    this.ivsIndex = 0;
-    this.ivsCount = 0;
-    this.insCount = 0;
-    this.shdUid = -1;
-    this.vtxUid = -1;
-    this.texMid = -1;
-    this.rtokey = -1;
-    this.unit = null;
-    this.vro = null;
-    this.tro = null;
-    this.prev = null;
-    this.next = null;
-  }
-
-  toString() {
-    return "[Object RPONode(uid = " + this.uid + ", index = " + this.index + ", shdUid = " + this.shdUid + ", vtxUid = " + this.vtxUid + ")]";
-  }
-
-}
-
-exports.default = RPONode;
+exports.default = RendererSceneGraph;
 
 /***/ }),
 
@@ -8558,113 +5971,6 @@ exports.default = RendererState;
 
 /***/ }),
 
-/***/ "2be1":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2019-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class PoolNodeBuilder {
-  constructor() {
-    this.m_nodesTotal = 0;
-    this.m_nodes = [];
-    this.m_flags = [];
-    this.m_freeIdList = [];
-  }
-  /**
-   * the sub class override this function, for real implement.
-   */
-
-
-  createNode() {
-    return null;
-  }
-  /**
-   * the sub class override this function, for real implement.
-   */
-
-
-  restoreUid(uid) {}
-
-  getFreeId() {
-    if (this.m_freeIdList.length > 0) {
-      return this.m_freeIdList.pop();
-    }
-
-    return -1;
-  }
-
-  getNodeByUid(uid) {
-    return this.m_nodes[uid];
-  }
-
-  create() {
-    let node = null;
-    let index = this.getFreeId();
-
-    if (index >= 0) {
-      node = this.m_nodes[index];
-      node.uid = index;
-      this.m_flags[index] = PoolNodeBuilder.S_BUSY;
-    } else {
-      // create a new nodeIndex
-      node = this.createNode();
-      this.m_nodes.push(node);
-      this.m_flags.push(PoolNodeBuilder.S_BUSY);
-      node.uid = this.m_nodesTotal;
-      this.m_nodesTotal++;
-    }
-
-    return node;
-  }
-
-  restore(pnode) {
-    if (pnode != null && pnode.uid >= 0 && this.m_flags[pnode.uid] == PoolNodeBuilder.S_BUSY) {
-      this.restoreUid(pnode.uid);
-      this.m_freeIdList.push(pnode.uid);
-      this.m_flags[pnode.uid] = PoolNodeBuilder.S_FREE;
-      pnode.reset();
-      return true;
-    }
-
-    return false;
-  }
-
-  restoreByUid(uid) {
-    if (uid >= 0 && uid < this.m_nodesTotal && this.m_flags[uid] == PoolNodeBuilder.S_BUSY) {
-      this.restoreUid(uid);
-      this.m_freeIdList.push(uid);
-      this.m_flags[uid] = PoolNodeBuilder.S_FREE;
-      this.m_nodes[uid].reset();
-      return true;
-    }
-
-    return false;
-  }
-
-}
-
-PoolNodeBuilder.S_BUSY = 1;
-PoolNodeBuilder.S_FREE = 0;
-exports.default = PoolNodeBuilder;
-
-/***/ }),
-
 /***/ "2e8a":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8724,253 +6030,6 @@ class AttributeLine {
 }
 
 exports.default = AttributeLine;
-
-/***/ }),
-
-/***/ "3024":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const ShaderUniformProbe_1 = __importDefault(__webpack_require__("3077"));
-
-class UniformVec4Probe extends ShaderUniformProbe_1.default {
-  constructor(slot, vec4Total) {
-    super(slot);
-    this.m_datafs = null;
-    this.m_vec4Total = 1;
-    if (vec4Total < 1) vec4Total = 1;
-    this.m_vec4Total = vec4Total;
-    this.m_datafs = new Float32Array(4 * vec4Total);
-    this.addVec4Data(this.m_datafs, this.m_vec4Total);
-  } // bindSlotAt(i: number): void {
-  //     super.bindSlotAt(i);
-  //     this.addVec4Data(this.m_datafs, this.m_vec4Total);
-  // }
-
-
-  destroy() {
-    super.destroy();
-    this.m_datafs = null;
-  }
-
-}
-
-exports.default = UniformVec4Probe;
-
-/***/ }),
-
-/***/ "3077":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const MaterialConst_1 = __importDefault(__webpack_require__("644c"));
-
-class ShaderUniformProbe {
-  constructor(slot) {
-    this.m_uid = ShaderUniformProbe.s_uid++;
-    this.m_slot = null;
-    this.m_fsList = null; // 当前probe中的数据在slot中的结束位置序号
-
-    this.m_fsIndex = 0; // 当前probe在slot中的起始位置序号
-
-    this.m_slotBeginIndex = -1;
-    this.rst = -1;
-    this.uniformsTotal = 0;
-    this.uniformNames = null; // array -> [SHADER_MAT4, SHADER_VEC3]
-
-    this.uniformTypes = null; // array -> [1, 3], the "3" is uniform Array,length is 3
-
-    this.dataSizeList = null;
-    this.bindSlot(slot);
-  }
-
-  bindSlot(slot) {
-    if (this.rst >= 0) {
-      this.reset();
-    }
-
-    if (this.m_fsList == null) {
-      this.m_fsList = [];
-      this.uniformTypes = [];
-      this.dataSizeList = [];
-    }
-
-    this.m_slot = slot;
-    this.rst = 1;
-    this.m_slotBeginIndex = slot.index;
-    this.m_fsIndex = slot.index;
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-  /**
-   * @return 获取当前probe在slot中的起始位置序号
-   */
-
-
-  getSlotBeginIndex() {
-    return this.m_slotBeginIndex;
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_slot.getRCUid();
-  }
-
-  getFS32At(i) {
-    return this.m_fsList[i];
-  }
-
-  setFS32At(fs32, i) {
-    this.m_fsList[i] = fs32;
-  }
-
-  setVec4DataAt(index, f0, f1, f2, f3) {
-    let fs = this.m_fsList[index];
-    fs[0] = f0;
-    fs[1] = f1;
-    fs[2] = f2;
-    fs[3] = f3;
-  }
-
-  setVec4Data(f0, f1, f2, f3) {
-    let fs = this.m_fsList[0];
-    fs[0] = f0;
-    fs[1] = f1;
-    fs[2] = f2;
-    fs[3] = f3;
-  }
-
-  setVec4DataAtWithArr4(index, arr4) {
-    this.m_fsList[index].set(arr4, 0);
-  }
-
-  setVec4DataWithArr4(arr4) {
-    this.m_fsList[0].set(arr4, 0);
-  }
-
-  addVec4Data(f32, vec4Total) {
-    //console.log("addVec4Data() slot("+this.m_slot.getUid()+")");
-    if (vec4Total < f32.length / 4) {
-      console.warn("vec4 uniform array total are not equal to the vec4Total value.");
-    }
-
-    this.m_fsList.push(f32);
-    this.uniformTypes.push(MaterialConst_1.default.SHADER_VEC4);
-    this.dataSizeList.push(vec4Total);
-    this.m_slot.dataList[this.m_fsIndex] = f32;
-    this.m_fsIndex++;
-    this.uniformsTotal++;
-    this.m_slot.index++;
-  }
-
-  addMat4Data(f32, mat4Total) {
-    //console.log("addMat4Data() slot("+this.m_slot.getUid()+")");
-    this.m_fsList.push(f32);
-    this.uniformTypes.push(MaterialConst_1.default.SHADER_MAT4);
-    this.dataSizeList.push(mat4Total);
-    this.m_slot.dataList[this.m_fsIndex] = f32;
-    this.m_fsIndex++;
-    this.uniformsTotal++;
-    this.m_slot.index++;
-  }
-
-  isEnabled() {
-    return this.rst >= 0;
-  }
-
-  update() {
-    //如果溢出，可能有问题
-    //if(this.rst > 0xffffff) this.rst = Math.round(Math.random() * 1000) + 100;
-    this.rst++;
-
-    if (this.uniformsTotal < 2) {
-      this.m_slot.flagList[this.m_slotBeginIndex] = this.rst;
-    } else {
-      for (let i = this.m_slotBeginIndex; i <= this.m_fsIndex; ++i) {
-        this.m_slot.flagList[i] = this.rst;
-      }
-    } // if (this.m_uid == 5) {
-    //     console.log("this.m_slot.dataList: ", this.m_slot.dataList);
-    //     console.log("this.m_fsList: ", this.m_fsList);
-    // }
-    //console.log("this.m_slot.dataList");
-
-  }
-
-  reset() {
-    this.rst = -1;
-    this.m_slotBeginIndex = -1;
-    this.uniformsTotal = 0;
-    this.m_fsIndex = 0;
-
-    if (this.m_fsList != null) {
-      this.m_fsList = null;
-      this.uniformTypes = null;
-      this.dataSizeList = null;
-    }
-
-    this.m_slot = null;
-  }
-
-  destroy() {
-    this.reset();
-  }
-
-}
-
-ShaderUniformProbe.s_uid = 0;
-exports.default = ShaderUniformProbe;
 
 /***/ }),
 
@@ -9736,547 +6795,6 @@ SurfaceNormalCalc.s_temp_ve = new Vector3D_1.default();
 SurfaceNormalCalc.s_temp_vf = new Vector3D_1.default();
 SurfaceNormalCalc.s_temp_vg = new Vector3D_1.default();
 exports.default = SurfaceNormalCalc;
-
-/***/ }),
-
-/***/ "36cb":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RenderConst_1 = __webpack_require__("e08e");
-
-const UniformConst_1 = __importDefault(__webpack_require__("ab73"));
-
-const TextureRenderObj_1 = __webpack_require__("b02c");
-
-const ShdUniformTool_1 = __importDefault(__webpack_require__("4f27"));
-
-const RenderShader_1 = __importDefault(__webpack_require__("b30a"));
-
-const ROTransPool_1 = __importDefault(__webpack_require__("9156"));
-
-const GpuVtxObject_1 = __webpack_require__("670e");
-/**
- * 本类实现了将 系统内存数据 合成为 渲染运行时系统所需的数据资源(包括: 渲染运行时管理数据和显存数据)
- */
-
-
-class RODataBuilder {
-  constructor(shdProgramBuilder) {
-    this.m_emptyTRO = null;
-    this.m_shader = null;
-    this.m_rpoUnitBuilder = null;
-    this.m_processBuider = null;
-    this.m_roVtxBuild = null;
-    this.m_rc = null;
-    this.m_vtxRes = null;
-    this.m_texRes = null;
-    this.m_deferredVbufs = [];
-    this.m_deferredTROs = [];
-    this.m_deferredTextures = [];
-    this.m_haveDeferredUpdate = false;
-    this.m_shdpBuilder = null;
-    this.m_shdpBuilder = shdProgramBuilder;
-  }
-
-  initialize(rc, rpoUnitBuilder, processBuider, roVtxBuild) {
-    if (this.m_shader == null) {
-      this.m_rc = rc;
-      this.m_vtxRes = rc.Vertex;
-      this.m_texRes = rc.Texture;
-      this.m_shader = new RenderShader_1.default(rc.getRCUid(), rc.getRC(), rc.getRenderAdapter(), this.m_shdpBuilder);
-      this.m_rpoUnitBuilder = rpoUnitBuilder;
-      this.m_processBuider = processBuider;
-      this.m_roVtxBuild = roVtxBuild;
-      this.m_emptyTRO = new TextureRenderObj_1.EmptyTexRenderObj(this.m_texRes);
-      this.m_shdUniformTool = new ShdUniformTool_1.default();
-      this.m_shdUniformTool.initialize();
-    }
-  }
-
-  getRenderProxy() {
-    return this.m_rc;
-  }
-
-  getRenderShader() {
-    return this.m_shader;
-  }
-
-  getTextureResource() {
-    return this.m_texRes;
-  }
-  /**
-   * update single texture self system memory data to gpu memory data
-   */
-
-
-  updateTextureData(textureProxy, deferred) {
-    if (this.m_texRes.hasResUid(textureProxy.getResUid())) {
-      if (deferred) {
-        this.m_deferredTextures.push(textureProxy);
-        this.m_haveDeferredUpdate = true;
-      } else {
-        textureProxy.__$updateToGpu(this.m_texRes);
-      }
-    }
-  }
-  /**
-   * update display entity texture list  system memory data to gpu memory data
-   */
-
-
-  updateDispTRO(disp, deferred) {
-    if (disp.__$ruid > -1) {
-      if (deferred) {
-        this.m_deferredTROs.push(disp);
-        this.m_haveDeferredUpdate = true;
-      } else {
-        this.updateTextureTRO(disp);
-      }
-    }
-  }
-
-  createTRO(texList, texTotal) {
-    if (texList) {
-      for (let i = 0; i < texList.length; ++i) {
-        if (texList[i]) {
-          texList[i].__$setRenderProxy(this.m_rc);
-        }
-      }
-
-      return TextureRenderObj_1.TextureRenderObj.Create(this.m_texRes, texList, texTotal);
-    }
-
-    return null;
-  }
-
-  updateTextureTRO(disp) {
-    if (disp.__$$runit != null) {
-      let material = disp.getMaterial();
-
-      if (material != null) {
-        let texRes = this.m_texRes;
-        let runit = disp.__$$runit;
-        let tro = TextureRenderObj_1.TextureRenderObj.GetByMid(texRes.getRCUid(), material.__$troMid);
-
-        if (runit.tro != null && (tro == null || runit.tro.getMid() != tro.getMid())) {
-          let shdp = this.m_shdpBuilder.findShdProgramByShdData(material.getShaderData());
-
-          if (shdp != null) {
-            if (shdp.getTexTotal() > 0) {
-              if (tro == null) {
-                tro = this.createTRO(material.getTextureList(), shdp.getTexTotal());
-              }
-
-              if (runit.tro != tro) {
-                if (runit.tro != null) {
-                  runit.tro.__$detachThis();
-                }
-
-                runit.tro = tro;
-
-                tro.__$attachThis();
-
-                runit.texMid = runit.tro.getMid();
-                this.m_processBuider.rejoinRunitForTro(runit);
-                material.__$troMid = runit.tro.getMid();
-              }
-            } else {
-              if (runit.tro != this.m_emptyTRO) {
-                if (runit.tro != null) {
-                  runit.tro.__$detachThis();
-                }
-
-                runit.tro = this.m_emptyTRO;
-                runit.texMid = runit.tro.getMid();
-                this.m_processBuider.rejoinRunitForTro(runit);
-                material.__$troMid = runit.texMid;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  updateDispMaterial(runit, disp) {
-    let shdp = null;
-
-    if (disp.__$ruid >= 0) {
-      let rc = this.m_rc;
-      let material = disp.getMaterial();
-
-      if (material != null) {
-        if (material.getShaderData() == null) {
-          let texList = material.getTextureList();
-          let texEnabled = texList != null && texList != null && texList.length > 0;
-          material.initializeByCodeBuf(texEnabled);
-        } // shdp = this.m_shader.create(material.getShaderData());
-
-
-        shdp = this.m_shdpBuilder.create(material.getShaderData());
-        shdp.upload(rc.RContext, rc.getUid());
-        runit.shdUid = shdp.getUid();
-        let tro = null;
-
-        if (shdp.getTexTotal() > 0) {
-          tro = this.createTRO(material.getTextureList(), shdp.getTexTotal());
-
-          if (runit.tro != tro) {
-            if (runit.tro != null) {
-              runit.tro.__$detachThis();
-            }
-
-            runit.tro = tro;
-
-            tro.__$attachThis();
-
-            runit.texMid = runit.tro.getMid();
-            if (runit.__$rprouid >= 0) this.m_processBuider.rejoinRunitForTro(runit);
-            material.__$troMid = runit.tro.getMid();
-          }
-        } else {
-          if (runit.tro != this.m_emptyTRO) {
-            if (runit.tro != null) {
-              runit.tro.__$detachThis();
-            }
-
-            runit.tro = this.m_emptyTRO;
-            runit.texMid = runit.tro.getMid();
-            if (runit.__$rprouid >= 0) this.m_processBuider.rejoinRunitForTro(runit);
-            material.__$troMid = runit.texMid;
-          }
-        }
-
-        if (this.m_shader.getSharedUniformByShd(shdp) == null) {
-          let sharedMList = this.createsharedMList(material, shdp);
-
-          if (sharedMList != null) {
-            for (let i = 0; i < sharedMList.length; ++i) {
-              sharedMList[i].program = shdp.getGPUProgram();
-            }
-          }
-
-          this.m_shader.setSharedUniformByShd(shdp, this.m_shdUniformTool.buildShared(sharedMList, rc, shdp));
-        }
-
-        let hasTrans = shdp.hasUniformByName(UniformConst_1.default.LocalTransformMatUNS);
-
-        if (material.__$uniform == null) {
-          material.__$uniform = this.m_shdUniformTool.buildLocalFromData(material.createSelfUniformData(), shdp);
-        }
-
-        if (hasTrans) {
-          if (disp.getTransform() != null) {
-            //console.log("disp.getTransform().getUid(): "+disp.getTransform().getUid());
-            runit.transUniform = ROTransPool_1.default.GetTransUniform(disp.getTransform(), shdp); //console.log("RODataBuilder::updateDispMaterial(), get runit.transUniform: ",runit.transUniform);
-          }
-        } // console.log("RODataBuilder::updateDispMaterial(), runit: ",runit);
-        // console.log("RODataBuilder::updateDispMaterial(), runit.uid: ",runit.getUid());
-        // console.log("RODataBuilder::updateDispMaterial(), runit.transUniform == null: ",runit.transUniform == null);
-
-
-        if (runit.transUniform == null) {
-          runit.transUniform = this.m_shdUniformTool.buildLocalFromTransformV(hasTrans ? disp.getMatrixFS32() : null, shdp);
-          ROTransPool_1.default.SetTransUniform(disp.getTransform(), runit.transUniform, shdp);
-        } else {
-          runit.transUniform = this.m_shdUniformTool.updateLocalFromTransformV(runit.transUniform, hasTrans ? disp.getMatrixFS32() : null, shdp);
-        }
-
-        runit.polygonOffset = material.getPolygonOffset();
-        runit.uniform = material.__$uniform;
-      } else {
-        console.log("Error RODataBuilder::updateDispMaterial(), material is null !!!");
-      }
-    }
-
-    return shdp;
-  }
-
-  updateVtxDataToGpuByUid(vtxUid, deferred) {
-    this.m_vtxRes.updateDataToGpu(vtxUid, deferred);
-  }
-  /**
-   * update vertex system memory data to gpu memory data
-   */
-
-
-  updateDispVbuf(disp, deferred) {
-    if (disp.__$ruid > -1) {
-      if (deferred) {
-        this.m_deferredVbufs.push(disp);
-        this.m_haveDeferredUpdate = true;
-      } else {
-        let runit = disp.__$$runit;
-
-        if (runit != null && runit.vtxUid != disp.vbuf.getUid()) {
-          let oldResUid = runit.vtxUid;
-          let vtxRes = this.m_vtxRes;
-
-          if (vtxRes.hasResUid(oldResUid)) {
-            vtxRes.__$detachRes(oldResUid);
-          }
-
-          runit.vro.__$detachThis(); // build vtx gpu data
-
-
-          this.buildVtxRes(disp, runit, this.m_shdpBuilder.findShdProgramByUid(runit.shdUid));
-          if (runit.__$rprouid >= 0) this.m_processBuider.rejoinRunitForVro(runit);
-        }
-      }
-    }
-  } // build vtx gpu data
-
-
-  buildVtxRes(disp, runit, shdp) {
-    if (disp.vbuf != null) {
-      let vtxRes = this.m_vtxRes;
-      runit.ivsIndex = disp.ivsIndex;
-      runit.ivsCount = disp.ivsCount;
-      runit.insCount = disp.insCount;
-      runit.visible = disp.visible;
-      runit.setVisible(disp.visible);
-      runit.drawMode = disp.drawMode;
-      runit.renderState = disp.renderState;
-      runit.rcolorMask = disp.rcolorMask;
-      runit.trisNumber = disp.trisNumber; // build vertex gpu resoure
-
-      let resUid = disp.getVtxResUid();
-      let vtx;
-      let needBuild = true;
-      let dispVtxVer = disp.getVtxResVer();
-
-      if (vtxRes.hasResUid(resUid)) {
-        vtx = vtxRes.getVertexRes(resUid); // needBuild = vtx.version != disp.vbuf.version;
-
-        needBuild = vtx.version != dispVtxVer;
-
-        if (needBuild) {
-          vtxRes.destroyRes(resUid);
-          vtx.rcuid = vtxRes.getRCUid();
-          vtx.resUid = resUid;
-        }
-      } else {
-        vtx = new GpuVtxObject_1.GpuVtxObject();
-        vtx.rcuid = vtxRes.getRCUid();
-        vtx.resUid = resUid;
-        vtxRes.addVertexRes(vtx); // console.log("GpuVtxObject instance create new, resUid: ",resUid, ", vtx.indices.getUid(): ",vtx.indices.getUid());
-      }
-
-      if (needBuild) {
-        // vtx.indices.ibufStep = disp.vbuf.getIBufStep();
-        // vtx.createVertexByVtxUid(disp.vbuf.getUid());
-        let ivbuf = disp.ivbuf == null ? disp.vbuf : disp.ivbuf; // console.log("RODataBuilder::buildVtxRes(), XXX OOO XXX ivbuf: ", ivbuf);
-
-        vtx.indices.ibufStep = ivbuf.getIBufStep(); //disp.vbuf.getIBufStep();
-
-        vtx.indices.initialize(this.m_roVtxBuild, ivbuf);
-        vtx.createVertex(this.m_roVtxBuild, shdp, disp.vbuf); // vtx.vertex.initialize(this.m_roVtxBuild, shdp, disp.vbuf);
-        // vtx.version = disp.vbuf.version;
-
-        vtx.version = dispVtxVer; // console.log("RODataBuilder::buildVtxRes(), XXXXXXXXXX AAA 1 ver: ", vtx.version, dispVtxVer);
-      }
-
-      vtxRes.__$attachRes(resUid);
-
-      runit.vro = vtx.createVRO(this.m_roVtxBuild, shdp, true); // console.log("RODataBuilder::buildVtxRes(), runit.vro: ", runit.vro);
-
-      runit.indicesRes = runit.vro.indicesRes;
-
-      runit.vro.__$attachThis(); // runit.vtxUid = disp.vbuf.getUid();
-
-
-      runit.vtxUid = resUid;
-      runit.ibufStep = runit.vro.ibufStep;
-      runit.ibufType = runit.ibufStep != 4 ? this.m_rc.UNSIGNED_SHORT : this.m_rc.UNSIGNED_INT;
-    }
-  }
-
-  buildGpuDisp(disp) {
-    if (disp.__$ruid < 0) {
-      if (disp.getMaterial() != null) {
-        disp.__$$rsign = RenderConst_1.DisplayRenderSign.LIVE_IN_RENDERER;
-        let runit = this.m_rpoUnitBuilder.create();
-        disp.__$ruid = runit.uid;
-        disp.__$$runit = runit;
-
-        if (disp.getPartGroup() != null) {
-          runit.partGroup = disp.getPartGroup().slice(0);
-          runit.partTotal = runit.partGroup.length;
-          let fs = runit.partGroup;
-
-          for (let i = 0, len = runit.partTotal; i < len;) {
-            i++;
-            fs[i++] *= runit.ibufStep;
-          }
-        }
-
-        runit.setDrawFlag(disp.renderState, disp.rcolorMask);
-        this.buildVtxRes(disp, runit, this.updateDispMaterial(runit, disp));
-        return true;
-      } else {
-        console.log("Error RODataBuilder::buildGpuDisp(), material is null !!!");
-      }
-    }
-
-    return false;
-  }
-
-  update() {
-    //this.updateDispToProcess();
-    if (this.m_haveDeferredUpdate) {
-      this.m_haveDeferredUpdate = false;
-      let len = this.m_deferredVbufs.length;
-      let i = 0;
-
-      if (len > 0) {
-        // deferred update vtx to gpu
-        for (; i < len; ++i) {
-          this.updateDispVbuf(this.m_deferredVbufs[i], false);
-        }
-
-        this.m_deferredVbufs = [];
-      }
-
-      len = this.m_deferredTROs.length;
-
-      if (len > 0) {
-        // deferred update texture list to gpu
-        i = 0;
-
-        for (; i < len; ++i) {
-          this.updateTextureTRO(this.m_deferredTROs[i]);
-        }
-
-        this.m_deferredTROs = [];
-      }
-
-      len = this.m_deferredTextures.length;
-
-      if (len > 0) {
-        // deferred update single texture self system memory data to gpu memory data
-        i = 0;
-
-        for (; i < len; ++i) {
-          this.m_deferredTextures[i].__$updateToGpu(this.m_texRes);
-        }
-
-        this.m_deferredTextures = [];
-      }
-    }
-  }
-
-  createsharedMList(material, shdp) {
-    let sharedMList = material.createSharedUniforms();
-
-    if (sharedMList == null) {
-      // 通过shader uniform data 创建 shared uniform
-      let dataList = material.createSharedUniformsData();
-
-      if (dataList != null && dataList.length > 0) {
-        sharedMList = [];
-
-        for (let i = 0; i < dataList.length; ++i) {
-          if (dataList[i] != null) {
-            let uniform = this.m_shdUniformTool.buildLocalFromData(dataList[i], shdp);
-            sharedMList.push(uniform);
-          }
-        }
-
-        if (sharedMList.length < 1) {
-          sharedMList = null;
-        }
-      }
-    }
-
-    return sharedMList;
-  }
-
-  updateGlobalMaterial(material, materialUniformUpdate = false) {
-    if (material != null) {
-      let rc = this.m_rc;
-      let tro = null;
-      let shdp = null;
-      let texList = null;
-      let texEnabled = false;
-
-      if (material.getShaderData() == null) {
-        texList = material.getTextureList();
-        texEnabled = texList != null && texList.length > 0;
-        material.initializeByCodeBuf(texEnabled);
-      } else {
-        texList = material.getTextureList();
-      } // shdp = this.m_shader.create(material.getShaderData());
-
-
-      shdp = this.m_shdpBuilder.create(material.getShaderData());
-      shdp.upload(rc.RContext, rc.getUid());
-      let texTotal = shdp.getTexTotal();
-
-      if (texTotal > 0) {
-        tro = this.createTRO(texList, texTotal);
-      }
-
-      if (this.m_shader.getSharedUniformByShd(shdp) == null) {
-        let sharedMList = this.createsharedMList(material, shdp);
-
-        if (sharedMList != null) {
-          for (let i = 0; i < sharedMList.length; ++i) {
-            sharedMList[i].program = shdp.getGPUProgram();
-          }
-        }
-
-        this.m_shader.setSharedUniformByShd(shdp, this.m_shdUniformTool.buildShared(sharedMList, rc, shdp));
-      }
-
-      if (material.__$uniform == null) {
-        material.__$uniform = this.m_shdUniformTool.buildLocalFromData(material.createSelfUniformData(), shdp);
-      }
-
-      this.m_shader.__$globalUniform = material.__$uniform;
-      this.m_shader.bindToGpu(shdp.getUid());
-
-      if (materialUniformUpdate && material.__$uniform != null) {
-        this.m_shader.useUniform(material.__$uniform);
-      }
-
-      if (tro != null) {
-        tro.run();
-      }
-    }
-  }
-
-  reset() {
-    this.m_deferredVbufs = [];
-    this.m_deferredTROs = [];
-  }
-
-}
-
-exports.default = RODataBuilder;
 
 /***/ }),
 
@@ -11117,11 +7635,13 @@ const Line3DMaterial_1 = __importDefault(__webpack_require__("32cc"));
 
 const BrokenQuadLine3DMaterial_1 = __importDefault(__webpack_require__("625d"));
 
-const RendererSceneGraph_1 = __importDefault(__webpack_require__("d35c"));
+const CoRendererSceneGraph_1 = __importDefault(__webpack_require__("289c"));
 
 const Keyboard_1 = __importDefault(__webpack_require__("9260"));
 
 exports.Keyboard = Keyboard_1.default;
+
+const MeshFactory_1 = __importDefault(__webpack_require__("0238"));
 
 function createVec3(px = 0.0, py = 0.0, pz = 0.0, pw = 1.0) {
   return new Vector3D_1.default(px, py, pz, pw);
@@ -11232,56 +7752,50 @@ function createBoundsMesh() {
 exports.createBoundsMesh = createBoundsMesh;
 
 function createDataMeshFromModel(model, material = null, texEnabled = false) {
+  return MeshFactory_1.default.createDataMeshFromModel(model, material, texEnabled);
+  /*
   if (material != null) {
-    texEnabled = texEnabled || material.getTextureAt(0) != null;
+      texEnabled = texEnabled || material.getTextureAt(0) != null;
   }
-
   const vbWhole = model.vbWhole ? model.vbWhole : false;
   let stride = Math.round(model.stride ? model.stride : 3);
   stride = stride > 0 && stride < 4 ? stride : 3;
-  const dataMesh = new DataMesh_1.default();
+  const dataMesh = new DataMesh();
   dataMesh.vbWholeDataEnabled = vbWhole;
   let vtxTotal = model.vertices.length / stride;
   dataMesh.setVS(model.vertices);
-
   if (model.uvsList && model.uvsList.length > 0) {
-    dataMesh.setUVS(model.uvsList[0]);
-
-    if (model.uvsList.length > 1) {
-      dataMesh.setUVS2(model.uvsList[0]);
-    }
+      dataMesh.setUVS(model.uvsList[0]);
+      if (model.uvsList.length > 1) {
+          dataMesh.setUVS2(model.uvsList[0]);
+      }
   } else if (texEnabled) {
-    dataMesh.setUVS(new Float32Array(Math.floor(model.vertices.length / 3) * 2));
-    console.error("hasn't uv data !!!, in the createDataMeshFromModel(...) function.");
+      dataMesh.setUVS(new Float32Array(Math.floor(model.vertices.length / stride) * 2));
+      console.error("hasn't uv data !!!, in the createDataMeshFromModel(...) function.");
   }
-
   if (model.normals) {
-    dataMesh.setNVS(model.normals);
+      dataMesh.setNVS(model.normals);
   }
-
   if (model.indices) {
-    dataMesh.setIVS(model.indices);
+      dataMesh.setIVS(model.indices);
   } else {
-    let ivs = vtxTotal <= 65535 ? new Uint16Array(vtxTotal) : new Uint32Array(vtxTotal);
-
-    for (let i = 0; i < vtxTotal; ++i) {
-      ivs[i] = i;
-    } // console.log("crate a new ivs: ", ivs);
-
-
-    dataMesh.setIVS(ivs);
-    console.warn("hasn't indices data !, in the createDataMeshFromModel(...) function.");
+      let ivs = vtxTotal <= 65535 ? new Uint16Array(vtxTotal) : new Uint32Array(vtxTotal);
+      for (let i = 0; i < vtxTotal; ++i) {
+          ivs[i] = i;
+      }
+      // console.log("crate a new ivs: ", ivs);
+      dataMesh.setIVS(ivs);
+      console.warn("hasn't indices data !, in the createDataMeshFromModel(...) function.");
   }
-
-  if (material != null) {
-    material.initializeByCodeBuf(texEnabled);
-    dataMesh.setVtxBufRenderData(material);
+    if (material != null) {
+      material.initializeByCodeBuf(texEnabled);
+      dataMesh.setVtxBufRenderData(material);
   } else {
-    console.warn("the material parameter value is null, so this mesh will build all vtx bufs.");
+      console.warn("the material parameter value is null, so this mesh will build all vtx bufs.");
   }
-
   dataMesh.initialize();
   return dataMesh;
+  //*/
 }
 
 exports.createDataMeshFromModel = createDataMeshFromModel;
@@ -11456,7 +7970,7 @@ function createMaterialContext() {
 exports.createMaterialContext = createMaterialContext;
 
 function createRendererSceneGraph() {
-  return new RendererSceneGraph_1.default();
+  return new CoRendererSceneGraph_1.default();
 }
 
 exports.createRendererSceneGraph = createRendererSceneGraph;
@@ -11478,65 +7992,6 @@ function createProgressDataEvent() {
 }
 
 exports.createProgressDataEvent = createProgressDataEvent;
-
-/***/ }),
-
-/***/ "3c81":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const PoolNodeBuilder_1 = __importDefault(__webpack_require__("2be1"));
-
-const RenderProcess_1 = __importDefault(__webpack_require__("7696"));
-
-class RenderProcessBuider extends PoolNodeBuilder_1.default {
-  setCreateParams(shader, rpoNodeBuilder, rpoUnitBuilder, vtxResource, batchEnabled, fixedState) {
-    this.m_shader = shader;
-    this.m_rpoNodeBuilder = rpoNodeBuilder;
-    this.m_rpoUnitBuilder = rpoUnitBuilder;
-    this.m_vtxResource = vtxResource;
-    this.m_batchEnabled = batchEnabled;
-    this.m_fixedState = fixedState;
-  }
-
-  createNode() {
-    return new RenderProcess_1.default(this.m_shader, this.m_rpoNodeBuilder, this.m_rpoUnitBuilder, this.m_vtxResource, this.m_batchEnabled, this.m_fixedState);
-  }
-
-  rejoinRunitForTro(runit) {
-    this.getNodeByUid(runit.__$rprouid).rejoinRunitForTro(runit);
-  }
-
-  rejoinRunitForVro(runit) {
-    this.getNodeByUid(runit.__$rprouid).rejoinRunitForVro(runit);
-  }
-
-}
-
-exports.default = RenderProcessBuider;
 
 /***/ }),
 
@@ -11715,8 +8170,10 @@ class DisplayEntity {
 
   dispatchEvt(evt) {
     // if (evt.getClassType() == MouseEvent.EventClassType) {
-    if (this.m_eventDispatcher != null) {
-      return this.m_eventDispatcher.dispatchEvt(evt);
+    const dsp = this.m_eventDispatcher;
+
+    if (dsp) {
+      return dsp.dispatchEvt(evt);
     } // }
 
 
@@ -11724,8 +8181,9 @@ class DisplayEntity {
   }
 
   getEvtDispatcher(evtClassType) {
-    if (this.uuid != "") this.m_eventDispatcher.uuid = this.uuid;
-    return this.m_eventDispatcher;
+    const dsp = this.m_eventDispatcher;
+    if (dsp && this.uuid != "") dsp.uuid = this.uuid;
+    return dsp;
   }
 
   setEvtDispatcher(evtDisptacher) {
@@ -11984,21 +8442,20 @@ class DisplayEntity {
       this.m_display.ivsCount = ivsCount;
 
       if (this.m_display.__$ruid > -1) {
+        const mh = this.m_mesh;
         let ut = this.m_display.__$$runit;
-        ut.trisNumber = Math.floor((ivsCount - ivsIndex) / 3);
         ut.setIvsParam(ivsIndex, ivsCount);
-        ut.drawMode = this.m_mesh.drawMode;
 
         if (updateBounds && this.isPolyhedral()) {
-          if (this.m_localBounds == this.m_mesh.bounds) {
+          if (this.m_localBounds == mh.bounds) {
             this.m_localBounds = new AABB_1.default();
-            this.m_localBounds.copyFrom(this.m_mesh.bounds);
+            this.m_localBounds.copyFrom(mh.bounds);
           }
 
           this.m_transStatus = ROTransform_1.default.UPDATE_TRANSFORM;
           this.m_localBounds.reset();
-          let ivs = this.m_mesh.getIVS();
-          this.m_localBounds.addFloat32AndIndicesArr(this.m_mesh.getVS(), ivs.subarray(ivsIndex, ivsIndex + ivsCount));
+          let ivs = mh.getIVS();
+          this.m_localBounds.addFloat32AndIndices(mh.getVS(), ivs.subarray(ivsIndex, ivsIndex + ivsCount), mh.getVSStride());
           this.m_localBounds.update();
 
           if (this.m_trw != null) {
@@ -12282,9 +8739,11 @@ class DisplayEntity {
       this.m_transStatus = ROTransform_1.default.UPDATE_TRANSFORM;
 
       if (this.m_mesh != null && this.m_localBounds != this.m_mesh.bounds) {
+        const mh = this.m_mesh;
+        const dp = this.m_display;
         this.m_localBounds.reset();
-        let ivs = this.m_mesh.getIVS();
-        this.m_localBounds.addFloat32AndIndicesArr(this.m_mesh.getVS(), ivs.subarray(this.m_display.ivsIndex, this.m_display.ivsIndex + this.m_display.ivsCount));
+        let ivs = mh.getIVS();
+        this.m_localBounds.addFloat32AndIndices(mh.getVS(), ivs.subarray(dp.ivsIndex, dp.ivsIndex + dp.ivsCount), mh.getVSStride());
         this.m_localBounds.update();
       }
 
@@ -12470,496 +8929,6 @@ class MaterialContextParam {
 }
 
 exports.MaterialContextParam = MaterialContextParam;
-
-/***/ }),
-
-/***/ "442e":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2019-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const PoolNodeBuilder_1 = __importDefault(__webpack_require__("2be1"));
-
-const RPONode_1 = __importDefault(__webpack_require__("265e"));
-/*
- * render process object node pool management
- */
-
-
-class RPONodeBuilder extends PoolNodeBuilder_1.default {
-  createNode() {
-    return new RPONode_1.default();
-  }
-
-  createRPONode() {
-    return new RPONode_1.default();
-  }
-
-}
-
-exports.default = RPONodeBuilder;
-
-/***/ }),
-
-/***/ "45db":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const VertexRenderObj_1 = __importDefault(__webpack_require__("8def"));
-
-const VaoVertexRenderObj_1 = __importDefault(__webpack_require__("fa60"));
-
-class ROVertexRes {
-  constructor() {
-    this.m_vtx = null;
-    this.m_typeList = null;
-    this.m_offsetList = null;
-    this.m_sizeList = null;
-    this.m_vtxUid = -1;
-    this.m_gpuBufs = [];
-    this.m_gpuBufsTotal = 0;
-    this.m_type = 0;
-    this.m_attribsTotal = 0;
-    this.m_wholeStride = 0;
-    this.m_bufIVS = null;
-    this.m_vroList = [];
-    this.m_vroListLen = 0;
-    this.m_attachCount = 0;
-  }
-
-  static create(rc, shdp, vtx) {
-    let vtxUid = vtx.getUid();
-    let map = ROVertexRes.s_map;
-    let vt; // console.log("GpuVtxObject::createVertex(), vtxUid: ", vtxUid, ", uid: ", this.m_uid);
-
-    if (map.has(vtxUid)) {
-      vt = map.get(vtxUid);
-    } else {
-      // console.log("ROVertexRes::create() new instance, vtxUid: ", vtxUid);
-      vt = new ROVertexRes();
-      map.set(vtxUid, vt);
-      vt.initialize(rc, shdp, vtx);
-    }
-
-    return vt;
-  }
-
-  __$attachThis() {
-    ++this.m_attachCount; // console.log("ROVertexRes::__$attachThis() this.m_attachCount: "+this.m_attachCount);
-  }
-
-  __$detachThis() {
-    if (this.m_attachCount == 1) {
-      --this.m_attachCount; // console.log("ROVertexRes::__$detachThis() this.m_attachCount: "+this.m_attachCount);
-      // this.__$dispose();
-    } else {
-      --this.m_attachCount; // console.log("ROVertexRes::__$detachThis() this.m_attachCount: "+this.m_attachCount);
-    }
-
-    if (this.m_attachCount < 1) {
-      this.m_attachCount = 0;
-    }
-  }
-
-  getAttachCount() {
-    return this.m_attachCount;
-  }
-
-  updateToGpu(rc) {
-    let len = this.m_gpuBufs.length;
-
-    if (len > 0) {
-      let vtx = this.m_vtx;
-
-      if (this.version != vtx.vertexVer) {
-        let usage = vtx.getBufDataUsage();
-        let fvs;
-        let sizeList = this.m_sizeList;
-
-        for (let i = 0; i < len; ++i) {
-          fvs = vtx.getF32DataAt(i);
-
-          if (sizeList[i] >= fvs.length) {
-            rc.bindArrBuf(this.m_gpuBufs[i]);
-            rc.arrBufSubData(fvs, 0);
-          } else {
-            rc.bindArrBuf(this.m_gpuBufs[i]);
-            rc.arrBufData(fvs, usage);
-            sizeList[i] = fvs.length;
-          }
-        }
-
-        this.version = vtx.vertexVer;
-      }
-    }
-  } //private m_preCombinedSize: number = 0;
-
-
-  uploadCombined(rc, shdp) {
-    let vtx = this.m_vtx;
-    let fvs = vtx.getF32DataAt(0); //console.log("uploadCombined combSize: ",this.m_preCombinedSize, fvs.length);
-    //this.m_preCombinedSize = fvs.length;
-
-    this.m_gpuBufs.push(rc.createBuf());
-    rc.bindArrBuf(this.m_gpuBufs[0]); // console.log("uploadCombined, this.m_gpuBufs: "+this.m_gpuBufs);
-
-    rc.arrBufData(fvs, vtx.getBufDataUsage());
-    this.m_gpuBufsTotal = 1;
-    this.m_sizeList = [fvs.length];
-
-    if (this.m_typeList == null) {
-      this.m_bufIVS = shdp.getLocationIVS();
-      this.m_wholeStride = 0;
-      this.m_typeList = new Array(this.m_attribsTotal);
-      this.m_offsetList = new Array(this.m_attribsTotal);
-      let typeList = vtx.getBufTypeList();
-      let sizeList = vtx.getBufSizeList();
-
-      if (typeList != null) {
-        for (let i = 0; i < this.m_attribsTotal; ++i) {
-          this.m_offsetList[i] = this.m_wholeStride;
-          this.m_wholeStride += sizeList[i] * 4;
-          this.m_typeList[i] = typeList[i];
-        }
-      } else {
-        for (let i = 0; i < this.m_attribsTotal; ++i) {
-          this.m_offsetList[i] = this.m_wholeStride;
-          this.m_wholeStride += shdp.getLocationSizeByIndex(i) * 4;
-          this.m_typeList[i] = shdp.getLocationTypeByIndex(i);
-        }
-      }
-    }
-  }
-
-  uploadSeparated(rc, shdp) {
-    let vtx = this.m_vtx;
-    let i = 0;
-    let buf = null;
-    let dataUsage = vtx.getBufDataUsage();
-    this.m_gpuBufsTotal = this.m_vtx.getBuffersTotal();
-    this.m_sizeList = new Array(this.m_attribsTotal);
-    this.m_bufIVS = shdp.getLocationIVS(); // console.log("uploadSeparated, this.m_gpuBufs: "+this.m_gpuBufs);
-
-    if (vtx.bufData == null) {
-      for (; i < this.m_attribsTotal; ++i) {
-        buf = rc.createBuf();
-        this.m_gpuBufs.push(buf);
-        rc.bindArrBuf(buf);
-        rc.arrBufData(vtx.getF32DataAt(i), dataUsage);
-        this.m_sizeList[i] = vtx.getF32DataAt(i).length;
-      }
-    } else {
-      //console.log(">>>>>>>>vtxSepbuf use (this.bufData == null) : "+(this.bufData == null));
-      let fs32 = null;
-      let j = 0;
-      let tot = 0;
-      let offset = 0;
-      let dataSize = 0;
-
-      for (; i < this.m_attribsTotal; ++i) {
-        buf = rc.createBuf(); //console.log("this.bufData.getAttributeDataTotalBytesAt("+i+"): "+this.bufData.getAttributeDataTotalBytesAt(i));
-
-        this.m_gpuBufs.push(buf);
-        rc.bindArrBuf(buf);
-        rc.arrBufDataMem(vtx.bufData.getAttributeDataTotalBytesAt(i), dataUsage);
-        offset = 0;
-        dataSize = 0;
-        tot = vtx.bufData.getAttributeDataTotalAt(i);
-
-        for (j = 0; j < tot; ++j) {
-          fs32 = vtx.bufData.getAttributeDataAt(i, j);
-          dataSize += fs32.length;
-          rc.arrBufSubData(fs32, offset);
-          offset += fs32.byteLength;
-        }
-
-        this.m_sizeList[i] = dataSize;
-      }
-    }
-
-    if (this.m_typeList == null) {
-      this.m_typeList = new Array(this.m_attribsTotal);
-      this.m_offsetList = new Array(this.m_attribsTotal);
-      let typeList = vtx.getBufTypeList();
-      let sizeList = vtx.getBufSizeList();
-
-      if (typeList != null) {
-        for (let i = 0; i < this.m_attribsTotal; ++i) {
-          this.m_offsetList[i] = this.m_wholeStride;
-          this.m_wholeStride += sizeList[i] * 4;
-          this.m_typeList[i] = typeList[i];
-        }
-      } else {
-        for (let i = 0; i < this.m_attribsTotal; ++i) {
-          this.m_offsetList[i] = this.m_wholeStride;
-          this.m_wholeStride += shdp.getLocationSizeByIndex(i) * 4;
-          this.m_typeList[i] = shdp.getLocationTypeByIndex(i);
-        }
-      }
-
-      this.m_wholeStride = 0;
-    }
-  }
-
-  initialize(rc, shdp, vtx) {
-    /**
-     * 这里的初始化可能会出现错误, 因为 shd 中使用的buffers数量可能少于实际 vtx 中的 attributes 数量
-     * 为了防止错误, 构建这个 RoVertexRes 实例的shdp中的attributes必须是和vtx buffers匹配的
-     */
-    if (this.m_gpuBufs.length < 1 && vtx != null) {
-      this.version = vtx.vertexVer;
-      this.m_vtx = vtx;
-      this.m_vtxUid = vtx.getUid();
-      this.m_type = vtx.getType();
-      let typeList = vtx.getBufTypeList();
-      this.m_attribsTotal = typeList != null ? typeList.length : shdp.getLocationsTotal();
-
-      if (shdp.getLocationsTotal() != vtx.getAttribsTotal()) {
-        let info = "shdp.getLocationsTotal() is " + shdp.getLocationsTotal() + " != vtx.getAttribsTotal(), shdp has " + shdp.getLocationsTotal() + ", vtx has " + vtx.getAttribsTotal();
-        info += "\n这可能会导致渲染过程无法正常使用所有的 vtx buffers";
-        console.warn(info);
-      }
-
-      if (this.m_type < 1) {
-        // combined buf
-        this.uploadCombined(rc, shdp);
-      } else {
-        // separated buf
-        this.uploadSeparated(rc, shdp);
-      }
-
-      let layoutBit = vtx.getBufSortFormat();
-
-      if (layoutBit > 0) {
-        // console.log("XXXXX ROVtx XXX layoutBit: ", layoutBit);
-        let ivs = new Array(12);
-        let index = 0;
-
-        for (let i = 0; i < 10; ++i) {
-          const bit = 1 << i;
-
-          if ((bit & layoutBit) > 0) {
-            ivs[i + 1] = index++;
-          }
-        }
-
-        this.m_bufIVS = ivs;
-      }
-    }
-  }
-  /**
-   * get vro object attribute mix id
-   */
-
-
-  getVROMid(rc, shdp, vaoEnabled, ibufId) {
-    let mid = (131 + rc.getRCUid()) * this.m_vtxUid;
-    if (vaoEnabled) mid = mid * 131 + 1;
-    mid = mid * 131 + shdp.getMid();
-    mid = mid * 131 + ibufId;
-    return mid;
-  } // 创建被 RPOUnit 使用的 vro 实例
-
-
-  createVRO(rc, shdp, vaoEnabled, ibufRes) {
-    let attribsTotal = shdp.getLocationsTotal();
-
-    if (this.m_attribsTotal * attribsTotal > 0 && attribsTotal <= this.m_attribsTotal) {
-      // console.log("ROVertexRes::createVRO(), this.m_type: ",this.m_type, ", ibufRes.getUid(): ",ibufRes.getUid(),", vtxUid: ", this.m_vtxUid);
-      let mid = this.getVROMid(rc, shdp, vaoEnabled, ibufRes.getUid());
-      let i = 0;
-      let pvro = VaoVertexRenderObj_1.default.GetByMid(mid);
-
-      if (pvro != null) {
-        return pvro;
-      } // TODO(vilyLei): 暂时注释掉下面这行代码
-      // let flag: boolean = shdp.testVertexAttribPointerOffset(this.m_offsetList);
-      // console.log("createVRO testVertexAttribPointerOffset flag: ",flag, this.m_typeList);
-      // DivLog.ShowLog("createVRO testVertexAttribPointerOffset flag: "+flag);
-      // 如果这个ivs的数据和 vtx buffers 数据项不匹配, 则会出现渲染错误的情况
-      // 因为数据项匹配的ROVertexRes实例可能不会构建或者比较迟才构建
-      // 这会导致ivs 是不正确的, 甚至vtx buffers
-
-
-      const ivs = this.m_bufIVS;
-
-      if (vaoEnabled) {
-        // vao 的生成要记录标记,防止重复生成, 因为同一组数据在不同的shader使用中可能组合方式不同，导致了vao可能是多样的
-        // console.log("VtxCombinedBuf::createVROBegin(), "+this.m_typeList+" /// "+this.m_wholeStride+" /// "+this.m_offsetList);
-        // console.log("VtxCombinedBuf::createVROBegin(), "+this.m_type);
-        let vro = VaoVertexRenderObj_1.default.Create(rc, mid, this.m_vtx.getUid());
-        vro.indicesRes = ibufRes;
-        vro.vao = rc.createVertexArray();
-        rc.bindVertexArray(vro.vao);
-
-        if (this.m_type < 1) {
-          // combined buf vro
-          rc.bindArrBuf(this.m_gpuBufs[0]); // if (this.m_typeList.length == attribsTotal) {
-          //     for (i = 0; i < attribsTotal; ++i) {
-          //         shdp.vertexAttribPointerTypeFloat(this.m_typeList[i], this.m_wholeStride, this.m_offsetList[i]);
-          //     }
-          // } else {
-          //     const types = shdp.getLocationTypes();
-          //     for (i = 0; i < types.length; ++i) {
-          //         const k = types[i] - 1;
-          //         shdp.vertexAttribPointerTypeFloat(this.m_typeList[k], this.m_wholeStride, this.m_offsetList[k]);
-          //     }
-          // }
-
-          const types = shdp.getLocationTypes();
-
-          for (i = 0; i < types.length; ++i) {
-            const k = ivs[types[i]];
-            shdp.vertexAttribPointerTypeFloat(this.m_typeList[k], this.m_wholeStride, this.m_offsetList[k]);
-          }
-        } else {
-          // console.log("A attribsTotal: ", attribsTotal, this.m_typeList);
-          // console.log("B shdp.getLocationTypes(): ", shdp.getLocationTypes());
-          // if (this.m_typeList.length == attribsTotal) {
-          //     for (i = 0; i < attribsTotal; ++i) {
-          //         rc.bindArrBuf(this.m_gpuBufs[i]);
-          //         shdp.vertexAttribPointerTypeFloat(this.m_typeList[i], 0, 0);
-          //     }
-          // } else {
-          //     const types = shdp.getLocationTypes();
-          //     for (i = 0; i < types.length; ++i) {
-          //         const k = types[i] - 1;
-          //         rc.bindArrBuf(this.m_gpuBufs[k]);
-          //         shdp.vertexAttribPointerTypeFloat(this.m_typeList[k], 0, 0);
-          //     }
-          // }
-          // const ivs = shdp.getLocationIVS();
-          const types = shdp.getLocationTypes();
-
-          for (i = 0; i < types.length; ++i) {
-            const k = ivs[types[i]];
-            rc.bindArrBuf(this.m_gpuBufs[k]);
-            shdp.vertexAttribPointerTypeFloat(this.m_typeList[k], 0, 0);
-          }
-        }
-
-        pvro = vro;
-        vro.ibuf = ibufRes.getGpuBuf(); // rc.bindEleBuf(vro.ibuf);
-
-        rc.bindVertexArray(null);
-      } else {
-        let vro = VertexRenderObj_1.default.Create(rc, mid, this.m_vtx.getUid());
-        vro.indicesRes = ibufRes;
-        vro.shdp = shdp;
-        vro.attribTypes = [];
-        vro.wholeOffsetList = [];
-        vro.wholeStride = this.m_wholeStride;
-
-        if (this.m_type < 1) {
-          vro.vbuf = this.m_gpuBufs[0];
-        } else {
-          vro.vbufs = this.m_gpuBufs;
-        }
-
-        for (i = 0; i < attribsTotal; ++i) {
-          if (shdp.testVertexAttribPointerType(this.m_typeList[i])) {
-            vro.attribTypes.push(this.m_typeList[i]); //vro.wholeOffsetList.push( this.m_offsetList[i] );
-
-            vro.wholeOffsetList.push(0);
-          }
-        }
-
-        vro.attribTypesLen = vro.attribTypes.length;
-        vro.ibuf = ibufRes.getGpuBuf();
-        pvro = vro;
-      }
-
-      this.m_vroList.push(pvro);
-      ++this.m_vroListLen;
-      return pvro;
-    } else {
-      console.error("shader 中需要的 attribute 数量 比当前 vertex buffer 多... shader.attribsTotal: ", attribsTotal, ", this.attribsTotal: ", this.m_attribsTotal);
-      return null;
-    }
-  }
-
-  destroy(rc) {
-    // console.log("ROVertexRes::destroy(), this.m_attachCount: ", this.m_attachCount);
-    if (this.m_attachCount < 1) {
-      if (this.m_gpuBufs.length > 0) {
-        console.log("ROVertexRes::destroy(), type: ", this.m_type, ", vtxUid: ", this.m_vtxUid);
-        this.m_bufIVS = null;
-        this.m_type = -1;
-        let i = 0;
-        let vro = null;
-
-        for (; i < this.m_vroListLen; ++i) {
-          this.m_vroList[i].restoreThis();
-        }
-
-        this.m_vroList = [];
-        this.m_vroListLen = 0;
-
-        for (i = 0; i < this.m_attribsTotal; ++i) {
-          rc.deleteBuf(this.m_gpuBufs[i]);
-          this.m_gpuBufs[i] = null;
-        }
-
-        this.m_attribsTotal = 0;
-        this.m_gpuBufs = [];
-      }
-
-      if (this.m_vtxUid >= 0) {
-        ROVertexRes.s_map.delete(this.m_vtxUid);
-        this.m_vtxUid = -1;
-      }
-    }
-  }
-
-}
-
-ROVertexRes.s_map = new Map();
-exports.ROVertexRes = ROVertexRes;
 
 /***/ }),
 
@@ -14147,309 +10116,6 @@ exports.ShaderTextureBuilder = ShaderTextureBuilder;
 
 /***/ }),
 
-/***/ "4f27":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
-
-const ShaderUniform_1 = __webpack_require__("d53d");
-
-const CameraUniformBuilder_1 = __importDefault(__webpack_require__("2560"));
-
-const StageParamUniformBuilder_1 = __importDefault(__webpack_require__("83d1"));
-
-const FrustumUniformBuilder_1 = __importDefault(__webpack_require__("a7ed"));
-
-const CameraPosUniformBuilder_1 = __importDefault(__webpack_require__("857b"));
-
-const ViewParamUniformBuilder_1 = __importDefault(__webpack_require__("e87b"));
-
-class EmptyShdUniform extends ShaderUniform_1.ShaderUniform {
-  use(rc) {}
-
-  useByLocation(rc, type, location, i) {}
-
-  useByShd(rc, shd) {}
-
-  updateData() {}
-
-  destroy() {}
-
-}
-
-EmptyShdUniform.EmptyUniform = new EmptyShdUniform();
-
-class ShdUniformTool {
-  constructor() {
-    this.m_initFlag = true;
-    this.m_uniformDict = new Map();
-    this.m_builders = [];
-    this.m_buildersTot = 0;
-    this.m_emptyUniform = new ShaderUniform_1.ShaderUniform();
-  }
-
-  appendUniformBuilder(builder) {
-    if (!this.m_uniformDict.has(builder.getIDNS())) {
-      this.m_builders.push(builder);
-      this.m_uniformDict.set(builder.getIDNS(), builder);
-      this.m_buildersTot = this.m_builders.length;
-    }
-  }
-
-  initialize() {
-    if (this.m_initFlag) {
-      this.m_initFlag = false;
-      this.appendUniformBuilder(new CameraUniformBuilder_1.default());
-      this.appendUniformBuilder(new FrustumUniformBuilder_1.default());
-      this.appendUniformBuilder(new CameraPosUniformBuilder_1.default());
-      this.appendUniformBuilder(new StageParamUniformBuilder_1.default());
-      this.appendUniformBuilder(new ViewParamUniformBuilder_1.default());
-    }
-  }
-
-  addSharedUniformBuilder(builder) {
-    if (builder != null && !this.m_uniformDict.has(builder.getIDNS())) {
-      this.m_builders.push(builder);
-      this.m_uniformDict.set(builder.getIDNS(), builder);
-      ++this.m_buildersTot;
-    }
-  }
-
-  removeSharedUniformBuilder(builder) {
-    if (builder != null && this.m_uniformDict.has(builder.getIDNS())) {
-      for (let i = 0; i < this.m_buildersTot; ++i) {
-        if (builder == this.m_builders[i]) {
-          this.m_builders.splice(i, 1);
-          --this.m_buildersTot;
-          break;
-        }
-      }
-
-      this.m_uniformDict.delete(builder.getIDNS());
-    }
-  }
-
-  removeSharedUniformBuilderByName(builderNS) {
-    if (this.m_uniformDict.has(builderNS)) {
-      let builder = this.m_uniformDict.get(builderNS);
-
-      for (let i = 0; i < this.m_buildersTot; ++i) {
-        if (builder == this.m_builders[i]) {
-          this.m_builders.splice(i, 1);
-          --this.m_buildersTot;
-          break;
-        }
-      }
-
-      this.m_uniformDict.delete(builderNS);
-    }
-  }
-
-  buildShared(guniforms, rc, shdp) {
-    let guniform;
-    let headU = null;
-    let prevU = null;
-    let builders = this.m_builders;
-    let i = 0;
-    let len = this.m_buildersTot;
-    let puo = null;
-
-    for (; i < len; ++i) {
-      puo = builders[i].create(rc, shdp);
-
-      if (puo != null) {
-        if (prevU != null) {
-          prevU.next = puo;
-        } else if (headU == null) {
-          headU = puo;
-        }
-
-        prevU = puo;
-      }
-    }
-
-    if (guniforms == null) {
-      guniform = headU;
-    } else if (headU != null) {
-      for (let i = 0; i < guniforms.length; ++i) {
-        prevU.next = guniforms[i];
-        prevU = prevU.next;
-      }
-
-      guniform = headU;
-    }
-
-    if (guniform == null) {
-      guniform = EmptyShdUniform.EmptyUniform;
-    } else {
-      // normalize uniform
-      let pdata = guniform; //  let boo: boolean = false;
-      //  if(pdata.uns == "u_projMat") {
-      //      boo = true;
-      //      console.log("u_projMat global build begin pdata.uns: ",pdata.uns);
-      //  }
-
-      let i = 0;
-
-      while (pdata != null) {
-        //  if(boo) {
-        //      console.log("### u_projMat global build...pdata.uns: ",pdata.uns);
-        //  }
-        if (pdata.uniformNameList != null && pdata.locations == null) {
-          pdata.types = [];
-          pdata.locations = [];
-          pdata.uniformSize = pdata.uniformNameList.length;
-
-          for (i = 0; i < pdata.uniformSize; ++i) {
-            pdata.types.push(shdp.getUniformTypeByNS(pdata.uniformNameList[i]));
-            pdata.locations.push(shdp.getUniformLocationByNS(pdata.uniformNameList[i]));
-          } //console.log("global uniform names: "+pdata.uniformNameList);
-          //console.log("global uniform types: "+pdata.types);
-          //console.log("global uniform locations: "+pdata.locations);
-
-        }
-
-        pdata = pdata.next;
-      } //  if(boo) {
-      //      console.log("u_projMat global build end pdata.uns: u_projMat.");
-      //  }
-
-    }
-
-    return guniform;
-  }
-
-  buildLocalFromTransformV(transformData, shdp) {
-    if (transformData != null) {
-      let shdUniform;
-      shdUniform = new ShaderUniform_1.ShaderMat4Uniform();
-      shdUniform.uniformSize = 0;
-      shdUniform.uniformNameList = [];
-      shdUniform.types = [];
-      shdUniform.locations = [];
-      shdUniform.dataList = [];
-      shdUniform.dataSizeList = [];
-      shdUniform.uniformSize += 1;
-      shdUniform.uniformNameList.push("u_objMat");
-      shdUniform.types.push(shdp.getUniformTypeByNS("u_objMat"));
-      shdUniform.locations.push(shdp.getUniformLocationByNS("u_objMat"));
-      shdUniform.dataList.push(transformData);
-      shdUniform.dataSizeList.push(1);
-      return shdUniform;
-    }
-
-    return this.m_emptyUniform;
-  }
-
-  updateLocalFromTransformV(dstUniform, transformData, shdp) {
-    if (transformData != null) {
-      let shdUniform;
-      let srcUniform = dstUniform;
-
-      if (srcUniform == null) {
-        srcUniform = new ShaderUniform_1.ShaderMat4Uniform();
-        shdUniform = srcUniform;
-        shdUniform.uniformSize = 0;
-        shdUniform.uniformNameList = [];
-        shdUniform.types = [];
-        shdUniform.locations = [];
-        shdUniform.dataList = [];
-        shdUniform.dataSizeList = [];
-        shdUniform.uniformSize += 1;
-        shdUniform.uniformNameList.push("u_objMat");
-        shdUniform.types.push(shdp.getUniformTypeByNS("u_objMat"));
-        shdUniform.locations.push(shdp.getUniformLocationByNS("u_objMat"));
-        shdUniform.dataList.push(transformData);
-        shdUniform.dataSizeList.push(1);
-      } else {
-        shdUniform = srcUniform;
-        shdUniform.locations = [];
-        shdUniform.locations.push(shdp.getUniformLocationByNS("u_objMat"));
-      }
-
-      return shdUniform;
-    }
-
-    return this.m_emptyUniform;
-  }
-
-  buildLocalFromData(uniformData, shdp) {
-    if (uniformData != null) {
-      // collect all uniform data,create a new runned uniform
-      let shdUniform;
-
-      if (RendererDevice_1.default.IsWebGL1()) {
-        shdUniform = new ShaderUniform_1.ShaderUniformV1();
-      } else {
-        shdUniform = new ShaderUniform_1.ShaderUniformV2();
-      }
-
-      shdUniform.uns = uniformData.uns;
-      shdUniform.uniformNameList = [];
-      shdUniform.types = [];
-      shdUniform.locations = [];
-      shdUniform.dataList = [];
-      shdUniform.dataSizeList = [];
-      shdUniform.uniformSize = 0;
-      let pdata = uniformData;
-      let i = 0;
-
-      while (pdata != null) {
-        if (pdata.uniformNameList != null && pdata.locations == null) {
-          shdUniform.uniformSize += pdata.uniformNameList.length;
-
-          for (i = 0; i < shdUniform.uniformSize; ++i) {
-            shdUniform.uniformNameList.push(pdata.uniformNameList[i]);
-            shdUniform.types.push(shdp.getUniformTypeByNS(pdata.uniformNameList[i]));
-            shdUniform.locations.push(shdp.getUniformLocationByNS(pdata.uniformNameList[i]));
-            shdUniform.dataList.push(pdata.dataList[i]);
-            shdUniform.dataSizeList.push(shdp.getUniformLengthByNS(pdata.uniformNameList[i]));
-          } // console.log("local uniform frome data names: ",shdUniform.uniformNameList);
-          // console.log("local uniform frome data types: ",shdUniform.types);
-          // console.log("local uniform frome data locations: ",shdUniform.locations);
-          // console.log("local uniform frome data dataSizeList: ",shdUniform.dataSizeList);
-
-        }
-
-        pdata = pdata.next;
-      }
-
-      return shdUniform;
-    }
-
-    return EmptyShdUniform.EmptyUniform;
-  }
-
-}
-
-exports.default = ShdUniformTool;
-
-/***/ }),
-
 /***/ "519e":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14490,22 +10156,18 @@ const SurfaceNormalCalc_1 = __importDefault(__webpack_require__("35fa"));
 class DataMesh extends MeshBase_1.default {
   constructor(bufDataUsage = VtxBufConst_1.default.VTX_STATIC_DRAW) {
     super(bufDataUsage);
-    this.m_initIVS = null;
     this.m_boundsChanged = true;
-    this.m_vs = null;
-    this.m_uvs = null;
-    this.m_uvs2 = null;
-    this.m_nvs = null;
-    this.m_cvs = null;
-    this.m_tvs = null;
-    this.m_btvs = null;
+    this.m_ils = new Array(1);
+    this.m_ists = new Array(1);
+    this.m_ls = new Array(10);
     this.m_rayTester = null;
     this.m_boundsVersion = -2;
-    this.autoBuilding = true;
-    this.vsStride = 3;
-    this.uvsStride = 2;
-    this.nvsStride = 3;
-    this.cvsStride = 3;
+    this.autoBuilding = true; // v,u,n,c,t, v2,u2,n2,c2,t2
+
+    this.m_strides = new Uint8Array([3, 2, 3, 3, 3, 3, 2, 3, 3, 3]);
+    this.m_ls.fill(null);
+    this.m_ils.fill(null);
+    this.m_ists.fill([true, false]);
   }
 
   setRayTester(rayTester) {
@@ -14517,8 +10179,21 @@ class DataMesh extends MeshBase_1.default {
    */
 
 
-  setVS(vs) {
-    this.m_vs = vs;
+  setVS(vs, stride = 3) {
+    this.m_ls[0] = vs;
+    this.m_strides[0] = stride;
+    this.m_boundsChanged = true;
+    return this;
+  }
+  /**
+   * set second  vertex position data
+   * @param vs vertex position buffer Float32Array
+   */
+
+
+  setVS2(vs, stride = 3) {
+    this.m_ls[5] = vs;
+    this.m_strides[5] = stride;
     this.m_boundsChanged = true;
     return this;
   }
@@ -14528,7 +10203,15 @@ class DataMesh extends MeshBase_1.default {
 
 
   getVS() {
-    return this.m_vs;
+    return this.m_ls[0];
+  }
+  /**
+   * @returns vertex position buffer Float32Array
+   */
+
+
+  getVS2() {
+    return this.m_ls[5];
   }
   /**
    * set vertex uv data
@@ -14536,8 +10219,9 @@ class DataMesh extends MeshBase_1.default {
    */
 
 
-  setUVS(uvs) {
-    this.m_uvs = uvs;
+  setUVS(uvs, stride = 2) {
+    this.m_ls[1] = uvs;
+    this.m_strides[1] = stride;
     return this;
   }
   /**
@@ -14546,8 +10230,9 @@ class DataMesh extends MeshBase_1.default {
    */
 
 
-  setUVS2(uvs) {
-    this.m_uvs2 = uvs;
+  setUVS2(uvs, stride = 2) {
+    this.m_ls[6] = uvs;
+    this.m_strides[6] = stride;
     return this;
   }
   /**
@@ -14556,7 +10241,15 @@ class DataMesh extends MeshBase_1.default {
 
 
   getUVS() {
-    return this.m_uvs;
+    return this.m_ls[1];
+  }
+  /**
+   * @returns second vertex uv buffer Float32Array
+   */
+
+
+  getUVS2() {
+    return this.m_ls[6];
   }
   /**
    * set vertex normal data
@@ -14564,8 +10257,9 @@ class DataMesh extends MeshBase_1.default {
    */
 
 
-  setNVS(nvs) {
-    this.m_nvs = nvs;
+  setNVS(nvs, stride = 3) {
+    this.m_ls[2] = nvs;
+    this.m_strides[2] = stride;
     return this;
   }
   /**
@@ -14574,7 +10268,26 @@ class DataMesh extends MeshBase_1.default {
 
 
   getNVS() {
-    return this.m_nvs;
+    return this.m_ls[2];
+  }
+  /**
+   * set vertex color(r,g,b) data
+   * @param vs vertex color(r,g,b) buffer Float32Array
+   */
+
+
+  setCVS(cvs, stride = 3) {
+    this.m_ls[3] = cvs;
+    this.m_strides[3] = stride;
+    return this;
+  }
+  /**
+   * @returns vertex color(r,g,b) data
+   */
+
+
+  getCVS() {
+    return this.m_ls[3];
   }
   /**
    * set vertex tangent data
@@ -14582,8 +10295,9 @@ class DataMesh extends MeshBase_1.default {
    */
 
 
-  setTVS(tvs) {
-    this.m_tvs = tvs;
+  setTVS(tvs, stride = 3) {
+    this.m_ls[4] = tvs;
+    this.m_strides[4] = stride;
     return this;
   }
   /**
@@ -14592,138 +10306,161 @@ class DataMesh extends MeshBase_1.default {
 
 
   getTVS() {
-    return this.m_tvs;
-  }
-  /**
-   * set vertex bitangent data
-   * @param vs vertex bitangent buffer Float32Array
-   */
-
-
-  setBTVS(btvs) {
-    this.m_btvs = btvs;
-    return this;
-  }
-  /**
-   * set vertex color(r,g,b) data
-   * @param vs vertex color(r,g,b) buffer Float32Array
-   */
-
-
-  setCVS(cvs) {
-    this.m_cvs = cvs;
-    return this;
-  }
-  /**
-   * @returns vertex bitangent buffer Float32Array
-   */
-
-
-  getBTVS() {
-    return this.m_btvs;
-  }
-
-  setIVS(ivs) {
-    this.m_initIVS = ivs;
-    this.m_ivs = ivs;
-    this.m_boundsChanged = true;
-    return this;
+    return this.m_ls[4];
   }
 
   initializeFromGeometry(geom) {
-    this.m_vs = geom.getVS();
-    this.m_uvs = geom.getUVS();
-    this.m_nvs = geom.getNVS();
-    this.m_tvs = geom.getTVS();
-    this.m_btvs = geom.getBTVS();
-    this.m_cvs = geom.getCVS();
-    this.m_ivs = geom.getIVS();
-    this.m_initIVS = this.m_ivs;
+    this.setVS(geom.getVS());
+    this.setUVS(geom.getUVS());
+    this.setNVS(geom.getNVS());
+    this.setCVS(geom.getCVS());
+    this.setTVS(geom.getTVS());
+    this.setIVSAt(geom.getIVS());
     this.m_boundsChanged = true;
     this.initialize();
   }
 
+  addFloat32Data(data, type, stride, info = "") {
+    let free = this.getBufSortFormat() < 1;
+    free = this.isVBufEnabledAt(type) || free && data != null; // console.log("DataMesh::addFloat32Data(), info: ", info, ", free: ", free, ", data: ", data);
+
+    if (free) {
+      ROVertexBuffer_1.default.AddFloat32Data(data, stride);
+    }
+  }
+
+  setIVS(ivs) {
+    this.m_ivs = ivs;
+    this.m_ils[0] = ivs;
+    return this;
+  }
+  /**
+   * @returns vertex indices buffer Uint16Array or Uint32Array
+   */
+
+
+  getIVS() {
+    return this.m_ils[0];
+  }
+
+  setIVSAt(ivs, index = 0, wireframe = false, shape = true) {
+    // console.log("DataMesh::setIVSAt(), index: ", index);
+    if (index == 0) this.m_ivs = ivs;
+    this.m_boundsChanged = true;
+
+    if (index < this.m_ils.length) {
+      this.m_ils[index] = ivs;
+      let ls = this.m_ists[index];
+      ls[0] = shape;
+      ls[1] = wireframe;
+    } else if (index == this.m_ils.length) {
+      this.m_ils.push(ivs);
+      this.m_ists.push([shape, wireframe]);
+    }
+
+    return this;
+  }
+
+  getIVSAt(index) {
+    return this.m_ils[index];
+  }
+
   initialize() {
-    if (this.m_vs != null) {
+    let ls = this.m_ls;
+
+    if (ls[0] != null) {
+      let ds = this.m_strides;
+      let vs = ls[0];
+      let vsStride = ds[0];
+
       if (this.autoBuilding) {
         if (this.bounds == null) {
           this.bounds = new AABB_1.default();
-          this.bounds.addFloat32Arr(this.m_vs);
+          this.bounds.addFloat32Arr(vs, vsStride);
           this.bounds.update();
         } else if (this.m_boundsChanged || this.m_boundsVersion == this.bounds.version) {
           this.bounds.reset(); // 如果重新init, 但是版本号却没有改变，说明bounds需要重新计算
 
-          this.bounds.addFloat32Arr(this.m_vs);
+          this.bounds.addFloat32Arr(vs, vsStride);
           this.bounds.update();
         }
       }
 
       this.m_boundsVersion = this.bounds.version;
       this.m_boundsChanged = false;
-      this.m_ivs = this.m_initIVS;
+      let ils = this.m_ils;
+      let ivs = ils[0];
+      const rvb = ROVertexBuffer_1.default;
+      ROVertexBuffer_1.default.Reset(); // console.log("XXXXXX vsStride: ", vsStride, ", vs: ", vs);
+
+      rvb.AddFloat32Data(vs, vsStride);
+      const vc = VtxBufConst_1.default;
+      const vcf = this.addFloat32Data.bind(this);
+      vcf(ls[1], vc.VBUF_UVS_INDEX, ds[1]);
+      let nvsIndex = 2;
+      let nvs = ls[nvsIndex];
       let free = this.getBufSortFormat() < 1;
-      ROVertexBuffer_1.default.Reset();
-      ROVertexBuffer_1.default.AddFloat32Data(this.m_vs, this.vsStride);
 
-      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_UVS_INDEX) || free && this.m_uvs != null) {
-        ROVertexBuffer_1.default.AddFloat32Data(this.m_uvs, this.uvsStride);
-      } else {
-        console.warn("DataMesh hasn't uv data.");
+      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_NVS_INDEX) || free && nvs != null) {
+        if (nvs == null) {
+          let trisNumber = ivs.length / 3;
+          nvs = new Float32Array(vs.length);
+          SurfaceNormalCalc_1.default.ClacTrisNormal(vs, vs.length, trisNumber, ivs, nvs);
+          ls[nvsIndex] = nvs;
+        } // console.log("XXXXXX vsStride: ", ds[nvsIndex], ", nvs: ", nvs);
+
+
+        rvb.AddFloat32Data(nvs, ds[nvsIndex]);
       }
 
-      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_NVS_INDEX) || free && this.m_nvs != null) {
-        if (this.m_nvs == null) {
-          let trisNumber = this.m_ivs.length / 3;
-          this.m_nvs = new Float32Array(this.m_vs.length);
-          SurfaceNormalCalc_1.default.ClacTrisNormal(this.m_vs, this.m_vs.length, trisNumber, this.m_ivs, this.m_nvs);
-        }
-
-        ROVertexBuffer_1.default.AddFloat32Data(this.m_nvs, this.nvsStride);
-      } else {
-        console.warn("DataMesh hasn't normal(nvs) data.");
-      }
-
-      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_CVS_INDEX) || free && this.m_cvs != null) {
-        ROVertexBuffer_1.default.AddFloat32Data(this.m_cvs, this.cvsStride);
-      } // else {
-      // 	console.warn("DataMesh hasn't color(cvs) data.");
-      // }
-
-
-      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_TVS_INDEX)) {
-        ROVertexBuffer_1.default.AddFloat32Data(this.m_tvs, 3);
-        ROVertexBuffer_1.default.AddFloat32Data(this.m_btvs, 3);
-      }
-
-      if (this.isVBufEnabledAt(VtxBufConst_1.default.VBUF_UVS2_INDEX) || free && this.m_uvs2 != null) {
-        ROVertexBuffer_1.default.AddFloat32Data(this.m_uvs2, this.uvsStride);
-      }
-
-      ROVertexBuffer_1.default.vbWholeDataEnabled = this.vbWholeDataEnabled;
-      this.vtCount = this.m_ivs.length;
+      vcf(ls[3], vc.VBUF_CVS_INDEX, ds[3]);
+      vcf(ls[4], vc.VBUF_TVS_INDEX, ds[4]);
+      vcf(ls[5], vc.VBUF_VS2_INDEX, ds[5]);
+      vcf(ls[6], vc.VBUF_UVS2_INDEX, ds[6]);
+      rvb.vbWholeDataEnabled = this.vbWholeDataEnabled;
+      this.vtCount = ivs.length;
 
       if (this.autoBuilding) {
-        this.vtxTotal = this.m_vs.length / this.vsStride;
-        this.updateWireframeIvs();
-        this.vtCount = this.m_ivs.length;
-        this.trisNumber = this.vtCount / 3;
+        this.vtxTotal = vs.length / vsStride; // this.toElementsLines();
+        // let pivs = this.updateWireframeIvs(ivs);
+        // if(this.wireframe && pivs != null) {
+        // 	console.log("pivs: ",pivs);
+        // 	ivs = pivs;
+        // }
       }
 
+      this.vtCount = ivs.length;
+      this.trisNumber = this.vtCount / 3;
+
       if (this.m_vbuf != null) {
-        ROVertexBuffer_1.default.UpdateBufData(this.m_vbuf);
+        rvb.UpdateBufData(this.m_vbuf);
       } else {
         let u = this.getBufDataUsage();
         let f = this.getBufSortFormat();
-        this.m_vbuf = ROVertexBuffer_1.default.CreateBySaveData(u, f);
+        this.m_vbuf = rvb.CreateBySaveData(u, f);
 
         if (this.vbWholeDataEnabled) {
-          this.m_vbuf = ROVertexBuffer_1.default.CreateBySaveData(u, f);
+          this.m_vbuf = rvb.CreateBySaveData(u, f);
         } else {
-          this.m_vbuf = ROVertexBuffer_1.default.CreateBySaveDataSeparate(u);
+          this.m_vbuf = rvb.CreateBySaveDataSeparate(u);
         }
       }
 
-      this.m_vbuf.setUintIVSData(this.m_ivs);
+      let sts = this.m_ists;
+      let bls = sts[0];
+      bls[0] = this.shape;
+      bls[1] = this.wireframe;
+
+      for (let i = 0; i < ils.length; ++i) {
+        let ird = this.crateROIvsData();
+        bls = sts[i];
+        ird.shape = bls[0];
+        ird.wireframe = bls[1];
+        ird.setData(ils[i]); // console.log("vbuf.setIVSDataAt(), i: ", i, ", ivs: ", ivs);
+
+        this.m_vbuf.setIVSDataAt(ird, i);
+      }
+
       this.buildEnd();
     }
   }
@@ -14754,14 +10491,8 @@ class DataMesh extends MeshBase_1.default {
         this.m_rayTester = null;
       }
 
-      this.m_vs = null;
-      this.m_uvs = null;
-      this.m_uvs2 = null;
-      this.m_nvs = null;
-      this.m_cvs = null;
-      this.m_tvs = null;
-      this.m_btvs = null;
-      this.m_initIVS = null;
+      this.m_ls = [];
+      this.m_ils = [];
 
       super.__$destroy();
     }
@@ -15064,120 +10795,6 @@ exports.default = BytesCubeTextureProxy;
 
 /***/ }),
 
-/***/ "5326":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-/**
- * 本类作为当前 renderer instance 的共享 uniform 数据管理类
- */
-
-class UniformDataSlot {
-  constructor(rcuid, total = 256) {
-    this.m_total = 256;
-    this.m_rcuid = 0;
-    /**
-     * 记录当前的数据序号，不可随意更改
-     */
-
-    this.index = 0;
-    this.dataList = null;
-    this.flagList = null;
-    this.m_rcuid = rcuid;
-    this.m_total = total;
-    this.flagList = new Uint16Array(this.m_total);
-    this.dataList = new Array(this.m_total);
-
-    for (let i = 0; i < this.m_total; ++i) {
-      this.dataList[i] = null;
-      this.flagList[i] = 0;
-    }
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_rcuid;
-  }
-
-}
-
-exports.UniformDataSlot = UniformDataSlot;
-
-/***/ }),
-
-/***/ "53d3":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class RenderingState {
-  constructor(st) {
-    let t = this;
-    t.NORMAL_STATE = st.NORMAL_STATE;
-    t.BACK_CULLFACE_NORMAL_STATE = st.BACK_CULLFACE_NORMAL_STATE;
-    t.FRONT_CULLFACE_NORMAL_STATE = st.FRONT_CULLFACE_NORMAL_STATE;
-    t.NONE_CULLFACE_NORMAL_STATE = st.NONE_CULLFACE_NORMAL_STATE;
-    t.ALL_CULLFACE_NORMAL_STATE = st.ALL_CULLFACE_NORMAL_STATE;
-    t.BACK_NORMAL_ALWAYS_STATE = st.BACK_NORMAL_ALWAYS_STATE;
-    t.BACK_TRANSPARENT_STATE = st.BACK_TRANSPARENT_STATE;
-    t.BACK_TRANSPARENT_ALWAYS_STATE = st.BACK_TRANSPARENT_ALWAYS_STATE;
-    t.NONE_TRANSPARENT_STATE = st.NONE_TRANSPARENT_STATE;
-    t.NONE_TRANSPARENT_ALWAYS_STATE = st.NONE_TRANSPARENT_ALWAYS_STATE;
-    t.FRONT_CULLFACE_GREATER_STATE = st.FRONT_CULLFACE_GREATER_STATE;
-    t.BACK_ADD_BLENDSORT_STATE = st.BACK_ADD_BLENDSORT_STATE;
-    t.BACK_ADD_ALWAYS_STATE = st.BACK_ADD_ALWAYS_STATE;
-    t.BACK_ALPHA_ADD_ALWAYS_STATE = st.BACK_ALPHA_ADD_ALWAYS_STATE;
-    t.NONE_ADD_ALWAYS_STATE = st.NONE_ADD_ALWAYS_STATE;
-    t.NONE_ADD_BLENDSORT_STATE = st.NONE_ADD_BLENDSORT_STATE;
-    t.NONE_ALPHA_ADD_ALWAYS_STATE = st.NONE_ALPHA_ADD_ALWAYS_STATE;
-    t.FRONT_ADD_ALWAYS_STATE = st.FRONT_ADD_ALWAYS_STATE;
-    t.FRONT_TRANSPARENT_STATE = st.FRONT_TRANSPARENT_STATE;
-    t.FRONT_TRANSPARENT_ALWAYS_STATE = st.FRONT_TRANSPARENT_ALWAYS_STATE;
-    t.NONE_CULLFACE_NORMAL_ALWAYS_STATE = st.NONE_CULLFACE_NORMAL_ALWAYS_STATE;
-    t.BACK_ALPHA_ADD_BLENDSORT_STATE = st.BACK_ALPHA_ADD_BLENDSORT_STATE;
-  }
-
-}
-
-exports.RenderingState = RenderingState;
-
-/***/ }),
-
 /***/ "557f":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -15356,71 +10973,6 @@ class RenderingEntitySet {
 }
 
 exports.default = RenderingEntitySet;
-
-/***/ }),
-
-/***/ "56c5":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RCExtension_1 = __importDefault(__webpack_require__("030e")); //import RCExtension = RCExtensionT.vox.render.RCExtension;
-//import RAdapterContext = RAdapterContextT.vox.render.RAdapterContext;
-
-
-class RenderFBOProxy {
-  static SetRenderer(pr) {
-    RenderFBOProxy.m_rc = pr.getRC();
-    RenderFBOProxy.m_webGLVer = pr.getWebGLVersion();
-    let thisT = RenderFBOProxy;
-
-    if (RenderFBOProxy.m_webGLVer == 1) {
-      if (RCExtension_1.default.WEBGL_draw_buffers != null) {
-        thisT.COLOR_ATTACHMENT0 = RCExtension_1.default.WEBGL_draw_buffers.COLOR_ATTACHMENT0_WEBGL;
-      } else {
-        thisT.COLOR_ATTACHMENT0 = RenderFBOProxy.m_rc.COLOR_ATTACHMENT0;
-      }
-    } else {
-      thisT.COLOR_ATTACHMENT0 = RenderFBOProxy.m_rc.COLOR_ATTACHMENT0;
-    }
-  }
-
-  static DrawBuffers(attachments) {
-    if (RenderFBOProxy.m_webGLVer == 2) {
-      RenderFBOProxy.m_rc.drawBuffers(attachments);
-    } else if (RCExtension_1.default.WEBGL_draw_buffers != null) {
-      RCExtension_1.default.WEBGL_draw_buffers.drawBuffersWEBGL(attachments);
-    }
-  }
-
-}
-
-RenderFBOProxy.m_rc = null;
-RenderFBOProxy.m_webGLVer = 2;
-RenderFBOProxy.COLOR_ATTACHMENT0 = 0x0;
-exports.default = RenderFBOProxy;
 
 /***/ }),
 
@@ -16015,414 +11567,6 @@ exports.default = ImageTextureProxy;
 
 /***/ }),
 
-/***/ "5f3c":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-// 用于对 RPOBlock 进行必要的组织, 例如 合批或者按照 shader不同来分类, 以及依据其他机制分类等等
-// 目前一个block内的所有node 所使用的shader program 是相同的
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
-
-const RPONodeLinker_1 = __importDefault(__webpack_require__("df9d"));
-
-const RenderColorMask_1 = __webpack_require__("070b");
-
-const RenderStateObject_1 = __webpack_require__("a5ba"); //import DebugFlag from "../debug/DebugFlag";
-
-
-class RPOBlock {
-  constructor(shader) {
-    this.m_uid = -1; // 用于唯一记录运行时的自己(RPOBlock实例)唯一id
-
-    this.m_nodeLinker = new RPONodeLinker_1.default();
-    this.m_shader = null;
-    this.index = -1; // 记录自身在 RenderProcess blocks数组中的序号
-
-    this.shdUid = -1; // 记录 material 对应的 shader program uid
-
-    this.procuid = -1;
-    this.batchEnabled = true;
-    this.fixedState = true;
-    this.runMode = 0;
-    this.rpoNodeBuilder = null;
-    this.rpoUnitBuilder = null;
-    this.vtxResource = null;
-    this.m_shader = shader;
-    this.m_uid = RPOBlock.s_uid++;
-  }
-
-  showInfo() {
-    this.m_nodeLinker.showInfo();
-  }
-
-  addNode(node) {
-    this.m_nodeLinker.addNodeAndSort(node);
-  }
-
-  rejoinNode(node) {
-    if (this.m_nodeLinker.containsNode(node)) {
-      this.m_nodeLinker.removeNodeAndSort(node);
-      this.m_nodeLinker.addNodeAndSort(node);
-    }
-  }
-
-  removeNode(node) {
-    this.m_nodeLinker.removeNodeAndSort(node);
-  }
-
-  isEmpty() {
-    return this.m_nodeLinker.getBegin() == null;
-  }
-
-  run(rc) {
-    switch (this.runMode) {
-      case 2:
-        this.run2(rc);
-        break;
-
-      case 1:
-        this.run1(rc);
-        break;
-
-      case 0:
-        this.run0(rc);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  run0(rc) {
-    let nextNode = this.m_nodeLinker.getBegin();
-
-    if (nextNode != null) {
-      this.m_shader.bindToGpu(this.shdUid);
-      this.m_shader.resetUniform();
-      let unit = null;
-
-      while (nextNode != null) {
-        if (nextNode.drawEnabled) {
-          unit = nextNode.unit;
-
-          if (unit.drawEnabled) {
-            unit.run(rc);
-
-            if (unit.partTotal < 1) {
-              unit.drawThis(rc);
-            } else {
-              unit.drawPart(rc);
-            }
-          }
-        }
-
-        nextNode = nextNode.next;
-      }
-    }
-  }
-
-  run1(rc) {
-    let nextNode = this.m_nodeLinker.getBegin();
-
-    if (nextNode != null) {
-      this.m_shader.bindToGpu(this.shdUid);
-      this.m_shader.resetUniform();
-      let unit = null;
-      let vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-      let texTotal = this.m_nodeLinker.getTexTotalAt(nextNode.rtroI);
-      let vtxFlag = vtxTotal > 0;
-      let texFlag = texTotal > 0; //console.log("run1",vtxFlag,texFlag);
-
-      while (nextNode != null) {
-        if (vtxTotal < 1) {
-          vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-          vtxFlag = true;
-        }
-
-        vtxTotal--;
-
-        if (texTotal < 1) {
-          texTotal = this.m_nodeLinker.getTexTotalAt(nextNode.rtroI);
-          texFlag = true;
-        }
-
-        texTotal--; // if(DebugFlag.Flag_0 > 0) console.log("nextNode.drawEnabled: ",nextNode.drawEnabled);
-
-        if (nextNode.drawEnabled) {
-          unit = nextNode.unit; // if(DebugFlag.Flag_0 > 0) console.log("unit.drawEnabled: ",unit.drawEnabled);
-
-          if (unit.drawEnabled) {
-            if (vtxFlag) {
-              nextNode.vro.run();
-              vtxFlag = false;
-            }
-
-            if (texFlag) {
-              nextNode.tro.run();
-              texFlag = false;
-            }
-
-            unit.run2(rc);
-
-            if (unit.partTotal < 1) {
-              unit.drawThis(rc);
-            } else {
-              unit.drawPart(rc);
-            }
-          }
-        }
-
-        nextNode = nextNode.next;
-      }
-    }
-  }
-
-  run2(rc) {
-    let nextNode = this.m_nodeLinker.getBegin();
-
-    if (nextNode != null) {
-      this.m_shader.bindToGpu(this.shdUid);
-      this.m_shader.resetUniform();
-      let unit = null;
-      RenderStateObject_1.RenderStateObject.UseRenderState(nextNode.unit.renderState);
-      RenderColorMask_1.RenderColorMask.UseRenderState(nextNode.unit.rcolorMask);
-      let vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-      let texTotal = this.m_nodeLinker.getTexTotalAt(nextNode.rtroI);
-      let vtxFlag = vtxTotal > 0;
-      let texFlag = texTotal > 0;
-
-      while (nextNode != null) {
-        if (vtxTotal < 0) {
-          vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-          vtxFlag = true;
-        }
-
-        vtxTotal--;
-
-        if (texTotal < 0) {
-          texTotal = this.m_nodeLinker.getTexTotalAt(nextNode.rtroI);
-          texFlag = true;
-        }
-
-        texTotal--;
-
-        if (nextNode.drawEnabled) {
-          unit = nextNode.unit;
-
-          if (unit.drawEnabled) {
-            if (vtxFlag) {
-              nextNode.vro.run();
-              vtxFlag = false;
-            }
-
-            if (texFlag) {
-              nextNode.tro.run();
-              texFlag = false;
-            }
-
-            if (unit.ubo != null) {
-              unit.ubo.run(rc);
-            }
-
-            this.m_shader.useTransUniform(unit.transUniform);
-            this.m_shader.useUniform(unit.uniform);
-
-            if (unit.partTotal < 1) {
-              unit.drawThis(rc);
-            } else {
-              unit.drawPart(rc);
-            }
-          }
-        }
-
-        nextNode = nextNode.next;
-      }
-    }
-  }
-
-  runLockMaterial(rc) {
-    let nextNode = this.m_nodeLinker.getBegin();
-
-    if (nextNode != null) {
-      this.m_shader.bindToGpu(this.shdUid);
-      this.m_shader.resetUniform();
-      let texUnlock = this.m_shader.isTextureUnLocked();
-      rc.Texture.unlocked = texUnlock;
-      let unit = null;
-
-      if (this.batchEnabled) {
-        let vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-        let vtxFlag = vtxTotal > 0;
-
-        while (nextNode != null) {
-          if (vtxTotal < 1) {
-            vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-            vtxFlag = true;
-          }
-
-          vtxTotal--;
-          unit = nextNode.unit;
-
-          if (nextNode.drawEnabled && unit.drawEnabled) {
-            if (vtxFlag) {
-              nextNode.vro.run();
-              vtxFlag = false;
-            }
-
-            if (texUnlock) {
-              nextNode.tro.run();
-            }
-
-            unit.runLockMaterial2(null);
-
-            if (unit.partTotal < 1) {
-              unit.drawThis(rc);
-            } else {
-              unit.drawPart(rc);
-            }
-          }
-
-          nextNode = nextNode.next;
-        }
-      } else {
-        while (nextNode != null) {
-          unit = nextNode.unit;
-
-          if (nextNode.drawEnabled && unit.drawEnabled) {
-            unit.runLockMaterial();
-
-            if (texUnlock) {
-              nextNode.tro.run();
-            }
-
-            if (unit.partTotal < 1) {
-              unit.drawThis(rc);
-            } else {
-              unit.drawPart(rc);
-            }
-          }
-
-          nextNode = nextNode.next;
-        }
-      }
-
-      rc.Texture.unlocked = false;
-    }
-  } // 在锁定material的时候,直接绘制单个unit
-
-
-  drawUnit(rc, unit, disp) {
-    if (unit.drawEnabled) {
-      this.m_shader.bindToGpu(unit.shdUid);
-      unit.run(rc);
-
-      if (unit.partTotal < 1) {
-        unit.drawThis(rc);
-      } else {
-        unit.drawPart(rc);
-      }
-    }
-  } // 在锁定material的时候,直接绘制单个unit
-
-
-  drawLockMaterialByUnit(rc, unit, disp, useGlobalUniform, forceUpdateUniform) {
-    if (unit.drawEnabled) {
-      if (forceUpdateUniform) {
-        this.m_shader.resetUniform();
-      } // console.log("***8** drawLockMaterialByUnit(), unit: ",unit);
-
-
-      if (RendererDevice_1.default.IsMobileWeb()) {
-        // 如果不这么做，vro和shader attributes没有完全匹配的时候可能在某些设备上会有问题(例如ip6s上无法正常绘制)
-        // 注意临时产生的 vro 对象的回收问题
-        // let vro: IVertexRenderObj = this.vtxResource.getVROByResUid(disp.vbuf.getUid(), this.m_shader.getCurrentShd(), true);
-        let vro = this.vtxResource.getVROByResUid(disp.getVtxResUid(), this.m_shader.getCurrentShd(), true);
-        vro.run();
-      } else {
-        unit.vro.run();
-      }
-
-      unit.runLockMaterial2(useGlobalUniform ? this.m_shader.__$globalUniform : null);
-
-      if (unit.partTotal < 1) {
-        unit.drawThis(rc);
-      } else {
-        unit.drawPart(rc);
-      }
-    }
-  }
-
-  reset() {
-    let nextNode = this.m_nodeLinker.getBegin();
-    let node = null;
-
-    if (nextNode != null) {
-      let runit;
-
-      while (nextNode != null) {
-        node = nextNode;
-        nextNode = nextNode.next;
-        this.rpoUnitBuilder.setRPNodeParam(node.__$ruid, this.procuid, -1);
-        node.reset();
-        runit = node.unit;
-
-        if (this.rpoNodeBuilder.restore(node)) {
-          this.rpoUnitBuilder.restore(runit);
-        }
-      }
-    }
-
-    this.index = -1;
-    this.shdUid = -1;
-    this.procuid = -1;
-    this.m_nodeLinker.clear();
-    this.rpoNodeBuilder = null;
-    this.rpoUnitBuilder = null;
-    this.vtxResource = null;
-  }
-
-  destroy() {
-    this.reset();
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-
-  toString() {
-    return "[RPOBlock(uid = " + this.m_uid + ", index = " + this.index + ", shdUid = " + this.shdUid + ")]";
-  }
-
-}
-
-RPOBlock.s_uid = 0;
-exports.default = RPOBlock;
-
-/***/ }),
-
 /***/ "5f58":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -16938,106 +12082,6 @@ exports.default = MaterialConst;
 
 /***/ }),
 
-/***/ "670e":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const ROVertexRes_1 = __webpack_require__("45db");
-
-const ROIndicesRes_1 = __webpack_require__("8ae4"); // class VtxMap {
-// }
-
-
-class GpuVtxObject {
-  constructor() {
-    this.m_uid = GpuVtxObject.s_uid++;
-    this.m_attachCount = 0;
-    this.version = -1; // wait del times
-
-    this.waitDelTimes = 0; // renderer context unique id
-
-    this.rcuid = 0; // texture resource unique id
-
-    this.resUid = 0; // vertex = new ROVertexRes();
-
-    this.vertex = null; // = new ROVertexRes();
-
-    this.indices = new ROIndicesRes_1.ROIndicesRes();
-  }
-
-  createVertex(rc, shdp, vtx) {
-    this.vertex = ROVertexRes_1.ROVertexRes.create(rc, shdp, vtx);
-
-    this.vertex.__$attachThis();
-  }
-
-  __$attachThis() {
-    ++this.m_attachCount; //console.log("GpuVtxObject::__$attachThis() this.m_attachCount: "+this.m_attachCount);
-  }
-
-  __$detachThis() {
-    --this.m_attachCount; //console.log("GpuVtxObject::__$detachThis() this.m_attachCount: "+this.m_attachCount);
-
-    if (this.m_attachCount < 1) {
-      this.m_attachCount = 0; // console.log("GpuVtxObject::__$detachThis() this.m_attachCount value is 0.");
-      // do something
-    }
-  }
-
-  getAttachCount() {
-    return this.m_attachCount;
-  }
-
-  createVRO(rc, shdp, vaoEnabled) {
-    // console.log("GpuVtxObject::createVRO(), this.resUid: ", this.resUid, ", uid: ", this.m_uid, ", this.indices.getUid(): ", this.indices.getUid());
-    let vro = this.vertex.createVRO(rc, shdp, vaoEnabled, this.indices);
-    vro.ibufStep = this.indices.ibufStep;
-    return vro;
-  }
-
-  updateToGpu(rc) {
-    this.indices.updateToGpu(rc);
-    this.vertex.updateToGpu(rc);
-  }
-
-  destroy(rc) {
-    if (this.getAttachCount() < 1 && this.resUid >= 0) {
-      if (this.vertex != null) {
-        this.vertex.__$detachThis();
-
-        this.vertex.destroy(rc);
-        this.vertex = null;
-      }
-
-      this.indices.destroy(rc);
-      this.resUid = -1;
-    }
-  }
-
-}
-
-GpuVtxObject.s_uid = 0;
-exports.GpuVtxObject = GpuVtxObject;
-
-/***/ }),
-
 /***/ "68aa":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -17270,662 +12314,6 @@ class Material extends MaterialBase_1.default {
 
 Material.s_shdBufins = null;
 exports.Material = Material;
-
-/***/ }),
-
-/***/ "6d49":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
-
-const FrameBufferType_1 = __importDefault(__webpack_require__("baae"));
-
-const TextureFormat_1 = __importDefault(__webpack_require__("ffc0"));
-
-const TextureTarget_1 = __importDefault(__webpack_require__("5deb"));
-
-const RenderFBOProxy_1 = __importDefault(__webpack_require__("56c5"));
-
-class FrameBufferObject {
-  constructor(rcuid, texResource, frameBufType) {
-    this.m_uid = -1; // renderer context unique id
-
-    this.m_rcuid = 0;
-    this.m_COLOR_ATTACHMENT0 = 0x0;
-    this.m_fbo = null;
-    this.m_depthStencilRBO = null;
-    this.m_depthRBO = null;
-    this.m_colorRBO = null;
-    this.m_width = 512;
-    this.m_height = 512;
-    this.m_bufferLType = 0;
-    this.m_gl = null;
-    this.m_fboTarget = 0;
-    this.m_texTargetTypes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    this.m_attachmentMaskList = [true, true, true, true, true, true, true, true];
-    this.m_preAttachTotal = 0;
-    this.m_preAttachIndex = 0;
-    this.m_activeAttachmentTotal = 0;
-    this.m_attachmentIndex = 0;
-    this.m_clearDepthArr = new Float32Array(1);
-    this.m_clearColorArr = new Float32Array(4);
-    this.m_stencilValueArr = new Int16Array(4);
-    this.m_fboSizeChanged = false;
-    this.textureLevel = 0;
-    this.sizeFixed = false;
-    this.writeDepthEnabled = true;
-    this.writeStencilEnabled = false;
-    this.multisampleEnabled = false;
-    this.multisampleLevel = 0;
-    this.m_preAttachments = new Uint32Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-    this.m_preTragets = new Uint32Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-    this.m_preFTIndex = 0;
-    this.m_haveDepthTex = false; //invalidateFramebuffer(target, attachments)
-
-    this.m_resizeW = 2;
-    this.m_resizeH = 2;
-    this.m_rcuid = rcuid;
-    this.m_texRes = texResource;
-    this.m_bufferLType = frameBufType;
-    this.m_uid = FrameBufferObject.s_uid++;
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-
-  resetAttachmentMask(boo) {
-    let i = this.m_attachmentMaskList.length - 1;
-
-    while (i >= 0) {
-      this.m_attachmentMaskList[i] = boo;
-      --i;
-    } //console.log("resetAttachmentMask, this.m_attachmentMaskList: ",this.m_attachmentMaskList);
-
-  }
-
-  setAttachmentMaskAt(index, boo) {
-    this.m_attachmentMaskList[index] = boo;
-  }
-
-  getActiveAttachmentTotal() {
-    return this.m_haveDepthTex ? this.m_activeAttachmentTotal - 1 : this.m_activeAttachmentTotal;
-  }
-
-  getAttachmentTotal() {
-    return this.m_attachmentMaskList.length;
-  }
-
-  bindToBackbuffer(frameBufferType) {
-    switch (frameBufferType) {
-      case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
-        this.m_gl.bindFramebuffer(this.m_gl.DRAW_FRAMEBUFFER, null);
-        break;
-
-      case FrameBufferType_1.default.READ_FRAMEBUFFER:
-        this.m_gl.indFramebuffer(this.m_gl.READ_FRAMEBUFFER, null);
-        break;
-
-      default:
-        this.m_gl.bindFramebuffer(this.m_gl.FRAMEBUFFER, null);
-    }
-  }
-
-  bind(frameBufferType) {
-    if (this.m_fbo != null) {
-      switch (frameBufferType) {
-        case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
-          this.m_gl.bindFramebuffer(this.m_gl.DRAW_FRAMEBUFFER, this.m_fbo);
-          break;
-
-        case FrameBufferType_1.default.READ_FRAMEBUFFER:
-          this.m_gl.bindFramebuffer(this.m_gl.READ_FRAMEBUFFER, this.m_fbo);
-          break;
-
-        default:
-          this.m_gl.bindFramebuffer(this.m_gl.FRAMEBUFFER, this.m_fbo);
-      }
-    }
-  }
-
-  getFBO() {
-    return this.m_fbo;
-  }
-
-  getDepthStencilRBO() {
-    return this.m_depthStencilRBO;
-  }
-
-  getDepthRBO() {
-    return this.m_depthRBO;
-  }
-
-  getWidth() {
-    return this.m_width;
-  }
-
-  getHeight() {
-    return this.m_height;
-  }
-
-  getFramebufferType() {
-    return this.m_bufferLType;
-  }
-  /**
-   * bind a texture to fbo attachment by attachment index
-   * @param texProxy  IRenderTexture instance
-   * @param enableDepth  enable depth buffer yes or no
-   * @param enableStencil  enable stencil buffer yes or no
-   * @param attachmentIndex  fbo attachment index
-   */
-
-
-  renderToTexAt(rgl, texProxy, attachmentIndex) {
-    let inFormat = texProxy != null ? texProxy.internalFormat : -1;
-    this.m_gl = rgl;
-
-    if (attachmentIndex == 0) {
-      this.m_preFTIndex = 0;
-      this.m_haveDepthTex = false; // 注意, 防止多次重复调用的没必要重设
-
-      this.m_gl.bindFramebuffer(this.m_fboTarget, this.m_fbo);
-
-      if (inFormat != TextureFormat_1.default.DEPTH_COMPONENT && inFormat != TextureFormat_1.default.DEPTH_STENCIL) {
-        this.m_activeAttachmentTotal = 0;
-        this.m_attachmentIndex = 0;
-      }
-    }
-
-    let targetType = -1;
-    let rTex = null; //trace("FrameBufferObject::use(), texProxy != null: "+(texProxy != null));
-
-    if (texProxy != null) {
-      targetType = texProxy.getTargetType();
-      rTex = this.m_texRes.getGpuBuffer(texProxy.getResUid());
-      texProxy.uploadFromFbo(this.m_texRes, this.m_width, this.m_height);
-    } else {
-      targetType = this.m_texTargetTypes[this.m_activeAttachmentTotal];
-    }
-
-    this.framebufferTextureBind(rgl, targetType, inFormat, rTex);
-  }
-
-  glFramebufferTex2D(attachment, rTex) {
-    let rgl = this.m_gl;
-    rgl.framebufferTexture2D(this.m_fboTarget, attachment, rgl.TEXTURE_2D, rTex, 0);
-    this.m_preAttachments[this.m_preFTIndex] = attachment;
-    this.m_preTragets[this.m_preFTIndex] = rgl.TEXTURE_2D;
-    this.m_preFTIndex++;
-  }
-
-  glFramebufferTexCube(attachment, cubeFaceIndex, rTex) {
-    let rgl = this.m_gl;
-    rgl.framebufferTexture2D(this.m_fboTarget, attachment, rgl.TEXTURE_CUBE_MAP_POSITIVE_X + cubeFaceIndex, rTex, 0);
-    this.m_preAttachments[this.m_preFTIndex] = attachment;
-    this.m_preTragets[this.m_preFTIndex] = rgl.TEXTURE_CUBE_MAP_POSITIVE_X + cubeFaceIndex;
-    this.m_preFTIndex++;
-  }
-
-  framebufferTexture2D(rgl, targetType, inFormat, rTex) {
-    let attachment = -1;
-
-    switch (inFormat) {
-      case TextureFormat_1.default.DEPTH_COMPONENT:
-        this.m_haveDepthTex = true;
-        attachment = this.m_gl.DEPTH_ATTACHMENT; //rgl.framebufferTexture2D(this.m_fboTarget, this.m_gl.DEPTH_ATTACHMENT, rgl.TEXTURE_2D, rTex, 0);
-        //this.glFramebufferTex2D(this.m_gl.DEPTH_ATTACHMENT, rTex);
-
-        break;
-
-      case TextureFormat_1.default.DEPTH_STENCIL:
-        this.m_haveDepthTex = true;
-        attachment = this.m_gl.DEPTH_STENCIL_ATTACHMENT; //rgl.framebufferTexture2D(this.m_fboTarget, this.m_gl.DEPTH_STENCIL_ATTACHMENT, rgl.TEXTURE_2D, rTex, 0);
-        //this.glFramebufferTex2D(this.m_gl.DEPTH_STENCIL_ATTACHMENT, rTex);
-
-        break;
-
-      default:
-        attachment = this.m_COLOR_ATTACHMENT0 + this.m_attachmentIndex;
-        /*
-        if(this.m_attachmentMaskList[this.m_activeAttachmentTotal])
-        {
-            
-            //rgl.framebufferTexture2D(this.m_fboTarget, this.m_COLOR_ATTACHMENT0 + this.m_attachmentIndex, rgl.TEXTURE_2D, rTex, this.textureLevel);
-            this.glFramebufferTex2D(this.m_COLOR_ATTACHMENT0 + this.m_attachmentIndex, rTex);
-            ++this.m_attachmentIndex;
-            if (rTex != null)
-            {
-                this.m_texTargetTypes[this.m_activeAttachmentTotal] = targetType;
-            }
-            else
-            {
-                this.m_texTargetTypes[this.m_activeAttachmentTotal] = 0;
-            }
-        }
-        else
-        {
-            this.m_texTargetTypes[this.m_activeAttachmentTotal] = 0;
-        }
-        ++this.m_activeAttachmentTotal;
-        //*/
-
-        break;
-    }
-
-    if (attachment > 0) {
-      if (this.m_attachmentMaskList[this.m_activeAttachmentTotal]) {
-        this.glFramebufferTex2D(attachment, rTex);
-        ++this.m_attachmentIndex;
-
-        if (rTex != null) {
-          this.m_texTargetTypes[this.m_activeAttachmentTotal] = targetType;
-        } else {
-          this.m_texTargetTypes[this.m_activeAttachmentTotal] = 0;
-        }
-      } else {
-        this.m_texTargetTypes[this.m_activeAttachmentTotal] = 0;
-      }
-
-      ++this.m_activeAttachmentTotal;
-    }
-  }
-
-  framebufferTextureBind(rgl, targetType, inFormat, rTex) {
-    // current texture attachments
-    switch (targetType) {
-      case TextureTarget_1.default.TEXTURE_2D:
-        this.framebufferTexture2D(rgl, targetType, inFormat, rTex);
-        break;
-
-      case TextureTarget_1.default.TEXTURE_CUBE:
-        let cubeAttachmentTot = 0;
-
-        for (let i = 0; i < 6; ++i) {
-          if (this.m_attachmentMaskList[i]) {
-            //rgl.framebufferTexture2D(this.m_fboTarget, this.m_COLOR_ATTACHMENT0 + this.m_attachmentIndex, rgl.TEXTURE_CUBE_MAP_POSITIVE_X + i, rTex, this.textureLevel);
-            this.glFramebufferTexCube(this.m_COLOR_ATTACHMENT0 + this.m_attachmentIndex, i, rTex);
-            ++this.m_attachmentIndex;
-
-            if (rTex != null) {
-              this.m_texTargetTypes[this.m_activeAttachmentTotal + i] = targetType;
-            } else {
-              this.m_texTargetTypes[this.m_activeAttachmentTotal + i] = 0;
-            }
-
-            cubeAttachmentTot++;
-          } else {
-            this.m_texTargetTypes[this.m_activeAttachmentTotal + i] = 0;
-          }
-        }
-
-        cubeAttachmentTot = cubeAttachmentTot > 0 ? cubeAttachmentTot : 6;
-        this.m_activeAttachmentTotal += cubeAttachmentTot;
-        break;
-
-      case TextureTarget_1.default.TEXTURE_SHADOW_2D:
-        if (this.m_attachmentMaskList[this.m_activeAttachmentTotal]) {
-          //rgl.framebufferTexture2D(this.m_gl.FRAMEBUFFER, this.m_gl.DEPTH_ATTACHMENT, this.m_gl.TEXTURE_2D, rTex, this.textureLevel);
-          this.glFramebufferTex2D(this.m_gl.DEPTH_ATTACHMENT, rTex);
-
-          if (rTex != null) {
-            this.m_texTargetTypes[this.m_activeAttachmentTotal] = targetType;
-          } else {
-            this.m_texTargetTypes[this.m_activeAttachmentTotal] = 0;
-          }
-        } else {
-          this.m_texTargetTypes[this.m_activeAttachmentTotal] = 0;
-        }
-
-        ++this.m_activeAttachmentTotal;
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  reset() {
-    this.m_preAttachTotal = -1;
-    this.m_preAttachIndex = -1;
-  }
-
-  use(rgl) {
-    this.m_gl = rgl;
-
-    if (this.m_fbo != null) {
-      //console.log("this.m_preAttachIndex,this.m_attachmentIndex: ",this.m_preAttachIndex,this.m_attachmentIndex,this.m_activeAttachmentTotal);
-      if (this.m_activeAttachmentTotal > 1) {
-        if (this.m_preAttachIndex != this.m_attachmentIndex) {
-          let attachments = [];
-          let i = 0;
-
-          for (; i < this.m_attachmentIndex; ++i) {
-            attachments.push(this.m_COLOR_ATTACHMENT0 + i);
-          }
-
-          if (this.m_preAttachIndex > this.m_attachmentIndex) {
-            for (; i < this.m_preAttachIndex; ++i) {
-              this.m_gl.framebufferTexture2D(this.m_fboTarget, this.m_preAttachments[i], this.m_preTragets[i], null, 0);
-            }
-          } // support webgl2 and webgl1
-          //console.log("AAA attachments 0: ",attachments);
-
-
-          RenderFBOProxy_1.default.DrawBuffers(attachments);
-          this.m_preAttachIndex = this.m_attachmentIndex;
-        }
-      } else if (this.m_preAttachIndex != this.m_attachmentIndex) {
-        if (this.m_preAttachIndex > this.m_attachmentIndex) {
-          for (let i = 1; i < this.m_preAttachIndex; ++i) {
-            this.m_gl.framebufferTexture2D(this.m_fboTarget, this.m_preAttachments[i], this.m_preTragets[i], null, 0);
-          }
-        }
-
-        let attachments = [this.m_COLOR_ATTACHMENT0]; //console.log("AAA attachments 1: ",attachments);
-
-        RenderFBOProxy_1.default.DrawBuffers(attachments);
-        this.m_preAttachIndex = this.m_attachmentIndex;
-      }
-
-      this.m_preAttachTotal = this.m_activeAttachmentTotal;
-    }
-  }
-
-  clearOnlyColor(color4) {
-    if (this.m_fbo != null) {
-      if (RendererDevice_1.default.IsWebGL2()) {
-        this.m_clearColorArr[0] = color4[0];
-        this.m_clearColorArr[1] = color4[1];
-        this.m_clearColorArr[2] = color4[2];
-        this.m_clearColorArr[3] = color4[3];
-
-        if (this.m_preAttachTotal > 1) {
-          for (let i = 0; i < this.m_preAttachTotal; ++i) {
-            this.m_gl.clearBufferfv(this.m_gl.COLOR, i, this.m_clearColorArr);
-          }
-        } else {
-          this.m_gl.clearBufferfv(this.m_gl.COLOR, 0, this.m_clearColorArr);
-        }
-      } else {
-        this.m_gl.clearColor(color4[0], color4[1], color4[2], color4[3]);
-      }
-    } //trace("XXXXXXXXXXXXXXXXXXXX FrameBufferObject::clearOnlyColor(), m_fbo: ", m_fbo);
-
-  }
-
-  clearOnlyDepth(depth = 1.0) {
-    if (RendererDevice_1.default.IsWebGL2()) {
-      this.m_clearDepthArr[0] = depth;
-      this.m_gl.clearBufferfv(this.m_gl.DEPTH, 0, this.m_clearDepthArr);
-    } else {
-      this.m_gl.clearDepth(depth);
-    }
-  }
-
-  clearOnlyStencil(stencil) {
-    this.m_stencilValueArr[0] = stencil;
-    this.m_gl.clearBufferuiv(this.m_gl.STENCIL, 0, this.m_stencilValueArr);
-  }
-
-  clearOnlyDepthAndStencil(depth, stencil) {
-    this.m_gl.clearBufferfi(this.m_gl.DEPTH_STENCIL, 0, depth, stencil);
-  }
-
-  invalidateFramebuffer() {} // 一旦这个函数调用，则size的控制权以后都会由这个resize决定
-
-
-  resize(pw, ph) {
-    if (this.m_resizeW != pw || this.m_resizeH != ph) {
-      this.m_fboSizeChanged = true;
-      this.m_resizeW = pw;
-      this.m_resizeH = ph;
-    }
-  }
-
-  initialize(rgl, pw, ph) {
-    this.m_gl = rgl;
-    this.m_COLOR_ATTACHMENT0 = RenderFBOProxy_1.default.COLOR_ATTACHMENT0;
-
-    if (this.m_fboSizeChanged) {
-      pw = this.m_resizeW;
-      ph = this.m_resizeH;
-    }
-
-    if (this.m_fbo == null) {
-      this.createNewFBO(rgl, pw, ph);
-      console.log("FrameBufferObject create a new fbo: ", this);
-    } else if (this.m_width != pw || this.m_height != ph) {
-      // ready rebuild some new fbo's Renderbuffers.
-      this.createNewFBO(rgl, pw, ph);
-      console.log("FrameBufferObject ready rebuild another new fbo(" + pw + "," + ph + "): ", this);
-    }
-
-    this.m_fboSizeChanged = false;
-  }
-
-  isSizeChanged() {
-    return this.m_fboSizeChanged;
-  }
-
-  destroy(rgl) {
-    if (this.m_fbo != null) {
-      if (this.m_depthStencilRBO != null) {
-        rgl.deleteFramebuffer(this.m_depthStencilRBO);
-        this.m_depthStencilRBO = null;
-      }
-
-      if (this.m_depthRBO != null) {
-        rgl.deleteFramebuffer(this.m_depthRBO);
-        this.m_depthRBO = null;
-      }
-
-      if (this.m_colorRBO != null) {
-        rgl.deleteFramebuffer(this.m_colorRBO);
-        this.m_colorRBO = null;
-      }
-
-      rgl.deleteFramebuffer(this.m_fbo);
-      this.m_fbo = null;
-    }
-
-    this.m_gl = null;
-    this.m_fboTarget = 0;
-    this.m_fboSizeChanged = false;
-  } // toString = function()
-  // {
-  // 	switch (this.m_bufferLType)
-  // 	{
-  // 	case FrameBufferType.DRAW_FRAMEBUFFER:
-  // 		return "[FrameBufferObject(DRAW_FRAMEBUFFER(uid="+this.m_uid+" width="+this.m_width+",height="+this.m_height+")]";
-  // 		break;
-  // 	case FrameBufferType.READ_FRAMEBUFFER:
-  // 		return "[FrameBufferObject(READ_FRAMEBUFFER(uid="+this.m_uid+" width="+this.m_width+",height="+this.m_height+")]";
-  // 		break;
-  // 	default:
-  // 		break;
-  // 	}
-  // 	return "[FrameBufferObject(FRAMEBUFFER(uid="+this.m_uid+" width="+this.m_width+",height="+this.m_height+")]";
-  // }
-
-
-  buildDepthStencilRBO(rgl, pw, ph) {
-    if (this.m_depthStencilRBO == null) this.m_depthStencilRBO = rgl.createRenderbuffer();
-
-    if (this.multisampleEnabled) {
-      rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_depthStencilRBO);
-      rgl.renderbufferStorageMultisample(rgl.RENDERBUFFER, this.multisampleLevel, rgl.DEPTH_STENCIL, pw, ph);
-      rgl.framebufferRenderbuffer(this.m_fboTarget, rgl.DEPTH_STENCIL_ATTACHMENT, rgl.RENDERBUFFER, this.m_depthStencilRBO);
-      if (this.m_colorRBO == null) this.m_colorRBO = rgl.createRenderbuffer();
-      rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_colorRBO);
-      rgl.renderbufferStorageMultisample(rgl.RENDERBUFFER, this.multisampleLevel, rgl.RGBA8, pw, ph);
-      rgl.framebufferRenderbuffer(this.m_fboTarget, this.m_COLOR_ATTACHMENT0, rgl.RENDERBUFFER, this.m_colorRBO);
-    } else {
-      rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_depthStencilRBO);
-      rgl.renderbufferStorage(rgl.RENDERBUFFER, rgl.DEPTH_STENCIL, pw, ph);
-      rgl.framebufferRenderbuffer(this.m_fboTarget, rgl.DEPTH_STENCIL_ATTACHMENT, rgl.RENDERBUFFER, this.m_depthStencilRBO);
-    }
-  }
-
-  buildDepthRBO(rgl, pw, ph) {
-    if (this.m_depthRBO == null) this.m_depthRBO = rgl.createRenderbuffer();
-
-    if (this.multisampleEnabled) {
-      rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_depthRBO);
-      rgl.renderbufferStorageMultisample(rgl.RENDERBUFFER, this.multisampleLevel, rgl.DEPTH_COMPONENT24, pw, ph);
-      rgl.framebufferRenderbuffer(this.m_fboTarget, rgl.DEPTH_ATTACHMENT, rgl.RENDERBUFFER, this.m_depthRBO);
-      if (this.m_colorRBO == null) this.m_colorRBO = rgl.createRenderbuffer();
-      rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_colorRBO);
-      rgl.renderbufferStorageMultisample(rgl.RENDERBUFFER, this.multisampleLevel, rgl.RGBA8, pw, ph);
-      rgl.framebufferRenderbuffer(this.m_fboTarget, this.m_COLOR_ATTACHMENT0, rgl.RENDERBUFFER, this.m_colorRBO);
-    } else {
-      rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_depthRBO);
-
-      if (RendererDevice_1.default.IsWebGL2()) {
-        rgl.renderbufferStorage(rgl.RENDERBUFFER, rgl.DEPTH_COMPONENT24, pw, ph);
-      } else {
-        console.log("Only use webgl1 depth fbo buffer.");
-        rgl.renderbufferStorage(rgl.RENDERBUFFER, rgl.DEPTH_COMPONENT16, pw, ph);
-      }
-
-      rgl.framebufferRenderbuffer(this.m_fboTarget, rgl.DEPTH_ATTACHMENT, rgl.RENDERBUFFER, this.m_depthRBO);
-    }
-  }
-
-  buildStencilRBO(rgl, pw, ph) {
-    if (this.m_depthStencilRBO == null) {
-      //trace("FrameBufferObject create stencil buf...this.multisampleEnabled: "+this.multisampleEnabled+",this.multisampleLevel:"+this.multisampleLevel);
-      if (this.m_depthStencilRBO == null) this.m_depthStencilRBO = rgl.createRenderbuffer();
-
-      if (this.multisampleEnabled) {
-        rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_depthStencilRBO);
-        rgl.renderbufferStorageMultisample(rgl.RENDERBUFFER, this.multisampleLevel, rgl.STENCIL_INDEX8, pw, ph);
-        rgl.framebufferRenderbuffer(this.m_fboTarget, rgl.STENCIL_ATTACHMENT, rgl.RENDERBUFFER, this.m_depthStencilRBO);
-        if (this.m_colorRBO == null) this.m_colorRBO = rgl.createRenderbuffer();
-        rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_colorRBO);
-        rgl.renderbufferStorageMultisample(rgl.RENDERBUFFER, this.multisampleLevel, rgl.RGBA8, pw, ph);
-        rgl.framebufferRenderbuffer(this.m_fboTarget, this.m_COLOR_ATTACHMENT0, rgl.RENDERBUFFER, this.m_colorRBO);
-      } else {
-        rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_depthStencilRBO);
-        rgl.renderbufferStorage(rgl.RENDERBUFFER, rgl.STENCIL_INDEX8, pw, ph);
-        rgl.framebufferRenderbuffer(this.m_fboTarget, rgl.STENCIL_ATTACHMENT, rgl.RENDERBUFFER, this.m_depthStencilRBO);
-      }
-    }
-  }
-
-  buildColorRBO(rgl, pw, ph) {
-    if (this.multisampleEnabled) {
-      if (this.m_colorRBO == null) this.m_colorRBO = rgl.createRenderbuffer();
-      rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_colorRBO);
-      rgl.renderbufferStorageMultisample(rgl.RENDERBUFFER, this.multisampleLevel, rgl.RGBA8, pw, ph);
-      rgl.framebufferRenderbuffer(this.m_fboTarget, this.m_COLOR_ATTACHMENT0, rgl.RENDERBUFFER, this.m_colorRBO); //
-    }
-
-    console.log("FrameBufferObject create only color buf...this.multisampleEnabled: " + this.multisampleEnabled + ",this.multisampleLevel:" + this.multisampleLevel);
-  }
-
-  createNewFBO(rgl, pw, ph) {
-    let boo = this.m_fbo == null;
-    this.m_preAttachTotal = this.m_activeAttachmentTotal = 0;
-    this.m_preAttachIndex = this.m_attachmentIndex = 0;
-    this.m_width = pw;
-    this.m_height = ph;
-    this.m_resizeW = pw;
-    this.m_resizeH = ph; //trace("XXXXXXXXXXXXXX ready create framebuf, m_fbo: ", m_fbo);
-
-    if (boo) this.m_fbo = rgl.createFramebuffer(); //trace("XXXXXXXXXXXXXX doing create framebuf, m_fbo: ", m_fbo);
-
-    switch (this.m_bufferLType) {
-      case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
-        this.m_fboTarget = rgl.DRAW_FRAMEBUFFER; //console.log("create FrameBufferType is DRAW_FRAMEBUFFER.");
-
-        break;
-
-      case FrameBufferType_1.default.READ_FRAMEBUFFER:
-        this.m_fboTarget = rgl.READ_FRAMEBUFFER; //console.log("create FrameBufferType is READ_FRAMEBUFFER.");
-
-        break;
-
-      default:
-        this.m_fboTarget = rgl.FRAMEBUFFER; //console.log("create FrameBufferType is FRAMEBUFFER.");
-
-        break;
-    }
-
-    rgl.bindFramebuffer(this.m_fboTarget, this.m_fbo); //console.log("FrameBufferObject::initialize() writeDepthEnabled: "+this.writeDepthEnabled+", writeDepthEnabled: " , this.writeDepthEnabled+" ,size("+pw + "," ,ph+")");
-
-    if (this.writeDepthEnabled) {
-      //trace("FrameBufferObject writeStencilEnabled: " ,this.writeStencilEnabled);
-      if (this.writeStencilEnabled) {
-        if (this.m_depthStencilRBO == null) {
-          //trace("FrameBufferObject create depth and stencil buf...this.multisampleEnabled: "+this.multisampleEnabled+",this.multisampleLevel:"+this.multisampleLevel);
-          this.buildDepthStencilRBO(rgl, pw, ph);
-        }
-      } else {
-        this.buildDepthRBO(rgl, pw, ph);
-      }
-    } else if (this.writeStencilEnabled) {
-      this.buildStencilRBO(rgl, pw, ph);
-    } else {
-      this.buildColorRBO(rgl, pw, ph);
-    }
-
-    if (boo) {
-      let e = rgl.checkFramebufferStatus(this.m_fboTarget); //trace("XXXXX   XXXXXXXXx Err: "+e+", rgl.FRAMEBUFFER_COMPLETE: "+rgl.FRAMEBUFFER_COMPLETE);
-
-      if (e !== rgl.FRAMEBUFFER_COMPLETE) {
-        console.error("FrameBufferObject::createNewFBO(), Error: create failure!!!!");
-      } else {
-        console.log("FrameBufferObject::createNewFBO(), create success...,size: " + pw + "," + ph);
-      }
-    }
-
-    FrameBufferObject.BindToBackbuffer(rgl, this.m_bufferLType);
-  }
-
-  static BindToBackbuffer(rc, frameBufferType) {
-    switch (frameBufferType) {
-      case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
-        rc.bindFramebuffer(rc.DRAW_FRAMEBUFFER, null);
-        break;
-
-      case FrameBufferType_1.default.READ_FRAMEBUFFER:
-        rc.indFramebuffer(rc.READ_FRAMEBUFFER, null);
-        break;
-
-      default:
-        rc.bindFramebuffer(rc.FRAMEBUFFER, null);
-        break;
-    }
-  }
-
-}
-
-FrameBufferObject.s_uid = 0;
-exports.default = FrameBufferObject;
 
 /***/ }),
 
@@ -18175,229 +12563,6 @@ exports.default = KeyboardEvent;
 
 /***/ }),
 
-/***/ "70f2":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-// 独立的渲染场景子集,也就是子渲染场景类,字渲染场景拥有子集独立的Camera3D对象和view port 区域
-// 不同的子场景，甚至可以拥有独立的matrix3D这样的数据池子
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const MathConst_1 = __importDefault(__webpack_require__("6e01"));
-
-const SubStage3D_1 = __importDefault(__webpack_require__("0236"));
-
-const CameraBase_1 = __importDefault(__webpack_require__("c51d"));
-
-const RendererSpace_1 = __importDefault(__webpack_require__("a446"));
-
-const RunnableQueue_1 = __importDefault(__webpack_require__("9c4d"));
-
-const RendererSceneBase_1 = __importDefault(__webpack_require__("aa80"));
-
-const EntityTransUpdater_1 = __importDefault(__webpack_require__("7c36"));
-
-class RendererSubScene extends RendererSceneBase_1.default {
-  constructor(parent, renderer, evtFlowEnabled) {
-    super(1024);
-    this.m_perspectiveEnabled = true;
-    this.m_parent = null;
-    this.m_evtFlowEnabled = evtFlowEnabled;
-    this.m_parent = parent;
-    this.m_renderer = renderer;
-    this.m_shader = renderer.getDataBuilder().getRenderShader();
-    this.m_localRunning = true;
-  }
-
-  createSubScene(rparam = null, renderProcessesTotal = 3, createNewCamera = true) {
-    return this.m_parent.createSubScene(rparam, renderProcessesTotal, createNewCamera);
-  }
-
-  getCurrentStage3D() {
-    return this.m_currStage3D;
-  }
-
-  getCamera() {
-    return this.m_camera;
-  }
-
-  setEvt3DController(evt3DCtr) {
-    if (evt3DCtr != null) {
-      if (this.m_currStage3D == null) {
-        this.m_currStage3D = new SubStage3D_1.default(this.m_renderProxy.getRCUid(), null);
-        this.m_currStage3D.uProbe = this.m_renderProxy.uniformContext.createUniformVec4Probe(1);
-      }
-
-      evt3DCtr.initialize(this.getStage3D(), this.m_currStage3D);
-      evt3DCtr.setRaySelector(this.m_rspace.getRaySelector());
-    }
-
-    this.m_evt3DCtr = evt3DCtr;
-  }
-
-  initialize(rparam, renderProcessesTotal = 3, createNewCamera = true) {
-    if (this.m_renderProxy == null) {
-      if (renderProcessesTotal < 1) {
-        renderProcessesTotal = 1;
-      } else if (renderProcessesTotal > 32) {
-        renderProcessesTotal = 32;
-      }
-
-      let selfT = this;
-      selfT.runnableQueue = new RunnableQueue_1.default();
-      this.m_transUpdater = new EntityTransUpdater_1.default();
-      this.m_rparam = rparam;
-      this.m_perspectiveEnabled = rparam.cameraPerspectiveEnabled;
-
-      for (; renderProcessesTotal >= 0;) {
-        const process = this.m_renderer.appendProcess(rparam.batchEnabled, rparam.processFixedState);
-        this.m_processids[this.m_processidsLen] = process.getRPIndex();
-        this.m_processidsLen++;
-        --renderProcessesTotal;
-      }
-
-      this.m_rcontext = this.m_renderer.getRendererContext();
-      this.m_renderProxy = this.m_rcontext.getRenderProxy();
-      this.m_adapter = this.m_renderProxy.getRenderAdapter();
-      this.m_stage3D = this.m_renderProxy.getStage3D();
-      this.m_viewX = this.m_stage3D.getViewX();
-      this.m_viewY = this.m_stage3D.getViewY();
-      this.m_viewW = this.m_stage3D.getViewWidth();
-      this.m_viewH = this.m_stage3D.getViewHeight();
-      this.m_camera = createNewCamera ? this.createMainCamera() : this.m_renderProxy.getCamera();
-
-      if (this.m_rspace == null) {
-        let sp = new RendererSpace_1.default();
-        sp.initialize(this.m_renderer, this.m_camera);
-        this.m_rspace = sp;
-      }
-    }
-  }
-
-  createMainCamera() {
-    this.m_camera = new CameraBase_1.default();
-    this.m_camera.setViewXY(this.m_viewX, this.m_viewY);
-    this.m_camera.setViewSize(this.m_viewW, this.m_viewH);
-    let vec3 = this.m_rparam.camProjParam;
-
-    if (this.m_perspectiveEnabled) {
-      this.m_camera.perspectiveRH(MathConst_1.default.DegreeToRadian(vec3.x), this.m_viewW / this.m_viewH, vec3.y, vec3.z);
-    } else {
-      this.m_camera.orthoRH(vec3.y, vec3.z, -0.5 * this.m_viewH, 0.5 * this.m_viewH, -0.5 * this.m_viewW, 0.5 * this.m_viewW);
-    }
-
-    this.m_camera.lookAtRH(this.m_rparam.camPosition, this.m_rparam.camLookAtPos, this.m_rparam.camUpDirect);
-    this.m_camera.update();
-    return this.m_camera;
-  }
-
-  cameraLock() {
-    this.m_camera.lock();
-  }
-
-  cameraUnlock() {
-    this.m_camera.unlock();
-  }
-  /**
-   * the function only resets the renderer instance rendering status.
-   * you should use it before the run or runAt function is called.
-   */
-
-
-  renderBegin(contextBeginEnabled = false) {
-    if (contextBeginEnabled) {
-      this.m_rcontext.renderBegin();
-    }
-
-    if (this.m_renderProxy.getCamera() != this.m_camera) {
-      if (this.m_renderProxy.isAutoSynViewAndStage()) {
-        this.m_viewX = this.m_renderProxy.getViewX();
-        this.m_viewY = this.m_renderProxy.getViewY();
-        this.m_viewW = this.m_renderProxy.getViewWidth();
-        this.m_viewH = this.m_renderProxy.getViewHeight();
-      }
-
-      this.m_camera.setViewXY(this.m_viewX, this.m_viewY);
-      this.m_camera.setViewSize(this.m_viewW, this.m_viewH);
-      this.m_renderProxy.setRCViewPort(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH, this.m_renderProxy.isAutoSynViewAndStage());
-      this.m_renderProxy.reseizeRCViewPort();
-    }
-
-    this.m_camera.update();
-    this.m_rcontext.updateCameraDataFromCamera(this.m_camera);
-    this.m_shader.renderBegin();
-
-    if (this.m_accessor != null) {
-      this.m_accessor.renderBegin(this);
-    }
-  }
-  /**
-   * the function resets the renderer scene status.
-   * you should use it on the frame starting time.
-   */
-
-
-  runBegin(autoCycle = true, contextBeginEnabled = false) {
-    if (autoCycle && this.m_autoRunning) {
-      if (this.m_runFlag >= 0) this.runEnd();
-      this.m_runFlag = 0;
-    }
-
-    this.renderBegin(contextBeginEnabled);
-
-    if (this.m_rspace != null) {
-      this.m_rspace.setCamera(this.m_camera);
-      this.m_rspace.runBegin();
-    }
-  }
-
-  render() {
-    if (this.m_renderProxy != null) {
-      this.run(true);
-    }
-  }
-
-  useCamera(camera, syncCamView = false) {
-    this.m_parent.useCamera(camera, syncCamView);
-  }
-
-  useMainCamera() {
-    this.m_parent.useMainCamera();
-  }
-
-  updateCamera() {
-    if (this.m_camera != null) {
-      this.m_camera.update();
-    }
-  }
-
-}
-
-exports.default = RendererSubScene;
-
-/***/ }),
-
 /***/ "710f":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -18596,141 +12761,7 @@ exports.default = RenderFilter;
 
 /***/ }),
 
-/***/ "7279":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
-
-const ShaderUniform_1 = __importDefault(__webpack_require__("d53d"));
-
-class ShaderGlobalUniform extends ShaderUniform_1.default {
-  constructor(slot) {
-    super();
-    this.m_slot = null;
-    this.m_slotFlags = null;
-    this.m_slotDatas = null;
-    this.slotId = 0;
-    this.slotIndex = 0;
-    this.uniformsTotal = 0;
-    this.locationIndexList = null;
-    this.locations = null;
-    this.rst = 0;
-    this.always = false;
-    this.m_slot = slot;
-    this.m_slotFlags = this.m_slot.flagList;
-    this.m_slotDatas = this.m_slot.dataList;
-  }
-
-  applyData() {}
-
-  clone() {
-    let guniform = new ShaderGlobalUniform(this.m_slot);
-    guniform.types = this.types.slice(0);
-    guniform.uniformNameList = this.uniformNameList.slice(0);
-    guniform.dataSizeList = this.dataSizeList.slice(0);
-    guniform.slotIndex = this.slotIndex;
-    guniform.uniformsTotal = this.uniformsTotal;
-    guniform.slotId = this.slotId;
-    guniform.always = this.always;
-    guniform.rst = this.rst;
-    return guniform;
-  } // for multi uniforms data src, for example: camera, lightGroup
-
-
-  copyDataFromProbe(probe) {
-    this.types = probe.uniformTypes.slice(0);
-    this.dataSizeList = probe.dataSizeList.slice(0);
-    this.slotIndex = probe.getSlotBeginIndex();
-    this.uniformsTotal = probe.uniformsTotal;
-    this.slotId = probe.getRCUid();
-  }
-
-  copyDataFromProbeAt(i, probe) {
-    if (this.types == null) {
-      this.types = [];
-      this.dataSizeList = [];
-    }
-
-    this.slotIndex = probe.getSlotBeginIndex() + i;
-    this.uniformsTotal = 1;
-    this.slotId = probe.getRCUid();
-    this.types[0] = probe.uniformTypes[i];
-    this.dataSizeList[0] = probe.dataSizeList[i];
-  }
-
-  use(rc) {
-    //let slot: UniformDataSlot = UniformDataSlot.GetSlotAt(rc.getRCUid());
-    if (this.always || this.rst != this.m_slotFlags[this.slotIndex]) {
-      //  if(rc.getGPUProgram() == null) {
-      //      console.warn("current gpu shader program is null");
-      //  }
-      //  if(this.program != null) {
-      //      console.log("have gpu shader program in this global uniform, program: ",this.program,this.locations);
-      //  }
-      //  if(this.program != null && rc.getGPUProgram() != this.program) {
-      //      console.warn("current gpu shader program can't match this global uniform.");
-      //  }
-      this.rst = this.m_slotFlags[this.slotIndex];
-      let i = 0;
-      let datas = this.m_slotDatas;
-
-      if (RendererDevice_1.default.IsWebGL1()) {
-        for (; i < this.uniformsTotal; ++i) {
-          rc.useUniformV1(this.locations[i], this.types[i], datas[this.slotIndex + i], this.dataSizeList[i]);
-        }
-      } else {
-        //console.log(this.uns, ", GlobalUniform this.uniformsTotal: ",this.uniformsTotal,this.dataSizeList);
-        for (; i < this.uniformsTotal; ++i) {
-          // if(this.types[i] == MaterialConst.SHADER_VEC4FV) {
-          //     console.log("SHADER_VEC4FV, slot.dataList["+(this.slotIndex + i)+"]: ",slot.dataList[this.slotIndex + i]);
-          // }
-          rc.useUniformV2(this.locations[i], this.types[i], datas[this.slotIndex + i], this.dataSizeList[i], 0);
-        }
-      }
-    }
-  }
-
-  destroy() {
-    this.types = null;
-    this.dataSizeList = null;
-    this.slotIndex = -1;
-    this.uniformsTotal = 0;
-    this.m_slot = null;
-    this.m_slotFlags = null;
-    this.m_slotDatas = null;
-  }
-
-}
-
-exports.default = ShaderGlobalUniform;
-
-/***/ }),
-
-/***/ "7499":
+/***/ "72bb":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18750,304 +12781,18 @@ exports.default = ShaderGlobalUniform;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var DisplayRenderSign;
 
-class RenderMaterialProxy {
-  constructor() {
-    this.m_dispBuilder = null;
-    this.m_shader = null;
-    this.m_texRes = null;
-  }
+(function (DisplayRenderSign) {
+  // 还没有加入 renderer
+  DisplayRenderSign[DisplayRenderSign["NOT_IN_RENDERER"] = -1] = "NOT_IN_RENDERER"; // 正在进入 renderer
 
-  setDispBuilder(builder) {
-    if (this.m_dispBuilder == null) {
-      this.m_dispBuilder = builder;
-      this.m_shader = builder.getRenderShader();
-      this.m_texRes = builder.getTextureResource();
-    }
-  }
+  DisplayRenderSign[DisplayRenderSign["GO_TO_RENDERER"] = 1] = "GO_TO_RENDERER"; // 真正存在于 renderer, 也就是直接可以在 process 中使用了
 
-  unlockMaterial() {
-    this.m_shader.unlock();
-    this.m_texRes.unlocked = true;
-  }
+  DisplayRenderSign[DisplayRenderSign["LIVE_IN_RENDERER"] = 2] = "LIVE_IN_RENDERER";
+})(DisplayRenderSign || (DisplayRenderSign = {}));
 
-  lockMaterial() {
-    this.m_shader.lock();
-    this.m_texRes.unlocked = false;
-  }
-
-  isUnlockMatrial() {
-    return this.m_texRes.unlocked;
-  }
-
-  unlockTexture() {
-    this.m_shader.textureUnlock();
-  }
-
-  lockTexture() {
-    this.m_shader.textureLock();
-  }
-
-  renderBegin() {
-    this.m_shader.renderBegin();
-    this.m_texRes.renderBegin();
-  }
-
-  resetUniform() {
-    this.m_shader.resetUniform();
-  }
-
-  useGlobalMaterial(material, materialUniformUpdate = false) {
-    if (material != null) {
-      this.m_dispBuilder.updateGlobalMaterial(material, materialUniformUpdate);
-    }
-  }
-
-  updateMaterialUniform(material) {
-    this.m_shader.updateUniform(material.__$uniform);
-  }
-
-}
-
-exports.default = RenderMaterialProxy;
-
-/***/ }),
-
-/***/ "74c3":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-}); // gpu vertex buffer renderer resource
-
-class ROVertexResource {
-  constructor(rcuid, gl, vtxBuilder) {
-    this.m_resMap = new Map();
-    this.m_freeMap = new Map();
-    this.m_updateIds = []; // 显存的vtx buffer的总数
-
-    this.m_vtxResTotal = 0;
-    this.m_attachTotal = 0;
-    this.m_delay = 128;
-    this.m_haveDeferredUpdate = false;
-    /**
-     * updating times total, the min value is 4, the default value is 16
-     */
-
-    this.m_vtxUpdateTotal = 16; // renderer context unique id
-
-    this.m_rcuid = 0;
-    this.m_gl = null;
-    this.m_vtxBuilder = null;
-    this.unlocked = true;
-    this.m_rcuid = rcuid;
-    this.m_gl = gl;
-    this.m_vtxBuilder = vtxBuilder;
-  }
-  /**
-   * set the updating times total that update vertex data to gpu in one frame time
-   * @param total updating times total, the min value is 4, the default value is 16
-   */
-
-
-  setVtxUpdateTimesTotal(total) {
-    this.m_vtxUpdateTotal = total > 4 ? total : 4;
-  }
-
-  createResByParams3(resUid, param0, param1, param2) {
-    return false;
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_rcuid;
-  }
-  /**
-   * @returns return system gpu context
-   */
-
-
-  getRC() {
-    return this.m_gl;
-  }
-  /**
-   * check whether the renderer runtime resource(by renderer runtime resource unique id) exists in the current renderer context
-   * @param resUid renderer runtime resource unique id
-   * @returns has or has not resource by unique id
-   */
-
-
-  hasResUid(resUid) {
-    return this.m_resMap.has(resUid);
-  }
-  /**
-   * bind the renderer runtime resource(by renderer runtime resource unique id) to the current renderer context
-   * @param resUid renderer runtime resource unique id
-   */
-
-
-  bindToGpu(resUid) {}
-  /**
-   * get system gpu context resource buf
-   * @param resUid renderer runtime resource unique id
-   * @returns system gpu context resource buf
-   */
-
-
-  getGpuBuffer(resUid) {
-    return null;
-  }
-
-  renderBegin() {
-    this.m_vtxBuilder.renderBegin();
-  }
-
-  getVertexResTotal() {
-    return this.m_vtxResTotal;
-  }
-
-  updateDataToGpu(resUid, deferred) {
-    if (deferred) {
-      this.m_updateIds.push(resUid);
-      this.m_haveDeferredUpdate = true;
-    } else {
-      if (this.m_resMap.has(resUid)) {
-        this.m_resMap.get(resUid).updateToGpu(this.m_vtxBuilder);
-      }
-    }
-  }
-
-  addVertexRes(object) {
-    if (!this.m_resMap.has(object.resUid)) {
-      object.waitDelTimes = 0; //console.log("ROTextureResource add a texture buffer(resUid="+object.resUid+")");
-
-      this.m_resMap.set(object.resUid, object);
-      this.m_vtxResTotal++;
-    }
-  }
-
-  getVertexRes(resUid) {
-    return this.m_resMap.get(resUid);
-  }
-
-  destroyRes(resUid) {
-    if (this.m_resMap.has(resUid)) {
-      this.m_resMap.get(resUid).destroy(this.m_vtxBuilder);
-    }
-  }
-
-  __$attachRes(resUid) {
-    if (this.m_resMap.has(resUid)) {
-      this.m_attachTotal++;
-      let object = this.m_resMap.get(resUid);
-
-      if (object.getAttachCount() < 1) {
-        if (this.m_freeMap.has(resUid)) {
-          this.m_freeMap.delete(resUid);
-        }
-      }
-
-      object.waitDelTimes = 0;
-
-      object.__$attachThis();
-    }
-  }
-
-  __$detachRes(resUid) {
-    if (this.m_resMap.has(resUid)) {
-      if (this.m_resMap.has(resUid)) {
-        let object = this.m_resMap.get(resUid);
-
-        if (object.getAttachCount() > 0) {
-          this.m_attachTotal--;
-
-          object.__$detachThis();
-
-          if (object.getAttachCount() < 1) {
-            // 将其加入待清理的map
-            this.m_freeMap.set(resUid, object);
-          }
-        }
-      }
-    }
-  }
-
-  getVROByResUid(resUid, shdp, vaoEnabled) {
-    let vtxObj = this.m_resMap.get(resUid);
-
-    if (vtxObj != null) {
-      return vtxObj.createVRO(this.m_vtxBuilder, shdp, vaoEnabled);
-    }
-
-    return null;
-  }
-
-  update() {
-    if (this.m_haveDeferredUpdate) {
-      let len = this.m_updateIds.length;
-
-      if (len > 0) {
-        if (len > this.m_vtxUpdateTotal) len = this.m_vtxUpdateTotal;
-        let resUid;
-
-        for (let i = 0; i < len; ++i) {
-          resUid = this.m_updateIds.shift();
-
-          if (this.m_resMap.has(resUid)) {
-            //console.log("ROvtxRes("+resUid+") update vtx("+resUid+") data to gpu with deferred mode.");
-            this.m_resMap.get(resUid).updateToGpu(this.m_vtxBuilder);
-          }
-        }
-      } else {
-        this.m_haveDeferredUpdate = false;
-      }
-    }
-
-    this.m_delay--;
-
-    if (this.m_delay < 1) {
-      this.m_delay = 128;
-
-      for (const [key, value] of this.m_freeMap) {
-        value.waitDelTimes++;
-
-        if (value.getAttachCount() < 1) {
-          if (value.waitDelTimes > 5) {
-            console.log("ROVertexResource remove a vertex buffer(resUid=" + value.resUid + ")");
-            this.m_resMap.delete(value.resUid);
-            this.m_freeMap.delete(value.resUid);
-            value.destroy(this.m_vtxBuilder);
-            this.m_vtxResTotal--;
-          }
-        } else {
-          console.log("ROVertexResource repeat use a vertex buffer(resUid=" + value.resUid + ") from freeMap.");
-          this.m_freeMap.delete(value.resUid);
-        }
-      }
-    }
-  }
-
-}
-
-exports.ROVertexResource = ROVertexResource;
-exports.default = ROVertexResource;
+exports.DisplayRenderSign = DisplayRenderSign;
 
 /***/ }),
 
@@ -19563,461 +13308,6 @@ class MouseEvt3DController {
 MouseEvt3DController.s_unlockMouseEvt = true;
 MouseEvt3DController.s_uid = 0;
 exports.default = MouseEvt3DController;
-
-/***/ }),
-
-/***/ "7696":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-// RenderProcess 实例实际上可以被外部功能块直接使用,以便实现具体渲染目的
-// 只能在 RenderWorld 中创建
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RenderSortBlock_1 = __importDefault(__webpack_require__("264c"));
-
-const RPOBlock_1 = __importDefault(__webpack_require__("5f3c"));
-
-const ROTransPool_1 = __importDefault(__webpack_require__("9156"));
-
-class RenderProcess {
-  constructor(shader, rpoNodeBuilder, rpoUnitBuilder, vtxResource, batchEnabled, processFixedState) {
-    // 记录自身所在的 rendererInstance id
-    this.m_rcuid = -1; // 记录自身所在 rendererInstance 中分配到的process index
-
-    this.m_rpIndex = -1;
-    this.m_nodesLen = 0;
-    this.m_enabled = true;
-    this.m_blockList = []; // 记录以相同shader的node为一个集合对象(RPOBlock) 的数组
-
-    this.m_blockListLen = 0;
-    this.m_blockFList = new Int8Array(RenderProcess.s_max_shdTotal); // 记录以相同shader的node为一个集合对象(RPOBlock)的构建状态 的数组
-
-    this.m_blockFListLen = RenderProcess.s_max_shdTotal; // 假定引擎中同时存在的最多的shader 有1024种
-
-    this.m_shader = null;
-    this.m_rpoNodeBuilder = null;
-    this.m_rpoUnitBuilder = null;
-    this.m_vtxResource = null; // 用于制定对象的绘制
-
-    this.m_fixBlock = null;
-    this.m_sortBlock = null;
-    this.m_sorter = null;
-    this.m_batchEnabled = true;
-    this.m_fixedState = true;
-    this.m_sortEnabled = false;
-    this.m_version = 0;
-    this.uid = -1;
-    this.m_shader = shader;
-    this.m_rpoNodeBuilder = rpoNodeBuilder;
-    this.m_rpoUnitBuilder = rpoUnitBuilder;
-    this.m_vtxResource = vtxResource;
-    this.m_fixBlock = this.createBlock();
-    this.m_batchEnabled = batchEnabled;
-    this.m_fixedState = processFixedState;
-
-    for (let k = 0; k < this.m_blockFListLen; ++k) {
-      this.m_blockFList[k] = -1;
-    }
-  }
-
-  createBlock() {
-    let block = new RPOBlock_1.default(this.m_shader);
-    block.rpoNodeBuilder = this.m_rpoNodeBuilder;
-    block.rpoUnitBuilder = this.m_rpoUnitBuilder;
-    block.vtxResource = this.m_vtxResource;
-    return block;
-  }
-
-  setRenderParam(batchEnabled, processFixedState) {
-    if (this.m_blockListLen < 1) {
-      this.m_batchEnabled = batchEnabled;
-      this.m_fixedState = processFixedState;
-    }
-  }
-
-  setRendererParam(rc, rpIndex) {
-    this.m_rc = rc;
-    this.m_rcuid = rc.getRCUid();
-    this.m_rpIndex = rpIndex;
-  }
-
-  getUid() {
-    return this.uid;
-  }
-
-  getRCUid() {
-    return this.m_rcuid;
-  }
-
-  getRPIndex() {
-    return this.m_rpIndex;
-  }
-
-  hasSorter() {
-    return this.m_sorter != null;
-  }
-
-  setSorter(sorter) {
-    this.m_sorter = sorter;
-
-    if (this.m_sortBlock != null) {
-      this.m_sortBlock.setSorter(sorter);
-    }
-  }
-
-  setSortEnabled(sortEnabled) {
-    if (this.m_nodesLen < 1) {
-      this.m_sortEnabled = sortEnabled;
-    } else if (this.m_sortBlock != null) {
-      this.m_sortBlock.sortEnabled = sortEnabled;
-    }
-  }
-
-  getSortEnabled() {
-    return this.m_sortEnabled;
-  }
-
-  getUnitsTotal() {
-    return this.m_nodesLen;
-  }
-
-  addNodeToBlock(node) {
-    //  注意，这里可以管理组合方式, 例如可以做更多条件的排序
-    //  这里依赖的是 shader program 和 vtx uid 来分类
-    let block = null; //console.log("RenderProcess::addDisp(),uid: "+this.m_rpIndex+" node.shdUid: "+node.shdUid+", index: "+this.uid);
-
-    if (node.shdUid >= RenderProcess.s_max_shdTotal) {
-      throw Error("Shader uid >= " + RenderProcess.s_max_shdTotal);
-    }
-
-    if (this.m_blockFList[node.shdUid] < 0) {
-      block = this.createBlock();
-      block.batchEnabled = this.m_batchEnabled;
-      block.fixedState = this.m_fixedState;
-
-      if (block.batchEnabled) {
-        if (block.fixedState) {
-          block.runMode = 2;
-        } else {
-          block.runMode = 1;
-        }
-      } else {
-        block.runMode = 0;
-      }
-
-      block.shdUid = node.shdUid;
-      block.index = this.m_blockListLen;
-      block.procuid = this.m_rpIndex;
-      this.m_blockList.push(block);
-      this.m_blockFList[node.shdUid] = this.m_blockListLen;
-      ++this.m_blockListLen; //  console.log("RenderProcess::addDisp(), this.uid: ",this.getUid());
-      //  console.log("RenderProcess::addDisp(), create a new RPOBlock instance, block: ",block);
-      //  console.log("RenderProcess::addDisp(), create a new RPOBlock instance, this.m_blockList: ",this.m_blockList);
-    } else {
-      //console.log("RenderProcess::addDisp(), use old RPOBlock instance, m_blockFList["+node.shdUid+"]: "+this.m_blockFList[node.shdUid]);
-      block = this.m_blockList[this.m_blockFList[node.shdUid]];
-    }
-
-    node.index = block.index;
-    block.addNode(node);
-  }
-
-  rejoinRunitForTro(runit) {
-    let node = this.m_rpoNodeBuilder.getNodeByUid(runit.__$rpuid);
-
-    if (node != null) {
-      node.tro = runit.tro;
-      node.texMid = node.unit.texMid;
-      this.m_blockList[node.index].rejoinNode(node);
-    }
-  }
-
-  rejoinRunitForVro(runit) {
-    let node = this.m_rpoNodeBuilder.getNodeByUid(runit.__$rpuid);
-
-    if (node != null) {
-      node.drawMode = runit.drawMode;
-      node.ivsIndex = runit.ivsIndex;
-      node.ivsCount = runit.ivsCount;
-      node.insCount = runit.insCount;
-      runit.drawOffset = runit.ivsIndex * runit.ibufStep;
-      node.vtxUid = runit.vtxUid;
-      node.vro = runit.vro;
-      this.m_blockList[node.index].rejoinNode(node);
-      this.m_version++;
-    }
-  }
-
-  addDisp(disp) {
-    if (disp != null) {
-      if (disp.__$$runit != null && disp.__$$runit.getRPROUid() < 0) {
-        if (disp.__$$runit.getRPROUid() != this.uid) {
-          // console.log("RenderProcess(" + this.uid + ")::addDisp(): ", disp.ivsCount, disp, disp.drawMode);
-          let node = this.m_rpoNodeBuilder.create();
-          node.unit = this.m_rpoUnitBuilder.getNodeByUid(disp.__$ruid);
-          node.unit.shader = this.m_shader;
-          node.unit.__$rprouid = this.uid;
-          disp.__$rpuid = node.uid;
-          node.__$ruid = disp.__$ruid;
-          node.unit.__$rpuid = node.uid;
-          node.updateData();
-          ++this.m_nodesLen; //this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.m_rpIndex, node.uid);
-
-          this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.getUid(), node.uid);
-
-          if (this.m_sortEnabled) {
-            console.log("sort process add a disp...");
-
-            if (this.m_sortBlock != null) {
-              this.m_sortBlock.addNode(node);
-            } else {
-              this.m_sortBlock = new RenderSortBlock_1.default(this.m_shader);
-              this.m_sortBlock.setSorter(this.m_sorter);
-              this.m_sortBlock.addNode(node);
-            }
-          } else {
-            this.addNodeToBlock(node);
-          }
-
-          this.m_version++;
-        } else {
-          console.log("RenderProcess::addDisp(), Warn: add entity repeat in processid(" + this.m_rpIndex + ").");
-        }
-      }
-    }
-  }
-
-  updateDispMateiral(disp) {
-    if (disp.__$$runit != null) {
-      let nodeUId = disp.__$$runit.getRPOUid();
-
-      let node = this.m_rpoNodeBuilder.getNodeByUid(nodeUId); // material info etc.
-
-      node.shdUid = node.unit.shdUid;
-      node.texMid = node.unit.texMid;
-      node.tro = node.unit.tro;
-      let block = this.m_blockList[node.index];
-      block.removeNode(node);
-      this.addNodeToBlock(node);
-    }
-  }
-
-  removeDisp(disp) {
-    if (disp != null) {
-      if (disp.__$$runit != null) {
-        let nodeUId = disp.__$$runit.getRPOUid();
-
-        let node = this.m_rpoNodeBuilder.getNodeByUid(nodeUId); // console.log("RenderProcess("+this.uid+")::removeDisp(), nodeUId: ",nodeUId,disp);
-        // console.log("removeDisp(), node != null: "+(node != null),", this.m_blockList: ",this.m_blockList);
-
-        if (node != null) {
-          let runit = node.unit;
-          let transU = runit.transUniform;
-
-          if (transU != null) {
-            ROTransPool_1.default.RemoveTransUniform(transU.key);
-          }
-
-          if (this.m_sortBlock == null) {
-            let block = this.m_blockList[node.index];
-            block.removeNode(node);
-          } else {
-            this.m_sortBlock.removeNode(node);
-          } // this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.m_rpIndex, -1);
-
-
-          this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.getUid(), -1);
-          --this.m_nodesLen;
-
-          if (this.m_rpoNodeBuilder.restore(node)) {
-            this.m_rpoUnitBuilder.restore(runit);
-          } // this.m_vtxResource.__$detachRes(disp.vbuf.getUid());
-
-
-          this.m_vtxResource.__$detachRes(disp.getVtxResUid());
-
-          disp.__$$runit = null;
-          disp.__$ruid = -1;
-          this.m_version++;
-        } else {
-          console.error("There is no this display instance.");
-        }
-      }
-    }
-  }
-
-  getStatus() {
-    return this.m_version;
-  }
-  /**
-   * remoev display unit from this render process
-   */
-
-
-  removeDispUnit(disp) {
-    if (disp != null) {
-      if (disp.__$ruid > -1) {
-        let nodeUId = disp.__$$runit.getRPOUid();
-
-        let node = this.m_rpoNodeBuilder.getNodeByUid(nodeUId);
-
-        if (node != null) {
-          if (this.m_sortBlock == null) {
-            let block = this.m_blockList[node.index];
-            block.removeNode(node);
-          } else {
-            this.m_sortBlock.removeNode(node);
-          }
-
-          this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.m_rpIndex, -1);
-          node.unit.__$rprouid = -1;
-          --this.m_nodesLen;
-          this.m_rpoNodeBuilder.restore(node);
-        }
-      }
-    }
-  }
-
-  update() {
-    if (this.m_enabled && this.m_nodesLen > 0) {
-      if (this.m_sortBlock != null) {
-        this.m_sortBlock.update();
-      }
-    }
-  }
-
-  run() {
-    if (this.m_enabled && this.m_nodesLen > 0) {
-      let rc = this.m_rc;
-
-      if (this.m_sortBlock == null) {
-        if (this.m_shader.isUnLocked()) {
-          for (let i = 0; i < this.m_blockListLen; ++i) {
-            this.m_blockList[i].run(rc);
-          }
-        } else {
-          for (let i = 0; i < this.m_blockListLen; ++i) {
-            this.m_blockList[i].runLockMaterial(rc);
-          }
-        }
-      } else {
-        if (this.m_shader.isUnLocked()) {
-          this.m_sortBlock.run(rc);
-        } else {
-          this.m_sortBlock.runLockMaterial(rc);
-        }
-      }
-    }
-  }
-
-  drawDisp(disp, useGlobalUniform = false, forceUpdateUniform = true) {
-    if (disp != null) {
-      let unit = disp.__$$runit;
-
-      if (unit != null) {
-        if (this.m_shader.isUnLocked()) {
-          if (forceUpdateUniform) {
-            this.m_shader.resetUniform();
-          }
-
-          this.m_fixBlock.drawUnit(this.m_rc, unit, disp);
-        } else {
-          this.m_fixBlock.drawLockMaterialByUnit(this.m_rc, unit, disp, useGlobalUniform, forceUpdateUniform);
-        }
-      }
-    }
-  }
-  /**
-   * Deprecated(不推荐使用)
-   */
-
-
-  drawLockMaterialByDisp(disp, useGlobalUniform = false, forceUpdateUniform = true) {
-    if (disp != null) {
-      let unit = disp.__$$runit;
-
-      if (unit != null) {
-        this.m_fixBlock.drawLockMaterialByUnit(this.m_rc, unit, disp, useGlobalUniform, forceUpdateUniform);
-      }
-    }
-  }
-
-  reset() {
-    this.m_sortEnabled = false;
-    this.m_nodesLen = 0;
-    this.uid = -1;
-    this.m_rpIndex = -1;
-    this.m_rcuid = -1;
-    this.m_rpIndex = -1;
-    let i = 0;
-
-    for (; i < this.m_blockListLen; ++i) {
-      this.m_blockList[i].reset();
-    }
-
-    this.m_blockListLen = 0;
-    this.m_blockList = [];
-    this.m_rpoNodeBuilder = null;
-    this.m_rpoUnitBuilder = null;
-    this.m_vtxResource = null;
-    this.m_rc = null;
-
-    if (this.m_sortBlock != null) {
-      this.m_sortBlock.clear();
-      this.m_sortBlock = null;
-    }
-  }
-
-  showInfo() {
-    let i = 0;
-
-    for (; i < this.m_blockListLen; ++i) {
-      this.m_blockList[i].showInfo();
-    }
-  }
-
-  destroy() {
-    this.reset();
-  }
-
-  setEnabled(boo) {
-    this.m_enabled = boo;
-  }
-
-  getEnabled() {
-    return this.m_enabled;
-  }
-
-  toString() {
-    return "[RenderProcess(uid = " + this.m_rpIndex + ")]";
-  }
-
-}
-
-RenderProcess.s_max_shdTotal = 1024;
-exports.default = RenderProcess;
 
 /***/ }),
 
@@ -20756,158 +14046,6 @@ exports.default = EntityTransUpdater;
 
 /***/ }),
 
-/***/ "8171":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class Stencil {
-  constructor(rstate = null) {
-    this.m_rstate = null;
-    this.m_depfs = [0, 0];
-    this.m_maskfs = [0, 0];
-    this.m_funcfs = [0, 0, 0, 0];
-    this.m_opfs = [0, 0, 0, 0];
-    this.m_enabled = false;
-    this.m_rstate = rstate;
-  }
-
-  isEnabled() {
-    return this.m_enabled;
-  }
-
-  setDepthTestEnable(enable) {
-    this.m_depfs[0] = enable ? 1 : 0;
-    this.m_depfs[1] = 1;
-    this.m_enabled = true;
-    if (this.m_rstate) this.m_rstate.setDepthTestEnable(enable);
-    return this;
-  }
-  /**
-   * 设置 gpu stencilFunc 状态
-   * @param func Specifies the test function. Eight symbolic constants are valid: GL_NEVER, GL_LESS, GL_LEQUAL, GL_GREATER, GL_GEQUAL, GL_EQUAL, GL_NOTEQUAL, and GL_ALWAYS. The initial value is GL_ALWAYS.
-   * @param ref a GLint type number, value range: [0,2n−1];
-   * @param mask GLint type number
-   */
-
-
-  setStencilFunc(func, ref, mask) {
-    const ls = this.m_funcfs;
-    ls[0] = func;
-    ls[1] = ref;
-    ls[2] = mask;
-    ls[3] = 1;
-    this.m_enabled = true;
-    if (this.m_rstate) this.m_rstate.setStencilFunc(func, ref, mask);
-    return this;
-  }
-  /**
-   * 设置 gpu stencilMask 状态
-   * @param mask GLint type number
-   */
-
-
-  setStencilMask(mask) {
-    this.m_maskfs[0] = mask;
-    this.m_maskfs[1] = 1;
-    this.m_enabled = true;
-    if (this.m_rstate) this.m_rstate.setStencilMask(mask);
-    return this;
-  }
-  /**
-   * 设置 gpu stencilOp 状态
-   * @param fail Specifies the action to take when the stencil test fails. Eight symbolic constants are accepted: GL_KEEP, GL_ZERO, GL_REPLACE, GL_INCR, GL_INCR_WRAP, GL_DECR, GL_DECR_WRAP, and GL_INVERT. The initial value is GL_KEEP.
-   * @param zfail Specifies the stencil action when the stencil test passes, but the depth test fails. dpfail accepts the same symbolic constants as sfail. The initial value is GL_KEEP.
-   * @param zpass Specifies the stencil action when both the stencil test and the depth test pass, or when the stencil test passes and either there is no depth buffer or depth testing is not enabled. dppass accepts the same symbolic constants as sfail. The initial value is GL_KEEP.
-   */
-
-
-  setStencilOp(fail, zfail, zpass) {
-    const ls = this.m_opfs;
-    ls[0] = fail;
-    ls[1] = zfail;
-    ls[2] = zpass;
-    ls[3] = 1;
-    this.m_enabled = true;
-    if (this.m_rstate) this.m_rstate.setStencilOp(fail, zfail, zpass);
-    return this;
-  }
-
-  reset() {
-    this.m_depfs[1] = 0;
-    this.m_maskfs[1] = 0;
-    this.m_funcfs[3] = 0;
-    this.m_opfs[3] = 0;
-    this.m_enabled = false;
-  }
-
-  apply(rstate) {
-    if (rstate && this.m_enabled) {
-      if (this.m_depfs[1] > 0) {
-        rstate.setDepthTestEnable(this.m_depfs[0] > 0);
-      }
-
-      if (this.m_maskfs[1] > 0) {
-        rstate.setStencilMask(this.m_maskfs[0]);
-      }
-
-      const fs = this.m_funcfs;
-
-      if (fs[1] > 0) {
-        rstate.setStencilFunc(fs[0], fs[1], fs[2]);
-      }
-
-      const ps = this.m_opfs;
-
-      if (ps[1] > 0) {
-        rstate.setStencilOp(ps[0], ps[1], ps[2]);
-      }
-    }
-
-    return this;
-  }
-
-  clone() {
-    let st = new Stencil();
-    st.m_enabled = this.m_enabled;
-    st.m_depfs = this.m_depfs.slice();
-    st.m_maskfs = this.m_maskfs.slice();
-    st.m_funcfs = this.m_funcfs.slice();
-    st.m_opfs = this.m_opfs.slice();
-    return this;
-  }
-
-  copyFrom(src) {
-    this.m_enabled = src.m_enabled;
-    this.m_depfs = src.m_depfs.slice();
-    this.m_maskfs = src.m_maskfs.slice();
-    this.m_funcfs = src.m_funcfs.slice();
-    this.m_opfs = src.m_opfs.slice();
-    return this;
-  }
-
-}
-
-exports.Stencil = Stencil;
-
-/***/ }),
-
 /***/ "81ce":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -21397,102 +14535,6 @@ exports.SpecularMode = SpecularMode;
 
 /***/ }),
 
-/***/ "83d1":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const UniformConst_1 = __importDefault(__webpack_require__("ab73"));
-
-class StageParamUniformBuilder {
-  create(rc, shdp) {
-    let param = UniformConst_1.default.StageParam;
-
-    if (shdp.hasUniformByName(param.name)) {
-      return rc.uniformContext.createShaderGlobalUniformFromProbe(rc.getStage3D().uProbe, param.name, [param.name]);
-    }
-
-    return null;
-  }
-
-  getIDNS() {
-    return "StageParamUniformBuilder";
-  }
-
-}
-
-exports.default = StageParamUniformBuilder;
-
-/***/ }),
-
-/***/ "857b":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const UniformConst_1 = __importDefault(__webpack_require__("ab73"));
-
-class CameraPosUniformBuilder {
-  create(rc, shdp) {
-    let param = UniformConst_1.default.CameraPosParam;
-    if (shdp.hasUniformByName(param.name)) return rc.uniformContext.createShaderGlobalUniformFromProbe(rc.getCamera().ucameraPosProbe, param.name, [param.name]);
-    return null;
-  }
-
-  getIDNS() {
-    return "CameraPosUniformBuilder";
-  }
-
-}
-
-exports.default = CameraPosUniformBuilder;
-
-/***/ }),
-
 /***/ "85b6":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -21802,7 +14844,6 @@ Object.defineProperty(exports, "__esModule", {
 const BitConst_1 = __importDefault(__webpack_require__("ca6c"));
 
 class VtxBufConst {
-  //
   static ToGL(gl, param) {
     const vbc = VtxBufConst;
 
@@ -21994,7 +15035,7 @@ VtxBufConst.VBUF_VS2_INDEX = BitConst_1.default.BIT_ONE_5;
 VtxBufConst.VBUF_UVS2_INDEX = BitConst_1.default.BIT_ONE_6;
 VtxBufConst.VBUF_NVS2_INDEX = BitConst_1.default.BIT_ONE_7;
 VtxBufConst.VBUF_CVS2_INDEX = BitConst_1.default.BIT_ONE_8;
-VtxBufConst.VBUF_TVS2_INDEX = BitConst_1.default.BIT_ONE_9; // name
+VtxBufConst.VBUF_TVS2_INDEX = BitConst_1.default.BIT_ONE_9; // attributes name
 
 VtxBufConst.VBUF_VS_NS = "a_vs";
 VtxBufConst.VBUF_VS2_NS = "a_vs2";
@@ -22013,123 +15054,6 @@ VtxNormalType.FLAT = 210;
 VtxNormalType.GOURAND = 310;
 exports.VtxNormalType = VtxNormalType;
 exports.default = VtxBufConst;
-
-/***/ }),
-
-/***/ "8ae4":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class ROIndicesRes {
-  constructor() {
-    this.m_uid = ROIndicesRes.s_uid++;
-    this.m_vtx = null;
-    this.m_vtxUid = 0;
-    this.m_gpuBuf = null;
-    this.m_ivsSize = 0;
-    this.version = -1;
-    this.ibufStep = 0;
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-
-  getVtxUid() {
-    return this.m_vtxUid;
-  }
-
-  getGpuBuf() {
-    return this.m_gpuBuf;
-  }
-
-  getVTCount() {
-    return this.m_ivsSize;
-  }
-
-  updateToGpu(rc) {
-    if (this.m_gpuBuf != null && this.m_ivsSize > 0) {
-      let vtx = this.m_vtx; // console.log("indeces updateToGpu vtx.getUId(): ",vtx.getUid(), ", this.version != vtx.indicesVer: ", this.version != vtx.indicesVer);
-
-      if (this.version != vtx.indicesVer) {
-        this.m_ivs = vtx.getIvsData();
-        rc.bindEleBuf(this.m_gpuBuf);
-
-        if (this.m_ivsSize >= this.m_ivs.length) {
-          //console.log("A indeces updateToGpu vtx.getUId(): ",vtx.getUid(), ", ivs.length", this.m_ivs.length);
-          rc.eleBufSubData(this.m_ivs, vtx.getBufDataUsage());
-        } else {
-          //console.log("B indeces updateToGpu vtx.getUId(): ",vtx.getUid(), ", ivs.length", this.m_ivs.length);
-          rc.eleBufData(this.m_ivs, vtx.getBufDataUsage());
-        }
-
-        this.m_ivsSize = this.m_ivs.length;
-        this.version = vtx.indicesVer;
-      }
-    }
-  }
-
-  initialize(rc, ivtx) {
-    if (this.m_gpuBuf == null && ivtx.getIvsData() != null) {
-      // console.log("ROIndicesRes::initialize(), uid: ", this.m_uid, ", ivtx: ", ivtx);
-      this.version = ivtx.indicesVer;
-      this.m_vtx = ivtx;
-      this.m_vtxUid = ivtx.getUid();
-      this.m_ivs = ivtx.getIvsData();
-      this.m_gpuBuf = rc.createBuf();
-      rc.bindEleBuf(this.m_gpuBuf);
-
-      if (ivtx.bufData == null) {
-        rc.eleBufData(this.m_ivs, ivtx.getBufDataUsage());
-        this.m_ivsSize = this.m_ivs.length;
-      } else {
-        rc.eleBufDataMem(ivtx.bufData.getIndexDataTotalBytes(), ivtx.getBufDataUsage());
-        let uintArr = null;
-        let offset = 0;
-        this.m_ivsSize = 0;
-
-        for (let i = 0, len = ivtx.bufData.getIndexDataTotal(); i < len; ++i) {
-          uintArr = ivtx.bufData.getIndexDataAt(i);
-          rc.eleBufSubData(uintArr, offset);
-          offset += uintArr.byteLength;
-          this.m_ivsSize += uintArr.length;
-        }
-      }
-    }
-  }
-
-  destroy(rc) {
-    if (this.m_gpuBuf != null) {
-      this.m_vtx = null;
-      rc.deleteBuf(this.m_gpuBuf);
-      this.m_gpuBuf = null;
-      this.m_ivs = null;
-      this.m_ivsSize = 0;
-      console.log("ROIndicesRes::destroy() this.m_uid: ", this.m_uid);
-    }
-  }
-
-}
-
-ROIndicesRes.s_uid = 0;
-exports.ROIndicesRes = ROIndicesRes;
 
 /***/ }),
 
@@ -22358,148 +15282,6 @@ class EventBaseDispatcher {
 }
 
 exports.default = EventBaseDispatcher;
-
-/***/ }),
-
-/***/ "8def":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const VROBase_1 = __importDefault(__webpack_require__("919c"));
-
-class VertexRenderObj extends VROBase_1.default {
-  constructor() {
-    super();
-    this.shdp = null;
-    this.vbufs = null;
-    this.vbuf = null;
-    this.attribTypes = null;
-    this.wholeOffsetList = null;
-    this.attribTypesLen = 0;
-    this.updateUnlocked = true;
-    this.wholeStride = 0;
-    this.m_uid = VertexRenderObj.s_uid++;
-  }
-
-  run() {
-    if (this.m_rc.testVROUid(this.m_uid)) {
-      //console.log("VertexRenderObj::run(), B:",rc.getUid(),this.m_vtxUid,this.m_uid);
-      if (this.vbuf != null) {
-        this.m_rc.useVtxAttribsPtrTypeFloat(this.shdp, this.vbuf, this.attribTypes, this.attribTypesLen, this.wholeOffsetList, this.wholeStride);
-      } else {
-        this.m_rc.useVtxAttribsPtrTypeFloatMulti(this.shdp, this.vbufs, this.attribTypes, this.attribTypesLen, this.wholeOffsetList, this.wholeStride);
-      }
-
-      if (this.m_rc.testRIOUid(this.m_vtxUid)) {
-        this.m_rc.bindEleBuf(this.ibuf);
-      }
-    }
-  }
-
-  __$destroy() {
-    console.log("VertexRenderObj::__$destroy()..., " + this);
-    VROBase_1.default.s_midMap.delete(this.m_mid);
-    this.m_mid = 0;
-    this.m_vtxUid = -1;
-    this.m_rc = null;
-    this.shdp = null;
-    this.vbufs = null;
-    this.vbuf = null;
-    this.ibuf = null;
-    this.attribTypes = null;
-    this.attribTypesLen = 0;
-    this.wholeStride = 0;
-  }
-
-  restoreThis() {
-    VertexRenderObj.Restore(this);
-  }
-
-  toString() {
-    return "VertexRenderObj(uid = " + this.m_uid + ", type=" + this.m_mid + ")";
-  } //  private static s_midMap:Map<number,VertexRenderObj> = new Map();
-
-
-  static HasMid(mid) {
-    return VROBase_1.default.s_midMap.has(mid);
-  }
-
-  static GetByMid(mid) {
-    return VROBase_1.default.s_midMap.get(mid);
-  }
-
-  static GetFreeId() {
-    if (VertexRenderObj.s_freeIdList.length > 0) {
-      return VertexRenderObj.s_freeIdList.pop();
-    }
-
-    return -1;
-  }
-
-  static Create(rc, mid, pvtxUid) {
-    let unit = null;
-    let index = VertexRenderObj.GetFreeId(); //console.log("VertexRenderObj::Create(), VertexRenderObj.s_unitList.length: "+VertexRenderObj.s_unitList.length);
-
-    if (index >= 0) {
-      unit = VertexRenderObj.s_unitList[index];
-      VertexRenderObj.s_unitFlagList[index] = VertexRenderObj.s_FLAG_BUSY;
-      unit.setMidAndBufUid(mid, pvtxUid);
-    } else {
-      unit = new VertexRenderObj();
-      unit.setMidAndBufUid(mid, pvtxUid);
-      VertexRenderObj.s_unitList.push(unit);
-      VertexRenderObj.s_unitFlagList.push(VertexRenderObj.s_FLAG_BUSY);
-      VertexRenderObj.s_unitListLen++;
-    }
-
-    unit.setRC(rc);
-    VROBase_1.default.s_midMap.set(mid, unit);
-    return unit;
-  }
-
-  static Restore(pobj) {
-    if (pobj != null && pobj.m_attachCount < 1 && VertexRenderObj.s_unitFlagList[pobj.getUid()] == VertexRenderObj.s_FLAG_BUSY) {
-      let uid = pobj.getUid();
-      VertexRenderObj.s_freeIdList.push(uid);
-      VertexRenderObj.s_unitFlagList[uid] = VertexRenderObj.s_FLAG_FREE;
-
-      pobj.__$destroy();
-    }
-  }
-
-}
-
-VertexRenderObj.s_uid = 0;
-VertexRenderObj.s_FLAG_BUSY = 1;
-VertexRenderObj.s_FLAG_FREE = 0;
-VertexRenderObj.s_unitFlagList = [];
-VertexRenderObj.s_unitListLen = 0;
-VertexRenderObj.s_unitList = [];
-VertexRenderObj.s_freeIdList = [];
-exports.default = VertexRenderObj;
 
 /***/ }),
 
@@ -22866,191 +15648,6 @@ Vector3D.ONE = new Vector3D(1, 1, 1);
 exports.default = Vector3D;
 const v_m_v0 = new Vector3D();
 const v_m_v1 = new Vector3D();
-
-/***/ }),
-
-/***/ "9156":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class ROTransPool {
-  // private static s_tcountMap: Map<number, number> = new Map();
-  static SetTransUniform(mat, uniform, shdp) {
-    let k = (mat.getUid() + 1) * 131 + shdp.getUid();
-
-    if (!ROTransPool.s_transMap.has(k)) {
-      ROTransPool.s_transMap.set(k, uniform);
-      uniform.key = k; // let count = ROTransPool.s_tcountMap.get(mat.getUid());
-      // ROTransPool.s_tcountMap.set(mat.getUid(), count+1);
-    } // ROTransPool.s_transMap.set(mat.getUid(), uniform);
-
-  }
-
-  static GetTransUniform(mat, shdp) {
-    if (mat.getUid() < 0) {
-      throw Error("mat.getUid() < 0");
-    }
-
-    let k = (mat.getUid() + 1) * 131 + shdp.getUid();
-    if (ROTransPool.s_transMap.has(k)) return ROTransPool.s_transMap.get(k); // if (ROTransPool.s_transMap.has(mat.getUid())) return ROTransPool.s_transMap.get(mat.getUid());
-
-    return null;
-  }
-
-  static HasTransUniform(mat, shdp) {
-    let k = (mat.getUid() + 1) * 131 + shdp.getUid();
-    return ROTransPool.s_transMap.has(k); // return ROTransPool.s_transMap.has(mat.getUid());
-  }
-
-  static RemoveTransUniform(key) {
-    if (ROTransPool.s_transMap.has(key)) {
-      console.log("ROTransPool::RemoveTransUniform(), key: ", key);
-      ROTransPool.s_transMap.delete(key);
-    } // ROTransPool.s_transMap.delete(mat.getUid());
-
-  }
-
-}
-
-ROTransPool.s_transMap = new Map();
-exports.default = ROTransPool;
-
-/***/ }),
-
-/***/ "919c":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class VROBase {
-  constructor() {
-    this.m_uid = 0; // vtx attribute hash map id
-
-    this.m_mid = 0;
-    this.m_vtxUid = 0;
-    this.m_rc = null;
-    this.indicesRes = null;
-    this.ibuf = null;
-    /**
-     * be used by the renderer runtime, the value is 2 or 4.
-     */
-
-    this.ibufStep = 2;
-    this.m_attachCount = 0;
-  }
-
-  getVTCount() {
-    if (this.indicesRes != null) return this.indicesRes.getVTCount();
-    return 0;
-  }
-
-  setRC(rc) {
-    this.m_rc = rc;
-  }
-
-  setMidAndBufUid(mid, pvtxUid) {
-    this.m_mid = mid;
-    this.m_vtxUid = pvtxUid;
-    this.m_attachCount = 0;
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-
-  getVtxUid() {
-    return this.m_vtxUid;
-  }
-
-  getMid() {
-    return this.m_mid;
-  }
-  /**
-   * 被子类覆盖之后才有效
-   */
-
-
-  run() {}
-
-  __$attachThis() {
-    ++this.m_attachCount; // console.log("VROBase::__$attachThis() this.m_attachCount: ", this.m_attachCount, ", uid: ", this.m_uid);
-  }
-
-  __$detachThis() {
-    --this.m_attachCount;
-
-    if (this.m_attachCount < 1) {
-      this.m_attachCount = 0;
-      console.log("VROBase::__$detachThis() this.m_attachCount value is 0.");
-    } // console.log("VROBase::__$detachThis() this.m_attachCount: ", this.m_attachCount, ", uid: ", this.m_uid);
-
-  }
-
-  __$destroy() {
-    //console.log("VROBase::__$destroy()..., ("+this.m_uid+")this.m_attachCount: "+this.m_attachCount);
-    VROBase.s_midMap.delete(this.m_mid);
-    this.m_mid = 0;
-    this.m_vtxUid = -1;
-    this.ibuf = null;
-    this.m_rc = null;
-    this.indicesRes = null;
-  }
-
-  restoreThis() {}
-
-  static HasMid(mid) {
-    return VROBase.s_midMap.has(mid);
-  }
-
-  static GetByMid(mid) {
-    return VROBase.s_midMap.get(mid);
-  } // static Reset(): void {
-  //     VROBase.s_mid = -1;
-  // }
-
-
-  __$resetVRO() {
-    VROBase.s_mid = -1;
-  }
-
-}
-
-VROBase.s_mid = 0;
-VROBase.s_midMap = new Map();
-exports.default = VROBase;
 
 /***/ }),
 
@@ -23787,257 +16384,6 @@ exports.default = RendererSceneNode;
 
 /***/ }),
 
-/***/ "984e":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class GpuTexObect {
-  constructor() {
-    // wait del times
-    this.waitDelTimes = 0; // renderer context unique id
-
-    this.rcuid = 0; // texture resource unique id
-
-    this.resUid = 0; // texture resolution size
-
-    this.width = 0;
-    this.height = 0; // for 3d texture
-
-    this.depth = 0;
-    this.sampler = 0; // gpu texture buffer
-
-    this.texBuf = null;
-    this.m_attachCount = 0;
-  }
-
-  __$attachThis() {
-    ++this.m_attachCount;
-  }
-
-  __$detachThis() {
-    --this.m_attachCount; //console.log("GpuTexObect::__$detachThis() this.m_attachCount: "+this.m_attachCount);
-
-    if (this.m_attachCount < 1) {
-      this.m_attachCount = 0; //console.log("GpuTexObect::__$detachThis() this.m_attachCount value is 0.");
-      // do something
-    }
-  }
-  /**
-   * bind the renderer runtime resource  to the current renderer context
-   * @param gl system gpu context
-   */
-
-
-  bindToGpu(gl) {
-    gl.bindTexture(this.sampler, this.texBuf);
-  }
-
-  getAttachCount() {
-    return this.m_attachCount;
-  }
-
-} // gpu texture buffer renderer resource
-
-
-class ROTextureResource {
-  constructor(rcuid, gl) {
-    this.m_resMap = new Map();
-    this.m_freeMap = new Map(); // 显存的纹理buffer的总数
-
-    this.m_texResTotal = 0;
-    this.m_attachTotal = 0;
-    this.m_delay = 128; // renderer context unique id
-
-    this.m_rcuid = 0;
-    this.m_gl = null;
-    this.texMid = -1;
-    this.unlocked = true;
-    this.m_rcuid = rcuid;
-    this.m_gl = gl;
-  }
-
-  createBuf() {
-    return this.m_gl.createTexture();
-  }
-
-  createResByParams3(resUid, param0, param1, param2) {
-    //console.log("TexRes createResByParams3, this.m_resMap.has("+resUid+"): ",this.m_resMap.has(resUid));
-    if (!this.m_resMap.has(resUid)) {
-      let obj = new GpuTexObect();
-      obj.rcuid = this.getRCUid();
-      obj.resUid = resUid;
-      obj.width = param0;
-      obj.height = param1;
-      obj.sampler = param2;
-      obj.texBuf = this.createBuf();
-      obj.texBuf.resUid = resUid;
-      this.addTextureRes(obj);
-      return true;
-    }
-
-    return false;
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_rcuid;
-  }
-  /**
-   * @returns return system gpu context
-   */
-
-
-  getRC() {
-    return this.m_gl;
-  }
-  /**
-   * check whether the renderer runtime resource(by renderer runtime resource unique id) exists in the current renderer context
-   * @param resUid renderer runtime resource unique id
-   * @returns has or has not resource by unique id
-   */
-
-
-  hasResUid(resUid) {
-    return this.m_resMap.has(resUid);
-  }
-
-  renderBegin() {
-    this.texMid = -1;
-  }
-  /**
-   * @returns get renderer runtime texture rexource total number
-   */
-
-
-  getTextureResTotal() {
-    return this.m_texResTotal;
-  }
-
-  addTextureRes(object) {
-    if (!this.m_resMap.has(object.resUid)) {
-      object.waitDelTimes = 0; //console.log("ROTextureResource add a texture buffer(resUid="+object.resUid+"),sampler: ",object.sampler,object);
-
-      this.m_resMap.set(object.resUid, object);
-      this.m_texResTotal++;
-    }
-  }
-  /**
-   * get system gpu context resource buf
-   * @param resUid renderer runtime resource unique id
-   * @returns system gpu context resource buf
-   */
-
-
-  getGpuBuffer(resUid) {
-    if (this.m_resMap.has(resUid)) {
-      return this.m_resMap.get(resUid).texBuf;
-    }
-
-    return null;
-  }
-  /**
-   * bind the renderer runtime resource(by renderer runtime resource unique id) to the current renderer context
-   * @param resUid renderer runtime resource unique id
-   */
-
-
-  bindToGpu(resUid) {
-    if (this.m_resMap.has(resUid)) {
-      this.m_resMap.get(resUid).bindToGpu(this.m_gl);
-    }
-  }
-  /**
-   * @returns get renderer runtime texture rexource reference total number
-   */
-
-
-  getAttachTotal() {
-    return this.m_attachTotal;
-  }
-
-  __$attachRes(resUid) {
-    if (this.m_resMap.has(resUid)) {
-      this.m_attachTotal++;
-      let object = this.m_resMap.get(resUid);
-
-      if (object.getAttachCount() < 1) {
-        if (this.m_freeMap.has(resUid)) {
-          this.m_freeMap.delete(resUid);
-        }
-      }
-
-      object.waitDelTimes = 0;
-
-      object.__$attachThis();
-    }
-  }
-
-  __$detachRes(resUid) {
-    if (this.m_resMap.has(resUid)) {
-      if (this.m_resMap.has(resUid)) {
-        let object = this.m_resMap.get(resUid);
-
-        if (object.getAttachCount() > 0) {
-          this.m_attachTotal--;
-
-          object.__$detachThis();
-
-          if (object.getAttachCount() < 1) {
-            // 将其加入待清理的map
-            this.m_freeMap.set(resUid, object);
-          }
-        }
-      }
-    }
-  }
-
-  update() {
-    this.m_delay--;
-
-    if (this.m_delay < 1) {
-      this.m_delay = 128;
-
-      for (const [key, value] of this.m_freeMap) {
-        value.waitDelTimes++;
-
-        if (value.waitDelTimes > 5) {
-          //console.log("ROTextureResource remove a texture buffer(resUid="+value.resUid+")");
-          this.m_resMap.delete(value.resUid);
-          this.m_freeMap.delete(value.resUid);
-          this.m_gl.deleteTexture(value.texBuf);
-          value.texBuf = null;
-          this.m_texResTotal--;
-        }
-      }
-    }
-  }
-
-}
-
-exports.default = ROTextureResource;
-
-/***/ }),
-
 /***/ "9c4d":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -24346,48 +16692,6 @@ class Uint16TextureProxy extends RawDataTextureProxy_1.default {
 }
 
 exports.default = Uint16TextureProxy;
-
-/***/ }),
-
-/***/ "9f82":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class RPStatus {
-  constructor() {
-    this.sdkVer = 0;
-    this.version = 0;
-    this.drawCallTimes = 0;
-    this.drawTrisNumber = 0;
-    this.povNumber = 0;
-  }
-
-  reset() {
-    this.drawCallTimes = 0;
-    this.drawTrisNumber = 0;
-    this.povNumber = 0;
-  }
-
-}
-
-exports.RPStatus = RPStatus;
 
 /***/ }),
 
@@ -24728,7 +17032,7 @@ class RendererSpace {
         total = this.m_cullingor.total;
       } else {
         let ab = null;
-        let cam = this.m_camera; //let camPos:Vector3D = cam.getPosition();
+        let cam = this.m_camera; //let camPos:IVector3D = cam.getPosition();
 
         while (nextNode != null) {
           if (nextNode.rpoNode.isVsible() && nextNode.entity.isDrawEnabled()) {
@@ -24739,7 +17043,7 @@ class RendererSpace {
             nextNode.rpoNode.drawEnabled = boo;
             total += boo ? 1 : 0; //  if(nextNode.drawEnabled && nextNode.distanceFlag)
             //  {
-            //      nextNode.rpoNode.setValue(-Vector3D.DistanceSquared(camPos,ab.center));
+            //      nextNode.rpoNode.setValue(-IVector3D.DistanceSquared(camPos,ab.center));
             //      //console.log((nextNode.entity as any).name,",a runit.value: ",nextNode.rpoNode.unit.value);
             //  }
           } else {
@@ -24795,321 +17099,6 @@ class RendererSpace {
 
 RendererSpace.s_uid = 0;
 exports.default = RendererSpace;
-
-/***/ }),
-
-/***/ "a5ba":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RenderConst_1 = __webpack_require__("e08e");
-
-class RenderStateObject {
-  constructor(cullFaceMode, blendMode, depthTestMode) {
-    this.m_uid = -1;
-    this.m_cullFaceMode = 0; // blend mode
-
-    this.m_blendMode = 0; // depth test type mode
-
-    this.m_depthTestMode = 0; // shadow status Mode(receive | make | receive and make | none)
-
-    this.m_shadowMode = 0;
-    this.m_uid = RenderStateObject.s_uid++;
-    this.m_cullFaceMode = cullFaceMode;
-    this.m_blendMode = blendMode;
-    this.m_depthTestMode = depthTestMode;
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-
-  getCullFaceMode() {
-    return this.m_cullFaceMode;
-  }
-
-  getDepthTestMode() {
-    return this.m_depthTestMode;
-  }
-
-  getBlendMode() {
-    return this.m_blendMode;
-  }
-
-  use() {
-    if (RenderStateObject.s_state != this.m_uid) {
-      //console.log("RenderStateObject this.m_uid: ",this.m_uid);
-      RenderStateObject.Rstate.setCullFaceMode(this.m_cullFaceMode); //RenderStateObject.Rstate.setBlendMode(this.m_blendMode);
-
-      let list = RenderStateObject.s_blendModes[RenderStateObject.m_blendMode];
-
-      if (RenderStateObject.m_blendMode < 0) {
-        RenderStateObject.Rstate.setBlendMode(this.m_blendMode, RenderStateObject.s_blendModes[this.m_blendMode]);
-      } else {
-        RenderStateObject.Rstate.setBlendMode(RenderStateObject.m_blendMode, RenderStateObject.s_blendModes[RenderStateObject.m_blendMode]);
-      }
-
-      if (RenderStateObject.s_depthTestMode < 0) {
-        RenderStateObject.Rstate.setDepthTestMode(this.m_depthTestMode);
-      } else {
-        RenderStateObject.Rstate.setDepthTestMode(RenderStateObject.s_depthTestMode);
-      } //
-
-
-      RenderStateObject.s_state = this.m_uid;
-    }
-  }
-
-  static CreateBlendModeSeparate(name, srcRGB, dstRGB, srcAlpha, dstAlpha, equationRGB = 0, equationAlpha = 0) {
-    if (name != null && name != "") {
-      let b;
-
-      if (RenderStateObject.s_blendModeNameMap.has(name)) {
-        b = RenderStateObject.s_blendModeNameMap.get(name);
-        return RenderStateObject.s_blendModeIndexMap.get(b);
-      }
-
-      if (equationRGB < 1) {
-        equationRGB = RenderConst_1.GLBlendEquation.FUNC_ADD;
-      }
-
-      if (equationAlpha < 1) {
-        equationAlpha = RenderConst_1.GLBlendEquation.FUNC_ADD;
-      }
-
-      let type = 1;
-      b = 31;
-      b = b * 131 + srcRGB;
-      b = b * 131 + dstRGB;
-
-      if (srcAlpha > 0 && dstAlpha > 0) {
-        b = b * 131 + srcAlpha;
-        b = b * 131 + dstAlpha;
-        type = 1;
-      }
-
-      if (RenderStateObject.s_blendModeIndexMap.has(b)) {
-        console.warn("This blendmode value already exists, its name is " + name + ".");
-        RenderStateObject.s_blendModeNameMap.set(name, b);
-        return RenderStateObject.s_blendModeIndexMap.get(b);
-      }
-
-      let index = ++RenderStateObject.s_blendModeIndex;
-      RenderStateObject.s_blendModeNameMap.set(name, b);
-      RenderStateObject.s_blendModeIndexMap.set(b, index);
-      let list = [type, equationRGB, equationAlpha, srcRGB, dstRGB, srcAlpha, dstAlpha];
-      RenderStateObject.s_blendModes[index] = list;
-      return index;
-    }
-
-    return 0;
-  }
-
-  static CreateBlendMode(name, srcColor, dstColor, blendEquation = 0) {
-    if (name != null && name != "") {
-      let b;
-
-      if (RenderStateObject.s_blendModeNameMap.has(name)) {
-        b = RenderStateObject.s_blendModeNameMap.get(name);
-        return RenderStateObject.s_blendModeIndexMap.get(b);
-      }
-
-      if (blendEquation < 1) {
-        blendEquation = RenderConst_1.GLBlendEquation.FUNC_ADD;
-      }
-
-      let type = 0;
-      b = 31;
-      b = b * 131 + srcColor;
-      b = b * 131 + dstColor;
-
-      if (RenderStateObject.s_blendModeIndexMap.has(b)) {
-        return RenderStateObject.s_blendModeIndexMap.get(b);
-      }
-
-      let index = ++RenderStateObject.s_blendModeIndex;
-      RenderStateObject.s_blendModeNameMap.set(name, b);
-      RenderStateObject.s_blendModeIndexMap.set(b, index);
-      let list = [type, blendEquation, 0, srcColor, dstColor, 0, 0]; //console.log("list: ",list);
-
-      RenderStateObject.s_blendModes[index] = list;
-      return index;
-    }
-
-    return 0;
-  }
-
-  static Create(objName, cullFaceMode, blendMode, depthTestMode) {
-    if (RenderStateObject.s_stsNameMap.has(objName)) {
-      let po = RenderStateObject.s_stsNameMap.get(objName);
-      return po.getUid();
-    } //let key: number = depthTestMode << 8 | blendMode << 4 | cullFaceMode;
-
-
-    let key = 31;
-    key = key * 131 + depthTestMode;
-    key = key * 131 + blendMode;
-    key = key * 131 + cullFaceMode;
-
-    if (RenderStateObject.s_stsMap.has(key)) {
-      let po = RenderStateObject.s_stsMap.get(key);
-      key = po.getUid();
-    } else {
-      let po = new RenderStateObject(cullFaceMode, blendMode, depthTestMode);
-      key = po.getUid();
-      RenderStateObject.s_stsMap.set(key, po);
-      RenderStateObject.s_stsNameMap.set(objName, po);
-      RenderStateObject.s_states.push(po);
-      ++RenderStateObject.s_statesLen;
-    }
-
-    return key;
-  }
-
-  static GetRenderStateByName(objName) {
-    if (RenderStateObject.s_stsNameMap.has(objName)) {
-      let po = RenderStateObject.s_stsNameMap.get(objName);
-      return po.getUid();
-    }
-
-    return -1;
-  } // @param           state come from RODisp::renderState
-
-
-  static UseRenderState(state) {
-    //if(RenderStateObject.s_unlocked && RenderStateObject.Rstate.roState != state)                
-    if (RenderStateObject.s_unlocked && RenderStateObject.s_state != state) {
-      if (state > -1 && state < RenderStateObject.s_statesLen) {
-        RenderStateObject.s_states[state].use();
-      }
-    }
-  }
-
-  static UseRenderStateByName(stateName) {
-    if (RenderStateObject.s_unlocked) {
-      let state = RenderStateObject.GetRenderStateByName(stateName); //trace("state: "+state+", stateName: "+stateName);
-      //if(RenderStateObject.Rstate.roState != state)
-
-      if (RenderStateObject.s_state != state) {
-        if (state > -1 && state < RenderStateObject.s_statesLen) {
-          RenderStateObject.s_states[state].use();
-        }
-      }
-    }
-  }
-
-  static UnlockBlendMode() {
-    RenderStateObject.m_blendMode = RenderStateObject.s_preBlendMode;
-  }
-
-  static LockBlendMode(blendMode) {
-    RenderStateObject.s_preBlendMode = RenderStateObject.m_blendMode;
-    RenderStateObject.m_blendMode = blendMode;
-  }
-
-  static UnlockDepthTestMode() {
-    RenderStateObject.s_depthTestMode = RenderStateObject.s_preDepthTestMode;
-  }
-
-  static LockDepthTestMode(depthTestMode) {
-    RenderStateObject.s_preDepthTestMode = RenderStateObject.s_depthTestMode;
-    RenderStateObject.s_depthTestMode = depthTestMode;
-  }
-
-  static Lock() {
-    RenderStateObject.s_unlocked = false;
-  }
-
-  static Unlock() {
-    RenderStateObject.s_unlocked = true;
-  }
-
-  static Reset() {
-    RenderStateObject.s_state = -1;
-  }
-
-}
-
-RenderStateObject.s_uid = 0;
-RenderStateObject.s_state = -1;
-RenderStateObject.s_states = [];
-RenderStateObject.s_statesLen = 1;
-RenderStateObject.m_blendMode = -1;
-RenderStateObject.s_depthTestMode = -1;
-RenderStateObject.s_stsMap = new Map();
-RenderStateObject.s_stsNameMap = new Map();
-RenderStateObject.s_blendModeNameMap = new Map();
-RenderStateObject.s_blendModeIndexMap = new Map();
-RenderStateObject.s_blendModeIndex = 0;
-RenderStateObject.s_blendModes = new Array(256);
-RenderStateObject.s_unlocked = true;
-RenderStateObject.Rstate = null;
-RenderStateObject.s_preBlendMode = -1;
-RenderStateObject.s_preDepthTestMode = -1;
-exports.RenderStateObject = RenderStateObject;
-
-/***/ }),
-
-/***/ "a7ed":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const UniformConst_1 = __importDefault(__webpack_require__("ab73"));
-
-class FrustumUniformBuilder {
-  create(rc, shdp) {
-    let param = UniformConst_1.default.FrustumParam;
-    if (shdp.hasUniformByName(param.name)) return rc.uniformContext.createShaderGlobalUniformFromProbe(rc.getCamera().ufrustumProbe, param.name, [param.name]);
-    return null;
-  }
-
-  getIDNS() {
-    return "FrustumUniformBuilder";
-  }
-
-}
-
-exports.default = FrustumUniformBuilder;
 
 /***/ }),
 
@@ -25376,7 +17365,7 @@ class RendererSceneBase {
     this.m_containers = [];
     this.m_containersTotal = 0;
     this.m_runFlag = -1;
-    this.m_autoRunning = true;
+    this.m_autoRunEnabled = true;
     this.m_processUpdate = false;
     this.m_rparam = null;
     this.m_enabled = true;
@@ -25695,6 +17684,8 @@ class RendererSceneBase {
 
       this.initThis();
     }
+
+    return this;
   }
 
   setRendererProcessParam(index, batchEnabled, processFixedState) {
@@ -25763,7 +17754,7 @@ class RendererSceneBase {
   }
 
   setAutoRunningEnabled(autoRunning) {
-    this.m_autoRunning = autoRunning;
+    this.m_autoRunEnabled = autoRunning;
   }
 
   setAutoRenderingSort(sortEnabled) {
@@ -26003,7 +17994,7 @@ class RendererSceneBase {
 
 
   runBegin(autoCycle = true, contextBeginEnabled = true) {
-    if (autoCycle && this.m_autoRunning) {
+    if (autoCycle && this.m_autoRunEnabled) {
       if (this.m_runFlag >= 0) this.runEnd();
       this.m_runFlag = 0;
     }
@@ -26091,7 +18082,7 @@ class RendererSceneBase {
     const st = this.m_currStage3D;
     if (st != null) st.enterFrame();
 
-    if (autoCycle && this.m_autoRunning) {
+    if (autoCycle && this.m_autoRunEnabled) {
       if (this.m_runFlag != 0) this.runBegin();
       this.m_runFlag = 1;
     } // camera visible test, ray cast test, Occlusion Culling test
@@ -26245,12 +18236,13 @@ class RendererSceneBase {
 
   /**
    * run all renderer processes in the renderer instance
+   * @param autoCycle the default value is true
    */
 
 
   run(autoCycle = true) {
     if (this.m_enabled) {
-      if (autoCycle && this.m_autoRunning) {
+      if (autoCycle && this.m_autoRunEnabled) {
         if (this.m_runFlag != 1) this.update();
         this.m_runFlag = 2;
       }
@@ -26302,7 +18294,7 @@ class RendererSceneBase {
       this.m_rspace.runEnd();
     }
 
-    if (this.m_autoRunning) {
+    if (this.m_autoRunEnabled) {
       this.m_runFlag = -1;
     }
 
@@ -26329,6 +18321,8 @@ class RendererSceneBase {
     this.runnableQueue.destroy();
     this.m_transUpdater.destroy();
   }
+
+  setAutoRunning(auto) {}
 
 }
 
@@ -28861,860 +20855,6 @@ exports.default = EntityNodeQueue;
 
 /***/ }),
 
-/***/ "b02c":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-function getNearestCeilPow2(int_n) {
-  let x = 1;
-
-  while (x < int_n) {
-    x <<= 1;
-  }
-
-  return x;
-}
-/**
- * renderer runtime texture resource object
- */
-
-
-class TextureRenderObj {
-  constructor(rcuid, texListHashId) {
-    this.m_uid = -1;
-    this.m_mid = -1;
-    this.m_texTotal = 0; // max texture amount: 8
-
-    this.m_gtexList = null;
-    this.m_samplers = null;
-    this.m_texList = null; // renderer context uid
-
-    this.m_rcuid = 0;
-    this.m_texRes = null; // 是否收集gpu数据直接使用，true表示需要收集
-
-    this.direct = true; // 自身的引用计数器
-
-    this.m_attachCount = 0;
-    this.m_rcuid = rcuid;
-    this.m_uid = TextureRenderObj.s_uid++;
-    this.m_mid = texListHashId;
-  }
-
-  __$setParam(rcuid, texListHashId) {
-    this.m_rcuid = rcuid;
-    this.m_mid = texListHashId;
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_rcuid;
-  }
-
-  getMid() {
-    return this.m_mid;
-  }
-
-  getTexTotal() {
-    return this.m_texTotal;
-  }
-
-  collectTexList(texRes, ptexList, shdTexTotal) {
-    this.m_texRes = texRes;
-    let i = 0;
-
-    if (this.direct) {
-      if (this.m_texTotal < 1 && ptexList.length > 0) {
-        let len = getNearestCeilPow2(ptexList.length);
-        this.m_samplers = new Uint16Array(len);
-        this.m_gtexList = new Array(len);
-        this.m_texList = ptexList;
-        let tex;
-
-        while (i < shdTexTotal) {
-          tex = ptexList[i];
-
-          tex.__$attachThis();
-
-          tex.__$$upload(texRes);
-
-          this.m_samplers[i] = tex.getSampler();
-          this.m_gtexList[i] = this.m_texRes.getGpuBuffer(tex.getResUid());
-
-          this.m_texRes.__$attachRes(tex.getResUid());
-
-          i++;
-        }
-
-        this.m_texTotal = i;
-      } else {
-        this.m_texTotal = 0;
-      }
-    } else {
-      this.m_texTotal = shdTexTotal;
-    }
-
-    while (i < ptexList.length) {
-      ptexList[i++].__$attachThis();
-    }
-  } // 注意: 移动端要注意这里的切换机制是符合移动端低带宽的特点
-
-
-  run() {
-    //console.log("this.m_texRes.unlocked: ",this.m_texRes.unlocked,this.m_texRes.texMid != this.m_mid);
-    if (this.m_texRes.unlocked && this.m_texRes.texMid != this.m_mid) {
-      this.m_texRes.texMid = this.m_mid; //console.log("this.m_mid: ",this.m_mid,this.m_uid, this.m_texList);
-
-      let gl = this.m_texRes.getRC();
-      let texI = gl.TEXTURE0;
-
-      if (this.direct) {
-        //console.log("this.m_gtexList: ",this.m_gtexList,", total: "+this.m_texTotal);
-        for (let i = 0; i < this.m_texTotal; ++i) {
-          gl.activeTexture(texI++);
-          gl.bindTexture(this.m_samplers[i], this.m_gtexList[i]);
-        }
-      } else {
-        let list = this.m_texList;
-
-        for (let i = 0; i < this.m_texTotal; ++i) {
-          gl.activeTexture(texI++);
-
-          list[i].__$$use(this.m_texRes);
-        }
-      }
-    }
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-
-  __$attachThis() {
-    ++this.m_attachCount;
-  }
-
-  __$detachThis() {
-    --this.m_attachCount; //console.log("TextureRenderObj::__$detachThis() this.m_attachCount: "+this.m_attachCount);
-
-    if (this.m_attachCount < 1) {
-      this.m_attachCount = 0; //console.log("TextureRenderObj::__$detachThis() this.m_attachCount value is 0.");
-
-      TextureRenderObj.Restore(this);
-    }
-  }
-
-  reset() {
-    if (this.m_texList != null) {
-      for (let i = 0, len = this.m_texList.length; i < len; ++i) {
-        this.m_texList[i].__$detachThis();
-
-        this.m_texRes.__$detachRes(this.m_texList[i].getResUid());
-
-        this.m_gtexList[i] = null;
-      }
-    }
-
-    this.m_texTotal = 0;
-    this.m_texList = null;
-    this.m_texRes = null;
-  }
-
-  static Create(texRes, texList, shdTexTotal) {
-    let texTotal = texList.length;
-
-    if (texTotal > 0 && shdTexTotal > 0) {
-      if (texTotal < shdTexTotal) {
-        throw Error("There are fewer textures than in the shader : (need " + shdTexTotal + ",but only have " + texTotal + ") !!!");
-        return null;
-      }
-
-      let key = 31;
-      let t = 0;
-      let direct = true;
-
-      while (t < shdTexTotal) {
-        key = key * 131 + texList[t].getUid();
-
-        if (!texList[t].isDirect()) {
-          direct = false;
-        }
-
-        ++t;
-      }
-
-      let rtoMap = TextureRenderObj.s_troMaps[texRes.getRCUid()];
-      let tro = null;
-
-      if (rtoMap.has(key)) {
-        tro = rtoMap.get(key);
-      } else {
-        if (TextureRenderObj.s_freeTROList.length < 1) {
-          tro = new TextureRenderObj(texRes.getRCUid(), key); //console.log("TextureRenderObj::Create use a new tex mid: " + tro.getMid(),",total: "+shdTexTotal,",key: "+key);
-        } else {
-          tro = TextureRenderObj.s_freeTROList.pop(); //console.log("TextureRenderObj::Create use an old tex mid: " + tro.getMid(),",total: "+shdTexTotal,",key: "+key);
-        }
-
-        tro.collectTexList(texRes, texList, shdTexTotal);
-        rtoMap.set(key, tro);
-      }
-
-      tro.__$setParam(texRes.getRCUid(), key);
-
-      tro.direct = direct;
-      return tro;
-    }
-
-    return null;
-  }
-
-  static Restore(tro) {
-    if (tro.getMid() > -1) {
-      //console.log("TextureRenderObj::Restore tro.getMid(): "+tro.getMid());
-      TextureRenderObj.s_troMaps[tro.getRCUid()].delete(tro.getMid());
-
-      tro.__$setParam(0, 0);
-
-      TextureRenderObj.s_freeTROList.push(tro);
-      tro.reset();
-    }
-  }
-
-  static GetByMid(rcuid, uid) {
-    return TextureRenderObj.s_troMaps[rcuid].get(uid);
-  }
-
-}
-
-TextureRenderObj.s_uid = 0;
-TextureRenderObj.s_troMaps = [new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map()];
-TextureRenderObj.s_freeTROList = [];
-TextureRenderObj.s_unloacked = true;
-TextureRenderObj.s_preMid = -1;
-exports.TextureRenderObj = TextureRenderObj;
-
-class EmptyTexRenderObj {
-  constructor(texRes) {
-    this.m_texRes = null;
-    this.m_texRes = texRes;
-  }
-
-  run() {
-    this.m_texRes.renderBegin();
-  }
-
-  getMid() {
-    return 1;
-  }
-
-  __$attachThis() {}
-
-  __$detachThis() {}
-
-}
-
-exports.EmptyTexRenderObj = EmptyTexRenderObj;
-exports.default = TextureRenderObj;
-
-/***/ }),
-
-/***/ "b0ef":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-class RViewElement {
-  constructor() {
-    this.m_canvas = null;
-    this.m_div = null;
-    this.m_divW = -1;
-    this.m_divH = -1;
-    this.resized = true;
-  }
-
-  setDiv(div) {
-    this.m_div = div;
-  }
-
-  createViewEle(pdocument, autoResize) {
-    if (this.m_div == null) {
-      this.m_div = document.getElementById("voxEngineDiv");
-    }
-
-    if (this.m_div == null) {
-      this.m_div = pdocument.createElement('div');
-      this.m_div.style.width = '400px';
-      this.m_div.style.height = '300px';
-      document.body.appendChild(this.m_div);
-    }
-
-    this.m_div.style.display = 'bolck';
-    this.m_div.style.position = 'absolute';
-
-    if (this.m_div.style.left == "") {
-      this.m_div.style.left = '0px';
-      this.m_div.style.top = '0px';
-    }
-
-    if (autoResize) {
-      this.m_div.style.width = '100%';
-      this.m_div.style.height = '100%';
-    }
-
-    if (this.m_canvas == null) {
-      this.m_canvas = document.createElement('canvas');
-      this.m_div.appendChild(this.m_canvas);
-      this.m_canvas.width = 800;
-      this.m_canvas.height = 600;
-      this.m_canvas.style.display = 'bolck';
-      this.m_canvas.style.left = '0px';
-      this.m_canvas.style.top = '0px';
-      this.m_canvas.style.position = 'absolute';
-    }
-  }
-
-  setDivStyleLeftAndTop(px, py) {
-    this.m_div.style.left = px + "px";
-    this.m_div.style.top = py + "px";
-  }
-
-  setDivStyleSize(pw, ph) {
-    if (this.m_divW != pw || this.m_divH != ph) {
-      this.m_div.style.width = pw + "px";
-      this.m_div.style.height = ph + "px";
-      this.resized = true;
-    }
-  }
-
-  getDiv() {
-    return this.m_div;
-  }
-
-  getCanvas() {
-    return this.m_canvas;
-  }
-
-}
-
-exports.default = RViewElement;
-
-/***/ }),
-
-/***/ "b161":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-// 整个渲染场景的入口类
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RendererInstance_1 = __importDefault(__webpack_require__("d958"));
-
-const RendererSubScene_1 = __importDefault(__webpack_require__("70f2"));
-
-const RendererSceneBase_1 = __importDefault(__webpack_require__("aa80"));
-
-const RenderableMaterialBlock_1 = __webpack_require__("1b95");
-
-const RenderableEntityBlock_1 = __webpack_require__("251a");
-
-class RendererScene extends RendererSceneBase_1.default {
-  constructor() {
-    super();
-    this.m_tickId = -1;
-  }
-
-  createRendererIns() {
-    this.m_currStage3D = this.stage3D;
-    this.m_stage3D = this.stage3D;
-    return new RendererInstance_1.default();
-  }
-
-  rendererInsInited() {
-    this.m_camera = this.m_renderProxy.getCamera();
-  }
-
-  initThis() {
-    let selfT = this;
-    selfT.materialBlock = new RenderableMaterialBlock_1.RenderableMaterialBlock();
-    selfT.entityBlock = new RenderableEntityBlock_1.RenderableEntityBlock();
-    this.materialBlock.initialize();
-    this.entityBlock.initialize();
-    this.tickUpdate();
-  }
-
-  contextRunEnd() {
-    this.m_rcontext.runEnd();
-  }
-
-  tickUpdate() {
-    if (this.m_tickId > -1) {
-      clearTimeout(this.m_tickId);
-    }
-
-    this.m_tickId = setTimeout(this.tickUpdate.bind(this), this.m_rparam.getTickUpdateTime());
-    this.textureBlock.run();
-  }
-
-  createSubScene(rparam = null, renderProcessesTotal = 3, createNewCamera = true) {
-    if (this.m_renderer != null && this.materialBlock != null) {
-      this.m_localRunning = true;
-      let subsc = new RendererSubScene_1.default(this, this.m_renderer, this.m_evtFlowEnabled); // this.m_subscList.push(subsc);
-
-      this.m_subscListLen++;
-      let sc = subsc;
-      sc.textureBlock = this.textureBlock;
-      sc.materialBlock = this.materialBlock;
-      sc.entityBlock = this.entityBlock;
-
-      if (rparam != null) {
-        sc.initialize(rparam, renderProcessesTotal, createNewCamera);
-      }
-
-      return subsc;
-    }
-
-    throw Error("Illegal operation!!!");
-    return null;
-  }
-
-}
-
-exports.default = RendererScene;
-
-/***/ }),
-
-/***/ "b30a":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const MaterialConst_1 = __importDefault(__webpack_require__("644c"));
-/**
- * 作为渲染器运行时 material shader 资源的管理类
- * renderer runtime material shader resource manager
- */
-
-
-class RenderShader {
-  constructor(rcuid, gl, adapter, shdProgramBuilder) {
-    this.m_sharedUniformList = [];
-    this.m_unlocked = true;
-    this.m_texUnlocked = false;
-    this.m_preuid = -1;
-    this.m_currShd = null;
-    this.m_fragOutputTotal = 1;
-    this.m_rcuid = -1;
-    this.m_rc = null;
-    this.m_gpuProgram = null;
-    this.m_adapter = null;
-    this.m_guniform = null; // material相关的uniform,默认不包括transform相关的信息
-
-    this.m_uniform = null; // 只有transform相关的信息uniform
-
-    this.m_transformUniform = null;
-    this.m_shdProgramBuilder = null; // 用于记录 renderState(低10位)和ColorMask(高10位) 的状态组合
-
-    this.drawFlag = -1;
-    this.__$globalUniform = null;
-    this.m_rcuid = rcuid;
-    this.m_rc = gl;
-    this.m_adapter = adapter;
-    this.m_shdProgramBuilder = shdProgramBuilder;
-  }
-
-  createResByParams3(resUid, param0, param1, param2) {
-    return false;
-  }
-  /**
-   * @returns return system gpu context
-   */
-
-
-  getRC() {
-    return this.m_rc;
-  }
-  /**
-   * @returns return current gpu shader  program
-   */
-
-
-  getGPUProgram() {
-    return this.m_gpuProgram;
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_rcuid;
-  }
-
-  useTransUniform(transUniform) {
-    if (this.m_transformUniform != transUniform) {
-      this.m_transformUniform = transUniform;
-      transUniform.use(this);
-    }
-  }
-
-  useUniform(uniform) {
-    if (this.m_uniform != uniform) {
-      this.m_uniform = uniform;
-      uniform.use(this);
-    }
-  }
-
-  updateUniform(uniform) {
-    if (uniform != null) {
-      uniform.use(this);
-    }
-  }
-
-  unlock() {
-    this.m_unlocked = true;
-    this.__$globalUniform = null;
-  }
-
-  isUnLocked() {
-    return this.m_unlocked;
-  }
-
-  lock() {
-    this.m_unlocked = false;
-  }
-
-  textureUnlock() {
-    this.m_texUnlocked = true;
-  }
-
-  isTextureUnLocked() {
-    return this.m_texUnlocked;
-  }
-
-  textureLock() {
-    this.m_texUnlocked = false;
-  }
-
-  setSharedUniformByShd(shd, uniform) {
-    this.m_sharedUniformList[shd.getUid()] = uniform;
-  }
-
-  getSharedUniformByShd(shd) {
-    return this.m_sharedUniformList[shd.getUid()];
-  }
-
-  getCurrFragOutputTotal() {
-    return this.m_fragOutputTotal;
-  }
-  /**
-   * check whether the renderer runtime resource(by renderer runtime resource unique id) exists in the current renderer context
-   * @param resUid renderer runtime resource unique id
-   * @returns has or has not resource by unique id
-   */
-
-
-  hasResUid(resUid) {
-    // return this.m_shdList[resUid] != null;
-    return this.m_shdProgramBuilder.hasUid(resUid);
-  }
-  /**
-   * bind the renderer runtime resource(by renderer runtime resource unique id) to the current renderer context
-   * @param resUid renderer runtime resource unique id
-   */
-
-
-  bindToGpu(resUid) {
-    //if (this.m_unlocked && resUid > -1 && resUid < this.m_shdListLen) {
-    if (this.m_unlocked && this.m_shdProgramBuilder.containsUid(resUid)) {
-      if (this.m_preuid != resUid) {
-        this.m_preuid = resUid; //let shd: IShdProgram = this.m_shdList[resUid];
-
-        let shd = this.m_shdProgramBuilder.findShdProgramByUid(resUid);
-        this.m_fragOutputTotal = shd.getFragOutputTotal();
-
-        if (this.m_fragOutputTotal != this.getActiveAttachmentTotal()) {
-          //if(RendererDevice.SHOWLOG_ENABLED) {
-          console.log("shd.getUniqueShaderName(): string: " + shd.getUniqueShaderName());
-          console.log("this.m_fragOutputTotal: " + this.m_fragOutputTotal + ", rc.getActiveAttachmentTotal(): " + this.getActiveAttachmentTotal());
-          console.error("Error: MRT output amount is not equal to current shader( " + shd.toString() + " ) frag shader output amount !!!"); //}
-        }
-
-        this.m_gpuProgram = shd.getGPUProgram();
-        this.m_rc.useProgram(this.m_gpuProgram);
-        shd.useTexLocation(); //console.log("use a new shader uid: ",shd.getUid(),",uns: ",shd.getUniqueShaderName());
-        // use global shared uniform
-
-        let uniform = this.m_sharedUniformList[shd.getUid()]; //  let boo: boolean = false;
-        //  if((uniform as any).uns == "u_projMat") {
-        //      console.log("only use projMat begin");
-        //      boo = true;
-        //  }
-
-        this.m_guniform = uniform;
-
-        while (uniform != null) {
-          uniform.use(this);
-          uniform = uniform.next;
-        }
-
-        this.m_currShd = shd; //  if( boo ) {
-        //      console.log("only use projMat end");
-        //  }
-      } else if (this.m_guniform == null && this.m_currShd != null) {
-        let uniform = this.m_sharedUniformList[this.m_currShd.getUid()];
-        this.m_guniform = uniform;
-
-        while (uniform != null) {
-          uniform.use(this);
-          uniform = uniform.next;
-        }
-      }
-    }
-  }
-  /**
-   * get system gpu context resource buf
-   * @param resUid renderer runtime resource unique id
-   * @returns system gpu context resource buf
-   */
-
-
-  getGpuBuffer(resUid) {
-    return null;
-  }
-
-  getCurrentShd() {
-    return this.m_currShd;
-  }
-
-  getCurrentShdUid() {
-    return this.m_preuid;
-  }
-
-  resetUniform() {
-    this.m_uniform = null;
-    this.m_transformUniform = null;
-    this.m_guniform = null;
-  }
-
-  resetRenderState() {
-    this.drawFlag = -1;
-  }
-  /**
-   * frame begin run this function
-   */
-
-
-  renderBegin() {
-    this.m_fragOutputTotal = 1;
-    this.m_preuid = -1;
-    this.m_currShd = null;
-    this.drawFlag = -1; //this.resetUniform();
-  }
-  /**
-   * frame update
-   */
-
-
-  update() {}
-
-  destroy() {
-    this.m_rc = null;
-    this.m_adapter = null;
-  }
-
-  useUniformToCurrentShd(uniform) {
-    if (this.m_uniform != uniform) {
-      this.m_uniform != uniform;
-      uniform.useByShd(this, this.m_currShd);
-    }
-  }
-
-  useUniform2ToCurrentShd(uniform, transUniform) {
-    if (this.m_uniform != uniform) {
-      this.m_uniform != uniform;
-      uniform.useByShd(this, this.m_currShd);
-    }
-
-    if (this.m_transformUniform != transUniform) {
-      this.m_transformUniform != transUniform;
-      transUniform.useByShd(this, this.m_currShd);
-    }
-  }
-  /**
-   * 仅仅更新单个matrix4的uniforms数据
-  */
-
-
-  useUniformMat4(ult, mat4f32Arr) {
-    this.m_rc.uniformMatrix4fv(ult, false, mat4f32Arr);
-  }
-
-  useUniformV2(ult, type, f32Arr, dataSize, offset) {
-    const mc = MaterialConst_1.default;
-    const rc = this.m_rc;
-
-    switch (type) {
-      case mc.SHADER_MAT4:
-        rc.uniformMatrix4fv(ult, false, f32Arr, offset, dataSize * 16);
-        break;
-
-      case mc.SHADER_MAT3:
-        rc.uniformMatrix3fv(ult, false, f32Arr, 0, dataSize * 9);
-        break;
-
-      case mc.SHADER_VEC4FV:
-        //console.log("MaterialConst.SHADER_VEC4FV dataSize: ",dataSize);
-        //console.log(f32Arr);
-        rc.uniform4fv(ult, f32Arr, offset, dataSize * 4);
-        break;
-
-      case mc.SHADER_VEC3FV:
-        rc.uniform3fv(ult, f32Arr, offset, dataSize * 3);
-        break;
-
-      case mc.SHADER_VEC4:
-        rc.uniform4f(ult, f32Arr[0], f32Arr[1], f32Arr[2], f32Arr[3]);
-        break;
-
-      case mc.SHADER_VEC3:
-        rc.uniform3f(ult, f32Arr[0], f32Arr[1], f32Arr[2]);
-        break;
-
-      case mc.SHADER_VEC2:
-        rc.uniform2f(ult, f32Arr[0], f32Arr[1]);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  useUniformV1(ult, type, f32Arr, dataSize) {
-    const mc = MaterialConst_1.default;
-    const rc = this.m_rc;
-
-    switch (type) {
-      case mc.SHADER_MAT4:
-        rc.uniformMatrix4fv(ult, false, f32Arr);
-        break;
-
-      case mc.SHADER_MAT3:
-        rc.uniformMatrix3fv(ult, false, f32Arr);
-        break;
-
-      case mc.SHADER_VEC4FV:
-        rc.uniform4fv(ult, f32Arr, dataSize * 4);
-        break;
-
-      case mc.SHADER_VEC3FV:
-        rc.uniform3fv(ult, f32Arr, dataSize * 3);
-        break;
-
-      case mc.SHADER_VEC4:
-        rc.uniform4f(ult, f32Arr[0], f32Arr[1], f32Arr[2], f32Arr[3]);
-        break;
-
-      case mc.SHADER_VEC3:
-        rc.uniform3f(ult, f32Arr[0], f32Arr[1], f32Arr[2]);
-        break;
-
-      case mc.SHADER_VEC2:
-        rc.uniform2f(ult, f32Arr[0], f32Arr[1]);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  getActiveAttachmentTotal() {
-    return this.m_adapter.getActiveAttachmentTotal();
-  }
-
-}
-
-exports.default = RenderShader;
-
-/***/ }),
-
 /***/ "b3bd":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -32129,353 +23269,6 @@ exports.default = CameraBase;
 
 /***/ }),
 
-/***/ "c62b":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2019-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RenderConst_1 = __webpack_require__("e08e");
-
-const RenderColorMask_1 = __webpack_require__("070b");
-
-const RenderStateObject_1 = __webpack_require__("a5ba");
-/**
- * 渲染器渲染运行时核心关键执行显示单元,一个unit代表着一个draw call所渲染的所有数据
- * renderer rendering runtime core executable display unit.
- */
-
-
-class RPOUnit {
-  constructor() {
-    this.uid = -1;
-    this.value = -1; // 记录自身和RPONode的对应关系
-
-    this.__$rpuid = -1; // renderProcess uid
-
-    this.__$rprouid = -1;
-    this.shader = null; // 这个posotion和bounds的center会是同一个实例
-
-    this.pos = null;
-    this.bounds = null; // 记录对应的RODisplay的渲染所需的状态数据
-
-    this.ibufType = 0; // UNSIGNED_SHORT or UNSIGNED_INT
-
-    this.ibufStep = 2; // 2 or 4
-
-    this.ivsIndex = 0;
-    this.ivsCount = 0;
-    this.insCount = 0;
-    this.drawOffset = 0;
-    this.partTotal = 0; // partTotal = partGroup.length
-
-    this.partGroup = null;
-    this.trisNumber = 0;
-    this.visible = true;
-    this.drawEnabled = true;
-    this.drawMode = 0;
-    this.renderState = 0;
-    this.rcolorMask = 0; // 用于记录 renderState(低10位)和ColorMask(高10位) 的状态组合
-
-    this.drawFlag = 0;
-    this.vro = null; // transform uniform
-
-    this.transUniform = null; // materiall uniform
-
-    this.uniform = null; // 记录 material 对应的 shader program uid
-
-    this.shdUid = -1;
-    this.vtxUid = -1; // record tex group
-
-    this.tro = null;
-    this.texMid = -1;
-    this.ubo = null;
-    /**
-     *  for example: [-70.0,1.0]
-     */
-
-    this.polygonOffset = null;
-  }
-
-  testDrawFlag() {
-    if (this.shader.drawFlag != this.drawFlag) {
-      this.shader.drawFlag = this.drawFlag;
-      RenderStateObject_1.RenderStateObject.UseRenderState(this.renderState);
-      RenderColorMask_1.RenderColorMask.UseRenderState(this.rcolorMask);
-    }
-  }
-
-  getUid() {
-    return this.uid;
-  }
-
-  getRPOUid() {
-    return this.__$rpuid;
-  }
-
-  getRPROUid() {
-    return this.__$rprouid;
-  }
-
-  getShaderUid() {
-    return this.shdUid;
-  }
-
-  setIvsParam(ivsIndex, ivsCount) {
-    this.ivsIndex = ivsIndex;
-    this.ivsCount = ivsCount;
-    this.drawOffset = ivsIndex * this.ibufStep;
-    this.drawEnabled = this.visible && this.ivsCount > 0;
-  }
-
-  setVisible(boo) {
-    this.visible = boo;
-    this.drawEnabled = boo && this.ivsCount > 0; // if(DebugFlag.Flag_0 > 0) console.log("#### setVisible(): ", boo, "this.drawEnabled: ",this.drawEnabled);
-  }
-
-  setDrawFlag(renderState, rcolorMask) {
-    this.renderState = renderState;
-    this.rcolorMask = rcolorMask;
-    this.drawFlag = (rcolorMask << 10) + renderState;
-  }
-
-  drawThis(rc) {
-    const st = rc.status;
-    st.drawCallTimes++;
-    st.drawTrisNumber += this.trisNumber; // TODO(Vily): 下面这个判断流程需要优化(由于几何数据更改之后上传gpu的动作是一帧上传16个这样的速度下实现的，所以需要下面这句代码来保证不出错: [.WebGL-000037DC02C2B800] GL_INVALID_OPERATION: Insufficient buffer size)
-
-    let ivsCount = this.indicesRes.getVTCount();
-    if (this.ivsCount <= ivsCount) ivsCount = this.ivsCount;
-
-    if (this.polygonOffset != null) {
-      rc.setPolygonOffset(this.polygonOffset[0], this.polygonOffset[1]);
-    } else {
-      rc.resetPolygonOffset();
-    }
-
-    const rdm = RenderConst_1.RenderDrawMode;
-    let gl = rc.RContext;
-
-    switch (this.drawMode) {
-      case rdm.ELEMENTS_TRIANGLES:
-        // if(DebugFlag.Flag_0 > 0)console.log("RPOUnit::run(), TRIANGLES drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+"),drawOffset: "+this.drawOffset);
-        //rc.RContext.drawElements(rc.TRIANGLES, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLES, ivsCount, this.ibufType, this.drawOffset);
-        break;
-
-      case rdm.ELEMENTS_LINES:
-        //console.log("RPOUnit::run(), ELEMENTS_LINES drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+"),drawOffset: "+this.drawOffset);
-        //rc.RContext.drawElements(rc.ELEMENTS_LINES, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.LINES, ivsCount, this.ibufType, this.drawOffset);
-        break;
-
-      case rdm.ELEMENTS_TRIANGLE_STRIP:
-        //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        //rc.RContext.drawElements(rc.TRIANGLE_STRIP, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_STRIP, ivsCount, this.ibufType, this.drawOffset);
-        break;
-
-      case rdm.ELEMENTS_INSTANCED_TRIANGLES:
-        //console.log("RPOUnit::run(), drawElementsInstanced(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+", insCount: "+this.insCount+")");
-        //rc.RContext.drawElementsInstanced(rc.TRIANGLES,this.ivsCount, this.ibufType, this.ivsIndex * this.ibufStep, this.insCount);
-        gl.drawElementsInstanced(rc.TRIANGLES, ivsCount, this.ibufType, this.drawOffset, this.insCount);
-        break;
-
-      case rdm.ELEMENTS_TRIANGLE_FAN:
-        //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        //rc.RContext.drawElements(rc.TRIANGLE_FAN, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_FAN, ivsCount, this.ibufType, this.drawOffset);
-        break;
-
-      case rdm.ARRAYS_LINES:
-        //console.log("RPOUnit::run(), ARRAYS_LINES drawArrays(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        gl.drawArrays(rc.LINES, this.ivsIndex, this.ivsCount);
-        break;
-
-      case rdm.ARRAYS_LINE_STRIP:
-        //console.log("RPOUnit::run(), ARRAYS_LINE_STRIP drawArrays(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        gl.drawArrays(rc.LINE_STRIP, this.ivsIndex, this.ivsCount);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  drawPart(rc) {
-    const st = rc.status;
-    st.drawCallTimes++;
-    st.drawTrisNumber += this.trisNumber; // TODO(Vily): 下面这个判断流程需要优化(由于几何数据更改之后上传gpu的动作是一帧上传16个这样的速度下实现的，所以需要下面这句代码来保证不出错: [.WebGL-000037DC02C2B800] GL_INVALID_OPERATION: Insufficient buffer size)
-
-    let ivsCount = this.indicesRes.getVTCount();
-    if (this.ivsCount <= ivsCount) ivsCount = this.ivsCount;
-
-    if (this.polygonOffset != null) {
-      rc.setPolygonOffset(this.polygonOffset[0], this.polygonOffset[1]);
-    } else {
-      rc.resetPolygonOffset();
-    }
-
-    const rdm = RenderConst_1.RenderDrawMode;
-    let i = 0;
-    let gl = rc.RContext;
-
-    switch (this.drawMode) {
-      case rdm.ELEMENTS_TRIANGLES:
-        for (; i < this.partTotal;) {
-          // 这里面可以增加一个回调函数,这个回调函数可以对uniform(或者transformUniform)做一些数据改变，进而来控制相应的状态
-          // 因此可以通过改变uniform实现大量的显示绘制
-          //  let count:number = this.partGroup[i++];
-          //  let offset:number = this.partGroup[i++];
-          //  gl.drawElements(rc.TRIANGLES, count, this.ibufType, offset);
-          gl.drawElements(rc.TRIANGLES, this.partGroup[i++], this.ibufType, this.partGroup[i++]);
-        }
-
-        break;
-
-      case rdm.ELEMENTS_LINES:
-        for (; i < this.partTotal;) {
-          // 这里面可以增加一个回调函数,这个回调函数可以对uniform(或者transformUniform)做一些数据改变，进而来控制相应的状态
-          // 因此可以通过改变uniform实现大量的显示绘制
-          //  let count:number = this.partGroup[i++];
-          //  let offset:number = this.partGroup[i++];
-          //  gl.drawElements(rc.TRIANGLES, count, this.ibufType, offset);
-          gl.drawElements(rc.LINES, this.partGroup[i++], this.ibufType, this.partGroup[i++]);
-        }
-
-        break;
-
-      case rdm.ELEMENTS_TRIANGLE_STRIP:
-        //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        //rc.RContext.drawElements(rc.TRIANGLE_STRIP, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_STRIP, this.ivsCount, this.ibufType, this.drawOffset);
-        break;
-
-      case rdm.ELEMENTS_INSTANCED_TRIANGLES:
-        //console.log("RPOUnit::run(), drawElementsInstanced(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+", insCount: "+this.insCount+")");
-        //rc.RContext.drawElementsInstanced(rc.TRIANGLES,this.ivsCount, this.ibufType, this.ivsIndex * this.ibufStep, this.insCount);
-        gl.drawElementsInstanced(rc.TRIANGLES, this.ivsCount, this.ibufType, this.drawOffset, this.insCount);
-        break;
-
-      case rdm.ELEMENTS_TRIANGLE_FAN:
-        //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        //rc.RContext.drawElements(rc.TRIANGLE_FAN, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_FAN, this.ivsCount, this.ibufType, this.drawOffset);
-        break;
-
-      case rdm.ARRAYS_LINES:
-        //console.log("RPOUnit::run(), drawArrays(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        gl.drawArrays(rc.LINES, this.ivsIndex, this.ivsCount);
-        break;
-
-      case rdm.ARRAYS_LINE_STRIP:
-        //console.log("RPOUnit::run(), drawArrays(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        gl.drawArrays(rc.LINE_STRIP, this.ivsIndex, this.ivsCount);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  run2(rc) {
-    //console.log("RPOUnit::run2(), this.tro: "+this.tro+", this.drawMode: "+this.drawMode);
-    if (this.ubo != null) {
-      this.ubo.run(rc);
-    } //  if(this.shader == null)
-    //  {
-    //      console.log("this.shader == null unit this.uid: ",this.uid);
-    //  }
-
-
-    this.shader.useTransUniform(this.transUniform);
-    this.shader.useUniform(this.uniform);
-    this.testDrawFlag();
-  }
-
-  run(rc) {
-    //console.log("RPOUnit::run(), this.tro: "+this.tro+", this.drawMode: "+this.drawMode);
-    if (this.ubo != null) {
-      this.ubo.run(rc);
-    }
-
-    this.vro.run();
-    this.tro.run();
-    this.shader.useTransUniform(this.transUniform);
-    this.shader.useUniform(this.uniform);
-    this.testDrawFlag();
-  }
-
-  runLockMaterial2(puniform) {
-    this.testDrawFlag();
-    this.shader.useUniform2ToCurrentShd(puniform == null ? this.uniform : puniform, this.transUniform);
-  }
-
-  runLockMaterial() {
-    this.vro.run();
-    this.testDrawFlag();
-    this.shader.useUniform2ToCurrentShd(this.uniform, this.transUniform);
-  }
-
-  reset() {
-    //  console.log("RPOUnit::reset(), uid: ",this.getUid());
-    this.indicesRes = null;
-    this.polygonOffset = null;
-
-    this.vro.__$detachThis();
-
-    this.vro = null;
-
-    this.tro.__$detachThis();
-
-    this.tro = null;
-    this.texMid = -1;
-    this.__$rprouid = -1;
-    this.ubo = null;
-    this.shdUid = -1;
-    this.vtxUid = -1;
-    this.uniform = null;
-    this.transUniform = null;
-    this.partGroup = null;
-    this.ivsIndex = 0;
-    this.ivsCount = 0;
-    this.insCount = 0;
-    this.partTotal = 0;
-    this.drawMode = 0;
-    this.drawFlag = 0x0;
-    this.renderState = 0;
-    this.rcolorMask = 0;
-    this.drawEnabled = true;
-    this.shader = null;
-    this.bounds = null;
-    this.pos = null;
-  }
-
-  destroy() {
-    this.reset();
-  }
-
-}
-
-exports.default = RPOUnit;
-
-/***/ }),
-
 /***/ "c711":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -32991,6 +23784,8 @@ const VtxBufConst_2 = __webpack_require__("8a0a");
 const ROVertexBuffer_1 = __importDefault(__webpack_require__("e7d2"));
 
 const RenderConst_1 = __webpack_require__("e08e");
+
+const ROIvsData_1 = __importDefault(__webpack_require__("2048"));
 /**
  * mesh(Polygon face convex mesh or Parametric geometry Objecct:):
  *      1.基于面(例如三角面)描述的多面体实体(Polygon face geometry mesh,for example: triangle mesh)
@@ -33041,7 +23836,7 @@ class MeshBase {
     this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES; //  vtx postion in data stream used count
 
     this.vtCount = 0;
-    this.vbWholeDataEnabled = true;
+    this.vbWholeDataEnabled = false;
     this.drawInsBeginIndex = 0;
     this.drawInsStride = 0;
     this.drawInsTotal = 0;
@@ -33062,7 +23857,7 @@ class MeshBase {
   }
 
   toElementsTriangles() {
-    this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES; // this.setPolyhedral(true);
+    this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES;
   }
 
   toElementsTriangleStrip() {
@@ -33103,19 +23898,19 @@ class MeshBase {
   }
 
   createIVSBYSize(size) {
-    return size > 65535 ? new Uint32Array(size) : new Uint16Array(size);
+    return size > 65536 ? new Uint32Array(size) : new Uint16Array(size);
   }
 
   createIVSByArray(arr) {
-    return arr.length > 65535 ? new Uint32Array(arr) : new Uint16Array(arr);
+    return arr.length > 65536 ? new Uint32Array(arr) : new Uint16Array(arr);
   }
 
   createWireframeIvs(ivs = null) {
     if (ivs == null) ivs = this.m_ivs;
 
     if (ivs !== null) {
-      let len = ivs.length * 2;
-      let wivs = len <= 65536 ? new Uint16Array(len) : new Uint32Array(len);
+      const len = ivs.length * 2;
+      const wivs = len <= 65536 ? new Uint16Array(len) : new Uint32Array(len);
       let a;
       let b;
       let c;
@@ -33140,11 +23935,13 @@ class MeshBase {
     return null;
   }
 
-  updateWireframeIvs() {
+  updateWireframeIvs(ivs = null) {
+    return ivs;
     this.toElementsTriangles();
+    let wivs = null;
 
     if (this.wireframe) {
-      let wivs = this.createWireframeIvs();
+      wivs = this.createWireframeIvs(ivs);
 
       if (wivs != null) {
         this.m_ivs = this.createWireframeIvs();
@@ -33152,6 +23949,8 @@ class MeshBase {
 
       this.toElementsLines();
     }
+
+    return wivs;
   }
 
   buildEnd() {
@@ -33197,6 +23996,13 @@ class MeshBase {
     return -1;
   }
 
+  crateROIvsData() {
+    const ird = new ROIvsData_1.default();
+    ird.wireframe = this.wireframe;
+    ird.shape = this.shape;
+    return ird;
+  }
+
   rebuild() {
     if (this.m_vbuf == null) {
       if (this.m_bufDataList != null) {
@@ -33212,7 +24018,9 @@ class MeshBase {
         this.m_vbuf = ROVertexBuffer_1.default.CreateBySaveData(this.getBufDataUsage());
 
         if (this.m_ivs != null) {
-          this.m_vbuf.setUintIVSData(this.m_ivs);
+          let ird = this.crateROIvsData();
+          ird.setData(this.m_ivs);
+          this.m_vbuf.setIVSDataAt(ird);
           this.vtCount = this.m_ivs.length;
         }
       }
@@ -33255,6 +24063,18 @@ class MeshBase {
 
   getBufDataUsage() {
     return this.m_bufDataUsage;
+  }
+
+  getVSStride() {
+    return 3;
+  }
+
+  getUVSStride() {
+    return 2;
+  }
+
+  getNVSStride() {
+    return 3;
   }
   /**
    * @returns vertex position buffer Float32Array
@@ -33885,6 +24705,138 @@ exports.default = RTTTextureProxy;
 
 /***/ }),
 
+/***/ "d031":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class VtxDrawingInfo {
+  constructor() {
+    this.m_uid = VtxDrawingInfo.s_uid++;
+    this.m_ivsIndex = -1;
+    this.m_ivsCount = -1;
+    this.m_wireframe = false;
+    this.m_flag = 0;
+    this.m_sts = new Uint8Array([0, 0, 0, 0]);
+    this.m_dynamic = true;
+    this.m_ivsDataIndex = 0;
+    this.rdp = null;
+  }
+
+  destroy() {
+    if (this.rdp != null) {
+      this.rdp.clear();
+      this.rdp = null;
+    }
+  }
+
+  toStatic() {
+    this.m_dynamic = false;
+  }
+
+  toDynamic() {
+    this.m_dynamic = true;
+  }
+
+  setWireframe(wireframe) {
+    if (this.m_dynamic && this.m_wireframe != wireframe) {
+      this.m_wireframe = wireframe;
+      this.m_flag++;
+      this.m_sts[2] = 1;
+    }
+  }
+
+  applyIvsDataAt(index) {
+    if (index >= 0 && this.m_ivsDataIndex != index) {
+      this.m_flag++;
+      this.m_sts[3] = 1;
+      this.m_ivsDataIndex = index;
+    }
+  }
+
+  setIvsParam(ivsIndex = -1, ivsCount = -1) {
+    if (this.m_dynamic) {
+      if (ivsIndex >= 0) {
+        this.m_ivsIndex = ivsIndex;
+        this.m_flag++;
+        this.m_sts[1] = 1;
+      }
+
+      if (ivsCount >= 0) {
+        this.m_ivsCount = ivsCount;
+        this.m_flag++;
+        this.m_sts[1] = 1;
+      }
+    }
+  }
+
+  reset() {
+    this.m_flag = 0;
+  }
+
+  __$$copyToRDP() {
+    // console.log("__$$copyToRDP() ...rdp.getUid(): ", rdp.getUid());
+    if (this.rdp) {
+      const rdp = this.rdp;
+
+      if (this.m_dynamic) {
+        // console.log("info rdp.getUid(): ", rdp.getUid(), this.m_uid);
+        if (this.m_flag > 0) {
+          // console.log("__$$copyToRDP() ...rdp.getUid(): ", rdp.getUid(), ", this.m_uid: ", this.m_uid);
+          if (this.m_sts[1] > 0) {
+            this.m_sts[1] = 0; // console.log("__$$copyToRDP() ...rdp.setIvsParam(): ", this.m_ivsIndex, this.m_ivsCount);
+
+            rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
+          }
+
+          if (this.m_sts[2] > 0) {
+            this.m_sts[2] = 0;
+
+            if (this.m_wireframe) {
+              rdp.toWireframe();
+            } else {
+              rdp.toCommon();
+            }
+          }
+
+          if (this.m_sts[3] > 0) {
+            this.m_sts[3] = 0;
+            rdp.applyRDPAt(this.m_ivsDataIndex);
+          }
+
+          this.reset();
+        }
+      }
+
+      return rdp.test();
+    }
+
+    return false;
+  }
+
+}
+
+VtxDrawingInfo.s_uid = 0;
+exports.default = VtxDrawingInfo;
+
+/***/ }),
+
 /***/ "d08b":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -34034,491 +24986,6 @@ exports.default = ImageCubeTextureProxy;
 
 /***/ }),
 
-/***/ "d35c":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RendererSceneNode_1 = __importDefault(__webpack_require__("9693"));
-
-const RendererParam_1 = __importDefault(__webpack_require__("c497"));
-
-const RendererScene_1 = __importDefault(__webpack_require__("b161"));
-
-class RendererSceneGraph {
-  constructor() {
-    this.m_map = new Map();
-    this.m_nodes = [];
-    this.rayPickFlag = false;
-  }
-
-  clear() {
-    const ls = this.m_nodes;
-    let tot = ls.length;
-    let i = 0;
-
-    for (; i < tot; ++i) {
-      ls[i].clear();
-    }
-
-    this.m_nodes = [];
-    this.m_map.clear();
-  }
-
-  addSceneNode(node, index = -1) {
-    if (node != null && node.getRScene() != null) {
-      const ls = this.m_nodes;
-      let tot = ls.length;
-      let i = 0;
-
-      for (; i < tot; ++i) {
-        if (ls[i] == node) {
-          break;
-        }
-      }
-
-      if (i >= tot) {
-        const sc = node.getRScene();
-
-        if (!this.m_map.has(sc.getUid())) {
-          ls.push(node);
-          this.m_map.set(sc.getUid(), node);
-        }
-      }
-    }
-  }
-
-  getNodesTotal() {
-    return this.m_nodes.length;
-  }
-
-  getNodes() {
-    return this.m_nodes;
-  }
-
-  getNodeAt(i) {
-    if (i >= 0 && i < this.m_nodes.length) return this.m_nodes[i];
-    return null;
-  }
-
-  getSceneAt(i) {
-    if (i >= 0 && i < this.m_nodes.length) return this.m_nodes[i].getRScene();
-    return null;
-  }
-
-  createRendererParam(div = null) {
-    return new RendererParam_1.default(div);
-  }
-
-  createRendererSceneParam(div = null) {
-    return new RendererParam_1.default(div);
-  }
-  /**
-   * @param rparam IRendererParam instance, the default value is null
-   * @param renderProcessesTotal the default value is 3
-   * @param createNewCamera the default value is true
-   */
-
-
-  createScene(rparam = null, renderProcessesTotal = 3, createNewCamera = true) {
-    let sc = new RendererScene_1.default();
-    sc.initialize(rparam, renderProcessesTotal, createNewCamera);
-    let node = new RendererSceneNode_1.default(sc);
-    this.m_nodes.push(node);
-    this.m_map.set(sc.getUid(), node);
-    return sc;
-  }
-  /**
-   * @param rparam IRendererParam instance, the default value is null
-   * @param renderProcessesTotal the default value is 3
-   * @param createNewCamera the default value is true
-   */
-
-
-  createSubScene(rparam, renderProcessesTotal, createNewCamera) {
-    if (this.m_nodes.length > 0) {
-      let sc = this.m_nodes[0].getRScene().createSubScene(rparam, renderProcessesTotal, createNewCamera);
-      let node = new RendererSceneNode_1.default(sc);
-      this.m_nodes.push(node);
-      this.m_map.set(sc.getUid(), node);
-      return sc;
-    }
-
-    return null;
-  }
-
-  addScene(sc) {
-    if (sc != null) {
-      let ls = this.m_nodes;
-
-      for (let i = 0; i < ls.length; ++i) {
-        if (ls[i].getRScene() == sc) {
-          return ls[i];
-        }
-      }
-
-      let node = new RendererSceneNode_1.default(sc);
-      ls.push(node);
-      this.m_map.set(sc.getUid(), node);
-      return node;
-    }
-
-    return null;
-  }
-
-  getNodeBySceneUid(uid) {
-    if (this.m_map.has(uid)) {
-      return this.m_map.get(uid);
-    }
-
-    return null;
-  }
-
-  createNode(sc) {
-    if (sc != null) {
-      return new RendererSceneNode_1.default(sc);
-    }
-
-    return null;
-  }
-
-  run() {
-    let pickFlag = true;
-    let list = this.m_nodes;
-    let total = list.length;
-    let i = total - 1;
-    const node = list[i];
-    let scene = list[i].getRScene();
-    if (node.p0Call0) node.p0Call0(scene, this);
-    scene.runBegin(true, true);
-    scene.update(false, true);
-    pickFlag = scene.isRayPickSelected();
-    this.rayPickFlag = pickFlag;
-    if (node.p0Call1) node.p0Call1(scene, this);
-    i -= 1;
-
-    for (; i >= 0; --i) {
-      const node = list[i];
-      scene = list[i].getRScene();
-      if (node.p0Call0) node.p0Call0(scene, this);
-      scene.runBegin(false, true);
-      scene.update(false, !pickFlag);
-      pickFlag = pickFlag || scene.isRayPickSelected();
-      this.rayPickFlag = pickFlag;
-      if (node.p0Call1) node.p0Call1(scene, this);
-    } /////////////////////////////////////////////////////// ---- mouseTest end.
-    /////////////////////////////////////////////////////// ---- rendering begin.
-
-
-    for (i = 0; i < total; ++i) {
-      const node = list[i];
-      scene = list[i].getRScene();
-      if (node.p1Call0) node.p0Call0(scene, this);
-      scene.renderBegin(node.contextResetEnabled);
-      const idList = node.processIdList;
-
-      if (idList == null) {
-        scene.run(false);
-      } else {
-        for (let j = 0; j < idList.length; ++j) {
-          scene.runAt(idList[j]);
-        }
-      }
-
-      scene.runEnd();
-      if (node.p1Call0) node.p0Call1(scene, this);
-    }
-  }
-
-}
-
-exports.default = RendererSceneGraph;
-
-/***/ }),
-
-/***/ "d53d":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class ShaderUniform {
-  constructor() {
-    this.uns = "";
-    this.key = -1;
-    this.program = null;
-    this.types = null;
-    this.uniformSize = 0;
-    this.uniformNameList = null;
-    this.locations = null;
-    this.dataSizeList = null;
-    this.dataList = null;
-    this.calcModels = null;
-    this.always = true;
-    this.next = null;
-  } // for fast data's operation
-
-
-  getDataRefFromUniformName(ns) {
-    if (this.uniformNameList != null) {
-      let list = this.uniformNameList;
-      let len = list.length;
-
-      for (let i = 0; i < len; ++i) {
-        if (ns == list[i]) {
-          return this.dataList[i];
-        }
-      }
-    }
-
-    return null;
-  } // for fast data's operation
-
-
-  setDataRefFromUniformName(ns, dataRef) {
-    if (this.uniformNameList != null) {
-      let list = this.uniformNameList;
-      let len = list.length;
-
-      for (let i = 0; i < len; ++i) {
-        if (ns == list[i]) {
-          this.dataList[i] = dataRef;
-          break;
-        }
-      }
-    }
-  }
-
-  copyDataFromProbe(probe) {
-    this.types = [];
-    this.dataSizeList = [];
-
-    for (let i = 0; i < probe.uniformsTotal; ++i) {
-      this.types.push(probe.uniformTypes[i]);
-      this.dataSizeList.push(probe.dataSizeList[i]);
-    }
-
-    this.uniformSize = probe.uniformsTotal;
-  }
-
-  useByLocation(rc, type, location, i) {}
-
-  useByShd(rc, shd) {}
-
-  use(rc) {}
-
-  updateData() {}
-
-  destroy() {}
-
-}
-
-exports.ShaderUniform = ShaderUniform; // for webgl1
-
-class ShaderUniformV1 extends ShaderUniform {
-  constructor() {
-    super();
-  }
-
-  use(rc) {
-    let i = 0;
-
-    for (; i < this.uniformSize; ++i) {
-      rc.useUniformV1(this.locations[i], this.types[i], this.dataList[i], this.dataSizeList[i]);
-    }
-  }
-
-  useByLocation(rc, type, location, i) {
-    rc.useUniformV1(location, type, this.dataList[i], this.dataSizeList[i]);
-  }
-
-  useByShd(rc, shd) {
-    let i = 0;
-
-    for (; i < this.uniformSize; ++i) {
-      //rc.useUniformV1(shd.getUniformLocationByNS(this.uniformNameList[i]),shd.getUniformTypeByNS(this.uniformNameList[i]),this.dataList[i],this.dataSizeList[i]);
-      rc.useUniformV1(shd.getUniformLocationByNS(this.uniformNameList[i]), this.types[i], this.dataList[i], this.dataSizeList[i]);
-    }
-  }
-
-  updateData() {
-    if (this.calcModels != null) {
-      let len = this.calcModels.length;
-      let model = null;
-
-      for (let i = 0; i < len; ++i) {
-        model = this.calcModels[i];
-        model.buildData();
-        model.updateMaterialDataList(this.dataList);
-        model.initializeParam();
-      }
-    }
-  }
-
-  destroy() {
-    let i = 0;
-    let len = this.dataList.length;
-
-    for (; i < len; ++i) {
-      this.dataList[i] = null;
-    }
-
-    if (this.calcModels != null) {
-      len = this.calcModels.length;
-
-      for (i = 0; i < len; ++i) {
-        this.calcModels[i].destroy();
-        this.calcModels[i] = null;
-      }
-    }
-
-    this.dataList = null;
-    this.types = null;
-    this.locations = null;
-    this.dataSizeList = null;
-    this.calcModels = null;
-  }
-
-}
-
-exports.ShaderUniformV1 = ShaderUniformV1; // for webgl2
-
-class ShaderUniformV2 extends ShaderUniform {
-  constructor() {
-    super();
-  }
-
-  use(rc) {
-    // new DebugFlag
-    // if(this.uns == "ggg" && DebugFlag.Flag_0 > 0) {
-    //     let arr = this.dataList[0].slice(0);
-    //     console.log("ggg arr: ",arr);
-    // }
-    let i = 0;
-
-    for (; i < this.uniformSize; ++i) {
-      rc.useUniformV2(this.locations[i], this.types[i], this.dataList[i], this.dataSizeList[i], 0);
-    }
-  }
-
-  useByLocation(rc, type, location, i) {
-    rc.useUniformV2(location, type, this.dataList[i], this.dataSizeList[i], 0);
-  }
-
-  useByShd(rc, shd) {
-    let i = 0;
-
-    for (; i < this.uniformSize; ++i) {
-      //rc.useUniformV2(shd.getUniformLocationByNS(this.uniformNameList[i]),shd.getUniformTypeByNS(this.uniformNameList[i]),this.dataList[i],this.dataSizeList[i],0);
-      rc.useUniformV2(shd.getUniformLocationByNS(this.uniformNameList[i]), this.types[i], this.dataList[i], this.dataSizeList[i], 0);
-    }
-  }
-
-  updateData() {
-    if (this.calcModels != null) {
-      let len = this.calcModels.length;
-      let model = null;
-
-      for (let i = 0; i < len; ++i) {
-        model = this.calcModels[i];
-        model.buildData();
-        model.updateMaterialDataList(this.dataList);
-        model.initializeParam();
-      }
-    }
-  }
-
-  destroy() {
-    let i = 0;
-    let len = this.dataList.length;
-
-    for (; i < len; ++i) {
-      this.dataList[i] = null;
-    }
-
-    if (this.calcModels != null) {
-      len = this.calcModels.length;
-
-      for (i = 0; i < len; ++i) {
-        this.calcModels[i].destroy();
-        this.calcModels[i] = null;
-      }
-    }
-
-    this.dataList = null;
-    this.types = null;
-    this.locations = null;
-    this.dataSizeList = null;
-    this.calcModels = null;
-    this.program = null;
-  }
-
-}
-
-exports.ShaderUniformV2 = ShaderUniformV2;
-/**
- * 只有一个mat4的uniform对象
- * only one mat4 type uniform object
- */
-
-class ShaderMat4Uniform extends ShaderUniform {
-  constructor() {
-    super();
-  }
-
-  use(rc) {
-    rc.useUniformMat4(this.locations[0], this.dataList[0]);
-  }
-
-  useByLocation(rc, type, location, i) {
-    rc.useUniformMat4(location, this.dataList[0]);
-  }
-
-  useByShd(rc, shd) {
-    rc.useUniformMat4(shd.getUniformLocationByNS(this.uniformNameList[0]), this.dataList[0]);
-  }
-
-  destroy() {
-    this.dataList[0] = null;
-    this.dataList = null;
-    this.types = null;
-    this.locations = null;
-    this.dataSizeList = null;
-  }
-
-}
-
-exports.ShaderMat4Uniform = ShaderMat4Uniform;
-exports.default = ShaderUniform;
-
-/***/ }),
-
 /***/ "d7e2":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -34571,616 +25038,6 @@ class CameraDsistanceSorter {
 }
 
 exports.default = CameraDsistanceSorter;
-
-/***/ }),
-
-/***/ "d872":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const UniformDataSlot_1 = __webpack_require__("5326");
-
-const ShaderUniformProbe_1 = __importDefault(__webpack_require__("3077"));
-
-const UniformVec4Probe_1 = __importDefault(__webpack_require__("3024"));
-
-const ShaderGlobalUniform_1 = __importDefault(__webpack_require__("7279"));
-
-class ShaderUniformContext {
-  constructor(rcuid, dataTotal = 256) {
-    this.m_rcuid = 0;
-    this.m_udSlot = null;
-    this.m_rcuid = rcuid;
-    this.m_udSlot = new UniformDataSlot_1.UniformDataSlot(rcuid, dataTotal);
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_rcuid;
-  }
-
-  createShaderUniformProbe() {
-    let probe = new ShaderUniformProbe_1.default(this.m_udSlot);
-    return probe;
-  }
-
-  createUniformVec4Probe(vec4Total) {
-    let probe = new UniformVec4Probe_1.default(this.m_udSlot, vec4Total);
-    return probe;
-  }
-
-  createGlobalUinformFromProbe(uProbe, uniformNames = null) {
-    let suo = this.createShaderGlobalUniform();
-    this.updateGlobalUinformDataFromProbe(suo, uProbe, uniformNames);
-    return suo;
-  }
-
-  updateGlobalUinformDataFromProbe(psuo, uProbe, uniformNames = null) {
-    let suo = psuo;
-    suo.uniformNameList = uniformNames != null ? uniformNames : uProbe.uniformNames;
-    suo.copyDataFromProbe(uProbe);
-    uProbe.update();
-  }
-
-  createShaderGlobalUniform() {
-    let suo = new ShaderGlobalUniform_1.default(this.m_udSlot);
-    return suo;
-  }
-
-  createShaderGlobalUniformFromProbe(uProbe, puns, uniformNames = null) {
-    let suo = new ShaderGlobalUniform_1.default(this.m_udSlot);
-    suo.uns = puns;
-    suo.uniformNameList = uniformNames != null ? uniformNames : uProbe.uniformNames;
-    suo.copyDataFromProbe(uProbe);
-    uProbe.update();
-    return suo;
-  }
-
-  createShaderGlobalUniformFromProbeAt(uProbe, puns, uniformNames = null, index) {
-    let suo = new ShaderGlobalUniform_1.default(this.m_udSlot);
-    suo.uns = puns;
-    suo.uniformNameList = uniformNames != null ? uniformNames : uProbe.uniformNames;
-
-    if (index < 0) {
-      suo.copyDataFromProbe(uProbe);
-    } else {
-      suo.copyDataFromProbeAt(index, uProbe);
-    }
-
-    uProbe.update();
-    return suo;
-  }
-
-  cloneShaderGlobalUniform(psuo) {
-    let suo = psuo;
-    return suo.clone();
-  }
-
-}
-
-exports.ShaderUniformContext = ShaderUniformContext;
-
-/***/ }),
-
-/***/ "d958":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RSEntityFlag_1 = __importDefault(__webpack_require__("11e6"));
-
-const ShaderUniformContext_1 = __webpack_require__("d872");
-
-const RODataBuilder_1 = __importDefault(__webpack_require__("36cb"));
-
-const RenderProcessBuider_1 = __importDefault(__webpack_require__("3c81"));
-
-const ROVtxBuilder_1 = __importDefault(__webpack_require__("1e15"));
-
-const RendererInstanceContext_1 = __webpack_require__("0e01");
-
-const RPOUnitBuilder_1 = __webpack_require__("eca0");
-
-const RPONodeBuilder_1 = __importDefault(__webpack_require__("442e"));
-
-const DispEntity3DManager_1 = __importDefault(__webpack_require__("1264"));
-/**
- * kernal system instance, it is the renderer instance for the renderer runtime, it is very very very important class.
- */
-
-
-class RendererInstance {
-  constructor() {
-    this.___$$$$$$$Author = "VilyLei(vily313@126.com)";
-    this.m_uid = -1;
-    this.m_entity3DMana = null;
-    this.m_processes = [];
-    this.m_processesLen = 0;
-    this.m_sprocesses = [];
-    this.m_sprocessesLen = 0;
-    this.m_renderProxy = null;
-    this.m_adapter = null;
-    this.m_dataBuilder = null;
-    this.m_renderInsContext = null;
-    this.m_batchEnabled = true;
-    this.m_processFixedState = true;
-    this.m_rpoUnitBuilder = new RPOUnitBuilder_1.RPOUnitBuilder();
-    this.m_rpoNodeBuilder = new RPONodeBuilder_1.default();
-    this.m_processBuider = new RenderProcessBuider_1.default();
-    this.m_roVtxBuilder = null;
-    this.m_stage3D = null;
-    this.m_fixProcess = null;
-    this.m_uid = RendererInstance.s_uid++;
-    this.m_renderInsContext = new RendererInstanceContext_1.RendererInstanceContext(this.m_uid);
-  }
-
-  __$setStage3D(stage3D) {
-    if (stage3D != null && this.m_stage3D == null) {
-      this.m_stage3D = stage3D;
-    }
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_uid;
-  }
-
-  getRPONodeBuilder() {
-    return this.m_rpoNodeBuilder;
-  }
-
-  getDataBuilder() {
-    return this.m_dataBuilder;
-  }
-
-  getRendererContext() {
-    return this.m_renderInsContext;
-  }
-
-  getRenderProxy() {
-    if (this.m_renderProxy != null) {
-      return this.m_renderProxy;
-    }
-
-    this.m_renderProxy = this.m_renderInsContext.getRenderProxy();
-    return this.m_renderProxy;
-  }
-
-  getStage3D() {
-    return this.m_renderProxy.getStage3D();
-  }
-
-  getViewX() {
-    return this.m_adapter.getViewportX();
-  }
-
-  getViewY() {
-    return this.m_adapter.getViewportY();
-  }
-
-  getViewWidth() {
-    return this.m_adapter.getViewportWidth();
-  }
-
-  getViewHeight() {
-    return this.m_adapter.getViewportHeight();
-  }
-
-  getCamera() {
-    return this.m_renderInsContext.getCamera();
-  }
-
-  createCamera() {
-    return null;
-  }
-
-  useCamera(camera, syncCamView = false) {}
-
-  useMainCamera() {}
-
-  updateCamera() {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.updateCamera();
-    }
-  }
-
-  initialize(param = null, camera = null, shdProgramBuider = null) {
-    if (this.m_dataBuilder == null && camera != null) {
-      this.m_batchEnabled = param.batchEnabled;
-      this.m_processFixedState = param.processFixedState;
-      this.m_renderProxy = this.m_renderInsContext.getRenderProxy();
-      this.m_uid = this.m_renderProxy.getUid();
-      this.m_dataBuilder = new RODataBuilder_1.default(shdProgramBuider);
-      this.m_roVtxBuilder = new ROVtxBuilder_1.default();
-      this.m_renderInsContext.setCameraParam(param.camProjParam.x, param.camProjParam.y, param.camProjParam.z);
-      let contextParam = new RendererInstanceContext_1.RendererInstanceContextParam();
-      contextParam.uniformContext = new ShaderUniformContext_1.ShaderUniformContext(this.m_renderProxy.getRCUid());
-      contextParam.camera = camera;
-      contextParam.stage = this.m_stage3D;
-      contextParam.builder = this.m_dataBuilder;
-      contextParam.vtxBuilder = this.m_roVtxBuilder;
-      contextParam.shaderProgramBuilder = shdProgramBuider;
-      this.m_renderInsContext.initialize(param, camera, contextParam);
-      this.m_adapter = this.m_renderProxy.getRenderAdapter();
-      this.m_dataBuilder.initialize(this.m_renderProxy, this.m_rpoUnitBuilder, this.m_processBuider, this.m_roVtxBuilder);
-      this.m_renderProxy.rshader = this.m_dataBuilder.getRenderShader();
-      this.m_renderInsContext.initManager(this.m_dataBuilder);
-      this.m_entity3DMana = new DispEntity3DManager_1.default(this.m_uid, this.m_dataBuilder, this.m_rpoUnitBuilder, this.m_processBuider);
-      this.m_fixProcess = this.createSeparatedProcess();
-      this.appendProcess(this.m_batchEnabled, this.m_processFixedState);
-    }
-  }
-  /**
-   * 获取渲染器可渲染对象管理器状态(版本号)
-   */
-
-
-  getRendererStatus() {
-    return this.m_entity3DMana.version;
-  }
-  /**
-   * update all data or status of the renderer runtime
-   * should call this function per frame
-   */
-
-
-  update() {
-    this.m_renderProxy.Texture.update();
-    this.m_renderProxy.Vertex.update();
-    this.m_entity3DMana.update();
-  }
-
-  updateAllProcess() {
-    for (let i = 0; i < this.m_processesLen; ++i) {
-      this.m_processes[i].update();
-    }
-  }
-
-  updateProcessAt(processIndex) {
-    if (processIndex > -1 && processIndex < this.m_processesLen) {
-      this.m_processes[processIndex].update();
-    }
-  }
-
-  setEntityManaListener(listener) {
-    this.m_entity3DMana.setListener(listener);
-  }
-  /**
-   * add an entity to the renderer process of the renderer instance
-   * @param entity IRenderEntity instance(for example: DisplayEntity class instance)
-   * @param processIndex this destination renderer process index of the m_processes array.
-   * @param deferred if the value is true,the entity will not to be immediately add to the renderer process by its id
-   */
-
-
-  addEntity(entity, processIndex = 0, deferred = true) {
-    if (entity != null) {
-      if (entity.__$testRendererEnabled()) {
-        if (processIndex > -1 && processIndex < this.m_processesLen) {
-          this.m_entity3DMana.addEntity(entity, this.m_processes[processIndex].getUid(), deferred);
-        }
-      }
-    }
-  }
-
-  addEntityToProcess(entity, process, deferred = true) {
-    if (process != null && entity != null) {
-      if (entity.__$testRendererEnabled()) {
-        if (process.getRCUid() == this.m_uid) {
-          this.m_entity3DMana.addEntity(entity, process.getUid(), deferred);
-        }
-      }
-    }
-  }
-  /**
-   * 将已经在渲染运行时中的entity移动到指定 process uid 的 render process 中去
-   * move rendering runtime displayEntity to different renderer process
-   */
-
-
-  moveEntityToProcessAt(entity, dstProcessIndex) {
-    if (entity != null && entity.getRendererUid() == this.m_uid) {
-      if (entity.isInRendererProcess()) {
-        if (dstProcessIndex > -1 && dstProcessIndex < this.m_processesLen) {
-          let srcUid = entity.getDisplay().__$$runit.getRPROUid();
-
-          let src = this.m_processBuider.getNodeByUid(srcUid);
-          let dst = this.m_processes[dstProcessIndex];
-
-          if (src != dst) {
-            src.removeDispUnit(entity.getDisplay());
-            entity.__$rseFlag = dst.getSortEnabled() ? RSEntityFlag_1.default.AddSortEnabled(entity.__$rseFlag) : RSEntityFlag_1.default.RemoveSortEnabled(entity.__$rseFlag);
-            dst.addDisp(entity.getDisplay());
-          }
-        }
-      }
-    }
-  }
-
-  moveEntityToProcess(entity, dstProcess) {
-    if (dstProcess != null && entity != null && entity.getRendererUid() == this.m_uid) {
-      if (entity.isInRendererProcess()) {
-        let srcUid = entity.getDisplay().__$$runit.getRPROUid();
-
-        let src = this.m_processBuider.getNodeByUid(srcUid);
-
-        if (src != dstProcess) {
-          let dst = dstProcess;
-          src.removeDispUnit(entity.getDisplay());
-          entity.__$rseFlag = dstProcess.getSortEnabled() ? RSEntityFlag_1.default.AddSortEnabled(entity.__$rseFlag) : RSEntityFlag_1.default.RemoveSortEnabled(entity.__$rseFlag);
-          dst.addDisp(entity.getDisplay());
-        }
-      }
-    }
-  }
-  /**
-   * remove entity from the renderer instance
-   * @param entity IRenderEntity instance
-   */
-
-
-  removeEntity(entity) {
-    if (entity != null && entity.getRendererUid() == this.m_uid) {
-      this.m_entity3DMana.removeEntity(entity);
-
-      entity.__$setRenderProxy(null);
-    }
-  }
-  /**
-   * remove entity from the renderer process
-   * @param IRenderEntity IRenderEntity instance
-   * @param process RenderProcess instance
-   */
-
-
-  removeEntityFromProcess(entity, process) {
-    if (process != null && process.getRCUid() == this.m_uid) {
-      if (entity != null && entity.getRendererUid() == this.m_uid) {
-        process.removeDisp(entity.getDisplay());
-
-        entity.__$setRenderProxy(null);
-      }
-    }
-  }
-  /**
-   * remove entity from the renderer process by process index
-   * @param IRenderEntity IRenderEntity instance
-   * @param processIndex RenderProcess instance index in renderer instance
-   */
-
-
-  removeEntityByProcessIndex(entity, processIndex) {
-    if (processIndex >= 0 && processIndex < this.m_processesLen) {
-      if (entity != null && entity.getRendererUid() == this.m_uid) {
-        this.m_processes[processIndex].removeDisp(entity.getDisplay());
-
-        entity.__$setRenderProxy(null);
-      }
-    }
-  }
-
-  setProcessSortEnabledAt(processIndex, sortEnabled) {
-    if (processIndex >= 0 && processIndex < this.m_processesLen) {
-      this.m_processes[processIndex].setSortEnabled(sortEnabled);
-    }
-  }
-
-  setProcessSortEnabled(process, sortEnabled) {
-    if (process != null && process.getRCUid() == this.m_uid) {
-      let p = process;
-      p.setSortEnabled(sortEnabled);
-    }
-  }
-  /**
-   * get the renderer process by process index
-   * @param processIndex IRenderProcess instance index in renderer instance
-   */
-
-
-  getRenderProcessAt(processIndex) {
-    return this.m_processes[processIndex];
-  }
-  /**
-   * append a new renderer process instance
-   * @param batchEnabled batch renderer runtime resource data
-   * @param processFixedState the process is fix renderer state
-   * @returns
-   */
-
-
-  appendProcess(batchEnabled = true, processFixedState = false) {
-    this.m_processBuider.setCreateParams(this.m_dataBuilder.getRenderShader(), this.m_rpoNodeBuilder, this.m_rpoUnitBuilder, this.m_renderProxy.Vertex, batchEnabled, processFixedState);
-    let process = this.m_processBuider.create();
-    this.m_processes.push(process);
-    process.setRendererParam(this.m_renderProxy, this.m_processesLen);
-    ++this.m_processesLen;
-    return process;
-  }
-  /**
-   * append a independent new renderer process instance, and separate the renderer process from the renderer rendering control
-   * @param batchEnabled batch renderer runtime resource data
-   * @param processFixedState the process is fix renderer state
-   */
-
-
-  createSeparatedProcess(batchEnabled = true, processFixedState = false) {
-    this.m_processBuider.setCreateParams(this.m_dataBuilder.getRenderShader(), this.m_rpoNodeBuilder, this.m_rpoUnitBuilder, this.m_renderProxy.Vertex, batchEnabled, processFixedState);
-    let process = this.m_processBuider.create();
-    this.m_sprocesses.push(process);
-    process.setRendererParam(this.m_renderProxy, this.m_sprocessesLen);
-    return process;
-  }
-
-  setRendererProcessParam(index, batchEnabled, processFixedState) {
-    if (index > -1 && index < this.m_processesLen) {
-      this.m_processes[index].setRenderParam(batchEnabled, processFixedState);
-    }
-  }
-
-  getProcessAt(index) {
-    if (index > -1 && index < this.m_processesLen) {
-      return this.m_processes[index];
-    }
-
-    return null;
-  }
-
-  showInfoAt(index) {
-    if (index > -1 && index < this.m_processesLen) {
-      this.m_processes[index].showInfo();
-    }
-  }
-
-  getProcessesTotal() {
-    return this.m_processesLen;
-  }
-
-  updateMaterialUniformToCurrentShd(material) {
-    this.m_dataBuilder.getRenderShader().useUniformToCurrentShd(material.__$uniform);
-  }
-  /**
-   * Deprecated(废弃, 不推荐使用)
-   * 绘制已经完全加入渲染器了渲染资源已经准备完毕的entity
-   * 要锁定Material才能用这种绘制方式,再者这个,这种方式比较耗性能，只能用在特殊的地方
-   */
-
-
-  drawEntityByLockMaterial(entity, useGlobalUniform = false, forceUpdateUniform = true) {
-    if (entity != null && entity.getVisible() && entity.getRendererUid() == this.m_uid && !this.m_renderProxy.isContextLost()) {
-      this.m_fixProcess.drawLockMaterialByDisp(entity.getDisplay(), useGlobalUniform, forceUpdateUniform);
-    }
-  }
-  /**
-   * 在任意阶段绘制一个指定的 entity,只要其资源数据准备完整
-   */
-
-
-  drawEntity(entity, useGlobalUniform = false, forceUpdateUniform = true) {
-    if (entity != null && entity.getVisible() && !this.m_renderProxy.isContextLost()) {
-      // console.log("***8** rendewrer ins drawEntity(), entity: ",entity, entity.getRendererUid() == this.m_uid);
-      if (entity.getRendererUid() == this.m_uid) {
-        this.m_fixProcess.drawDisp(entity.getDisplay(), useGlobalUniform, forceUpdateUniform);
-      } else if (entity.__$testRendererEnabled()) {
-        this.m_entity3DMana.addEntity(entity, this.m_fixProcess.getUid(), false);
-      }
-    }
-  }
-  /**
-   * run the specific renderer process by its index in the renderer instance
-   * @param index the renderer process index in the renderer instance
-   */
-
-
-  runAt(index) {
-    if (!this.m_renderProxy.isContextLost()) {
-      this.m_processes[index].run();
-    }
-  }
-
-  runProcess(process) {
-    if (process.getRCUid() == this.m_uid && !this.m_renderProxy.isContextLost()) {
-      process.run();
-    }
-  }
-
-  runFromIndexTo(index) {
-    if (!this.m_renderProxy.isContextLost()) {
-      for (let i = index; i < this.m_processesLen; ++i) {
-        this.m_processes[i].run();
-      }
-    }
-  }
-  /**
-   * run all renderer processes in the renderer instance
-   */
-
-
-  run() {
-    if (this.m_entity3DMana.isHaveEntity() && !this.m_renderProxy.isContextLost()) {
-      for (let i = 0; i < this.m_processesLen; ++i) {
-        this.m_processes[i].run();
-      }
-    }
-  }
-
-  getRenderUnitsTotal() {
-    let total = 0;
-
-    for (let i = 0; i < this.m_processesLen; ++i) {
-      total += this.m_processes[i].getUnitsTotal();
-    }
-
-    return total;
-  }
-
-  renderflush() {
-    this.m_renderProxy.flush();
-  }
-
-  toString() {
-    return "[RendererInstance(uid = " + this.m_uid + ")]";
-  }
-
-}
-
-RendererInstance.s_uid = 0;
-exports.RendererInstance = RendererInstance;
-exports.default = RendererInstance;
 
 /***/ }),
 
@@ -35571,684 +25428,6 @@ exports.default = RODisplay;
 
 /***/ }),
 
-/***/ "de9d":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const AABB2D_1 = __importDefault(__webpack_require__("e2fe"));
-
-const RenderFilter_1 = __importDefault(__webpack_require__("722e"));
-
-const RenderMaskBitfield_1 = __importDefault(__webpack_require__("8333"));
-
-const RODrawState_1 = __webpack_require__("e7f2");
-
-const RenderColorMask_1 = __webpack_require__("070b");
-
-const RenderStateObject_1 = __webpack_require__("a5ba");
-
-const RAdapterContext_1 = __importDefault(__webpack_require__("090c"));
-
-const RenderAdapter_1 = __importDefault(__webpack_require__("1216"));
-
-const RenderFBOProxy_1 = __importDefault(__webpack_require__("56c5"));
-
-const RCExtension_1 = __importDefault(__webpack_require__("030e"));
-
-const ROVertexResource_1 = __importDefault(__webpack_require__("74c3"));
-
-const ROTextureResource_1 = __importDefault(__webpack_require__("984e"));
-
-const RSTBuilder_1 = __importDefault(__webpack_require__("e035"));
-
-const RendererState_1 = __importDefault(__webpack_require__("29ef"));
-
-const Stencil_1 = __webpack_require__("8171");
-
-const VROBase_1 = __importDefault(__webpack_require__("919c"));
-
-const RenderingColorMask_1 = __webpack_require__("e602");
-
-const RenderingState_1 = __webpack_require__("53d3");
-
-const RPStatus_1 = __webpack_require__("9f82");
-
-class RenderProxyParam {
-  constructor() {
-    this.materialUpdater = null;
-    this.vtxBufUpdater = null;
-    this.vtxBuilder = null;
-    this.uniformContext = null;
-  }
-
-}
-
-exports.RenderProxyParam = RenderProxyParam;
-/**
- * 真正位于高频运行的渲染管线中的被使用的渲染关键代理对象
- */
-
-class RenderProxy {
-  constructor(rcuid) {
-    this.RGBA = 0;
-    this.UNSIGNED_BYTE = 0;
-    this.TRIANGLE_STRIP = 0;
-    this.TRIANGLE_FAN = 0;
-    this.TRIANGLES = 0;
-    this.LINES = 0;
-    this.LINE_STRIP = 0;
-    this.UNSIGNED_SHORT = 0;
-    this.UNSIGNED_INT = 0;
-    this.COLOR = 0;
-    this.DEPTH = 0;
-    this.STENCIL = 0;
-    this.DEPTH_STENCIL = 0;
-    this.MAX = 0;
-    this.MIN = 0;
-    /**
-     * WebGL GPU Context instance
-     */
-
-    this.RContext = null;
-    this.RDrawState = null;
-    this.Vertex = null;
-    this.Texture = null;
-    this.VtxBufUpdater = null;
-    this.MaterialUpdater = null;
-    this.uniformContext = null;
-    this.adapter = null;
-    this.stencil = null;
-    this.renderingState = null;
-    this.colorMask = null;
-    this.rshader = null;
-    this.status = new RPStatus_1.RPStatus();
-    this.m_uid = 0;
-    this.m_camUBO = null;
-    this.m_adapter = null;
-    this.m_adapterContext = new RAdapterContext_1.default();
-    this.m_rc = null;
-    this.m_perspectiveEnabled = true;
-    this.m_viewPortRect = new AABB2D_1.default(0, 0, 800, 600);
-    this.m_cameraNear = 0.1;
-    this.m_cameraFar = 5000.0;
-    this.m_cameraFov = 45.0;
-    this.m_maxWebGLVersion = 2;
-    this.m_WEBGL_VER = 2; // main camera
-
-    this.m_camera = null;
-    this.m_camSwitched = false; // 是否舞台尺寸和view自动同步一致
-
-    this.m_autoSynViewAndStage = true;
-    this.m_initMainCamera = true;
-    this.m_uid = rcuid;
-  }
-  /**
-   * @returns return system gpu context
-   */
-
-
-  getRC() {
-    return this.m_rc;
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-  /**
-   * @returns return renderer context unique id
-   */
-
-
-  getRCUid() {
-    return this.m_uid;
-  }
-
-  isAutoSynViewAndStage() {
-    return this.m_autoSynViewAndStage;
-  }
-
-  enableSynViewAndStage() {
-    this.m_autoSynViewAndStage = true;
-  }
-
-  lockViewport() {
-    this.m_adapter.lockViewport();
-  }
-
-  unlockViewport() {
-    this.m_adapter.unlockViewport();
-  }
-
-  getDiv() {
-    return this.m_adapter.getDiv();
-  }
-
-  getCanvas() {
-    return this.m_adapter.getCanvas();
-  }
-
-  cameraLock() {
-    this.m_camera.lock();
-  }
-
-  cameraUnlock() {
-    this.m_camera.unlock();
-  }
-
-  getCamera() {
-    return this.m_camera;
-  }
-
-  updateCamera() {
-    return this.m_camera.update();
-  }
-
-  createCameraUBO(shd) {//  if(this.m_camUBO == null)
-    //  {
-    //      this.m_camUBO = ShaderUBOBuilder.createUBOWithDataFloatsCount("UBlock_Camera", shd, 32);
-    //      this.m_camUBO.setSubDataArrAt(0, m_camera.getViewMatrix().getLocalFS32());
-    //      this.m_camUBO.setSubDataArrAt(16, m_camera.getProjectMatrix().getLocalFS32());
-    //      this.m_camUBO.run();
-    //  }
-  }
-
-  updateCameraDataFromCamera(camera) {
-    if (camera != null) {
-      if (this.m_camSwitched || camera != this.m_camera) {
-        this.m_camSwitched = camera != this.m_camera;
-        camera.updateCamMatToUProbe(this.m_camera.matUProbe);
-
-        if (this.m_camUBO != null) {
-          this.m_camUBO.setSubDataArrAt(0, camera.matUProbe.getFS32At(0));
-          this.m_camUBO.setSubDataArrAt(16, camera.matUProbe.getFS32At(1)); //this.m_camUBO.setSubDataArrAt(0, camera.getViewMatrix().getLocalFS32());
-          //this.m_camUBO.setSubDataArrAt(16, camera.getProjectMatrix().getLocalFS32());
-        }
-      }
-    }
-  }
-
-  useCameraData() {
-    if (this.m_camUBO != null) {
-      this.m_camUBO.run();
-    }
-  }
-
-  getActiveAttachmentTotal() {
-    return this.m_adapter.getActiveAttachmentTotal();
-  }
-
-  drawInstanced(count, offset, instanceCount) {
-    if (this.m_WEBGL_VER == 2) {
-      this.m_rc.drawElementsInstanced(this.TRIANGLES, count, this.UNSIGNED_SHORT, offset, instanceCount);
-    } else {
-      RCExtension_1.default.ANGLE_instanced_arrays.drawElementsInstancedANGLE(this.TRIANGLES, count, offset, instanceCount);
-    }
-  }
-
-  createUBOBufferByBytesCount(bytesCount) {
-    let buf = this.m_rc.createBuffer();
-    this.m_rc.bindBuffer(this.m_rc.UNIFORM_BUFFER, buf);
-    this.m_rc.bufferData(this.m_rc.UNIFORM_BUFFER, bytesCount, this.m_rc.DYNAMIC_DRAW);
-    return buf;
-  }
-
-  createUBOBufferByDataArray(dataArray) {
-    let buf = this.m_rc.createBuffer();
-    this.m_rc.bindBuffer(this.m_rc.UNIFORM_BUFFER, buf);
-    this.m_rc.bufferData(this.m_rc.UNIFORM_BUFFER, dataArray, this.m_rc.DYNAMIC_DRAW);
-    return buf;
-  }
-
-  bindUBOBuffer(buf) {
-    this.m_rc.bindBuffer(this.m_rc.UNIFORM_BUFFER, buf);
-  }
-
-  deleteUBOBuffer(buf) {
-    this.m_rc.deleteBuffer(buf);
-  }
-
-  bufferDataUBOBuffer(dataArr) {
-    this.m_rc.bufferData(this.m_rc.UNIFORM_BUFFER, dataArr, this.m_rc.STATIC_DRAW);
-  }
-
-  bindBufferBaseUBOBuffer(bindingIndex, buf) {
-    this.m_rc.bindBufferBase(this.m_rc.UNIFORM_BUFFER, bindingIndex, buf);
-  }
-
-  setWebGLMaxVersion(webgl_ver) {
-    if (webgl_ver == 1 || webgl_ver == 2) {
-      this.m_maxWebGLVersion = webgl_ver;
-    }
-  }
-
-  getContext() {
-    return this.m_adapterContext;
-  }
-
-  getStage3D() {
-    return this.m_adapterContext.getStage();
-  }
-
-  getRenderAdapter() {
-    return this.m_adapter;
-  }
-
-  getRenderContext() {
-    return this.m_adapter.getRenderContext();
-  }
-
-  setCameraParam(fov, near, far) {
-    this.m_cameraFov = fov;
-    this.m_cameraNear = near;
-    this.m_cameraFar = far;
-  }
-
-  getMouseXYWorldRay(rl_position, rl_tv) {
-    let stage = this.m_adapterContext.getStage();
-    this.m_camera.getWorldPickingRayByScreenXY(stage.mouseX, stage.mouseY, rl_position, rl_tv);
-  }
-
-  testViewPortChanged(px, py, pw, ph) {
-    return this.m_viewPortRect.testEqualWithParams(px, py, pw, ph);
-  }
-
-  testRCViewPortChanged(px, py, pw, ph) {
-    return this.m_adapterContext.testViewPortChanged(px, py, pw, ph);
-  }
-
-  getViewX() {
-    return this.m_viewPortRect.x;
-  }
-
-  getViewY() {
-    return this.m_viewPortRect.y;
-  }
-
-  getViewWidth() {
-    return this.m_viewPortRect.width;
-  }
-
-  getViewHeight() {
-    return this.m_viewPortRect.height;
-  }
-
-  setViewPort(px, py, pw, ph) {
-    this.m_autoSynViewAndStage = false;
-    this.m_viewPortRect.setTo(px, py, pw, ph);
-    let stage = this.m_adapterContext.getStage();
-
-    if (stage != null) {
-      stage.setViewPort(pw, py, pw, ph);
-      this.updateCameraView();
-    }
-
-    this.m_adapterContext.setViewport(px, py, pw, ph);
-  }
-
-  setRCViewPort(px, py, pw, ph, autoSynViewAndStage = false) {
-    this.m_autoSynViewAndStage = autoSynViewAndStage;
-    this.m_adapterContext.setViewport(px, py, pw, ph);
-  }
-
-  reseizeRCViewPort() {
-    this.m_adapter.unlockViewport();
-    this.m_adapter.reseizeViewPort();
-  }
-
-  updateCameraView() {
-    if (this.m_camera != null) {
-      let rect = this.m_viewPortRect;
-      this.m_camera.setViewXY(rect.x, rect.y);
-      this.m_camera.setViewSize(rect.width, rect.height);
-    }
-  }
-
-  resizeCallback() {
-    // console.log("XXX resizeCallback(), m_autoSynViewAndStage: "+this.m_autoSynViewAndStage);
-    if (this.m_autoSynViewAndStage) {
-      let rect = this.m_viewPortRect;
-      rect.setSize(this.m_adapterContext.getRCanvasWidth(), this.m_adapterContext.getRCanvasHeight());
-      this.createMainCamera();
-      console.log("resizeCallback(), viewW,viewH: ", rect.width + "," + rect.height);
-      this.m_adapterContext.setViewport(rect.x, rect.y, rect.width, rect.height);
-      this.updateCameraView();
-    }
-  }
-
-  createMainCamera() {
-    if (this.m_initMainCamera) {
-      this.m_initMainCamera = false;
-      this.m_camera.uniformEnabled = true;
-      let rect = this.m_viewPortRect;
-
-      if (this.m_perspectiveEnabled) {
-        this.m_camera.perspectiveRH(Math.PI * this.m_cameraFov / 180.0, rect.width / rect.height, this.m_cameraNear, this.m_cameraFar);
-      } else {
-        this.m_camera.orthoRH(this.m_cameraNear, this.m_cameraFar, -0.5 * rect.height, 0.5 * rect.height, -0.5 * rect.width, 0.5 * rect.width);
-      }
-
-      this.updateCameraView();
-    }
-  }
-
-  readPixels(px, py, width, height, format, dataType, pixels) {
-    this.m_adapter.readPixels(px, py, width, height, format, dataType, pixels);
-  }
-
-  getGLVersion() {
-    return this.m_WEBGL_VER;
-  }
-
-  buildCameraParam() {
-    let camera = this.m_camera;
-
-    if (camera.matUProbe == null) {
-      camera.matUProbe = this.uniformContext.createShaderUniformProbe();
-      camera.matUProbe.addMat4Data(new Float32Array(16), 1);
-      camera.matUProbe.addMat4Data(new Float32Array(16), 1);
-    }
-
-    if (camera.ufrustumProbe == null) {
-      camera.ufrustumProbe = this.uniformContext.createShaderUniformProbe();
-      camera.ufrustumProbe.addVec4Data(new Float32Array([camera.getZNear(), camera.getZFar(), camera.getNearPlaneWidth() * 0.5, camera.getNearPlaneHeight() * 0.5]), 1);
-    }
-
-    if (camera.ucameraPosProbe == null) {
-      camera.ucameraPosProbe = this.uniformContext.createShaderUniformProbe();
-      camera.ucameraPosProbe.addVec4Data(new Float32Array([500.0, 500.0, 500.0, 1.0]), 1);
-    }
-  }
-
-  initialize(param, camera, stage, proxyParam) {
-    if (this.m_rc != null) {
-      return;
-    }
-
-    this.m_camera = camera;
-    let posV3 = param.camPosition;
-    let lookAtPosV3 = param.camLookAtPos;
-    let upV3 = param.camUpDirect;
-    if (stage != null) stage.uProbe = proxyParam.uniformContext.createUniformVec4Probe(1);
-    this.m_perspectiveEnabled = param.cameraPerspectiveEnabled;
-    this.m_adapterContext.autoSyncRenderBufferAndWindowSize = param.autoSyncRenderBufferAndWindowSize;
-    this.m_adapterContext.setResizeCallback(() => {
-      this.resizeCallback();
-    });
-    this.m_adapterContext.setWebGLMaxVersion(this.m_maxWebGLVersion);
-    this.m_adapterContext.initialize(this.m_uid, stage, param.getDiv(), param.getRenderContextAttri());
-    this.m_WEBGL_VER = this.m_adapterContext.getWebGLVersion();
-    this.m_rc = this.m_adapterContext.getRC();
-    let selfT = this;
-    let gl = this.m_rc;
-    let vtxRes = new ROVertexResource_1.default(this.m_uid, gl, proxyParam.vtxBuilder);
-    let texRes = new ROTextureResource_1.default(this.m_uid, gl);
-    this.m_vtxRes = vtxRes;
-    selfT.Vertex = vtxRes;
-    selfT.Texture = texRes;
-    selfT.MaterialUpdater = proxyParam.materialUpdater;
-    selfT.VtxBufUpdater = proxyParam.vtxBufUpdater;
-    selfT.uniformContext = proxyParam.uniformContext;
-    let rstate = new RODrawState_1.RODrawState();
-    rstate.setRenderContext(this.m_adapterContext); // RendererState.Initialize(rstate, new VROBase());
-
-    let obj = RendererState_1.default;
-    new RSTBuilder_1.default().initialize(obj, rstate, new VROBase_1.default());
-    selfT.RState = rstate;
-    selfT.RContext = this.m_rc;
-    selfT.stencil = new Stencil_1.Stencil(rstate);
-    selfT.renderingState = new RenderingState_1.RenderingState(RendererState_1.default);
-    selfT.colorMask = new RenderingColorMask_1.RenderingColorMask(RendererState_1.default);
-    this.buildCameraParam();
-    let rect = this.m_viewPortRect;
-    rect.setSize(this.m_adapterContext.getRCanvasWidth(), this.m_adapterContext.getRCanvasHeight());
-    this.m_adapter = new RenderAdapter_1.default(this.m_uid, texRes);
-    this.m_adapter.initialize(this.m_adapterContext, param, rstate, this.uniformContext.createUniformVec4Probe(1));
-    selfT.adapter = this.m_adapter;
-
-    if (this.m_autoSynViewAndStage) {
-      let stage = this.m_adapterContext.getStage();
-
-      if (stage != null) {
-        rect.setSize(rect.width, rect.height);
-      }
-    }
-
-    this.createMainCamera();
-    this.m_adapterContext.setViewport(rect.x, rect.y, rect.width, rect.height);
-    this.m_camera.lookAtRH(posV3, lookAtPosV3, upV3);
-    this.m_camera.update();
-    selfT.RGBA = gl.RGBA;
-    selfT.UNSIGNED_BYTE = gl.UNSIGNED_BYTE;
-    selfT.TRIANGLE_STRIP = gl.TRIANGLE_STRIP;
-    selfT.TRIANGLE_FAN = gl.TRIANGLE_FAN;
-    selfT.TRIANGLES = gl.TRIANGLES;
-    selfT.LINES = this.m_rc.LINES;
-    selfT.LINE_STRIP = gl.LINE_STRIP;
-    selfT.UNSIGNED_SHORT = gl.UNSIGNED_SHORT;
-    selfT.UNSIGNED_INT = gl.UNSIGNED_INT;
-    selfT.COLOR = gl.COLOR;
-    selfT.DEPTH = gl.DEPTH;
-    selfT.STENCIL = gl.STENCIL;
-    selfT.DEPTH_STENCIL = gl.DEPTH_STENCIL;
-
-    if (this.m_WEBGL_VER > 1) {
-      selfT.MIN = gl.MIN;
-      selfT.MAX = gl.MAX;
-    } else {
-      selfT.MIN = RCExtension_1.default.EXT_blend_minmax.MIN_EXT;
-      selfT.MAX = RCExtension_1.default.EXT_blend_minmax.MAX_EXT;
-    }
-
-    let classRenderFilter = RenderFilter_1.default;
-    classRenderFilter.NEAREST = gl.NEAREST;
-    classRenderFilter.LINEAR = gl.LINEAR;
-    classRenderFilter.LINEAR_MIPMAP_LINEAR = gl.LINEAR_MIPMAP_LINEAR;
-    classRenderFilter.NEAREST_MIPMAP_NEAREST = gl.NEAREST_MIPMAP_NEAREST;
-    classRenderFilter.LINEAR_MIPMAP_NEAREST = gl.LINEAR_MIPMAP_NEAREST;
-    classRenderFilter.NEAREST_MIPMAP_LINEAR = gl.NEAREST_MIPMAP_LINEAR;
-    let classRenderMaskBitfield = RenderMaskBitfield_1.default;
-    classRenderMaskBitfield.COLOR_BUFFER_BIT = gl.COLOR_BUFFER_BIT;
-    classRenderMaskBitfield.DEPTH_BUFFER_BIT = gl.DEPTH_BUFFER_BIT;
-    classRenderMaskBitfield.STENCIL_BUFFER_BIT = gl.STENCIL_BUFFER_BIT;
-    RenderFBOProxy_1.default.SetRenderer(this.m_adapterContext);
-  }
-
-  flush() {
-    this.m_rc.flush();
-  }
-
-  setClearRGBColor3f(pr, pg, pb) {
-    let cvs = this.m_adapter.bgColor;
-    cvs[0] = pr;
-    cvs[1] = pg;
-    cvs[2] = pb;
-  }
-
-  setClearColor(color) {
-    color.toArray4(this.m_adapter.bgColor);
-  }
-  /**
-   * @param colorUint24 uint24 number rgb color value, example: 0xff0000, it is red rolor
-   * @param alpha the default value is 1.0
-   */
-
-
-  setClearUint24Color(colorUint24, alpha = 1.0) {
-    let cvs = this.m_adapter.bgColor;
-    cvs[0] = (colorUint24 >> 16 & 0x0000ff) / 255.0;
-    cvs[1] = (colorUint24 >> 8 & 0x0000ff) / 255.0;
-    cvs[2] = (colorUint24 & 0x0000ff) / 255.0;
-    cvs[3] = alpha;
-  }
-
-  setClearRGBAColor4f(pr, pg, pb, pa) {
-    let cvs = this.m_adapter.bgColor;
-    cvs[0] = pr;
-    cvs[1] = pg;
-    cvs[2] = pb;
-    cvs[3] = pa;
-  }
-
-  getClearRGBAColor4f(color4) {
-    color4.fromArray4(this.m_adapter.bgColor);
-  }
-
-  getViewportWidth() {
-    return this.m_adapter.getViewportWidth();
-  }
-
-  getViewportHeight() {
-    return this.m_adapter.getViewportHeight();
-  }
-
-  setRenderToBackBuffer() {
-    this.m_adapter.setRenderToBackBuffer();
-  }
-
-  clearBackBuffer() {
-    this.m_adapter.clear();
-  }
-
-  clearDepth(depth = 1.0) {
-    this.m_adapter.clearDepth(depth);
-  }
-
-  renderBegin() {
-    this.m_camera.update();
-    this.m_adapter.renderBegin();
-  }
-
-  renderEnd() {}
-
-  useRenderStateByName(stateName) {
-    RenderStateObject_1.RenderStateObject.UseRenderStateByName(stateName);
-  }
-
-  setScissorEnabled(boo) {
-    this.m_adapterContext.setScissorEnabled(boo);
-  }
-
-  setScissorRect(px, py, pw, ph) {
-    this.m_adapterContext.setScissorRect(px, py, pw, ph);
-  }
-
-  useRenderColorMask(state) {
-    RenderColorMask_1.RenderColorMask.UseRenderState(state);
-  }
-
-  unlockRenderColorMask() {
-    RenderColorMask_1.RenderColorMask.Unlock();
-  }
-
-  lockRenderColorMask() {
-    RenderColorMask_1.RenderColorMask.Lock();
-  }
-
-  useRenderState(state) {
-    RenderStateObject_1.RenderStateObject.UseRenderState(state);
-  }
-
-  unlockRenderState() {
-    RenderStateObject_1.RenderStateObject.Unlock();
-  }
-
-  lockRenderState() {
-    RenderStateObject_1.RenderStateObject.Lock();
-  }
-  /**
-   * set the updating times total that update vertex data to gpu in one frame time
-   * @param total updating times total, the min value is 4, the default value is 16
-   */
-
-
-  setVtxUpdateTimesTotal(total) {
-    this.m_vtxRes.setVtxUpdateTimesTotal(total);
-  }
-  /**
-   * @param faceFlipped the value is true, frontFace is CW. the value is false, frontFace is CCW.
-   */
-
-
-  setFrontFaceFlipped(faceFlipped) {
-    this.m_adapter.setFrontFaceFlipped(faceFlipped);
-  }
-
-  enabledPolygonOffset() {
-    this.m_adapter.enabledPolygonOffset();
-  }
-
-  disabledPolygonOffset() {
-    this.m_adapter.disabledPolygonOffset();
-  }
-  /*
-   * specifies the scale factors and units to calculate depth values.
-   * @param factor the value is a GLfloat which sets the scale factor for the variable depth offset for each polygon. The default value is 0.
-   * @param units the value is a which sets the multiplier by which an implementation-specific value is multiplied with to create a constant depth offset. The default value is 0.
-   */
-
-
-  setPolygonOffset(factor, units = 0.0) {
-    this.m_adapter.setPolygonOffset(factor, units);
-  }
-  /*
-   * reset the scale factors and units value is default value(0.0).
-   */
-
-
-  resetPolygonOffset() {
-    this.m_adapter.resetPolygonOffset();
-  }
-
-  loseContext() {
-    this.m_adapter.loseContext();
-  }
-  /**
-   * @returns return gpu context lost status
-   */
-
-
-  isContextLost() {
-    return this.m_adapter.isContextLost();
-  }
-
-  setViewProbeValue(x, y, width, height) {
-    this.m_adapter.setViewProbeValue(x, y, width, height);
-  }
-
-  toString() {
-    return "[Object RenderProxy()]";
-  }
-
-}
-
-exports.RenderProxy = RenderProxy;
-exports.default = RenderProxy;
-
-/***/ }),
-
 /***/ "df25":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -36514,576 +25693,11 @@ exports.default = RawDataTextureProxy;
 
 /***/ }),
 
-/***/ "df9d":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class RPONodeLinker {
-  constructor() {
-    this.m_uid = -1; // 用于唯一记录运行时的自己唯一id
-
-    this.m_begin = null;
-    this.m_end = null;
-    this.m_unitMap = new Map();
-    this.m_unitTexMap = new Map();
-    this.m_FLAG_BUSY = 1;
-    this.m_FLAG_FREE = 0;
-    this.m_vtxFlagList = [];
-    this.m_vtxIndexFlagList = [];
-    this.m_vtxfreeIList = [];
-    this.m_vtxList = [];
-    this.m_vtxListLen = 0;
-    this.m_texFlagList = [];
-    this.m_texIndexFlagList = [];
-    this.m_texfreeIList = [];
-    this.m_texList = [];
-    this.m_texListLen = 0;
-    this.m_uid = RPONodeLinker.s_uid++;
-  }
-
-  getFreeVtxId() {
-    if (this.m_vtxfreeIList.length > 0) {
-      return this.m_vtxfreeIList.pop();
-    }
-
-    return -1;
-  }
-
-  getVtxIndex() {
-    let unitI = -1;
-    let index = this.getFreeVtxId();
-
-    if (index >= 0) {
-      unitI = index;
-      this.m_vtxList[index] = 0;
-      this.m_vtxFlagList[index] = this.m_FLAG_BUSY;
-    } else {
-      unitI = this.m_vtxListLen;
-      this.m_vtxList.push(0);
-      this.m_vtxIndexFlagList.push(this.m_FLAG_FREE);
-      this.m_vtxFlagList.push(this.m_FLAG_BUSY);
-      this.m_vtxListLen++;
-    }
-
-    return unitI;
-  }
-
-  restoreVtxIndex(index) {
-    if (this.m_vtxFlagList[index] == this.m_FLAG_BUSY) {
-      this.m_vtxfreeIList.push(index);
-      this.m_vtxFlagList[index] = this.m_FLAG_FREE;
-      this.m_vtxList[index] = 0;
-    }
-  }
-
-  attachVtxAt(index) {
-    ++this.m_vtxList[index]; //console.log("uid: "+this.m_uid+" RPONodeLinker::attachVtxAt(), this.m_vtxList["+index+"]: "+this.m_vtxList[index]);
-  }
-
-  detachVtxAt(index) {
-    if (this.m_vtxList[index] > 0) {
-      --this.m_vtxList[index];
-
-      if (this.m_vtxList[index] < 1) {
-        this.restoreVtxIndex(index);
-      }
-    } //console.log("uid: "+this.m_uid+" RPONodeLinker::detachVtxAt(), this.m_vtxList["+index+"]: "+this.m_vtxList[index]);
-
-  }
-
-  getVtxTotalAt(index) {
-    return this.m_vtxList[index];
-  }
-
-  getFreeTexId() {
-    if (this.m_texfreeIList.length > 0) {
-      return this.m_texfreeIList.pop();
-    }
-
-    return -1;
-  }
-
-  getTexIndex() {
-    let unitI = -1;
-    let index = this.getFreeTexId();
-
-    if (index >= 0) {
-      unitI = index;
-      this.m_texList[index] = 0;
-      this.m_texFlagList[index] = this.m_FLAG_BUSY;
-    } else {
-      unitI = this.m_texListLen;
-      this.m_texList.push(0);
-      this.m_texIndexFlagList.push(this.m_FLAG_FREE);
-      this.m_texFlagList.push(this.m_FLAG_BUSY);
-      this.m_texListLen++;
-    }
-
-    return unitI;
-  }
-
-  restoreTexIndex(index) {
-    if (this.m_texFlagList[index] == this.m_FLAG_BUSY) {
-      this.m_texfreeIList.push(index);
-      this.m_texFlagList[index] = this.m_FLAG_FREE;
-      this.m_texList[index] = 0;
-    }
-  }
-
-  attachTexAt(index) {
-    ++this.m_texList[index]; //console.log("uid: "+this.m_uid+" RPONodeLinker::attachTexAt(), this.m_texList["+index+"]: "+this.m_texList[index]);
-  }
-
-  detachTexAt(index) {
-    if (this.m_texList[index] > 0) {
-      --this.m_texList[index];
-
-      if (this.m_texList[index] < 1) {
-        this.restoreTexIndex(index);
-      }
-    } //console.log("uid: "+this.m_uid+" RPONodeLinker::detachTexAt(), this.m_texList["+index+"]: "+this.m_texList[index]);
-
-  }
-
-  getTexTotalAt(index) {
-    return this.m_texList[index];
-  }
-
-  destroy() {
-    this.clear();
-  }
-
-  clear() {
-    this.m_begin = this.m_end = null;
-    this.m_unitMap = new Map();
-    this.m_unitTexMap = new Map();
-    this.m_vtxFlagList = [];
-    this.m_vtxIndexFlagList = [];
-    this.m_vtxList = [];
-    this.m_vtxfreeIList = [];
-    this.m_vtxListLen = 0;
-    this.m_texFlagList = [];
-    this.m_texIndexFlagList = [];
-    this.m_texList = [];
-    this.m_texfreeIList = [];
-    this.m_texListLen = 0;
-  }
-
-  getBegin() {
-    return this.m_begin;
-  }
-
-  containsNode(node) {
-    let pnode = this.m_unitMap.get(node.vtxUid);
-
-    if (pnode != null) {
-      let key = (31 + pnode.rvroI) * 131;
-      key *= key + pnode.texMid;
-      return node.rtokey == key;
-    }
-
-    return false;
-  }
-
-  addNodeAndSort(node) {
-    //  注意，这里可以管理组合方式, 例如可以做更多条件的排序
-    //  有些需要排序, 有些不需要排序
-    //trace("RPONodeLinker::addNodeAndSort(), node: "+node);
-    // 首先依据相同的顶点紧凑排序, 然后再以纹理组合排列, 因此用 顶点的key与tex序列的key组合为一个新的key
-    //console.log("addNodeAndSort node.vtxUid: ",node.vtxUid, node.unit.__$dispNS);
-    let pnode = this.m_unitMap.get(node.vtxUid);
-
-    if (pnode == null) {
-      this.m_unitMap.set(node.vtxUid, node);
-      node.rvroI = this.getVtxIndex();
-      this.attachVtxAt(node.rvroI);
-      let key = (31 + node.rvroI) * 131;
-      key *= key + node.texMid;
-      node.rtokey = key;
-      node.rtroI = this.getTexIndex();
-      this.m_unitTexMap.set(key, node.rtroI);
-      this.attachTexAt(node.rtroI); //console.log("RPONodeLinker::addNodeAndSort(), append a new node.");
-    } else {
-      node.rvroI = pnode.rvroI;
-      this.attachVtxAt(node.rvroI);
-      let key = (31 + node.rvroI) * 131;
-      key *= key + node.texMid;
-
-      if (this.m_unitTexMap.has(key)) {
-        node.rtroI = this.m_unitTexMap.get(key);
-      } else {
-        node.rtroI = this.getTexIndex();
-        this.m_unitTexMap.set(key, node.rtroI);
-      }
-
-      node.rtokey = key;
-      this.attachTexAt(node.rtroI); //console.log("RPONodeLinker::addNodeAndSort(), append a new pnode != m_end: "+(pnode != this.m_end));
-
-      if (pnode != this.m_end) {
-        if (pnode.texMid == node.texMid) {
-          pnode.next.prev = node;
-          node.next = pnode.next;
-          node.prev = pnode;
-          pnode.next = node;
-        } else {
-          // combine the same textures ro
-          while (pnode != null) {
-            if (pnode.vtxUid != node.vtxUid) {
-              pnode = pnode.prev;
-              pnode.next.prev = node;
-              node.next = pnode.next;
-              node.prev = pnode;
-              pnode.next = node;
-              break;
-            } else {
-              if (pnode.texMid == node.texMid) {
-                pnode.next.prev = node;
-                node.next = pnode.next;
-                node.prev = pnode;
-                pnode.next = node;
-                break;
-              }
-
-              if (pnode.next == this.m_end) {
-                if (this.m_end.vtxUid != node.vtxUid) {
-                  // append after pnode
-                  pnode.next.prev = node;
-                  node.next = pnode.next;
-                  node.prev = pnode;
-                  pnode.next = node;
-                } else {
-                  pnode = null;
-                }
-
-                break;
-              }
-
-              pnode = pnode.next;
-            }
-          }
-        } // 如果纹理相同, 再次将纹理相同的排在一起
-        //console.log("RPONodeLinker::addNodeAndSort(), insert a new node 0.");
-
-      } else {
-        pnode = null;
-      }
-    }
-
-    if (pnode == null) {
-      if (this.m_begin == null) {
-        this.m_end = this.m_begin = node;
-      } else {
-        if (this.m_end.prev != null) {
-          this.m_end.next = node;
-          node.prev = this.m_end;
-          this.m_end = node; //trace("RPONodeLinker::addNodeAndSort(), insert a node to link 1.");
-        } else {
-          this.m_begin.next = node;
-          node.prev = this.m_end;
-          this.m_end = node; //trace("RPONodeLinker::addNodeAndSort(), insert a node to link 2.");
-        }
-      }
-
-      this.m_end.next = null;
-    }
-  }
-
-  showInfo() {
-    let nextNode = this.getBegin();
-
-    if (nextNode != null) {
-      let vtxStr = "";
-      let texStr = "";
-      let ivsCountStr = "";
-
-      while (nextNode != null) {
-        vtxStr += nextNode.vtxUid + ",";
-        texStr += nextNode.texMid + ",";
-        ivsCountStr += nextNode.ivsCount + ",";
-        nextNode = nextNode.next;
-      }
-
-      console.log("RPONodeLinker::showInfo(), vtx: " + vtxStr);
-      console.log("RPONodeLinker::showInfo(), tex: " + texStr);
-      console.log("RPONodeLinker::showInfo(), ivs: " + ivsCountStr);
-    }
-  }
-
-  removeNodeAndSort(node) {
-    //trace("RPONodeLinker::removeNodeAndSort(), node: "+node);
-    let pnode = this.m_unitMap.get(node.vtxUid);
-
-    if (pnode != node) {
-      pnode = null;
-    } else {
-      this.m_unitMap.set(node.vtxUid, null);
-
-      if (node.next != null && node.next.vtxUid == node.vtxUid) {
-        this.m_unitMap.set(node.vtxUid, node.next);
-      } else if (node.prev != null && node.prev.vtxUid == node.vtxUid) {
-        this.m_unitMap.set(node.vtxUid, node.prev);
-      } else {
-        this.m_unitMap.delete(node.vtxUid);
-      }
-    }
-
-    if (node == this.m_begin) {
-      if (node == this.m_end) {
-        this.m_begin = this.m_end = null;
-      } else {
-        this.m_begin = node.next;
-        this.m_begin.prev = null;
-      }
-    } else if (node == this.m_end) {
-      this.m_end = node.prev;
-      this.m_end.next = null;
-    } else {
-      node.next.prev = node.prev;
-      node.prev.next = node.next;
-    }
-
-    this.detachVtxAt(node.rvroI);
-    this.detachTexAt(node.rtroI);
-    node.prev = null;
-    node.next = null;
-  }
-
-  addNode(node) {
-    if (this.m_begin == null) {
-      this.m_end = this.m_begin = node;
-    } else {
-      if (this.m_end.prev != null) {
-        this.m_end.next = node;
-        node.prev = this.m_end;
-        this.m_end = node;
-      } else {
-        this.m_begin.next = node;
-        node.prev = this.m_end;
-        this.m_end = node;
-      }
-    }
-
-    this.m_end.next = null;
-  }
-
-  removeNode(node) {
-    if (node == this.m_begin) {
-      if (node == this.m_end) {
-        this.m_begin = this.m_end = null;
-      } else {
-        this.m_begin = node.next;
-        this.m_begin.prev = null;
-      }
-    } else if (node == this.m_end) {
-      this.m_end = node.prev;
-      this.m_end.next = null;
-    } else {
-      node.next.prev = node.prev;
-      node.prev.next = node.next;
-    }
-
-    node.prev = null;
-    node.next = null;
-  }
-
-}
-
-RPONodeLinker.s_uid = 0;
-exports.default = RPONodeLinker;
-
-/***/ }),
-
-/***/ "e035":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RenderColorMask_1 = __webpack_require__("070b");
-
-const RenderStateObject_1 = __webpack_require__("a5ba");
-
-const RenderConst_1 = __webpack_require__("e08e");
-
-class RSTBuilder {
-  constructor() {
-    this.m_inited = true;
-  }
-
-  buildToRST(state) {
-    let b = new RSTBuilder();
-    b.initialize(state, this.m_Rstate, this.m_VRO);
-  }
-
-  initialize(state, rstate, vro) {
-    if (this.m_inited && state.rstb == null) {
-      state.rstb = this;
-      this.m_inited = false;
-      this.m_Rstate = rstate;
-      this.m_VRO = vro;
-      const rso = RenderStateObject_1.RenderStateObject;
-      const rcm = RenderColorMask_1.RenderColorMask;
-      const gbm = RenderConst_1.GLBlendMode;
-      const gbe = RenderConst_1.GLBlendEquation;
-      const cfm = RenderConst_1.CullFaceMode;
-      const dtm = RenderConst_1.DepthTestMode;
-      const rbm = RenderConst_1.RenderBlendMode;
-      state.Rstate = rstate;
-      state.VRO = vro;
-      rcm.Rstate = rstate;
-      rso.Rstate = rstate;
-      state.COLOR_MASK_ALL_TRUE = rcm.Create("all_true", true, true, true, true);
-      state.COLOR_MASK_ALL_FALSE = rcm.Create("all_false", false, false, false, false);
-      state.COLOR_MASK_RED_TRUE = rcm.Create("red_true", true, false, false, false);
-      state.COLOR_MASK_GREEN_TRUE = rcm.Create("green_true", false, true, false, false);
-      state.COLOR_MASK_BLUE_TRUE = rcm.Create("blue_true", false, false, true, false);
-      state.COLOR_MASK_ALPHA_TRUE = rcm.Create("alpha_true", false, false, false, true);
-      state.COLOR_MASK_RED_FALSE = rcm.Create("red_false", false, true, true, true);
-      state.COLOR_MASK_GREEN_FALSE = rcm.Create("green_false", true, false, true, true);
-      state.COLOR_MASK_BLUE_FALSE = rcm.Create("blue_false", true, true, false, true);
-      state.COLOR_MASK_ALPHA_FALSE = rcm.Create("alpha_false", true, true, true, false);
-
-      if (RSTBuilder.m_rbmInited) {
-        RSTBuilder.m_rbmInited = false;
-        rbm.NORMAL = rso.CreateBlendMode("NORMAL", gbm.ONE, gbm.ZERO, gbe.FUNC_ADD);
-        rbm.OPAQUE = rso.CreateBlendMode("OPAQUE", gbm.ONE, gbm.ZERO, gbe.FUNC_ADD);
-        rbm.TRANSPARENT = rso.CreateBlendMode("TRANSPARENT", gbm.SRC_ALPHA, gbm.ONE_MINUS_SRC_ALPHA, gbe.FUNC_ADD);
-        rbm.ALPHA_ADD = rso.CreateBlendMode("ALPHA_ADD", gbm.ONE, gbm.ONE_MINUS_SRC_ALPHA, gbe.FUNC_ADD);
-        rbm.ADD = rso.CreateBlendMode("ADD", gbm.SRC_ALPHA, gbm.ONE, gbe.FUNC_ADD);
-        rbm.ADD_LINEAR = rso.CreateBlendMode("ADD_LINEAR", gbm.ONE, gbm.ONE, gbe.FUNC_ADD);
-        rbm.INVERSE_ALPHA = rso.CreateBlendMode("INVERSE_ALPHA", gbm.ONE, gbm.SRC_ALPHA, gbe.FUNC_ADD);
-        rbm.BLAZE = rso.CreateBlendMode("BLAZE", gbm.SRC_COLOR, gbm.ONE, gbe.FUNC_ADD);
-        rbm.OVERLAY = rso.CreateBlendMode("OVERLAY", gbm.DST_COLOR, gbm.DST_ALPHA, gbe.FUNC_ADD);
-        rbm.OVERLAY2 = rso.CreateBlendMode("OVERLAY2", gbm.DST_COLOR, gbm.SRC_ALPHA, gbe.FUNC_ADD);
-      }
-
-      state.NORMAL_STATE = rso.Create("normal", cfm.BACK, rbm.NORMAL, dtm.OPAQUE);
-      state.BACK_CULLFACE_NORMAL_STATE = state.NORMAL_STATE;
-      state.FRONT_CULLFACE_NORMAL_STATE = rso.Create("front_normal", cfm.FRONT, rbm.NORMAL, dtm.OPAQUE);
-      state.NONE_CULLFACE_NORMAL_STATE = rso.Create("none_normal", cfm.NONE, rbm.NORMAL, dtm.OPAQUE);
-      state.ALL_CULLFACE_NORMAL_STATE = rso.Create("all_cull_normal", cfm.FRONT_AND_BACK, rbm.NORMAL, dtm.OPAQUE);
-      state.BACK_NORMAL_ALWAYS_STATE = rso.Create("back_normal_always", cfm.BACK, rbm.NORMAL, dtm.ALWAYS);
-      state.BACK_TRANSPARENT_STATE = rso.Create("back_transparent", cfm.BACK, rbm.TRANSPARENT, dtm.TRANSPARENT_SORT);
-      state.BACK_TRANSPARENT_ALWAYS_STATE = rso.Create("back_transparent_always", cfm.BACK, rbm.TRANSPARENT, dtm.ALWAYS);
-      state.NONE_TRANSPARENT_STATE = rso.Create("none_transparent", cfm.NONE, rbm.TRANSPARENT, dtm.TRANSPARENT_SORT);
-      state.NONE_TRANSPARENT_ALWAYS_STATE = rso.Create("none_transparent_always", cfm.NONE, rbm.TRANSPARENT, dtm.ALWAYS);
-      state.FRONT_CULLFACE_GREATER_STATE = rso.Create("front_greater", cfm.FRONT, rbm.NORMAL, dtm.TRUE_GREATER);
-      state.BACK_ADD_BLENDSORT_STATE = rso.Create("back_add_blendSort", cfm.BACK, rbm.ADD, dtm.TRANSPARENT_SORT);
-      state.BACK_ADD_ALWAYS_STATE = rso.Create("back_add_always", cfm.BACK, rbm.ADD, dtm.ALWAYS);
-      state.BACK_ALPHA_ADD_ALWAYS_STATE = rso.Create("back_alpha_add_always", cfm.BACK, rbm.ALPHA_ADD, dtm.ALWAYS);
-      state.NONE_ADD_ALWAYS_STATE = rso.Create("none_add_always", cfm.NONE, rbm.ADD, dtm.ALWAYS);
-      state.NONE_ADD_BLENDSORT_STATE = rso.Create("none_add_blendSort", cfm.NONE, rbm.ADD, dtm.TRANSPARENT_SORT);
-      state.NONE_ALPHA_ADD_ALWAYS_STATE = rso.Create("none_alpha_add_always", cfm.NONE, rbm.ALPHA_ADD, dtm.ALWAYS);
-      state.FRONT_ADD_ALWAYS_STATE = rso.Create("front_add_always", cfm.FRONT, rbm.ADD, dtm.ALWAYS);
-      state.FRONT_TRANSPARENT_STATE = rso.Create("front_transparent", cfm.FRONT, rbm.TRANSPARENT, dtm.TRANSPARENT_SORT);
-      state.FRONT_TRANSPARENT_ALWAYS_STATE = rso.Create("front_transparent_always", cfm.FRONT, rbm.TRANSPARENT, dtm.ALWAYS);
-      state.NONE_CULLFACE_NORMAL_ALWAYS_STATE = rso.Create("none_normal_always", cfm.NONE, rbm.NORMAL, dtm.ALWAYS);
-      state.BACK_ALPHA_ADD_BLENDSORT_STATE = rso.Create("back_alpha_add_blendSort", cfm.BACK, rbm.ALPHA_ADD, dtm.TRANSPARENT_SORT);
-    }
-  }
-
-  createBlendMode(name, srcColor, dstColor, blendEquation = 0) {
-    return RenderStateObject_1.RenderStateObject.CreateBlendMode(name, srcColor, dstColor, blendEquation);
-  }
-
-  createBlendModeSeparate(name, srcColor, dstColor, srcAlpha = 0, dstAlpha = 0, blendEquation = 0) {
-    return RenderStateObject_1.RenderStateObject.CreateBlendModeSeparate(name, srcColor, dstColor, srcAlpha, dstAlpha, blendEquation);
-  }
-
-  createRenderState(objName, cullFaceMode, blendMode, depthTestMode) {
-    return RenderStateObject_1.RenderStateObject.Create(objName, cullFaceMode, blendMode, depthTestMode);
-  }
-
-  createRenderColorMask(objName, rBoo, gBoo, bBoo, aBoo) {
-    return RenderColorMask_1.RenderColorMask.Create(objName, rBoo, gBoo, bBoo, aBoo);
-  }
-
-  getRenderStateByName(objName) {
-    return RenderStateObject_1.RenderStateObject.GetRenderStateByName(objName);
-  }
-
-  getRenderColorMaskByName(objName) {
-    return RenderColorMask_1.RenderColorMask.GetColorMaskByName(objName);
-  }
-
-  unlockBlendMode() {
-    RenderStateObject_1.RenderStateObject.UnlockBlendMode();
-  }
-
-  lockBlendMode(cullFaceMode) {
-    RenderStateObject_1.RenderStateObject.LockBlendMode(cullFaceMode);
-  }
-
-  unlockDepthTestMode() {
-    RenderStateObject_1.RenderStateObject.UnlockDepthTestMode();
-  }
-
-  lockDepthTestMode(depthTestMode) {
-    RenderStateObject_1.RenderStateObject.LockDepthTestMode(depthTestMode);
-  }
-
-  resetState() {
-    RenderColorMask_1.RenderColorMask.Reset();
-    RenderStateObject_1.RenderStateObject.Reset();
-    this.m_Rstate.reset();
-
-    this.m_VRO.__$resetVRO();
-  }
-
-  reset(context) {
-    RenderColorMask_1.RenderColorMask.Reset();
-    RenderStateObject_1.RenderStateObject.Reset();
-    this.m_Rstate.setRenderContext(context);
-    this.m_Rstate.reset();
-  }
-
-  resetInfo() {}
-
-  setDepthTestEnable(enable) {
-    this.m_Rstate.setDepthTestEnable(enable);
-  }
-
-  setBlendEnable(enable) {
-    this.m_Rstate.setBlendEnable(enable);
-  }
-
-}
-
-RSTBuilder.m_rbmInited = true;
-exports.default = RSTBuilder;
-
-/***/ }),
-
 /***/ "e08e":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 /***************************************************************************/
 
 /*                                                                         */
@@ -37096,18 +25710,23 @@ Object.defineProperty(exports, "__esModule", {
 
 /***************************************************************************/
 
-class RenderDrawMode {}
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
 
-RenderDrawMode.ELEMENTS_TRIANGLES = 1;
-RenderDrawMode.ELEMENTS_TRIANGLE_STRIP = 2;
-RenderDrawMode.ELEMENTS_TRIANGLE_FAN = 3;
-RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES = 4;
-RenderDrawMode.ARRAYS_LINES = 5;
-RenderDrawMode.ARRAYS_LINE_STRIP = 6;
-RenderDrawMode.ARRAYS_POINTS = 7;
-RenderDrawMode.ELEMENTS_LINES = 8;
-RenderDrawMode.DISABLE = 0;
-exports.RenderDrawMode = RenderDrawMode;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const RenderDrawMode_1 = __importDefault(__webpack_require__("13b1"));
+
+exports.RenderDrawMode = RenderDrawMode_1.default;
+
+const DisplayRenderSign_1 = __webpack_require__("72bb");
+
+exports.DisplayRenderSign = DisplayRenderSign_1.DisplayRenderSign;
 
 class RenderBlendMode {}
 
@@ -37235,16 +25854,6 @@ DepthTestMode.TRUE_GREATER = 14; //glDepthMask(true); glDepthFunc(GL_GEQUAL);
 DepthTestMode.TRUE_GEQUAL = 15;
 DepthTestMode.DISABLE = 0;
 exports.DepthTestMode = DepthTestMode;
-var DisplayRenderSign;
-
-(function (DisplayRenderSign) {
-  // 还没有加入 renderer
-  DisplayRenderSign[DisplayRenderSign["NOT_IN_RENDERER"] = -1] = "NOT_IN_RENDERER"; // 正在进入 renderer
-
-  DisplayRenderSign[DisplayRenderSign["GO_TO_RENDERER"] = 1] = "GO_TO_RENDERER"; // 真正存在于 renderer, 也就是直接可以在 process 中使用了
-
-  DisplayRenderSign[DisplayRenderSign["LIVE_IN_RENDERER"] = 2] = "LIVE_IN_RENDERER";
-})(DisplayRenderSign = exports.DisplayRenderSign || (exports.DisplayRenderSign = {}));
 
 /***/ }),
 
@@ -37847,186 +26456,6 @@ exports.default = Plane;
 
 /***/ }),
 
-/***/ "e2fe":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class AABB2D {
-  constructor(px = 0.0, py = 0.0, pwidth = 100.0, pheight = 100.0) {
-    this.m_right = 100;
-    this.m_top = 100;
-    this.x = 0;
-    this.y = 0;
-    this.width = 100;
-    this.height = 100;
-    this.x = px;
-    this.y = py;
-    this.width = pwidth;
-    this.height = pheight;
-    this.update();
-  }
-
-  copyFrom(dst) {
-    this.x = dst.x;
-    this.y = dst.y;
-    this.width = dst.width;
-    this.height = dst.height;
-    this.m_right = dst.m_right;
-    this.m_top = dst.m_top;
-  }
-
-  clone() {
-    return new AABB2D(this.x, this.y, this.width, this.height);
-  }
-  /**
-   * 当前矩形是否包含某一点(同一坐标空间的点)
-   * @param x坐标
-   * @param y坐标
-   * @returns 返回当前矩形是否包含这个坐标位置
-   */
-
-
-  containsXY(vx, vy) {
-    if (vx < this.x || vx > this.m_right) return false;
-    if (vy < this.y || vy > this.m_top) return false;
-    return true;
-  }
-  /**
-   * 当前矩形是否包含目标矩形
-   * @param dst 目标矩形
-   * @returns 返回当前矩形是否包含目标矩形
-   */
-
-
-  contains(dst) {
-    if (dst.x >= this.x && dst.m_right <= this.m_right) {
-      if (dst.y >= this.y && dst.m_top <= this.m_top) {
-        return true;
-      }
-    }
-
-    return true;
-  }
-  /**
-   * 当前矩形是否和目标矩形相交
-   * @param dst 目标矩形
-   * @returns 返回当前矩形是否和目标矩形相交
-   */
-
-
-  intersect(dst) {
-    if (dst.x > this.m_right) return false;
-    if (dst.m_right < this.x) return false;
-    if (dst.y > this.m_top) return false;
-    if (dst.m_top < this.y) return false;
-    return true;
-  }
-
-  setTo(x, y, width, height) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.m_right = this.width + this.x;
-    this.m_top = this.height + this.y;
-  }
-
-  setSize(width, height) {
-    this.width = width;
-    this.height = height;
-    this.m_right = this.width + this.x;
-    this.m_top = this.height + this.y;
-  }
-
-  testEqual(dst) {
-    return this.x != dst.x || this.y != dst.y || this.width != dst.width || this.height != dst.height;
-  }
-
-  testEqualWithParams(px, py, pw, ph) {
-    return this.x != px || this.y != py || this.width != pw || this.height != ph;
-  }
-
-  update() {
-    this.m_right = this.width + this.x;
-    this.m_top = this.height + this.y;
-  }
-
-  flipY(height) {
-    this.y = height = this.y;
-    this.m_right = this.width + this.x;
-    this.m_top = this.height + this.y;
-  }
-
-  getX() {
-    return this.x;
-  }
-
-  getY() {
-    return this.y;
-  }
-
-  getRight() {
-    return this.m_right;
-  }
-
-  getTop() {
-    return this.m_top;
-  }
-
-}
-
-exports.default = AABB2D;
-
-/***/ }),
-
-/***/ "e602":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class RenderingColorMask {
-  constructor(st) {
-    let t = this;
-    t.ALL_TRUE = st.COLOR_MASK_ALL_TRUE;
-    t.ALL_FALSE = st.COLOR_MASK_ALL_FALSE;
-    t.RED_TRUE = st.COLOR_MASK_RED_TRUE;
-    t.GREEN_TRUE = st.COLOR_MASK_GREEN_TRUE;
-    t.BLUE_TRUE = st.COLOR_MASK_BLUE_TRUE;
-    t.ALPHA_TRUE = st.COLOR_MASK_ALPHA_TRUE;
-    t.RED_FALSE = st.COLOR_MASK_RED_FALSE;
-    t.GREEN_FALSE = st.COLOR_MASK_GREEN_FALSE;
-    t.BLUE_FALSE = st.COLOR_MASK_BLUE_FALSE;
-    t.ALPHA_FALSE = st.COLOR_MASK_ALPHA_FALSE;
-  }
-
-}
-
-exports.RenderingColorMask = RenderingColorMask;
-
-/***/ }),
-
 /***/ "e7ce":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -38264,34 +26693,9 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
     return this.m_vtxBuf.getF32DataAt(index);
   }
 
-  getIvsData() {
-    return this.m_ivs;
-  }
-
   setF32DataAt(index, float32Arr, stepFloatsTotal, setpOffsets) {
     this.m_vtxBuf.setF32DataAt(index, float32Arr, stepFloatsTotal, setpOffsets);
     this.vertexVer++;
-  }
-
-  setUintIVSData(uint16Or32Arr, status = VtxBufConst_1.default.VTX_STATIC_DRAW) {
-    if (uint16Or32Arr instanceof Uint16Array) {
-      this.m_ibufStep = 2;
-
-      if (uint16Or32Arr.length > 65535) {
-        throw Error("its type is not Uint32Array.");
-      }
-    } else if (uint16Or32Arr instanceof Uint32Array) {
-      this.m_ibufStep = 4;
-    } else {
-      console.error("Error: uint16Or32Arr is not an Uint32Array or an Uint16Array bufferArray instance !!!!");
-      return;
-    }
-
-    this.m_ivs = uint16Or32Arr;
-
-    if (uint16Or32Arr != null) {
-      this.indicesVer++;
-    }
   }
 
   setData4fAt(vertexI, attribI, px, py, pz, pw) {
@@ -38333,8 +26737,9 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
       ROVertexBuffer.s_separatedBufs.push(this.m_vtxBuf);
     }
 
-    this.m_vtxBuf = null;
-    this.m_ivs = null;
+    this.m_vtxBuf = null; // this.m_ivs = null;
+
+    this.m_irds.fill(null);
     this.bufData = null;
     this.m_bufTypeList = null;
     this.m_bufSizeList = null;
@@ -38557,7 +26962,7 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
       vb.setF32DataAt(i, bufData.getAttributeDataAt(i, 0), stride, offsetList);
     }
 
-    vb.setUintIVSData(bufData.getIndexDataAt(0));
+    vb.setIVSDataAt(bufData.getIndexDataAt(0));
     vb.bufData = bufData;
     return vb;
   }
@@ -38660,279 +27065,6 @@ ROVertexBuffer.useBufByIndexEnabled = false;
 ROVertexBuffer.vtxFS32 = null;
 ROVertexBuffer.s_timeDelay = 128;
 exports.default = ROVertexBuffer;
-
-/***/ }),
-
-/***/ "e7f2":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const RenderConst_1 = __webpack_require__("e08e");
-
-class ROStateUnit {
-  constructor() {
-    this.stencilMask = -1;
-  }
-
-}
-
-class RODrawState {
-  constructor() {
-    this.m_units = new Array(128);
-    this.m_unit = null;
-    this.m_blendMode = RenderConst_1.RenderBlendMode.NORMAL;
-    this.m_cullMode = RenderConst_1.CullFaceMode.NONE;
-    this.m_depthTestType = RenderConst_1.DepthTestMode.DISABLE;
-    this.m_cullDisabled = true;
-    this.m_context = null;
-    this.m_gl = null;
-    this.roColorMask = -11;
-  }
-
-  reset() {
-    this.roColorMask = -11;
-  }
-
-  setRenderContext(context) {
-    this.m_context = context;
-    this.m_gl = context.getRC();
-    let rcui = this.m_gl.rcuid;
-    this.m_unit = this.m_units[rcui];
-
-    if (this.m_unit == null) {
-      this.m_unit = this.m_units[rcui] = new ROStateUnit();
-    }
-  }
-
-  setColorMask(mr, mg, mb, ma) {
-    this.m_gl.colorMask(mr, mg, mb, ma);
-  }
-
-  setStencilFunc(func, ref, mask) {
-    this.m_gl.stencilFunc(func, ref, mask);
-  }
-
-  setStencilMask(mask) {
-    if (this.m_unit.stencilMask != mask && mask >= 0) {
-      this.m_unit.stencilMask = mask;
-      this.m_gl.stencilMask(mask);
-    }
-  }
-
-  setStencilOp(fail, zfail, zpass) {
-    this.m_gl.stencilOp(fail, zfail, zpass);
-  }
-
-  setDepthTestEnable(enable) {
-    if (enable) {
-      this.m_gl.enable(this.m_gl.DEPTH_TEST);
-    } else {
-      this.m_gl.disable(this.m_gl.DEPTH_TEST);
-    }
-  }
-
-  setCullFaceEnable(enable) {
-    if (enable) {
-      this.m_gl.enable(this.m_gl.CULL_FACE);
-    } else {
-      this.m_gl.disable(this.m_gl.CULL_FACE);
-    }
-  }
-
-  setBlendEnable(enable) {
-    if (enable) {
-      this.m_gl.enable(this.m_gl.BLEND);
-    } else {
-      this.m_gl.disable(this.m_gl.BLEND);
-    }
-  }
-
-  setCullFaceMode(mode) {
-    // console.log("this.m_cullMode,mode: ", this.m_cullMode,mode);
-    if (this.m_cullMode != mode) {
-      this.m_cullMode = mode;
-
-      if (mode != RenderConst_1.CullFaceMode.NONE) {
-        if (this.m_cullDisabled) {
-          this.m_cullDisabled = false;
-          this.m_gl.enable(this.m_gl.CULL_FACE);
-        }
-
-        this.m_gl.cullFace(mode);
-      } else if (!this.m_cullDisabled) {
-        this.m_cullDisabled = true;
-        this.m_gl.disable(this.m_gl.CULL_FACE);
-      }
-    }
-  }
-
-  setBlendMode(mode, params) {
-    if (this.m_blendMode != mode) {
-      // if(DebugFlag.Flag_0 > 0) {
-      //     console.log("this.m_blendMode: ",this.m_blendMode,",mode: ",mode,",params: ", params);
-      // }
-      this.m_blendMode = mode;
-
-      if (mode > 0) {
-        if (params[0] < 1) {
-          //FUNC_ADD
-          // this.m_gl.blendEquation(this.m_gl.FUNC_ADD);
-          // this.m_gl.blendFunc(this.m_gl.ONE, this.m_gl.ZERO);
-          this.m_gl.blendEquation(params[1]);
-          this.m_gl.blendFunc(params[3], params[4]);
-        } else {
-          this.m_gl.blendEquationSeparate(params[1], params[2]);
-          this.m_gl.blendFuncSeparate(params[3], params[4], params[5], params[6]);
-        }
-      } else {
-        this.m_gl.disable(this.m_gl.BLEND);
-      }
-    }
-  }
-
-  getDepthTestMode() {
-    return this.m_depthTestType;
-  }
-
-  setDepthTestMode(type) {
-    if (this.m_depthTestType != type) {
-      const gl = this.m_gl;
-      const DTM = RenderConst_1.DepthTestMode;
-      this.m_depthTestType = type; //trace("RendererBase::setDepthTest(),type：",std::to_string(static_cast<int>(type)));
-
-      switch (type) {
-        case DTM.ALWAYS:
-          //console.log("ALWAYS type: ", type,gl.ALWAYS);
-          gl.depthMask(false);
-          gl.depthFunc(gl.ALWAYS);
-          break;
-
-        case DTM.SKY:
-          gl.depthMask(true);
-          gl.depthFunc(gl.LEQUAL);
-          break;
-
-        case DTM.OPAQUE:
-          //console.log("OPAQUE type: ", type,gl.LESS);
-          gl.depthMask(true);
-          gl.depthFunc(gl.LESS);
-          break;
-
-        case DTM.OPAQUE_OVERHEAD:
-          gl.depthMask(false);
-          gl.depthFunc(gl.EQUAL);
-          break;
-
-        case DTM.DECALS:
-          gl.depthMask(false);
-          gl.depthFunc(gl.LEQUAL);
-          break;
-
-        case DTM.BLEND:
-          gl.depthMask(false);
-          gl.depthFunc(gl.LESS);
-          break;
-
-        case DTM.WIRE_FRAME:
-          gl.depthMask(true);
-          gl.depthFunc(gl.LEQUAL);
-          break;
-
-        case DTM.NEXT_LAYER:
-          gl.depthMask(false);
-          gl.depthFunc(gl.ALWAYS);
-          break;
-
-        case DTM.TRUE_EQUAL:
-          gl.depthMask(true);
-          gl.depthFunc(gl.EQUAL);
-          break;
-
-        case DTM.TRUE_GREATER:
-          gl.depthMask(true);
-          gl.depthFunc(gl.GREATER);
-          break;
-
-        case DTM.TRUE_GEQUAL:
-          gl.depthMask(true);
-          gl.depthFunc(gl.GEQUAL);
-          break;
-
-        case DTM.WIRE_FRAME_NEXT:
-          break;
-
-        default:
-          break;
-      }
-    }
-  }
-
-}
-
-exports.RODrawState = RODrawState;
-
-/***/ }),
-
-/***/ "e87b":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const UniformConst_1 = __importDefault(__webpack_require__("ab73"));
-
-class ViewParamUniformBuilder {
-  create(rc, shdp) {
-    let param = UniformConst_1.default.ViewportParam;
-    if (shdp.hasUniformByName(param.name)) return rc.uniformContext.createShaderGlobalUniformFromProbe(rc.getRenderAdapter().uViewProbe, param.name, [param.name]);
-    return null;
-  }
-
-  getIDNS() {
-    return "ViewParamUniformBuilder";
-  }
-
-}
-
-exports.default = ViewParamUniformBuilder;
 
 /***/ }),
 
@@ -39123,120 +27255,6 @@ exports.default = FloatCubeTextureProxy;
 
 /***/ }),
 
-/***/ "eca0":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2019-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const PoolNodeBuilder_1 = __importDefault(__webpack_require__("2be1"));
-
-const RPOUnit_1 = __importDefault(__webpack_require__("c62b")); //import PoolNodeBuilder = PoolNodeBuilderT.vox.base.PoolNodeBuilder;
-// 这个类的实例，和每一个RPOUnit或者RODisplay关联(通过唯一的uid)
-
-
-class RCRPObj {
-  constructor() {
-    // 这里假定最多有 16 个 RenerProcess, 每一个数组元素存放的是 RPONode 的uid, 数组的序号对应的是RenerProcess 的uid
-    this.idsFlag = 0x0;
-    this.count = 0; // 如果只有加入一个process的时候则有效
-
-    this.rprocessUid = -1;
-  }
-
-  reset() {
-    this.idsFlag = 0;
-  }
-
-}
-
-RCRPObj.RenerProcessMaxTotal = 16;
-exports.RCRPObj = RCRPObj;
-
-class RPOUnitBuilder extends PoolNodeBuilder_1.default {
-  constructor() {
-    super(...arguments);
-    this.m_rcpoList = [];
-  }
-  /**
-   * the sub class override this function, for real implement.
-   */
-
-
-  createNode() {
-    let po = new RCRPObj();
-    po.reset();
-    this.m_rcpoList.push(po);
-    return new RPOUnit_1.default();
-  }
-  /**
-   * the sub class override this function, for real implement.
-   */
-
-
-  restoreUid(uid) {
-    this.m_rcpoList[uid].reset();
-  }
-
-  testRPNodeExists(dispRUid, rprocessUid) {
-    return (this.m_rcpoList[dispRUid].idsFlag & 1 << rprocessUid) > 0;
-  }
-
-  testRPNodeNotExists(dispRUid, rprocessUid) {
-    return (this.m_rcpoList[dispRUid].idsFlag & 1 << rprocessUid) < 1;
-  }
-
-  setRPNodeParam(dispRUid, rprocessUid, rponodeUid) {
-    let po = this.m_rcpoList[dispRUid];
-    let flag = 1 << rprocessUid;
-
-    if (rponodeUid > -1) {
-      if ((po.idsFlag & flag) < 1) {
-        ++po.count;
-        po.rprocessUid = rprocessUid;
-        po.idsFlag = po.idsFlag | flag;
-      }
-    } else {
-      if ((po.idsFlag & flag) > 0) {
-        --po.count;
-        po.idsFlag = po.idsFlag & ~flag;
-      }
-    }
-
-    return po.count;
-  }
-
-  getRCRPObj(dispRUid) {
-    return this.m_rcpoList[dispRUid];
-  }
-
-}
-
-exports.RPOUnitBuilder = RPOUnitBuilder;
-
-/***/ }),
-
 /***/ "ee3b":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -39352,6 +27370,8 @@ class CoRendererSubScene extends RendererSceneBase_1.default {
         this.m_rspace = sp;
       }
     }
+
+    return this;
   }
 
   createMainCamera() {
@@ -39419,7 +27439,7 @@ class CoRendererSubScene extends RendererSceneBase_1.default {
 
 
   runBegin(autoCycle = true, contextBeginEnabled = false) {
-    if (autoCycle && this.m_autoRunning) {
+    if (autoCycle && this.m_autoRunEnabled) {
       if (this.m_runFlag >= 0) this.runEnd();
       this.m_runFlag = 0;
     }
@@ -39854,10 +27874,6 @@ class VtxCombinedBuf {
     console.log("VtxCombinedBuf::__$destroy()... ", this);
     this.m_offsetList = null;
     this.m_f32 = null;
-  }
-
-  toString() {
-    return "VtxCombinedBuf(uid = " + this.m_uid + ")";
   }
 
 }
@@ -40686,6 +28702,7 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
       this.m_uniform.addDiffuseMap();
       coder.addVertLayout("vec2", "a_uvs");
       coder.addVarying("vec2", "v_uv");
+      coder.addVertUniform("vec4", "u_uvTrans");
     }
 
     if (this.normalEnabled) {
@@ -40760,7 +28777,7 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     #endif
 
     #ifdef VOX_USE_2D_MAP
-        v_uv = a_uvs.xy;
+        v_uv = (a_uvs.xy * u_uvTrans.zw) + u_uvTrans.xy;
     #endif
     #ifdef VOX_USE_VTX_COLOR
         v_cv = a_cvs.xyz;
@@ -40778,6 +28795,7 @@ class Default3DMaterial extends MaterialBase_1.default {
   constructor() {
     super();
     this.m_data = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+    this.m_uvTrans = new Float32Array([0.0, 0.0, 1.0, 1.0]);
     this.vertColorEnabled = false;
     this.premultiplyAlpha = false;
     this.normalEnabled = false;
@@ -40806,6 +28824,16 @@ class Default3DMaterial extends MaterialBase_1.default {
 
   getCodeBuf() {
     return Default3DMaterial.s_shdCodeBuffer;
+  }
+
+  setUVOffset(px, py) {
+    this.m_uvTrans[0] = px;
+    this.m_uvTrans[1] = py;
+  }
+
+  setUVScale(sx, sy) {
+    this.m_uvTrans[2] = sx;
+    this.m_uvTrans[3] = sy;
   }
 
   setRGB3f(pr, pg, pb) {
@@ -40848,8 +28876,8 @@ class Default3DMaterial extends MaterialBase_1.default {
 
   createSelfUniformData() {
     let oum = new ShaderUniformData_1.default();
-    oum.uniformNameList = ["u_color"];
-    oum.dataList = [this.m_data];
+    oum.uniformNameList = ["u_color", "u_uvTrans"];
+    oum.dataList = [this.m_data, this.m_uvTrans];
     return oum;
   }
 
@@ -40956,139 +28984,6 @@ class FloatTextureProxy extends RawDataTextureProxy_1.default {
 }
 
 exports.default = FloatTextureProxy;
-
-/***/ }),
-
-/***/ "fa60":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const VROBase_1 = __importDefault(__webpack_require__("919c"));
-
-class VaoVertexRenderObj extends VROBase_1.default {
-  constructor() {
-    super();
-    /**
-     * vao buffer object
-     */
-
-    this.vao = null;
-    this.m_uid = VaoVertexRenderObj.s_uid++;
-  }
-
-  run() {
-    if (this.m_rc.testVROUid(this.m_uid)) {
-      // console.log("VaoVertexRenderObj::run(), rcuid: ",this.m_rc.getRCUid(),this.m_vtxUid, this.m_uid);
-      this.m_rc.bindVertexArray(this.vao);
-
-      if (this.m_rc.testRIOUid(this.m_vtxUid) || VROBase_1.default.s_mid != this.m_mid) {
-        // if (this.m_rc.testRIOUid(this.m_vtxUid)) {
-        // console.log("VaoVertexRenderObj::run(), testRIOUid()..");
-        VROBase_1.default.s_mid = this.m_mid;
-        this.m_rc.bindEleBuf(this.ibuf);
-      }
-    }
-  }
-
-  __$destroy() {
-    console.log("VaoVertexRenderObj::__$destroy()..., " + this);
-    VROBase_1.default.s_midMap.delete(this.m_mid);
-    this.m_mid = 0;
-    this.m_vtxUid = -1;
-    this.ibuf = null;
-    this.vao = null;
-    this.m_rc = null;
-  }
-
-  restoreThis() {
-    if (this.vao != null) {
-      this.m_rc.deleteVertexArray(this.vao);
-    }
-
-    VaoVertexRenderObj.Restore(this);
-  }
-
-  static HasMid(mid) {
-    return VROBase_1.default.s_midMap.has(mid);
-  }
-
-  static GetByMid(mid) {
-    return VROBase_1.default.s_midMap.get(mid);
-  }
-
-  static GetFreeId() {
-    if (VaoVertexRenderObj.s_freeIdList.length > 0) {
-      return VaoVertexRenderObj.s_freeIdList.pop();
-    }
-
-    return -1;
-  }
-
-  static Create(rc, mid, pvtxUid) {
-    let unit = null;
-    let index = VaoVertexRenderObj.GetFreeId();
-
-    if (index >= 0) {
-      unit = VaoVertexRenderObj.s_unitList[index];
-      VaoVertexRenderObj.s_unitFlagList[index] = VaoVertexRenderObj.s_FLAG_BUSY;
-      unit.setMidAndBufUid(mid, pvtxUid);
-    } else {
-      unit = new VaoVertexRenderObj();
-      unit.setMidAndBufUid(mid, pvtxUid);
-      VaoVertexRenderObj.s_unitList.push(unit);
-      VaoVertexRenderObj.s_unitFlagList.push(VaoVertexRenderObj.s_FLAG_BUSY);
-      VaoVertexRenderObj.s_unitListLen++;
-    }
-
-    unit.setRC(rc);
-    VROBase_1.default.s_midMap.set(mid, unit);
-    return unit;
-  }
-
-  static Restore(pobj) {
-    //console.log("VaoVRO Restore XXXX ("+pobj.getUid()+")pobj.m_attachCount: ",pobj.m_attachCount);
-    if (pobj != null && pobj.m_attachCount < 1 && VaoVertexRenderObj.s_unitFlagList[pobj.getUid()] == VaoVertexRenderObj.s_FLAG_BUSY) {
-      let uid = pobj.getUid();
-      VaoVertexRenderObj.s_freeIdList.push(uid);
-      VaoVertexRenderObj.s_unitFlagList[uid] = VaoVertexRenderObj.s_FLAG_FREE;
-
-      pobj.__$destroy();
-    }
-  }
-
-}
-
-VaoVertexRenderObj.s_uid = 0;
-VaoVertexRenderObj.s_FLAG_BUSY = 1;
-VaoVertexRenderObj.s_FLAG_FREE = 0;
-VaoVertexRenderObj.s_unitFlagList = [];
-VaoVertexRenderObj.s_unitListLen = 0;
-VaoVertexRenderObj.s_unitList = [];
-VaoVertexRenderObj.s_freeIdList = [];
-exports.default = VaoVertexRenderObj;
 
 /***/ }),
 
@@ -41704,10 +29599,10 @@ class ROIVertexBuffer {
   constructor(bufDataUsage = VtxBufConst_1.default.VTX_STATIC_DRAW) {
     this.m_uid = 0;
     this.m_layoutBit = 0;
-    this.m_ivs = null;
+    this.m_irdTotal = 0;
+    this.m_irds = new Array(1);
     this.m_bufDataUsage = 0;
-    this.m_ibufStep = 2; // 2 or 4
-
+    this.m_ibufStep = 2;
     this.layoutBit = 0x0;
     this.vertexVer = 0;
     this.indicesVer = 0;
@@ -41716,6 +29611,7 @@ class ROIVertexBuffer {
     this.bufData = null;
     this.m_uid = ROIVertexBuffer.s_uid++;
     this.m_bufDataUsage = bufDataUsage;
+    this.m_irds.fill(null);
   }
 
   getUid() {
@@ -41732,39 +29628,44 @@ class ROIVertexBuffer {
 
   getBufSortFormat() {
     return this.m_layoutBit;
-  }
+  } // getIBufStep(): number {
+  //     return this.m_ibufStep;
+  // }
 
-  getIBufStep() {
-    return this.m_ibufStep;
-  }
 
   getBufDataUsage() {
     return this.m_bufDataUsage;
   }
 
-  getIvsData() {
-    return this.m_ivs;
+  getIvsDataAt(index = 0) {
+    // console.log("FFFFFFFFFF 0 getIvsDataAt(), index: ", index);
+    if (index >= 0 && index < this.m_irdTotal) {
+      // console.log("FFFFFFFFFF 0 this.m_irds["+index+"]: ", this.m_irds[index]);
+      return this.m_irds[index];
+    }
+
+    return null;
   }
 
-  setUintIVSData(uint16Or32Arr, status = VtxBufConst_1.default.VTX_STATIC_DRAW) {
-    if (uint16Or32Arr instanceof Uint16Array) {
-      this.m_ibufStep = 2;
-
-      if (uint16Or32Arr.length > 65535) {
-        throw Error("its type is not Uint32Array.");
+  setIVSDataAt(data, index = 0) {
+    // console.log("A index: ", index, ", XXXXX this.m_irds.length: ", this.m_irds.length);
+    if (index < this.m_irds.length) {
+      if (this.m_irds[index]) {
+        this.m_irds[index].destroy();
       }
-    } else if (uint16Or32Arr instanceof Uint32Array) {
-      this.m_ibufStep = 4;
+
+      this.m_irds[index] = data;
     } else {
-      console.error("Error: uint16Or32Arr is not an Uint32Array or an Uint16Array bufferArray instance !!!!");
-      return;
+      this.m_irds.push(data);
     }
 
-    this.m_ivs = uint16Or32Arr;
+    this.m_irdTotal = this.m_irds.length; // console.log("B index: ", index, ", XXXXX this.m_irdTotal: ", this.m_irdTotal);
 
-    if (uint16Or32Arr != null) {
-      this.indicesVer++;
-    }
+    this.indicesVer++;
+  }
+
+  getIvsDataTotal() {
+    return this.m_irdTotal;
   }
   /**
    * this function is only an empty function.
@@ -41773,6 +29674,9 @@ class ROIVertexBuffer {
 
   destroy() {
     this.m_layoutBit = 0;
+    this.m_irdTotal = 0;
+    this.m_irds.fill(null);
+    this.m_irds = [];
   }
 
 }
@@ -41898,19 +29802,35 @@ class AABB {
   addFloat32Arr(vs, step = 3) {
     let len = vs.length;
 
-    for (let i = 0; i < len;) {
-      this.addXYZ(vs[i], vs[i + 1], vs[i + 2]);
-      i += step;
+    if (step >= 3) {
+      for (let i = 0; i < len;) {
+        this.addXYZ(vs[i], vs[i + 1], vs[i + 2]);
+        i += step;
+      }
+    }
+
+    if (step == 2) {
+      for (let i = 0; i < len;) {
+        this.addXYZ(vs[i], vs[i + 1], 0.0);
+        i += step;
+      }
     }
   }
 
-  addFloat32AndIndicesArr(vs, indices) {
+  addFloat32AndIndices(vs, indices, step = 3) {
     let len = indices.length;
     let i;
 
-    for (let k = 0; k < len; k++) {
-      i = indices[k] * 3;
-      this.addXYZ(vs[i++], vs[i++], vs[i]);
+    if (step >= 3) {
+      for (let k = 0; k < len; k++) {
+        i = indices[k] * step;
+        this.addXYZ(vs[i++], vs[i++], vs[i]);
+      }
+    } else if (step == 2) {
+      for (let k = 0; k < len; k++) {
+        i = indices[k] * step;
+        this.addXYZ(vs[i++], vs[i], 0.0);
+      }
     }
   }
 
