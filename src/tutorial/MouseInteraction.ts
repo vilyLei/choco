@@ -20,6 +20,7 @@ export class MouseInteraction {
 
         this.m_rscene = VoxRScene.createRendererScene();
         this.m_rscene.initialize(null).setAutoRunning(true);
+        
         this.m_rscene.addEntity(VoxRScene.createAxis3DEntity());
     }
 }

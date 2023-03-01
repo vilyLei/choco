@@ -420,6 +420,8 @@ class MouseInteraction {
       z.initialize(rscene.getStage3D());
       z.setLookAtCtrlEnabled(false);
     }
+
+    return this;
   }
 
   enableSwing() {
@@ -436,10 +438,12 @@ class MouseInteraction {
 
   setSyncLookAtEnabled(ennabled) {
     this.zoomer.syncLookAt = ennabled;
+    return this;
   }
 
   setLookAtPosition(v) {
     this.zoomer.setLookAtPosition(v);
+    return this;
   }
   /**
    * @param enabled enable auto runnning or not
@@ -458,6 +462,8 @@ class MouseInteraction {
     } else {
       this.m_rscene.removeEventListener(type, this, this.autoRun);
     }
+
+    return this;
   }
 
   autoRun(evt) {
