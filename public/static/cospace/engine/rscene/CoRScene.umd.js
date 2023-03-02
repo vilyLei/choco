@@ -1893,8 +1893,6 @@ const MaterialResource_1 = __importDefault(__webpack_require__("9666"));
 
 const ShaderCodeBuffer_1 = __importDefault(__webpack_require__("faa5"));
 
-const VtxDrawingInfo_1 = __importDefault(__webpack_require__("d031"));
-
 class MaterialBase {
   constructor() {
     this.m_shduns = "";
@@ -1921,7 +1919,12 @@ class MaterialBase {
     // stencil: Stencil = null;
     // multiPass = false;
 
-    this.vtxInfo = new VtxDrawingInfo_1.default();
+    /**
+     * 如果是同样的 vtxInfo 内容，则一个material 实例可以对应多个entity即便是mesh不一样也可以
+     * 如果 vtxInfo 内容 和 mesh 已经匹配，则附带这个vtxInfo只能用到对一个mesh的entity
+     */
+
+    this.vtxInfo = null;
     this.graph = null;
     this.m_texList = null;
     this.m_texListLen = 0;
@@ -2640,6 +2643,7 @@ RenderDrawMode.ARRAYS_LINES = 5;
 RenderDrawMode.ARRAYS_LINE_STRIP = 6;
 RenderDrawMode.ARRAYS_POINTS = 7;
 RenderDrawMode.ELEMENTS_LINES = 8;
+RenderDrawMode.ELEMENTS_INSTANCED_LINES = 9;
 RenderDrawMode.DISABLE = 0;
 exports.default = RenderDrawMode;
 
@@ -2799,7 +2803,9 @@ class BoundsEntity extends DisplayEntity_1.default {
     this.m_bm = null;
   }
 
-  setMaterial(m) {}
+  setMaterial(m) {
+    return this;
+  }
 
   createDisplay() {}
 
@@ -8321,6 +8327,8 @@ class DisplayEntity {
         }
       }
     }
+
+    return this;
   }
 
   getVisible() {
@@ -8343,18 +8351,24 @@ class DisplayEntity {
     if (entity != null) {
       this.m_trs.copyPositionFrom(entity.getTransform());
     }
+
+    return this;
   }
 
   copyMeshFrom(entity) {
     if (entity != null) {
       this.setMesh(entity.getMesh());
     }
+
+    return this;
   }
 
   copyMaterialFrom(entity) {
     if (entity != null) {
       this.setMaterial(entity.getMaterial());
     }
+
+    return this;
   }
 
   copyTransformFrom(entity) {
@@ -8363,6 +8377,8 @@ class DisplayEntity {
     if (pe != null) {
       this.m_trs.copyFrom(pe.m_trs);
     }
+
+    return this;
   }
 
   initDisplay(m) {
@@ -8433,6 +8449,8 @@ class DisplayEntity {
         this.m_meshChanged = true;
       }
     }
+
+    return this;
   }
 
   updateMesh() {}
@@ -8524,6 +8542,8 @@ class DisplayEntity {
         disp.setMaterial(m);
       }
     }
+
+    return this;
   }
 
   getMaterial() {
@@ -8590,6 +8610,8 @@ class DisplayEntity {
         this.m_display.__$$runit.setDrawFlag(this.m_renderState, this.m_rcolorMask);
       }
     }
+
+    return this;
   }
 
   getRenderState() {
@@ -8655,6 +8677,7 @@ class DisplayEntity {
 
   setXYZ(px, py, pz) {
     this.m_trs.setXYZ(px, py, pz);
+    return this;
   }
 
   offsetPosition(pv) {
@@ -8663,6 +8686,7 @@ class DisplayEntity {
 
   setPosition(pv) {
     this.m_trs.setPosition(pv);
+    return this;
   }
 
   getPosition(pv = null) {
@@ -8673,18 +8697,22 @@ class DisplayEntity {
 
   setRotation3(rotV) {
     this.m_trs.setRotationXYZ(rotV.x, rotV.y, rotV.z);
+    return this;
   }
 
   setRotationXYZ(rx, ry, rz) {
     this.m_trs.setRotationXYZ(rx, ry, rz);
+    return this;
   }
 
   setScale3(sv) {
     this.m_trs.setScaleXYZ(sv.x, sv.y, sv.z);
+    return this;
   }
 
   setScaleXYZ(sx, sy, sz) {
     this.m_trs.setScaleXYZ(sx, sy, sz);
+    return this;
   }
 
   getRotationXYZ(pv = null) {
@@ -10580,6 +10608,7 @@ class CoRendererScene extends RendererSceneBase_1.default {
   constructor() {
     super();
     this.m_tickId = -1;
+    this.m_autoRRun = false;
   }
 
   createRendererIns() {
@@ -10636,6 +10665,39 @@ class CoRendererScene extends RendererSceneBase_1.default {
 
     throw Error("Illegal operation!!!");
     return null;
+  }
+
+  fakeRun(autoCycle = true) {
+    console.log("fakeRun ...");
+  }
+
+  setAutoRunning(auto) {
+    if (this.m_autoRRun != auto) {
+      if (this.m_autoRRun) {
+        let runFunc = this.run;
+        this.run = this.fakeRun;
+        this.fakeRun = runFunc;
+        this.m_autoRRun = false;
+      } else {
+        this.m_autoRRun = true;
+        let runFunc = this.fakeRun;
+        this.fakeRun = this.run;
+        this.run = runFunc;
+
+        const func = () => {
+          if (this.m_autoRRun) {
+            this.fakeRun();
+            window.requestAnimationFrame(func);
+          }
+        };
+
+        window.requestAnimationFrame(func);
+      }
+    }
+  }
+
+  isAutoRunning() {
+    return this.m_autoRRun;
   }
 
 }
@@ -17696,10 +17758,21 @@ class RendererSceneBase {
 
     return this;
   }
+  /**
+   * @param index renderer process index in the renderer scene
+   * @param batchEnabled the value is true or false
+   * @param processFixedState the value is true or false
+   */
+
 
   setRendererProcessParam(index, batchEnabled, processFixedState) {
     this.m_renderer.setRendererProcessParam(this.m_processids[index], batchEnabled, processFixedState);
   }
+  /**
+   * @param batchEnabled the default value true
+   * @param processFixedState the default value false
+   */
+
 
   appendARendererProcess(batchEnabled = true, processFixedState = false) {
     let process = this.m_renderer.appendProcess(batchEnabled, processFixedState);
@@ -17777,8 +17850,7 @@ class RendererSceneBase {
       let process = this.m_renderer.getProcessAt(processIndex);
       sorter = sorter != null ? sorter : this.m_camDisSorter;
 
-      if (process != null) {
-        process.setSorter(sorter);
+      if (process != null) {// process.setSorter(sorter);
       }
     }
   }
@@ -18332,6 +18404,10 @@ class RendererSceneBase {
   }
 
   setAutoRunning(auto) {}
+
+  isAutoRunning() {
+    return false;
+  }
 
 }
 
@@ -19461,6 +19537,8 @@ class DisplayEntityContainer {
     this.m_visible = boo;
 
     this.__$updateVisible();
+
+    return this;
   }
 
   getVisible() {
@@ -19511,6 +19589,7 @@ class DisplayEntityContainer {
     this.m_pos.y = py;
     this.m_pos.z = pz;
     this.m_transformStatus |= 1;
+    return this;
   }
 
   offsetPosition(pv) {
@@ -19525,6 +19604,7 @@ class DisplayEntityContainer {
     this.m_pos.y = pv.y;
     this.m_pos.z = pv.z;
     this.m_transformStatus |= 1;
+    return this;
   }
 
   getPosition(pv = null) {
@@ -19569,6 +19649,7 @@ class DisplayEntityContainer {
     this.m_rotateBoo = true;
     this.m_ry = r.y;
     this.m_rz = r.z;
+    return this;
   }
 
   setRotationXYZ(rx, ry, rz) {
@@ -19577,6 +19658,7 @@ class DisplayEntityContainer {
     this.m_rz = rz;
     this.m_transformStatus |= 2;
     this.m_rotateBoo = true;
+    return this;
   }
 
   getScaleX() {
@@ -19611,6 +19693,7 @@ class DisplayEntityContainer {
     this.m_sy = sy;
     this.m_sz = sz;
     this.m_transformStatus |= 2;
+    return this;
   }
 
   setScale3(sv) {
@@ -24714,138 +24797,6 @@ exports.default = RTTTextureProxy;
 
 /***/ }),
 
-/***/ "d031":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class VtxDrawingInfo {
-  constructor() {
-    this.m_uid = VtxDrawingInfo.s_uid++;
-    this.m_ivsIndex = -1;
-    this.m_ivsCount = -1;
-    this.m_wireframe = false;
-    this.m_flag = 0;
-    this.m_sts = new Uint8Array([0, 0, 0, 0]);
-    this.m_dynamic = true;
-    this.m_ivsDataIndex = 0;
-    this.rdp = null;
-  }
-
-  destroy() {
-    if (this.rdp != null) {
-      this.rdp.clear();
-      this.rdp = null;
-    }
-  }
-
-  toStatic() {
-    this.m_dynamic = false;
-  }
-
-  toDynamic() {
-    this.m_dynamic = true;
-  }
-
-  setWireframe(wireframe) {
-    if (this.m_dynamic && this.m_wireframe != wireframe) {
-      this.m_wireframe = wireframe;
-      this.m_flag++;
-      this.m_sts[2] = 1;
-    }
-  }
-
-  applyIvsDataAt(index) {
-    if (index >= 0 && this.m_ivsDataIndex != index) {
-      this.m_flag++;
-      this.m_sts[3] = 1;
-      this.m_ivsDataIndex = index;
-    }
-  }
-
-  setIvsParam(ivsIndex = -1, ivsCount = -1) {
-    if (this.m_dynamic) {
-      if (ivsIndex >= 0) {
-        this.m_ivsIndex = ivsIndex;
-        this.m_flag++;
-        this.m_sts[1] = 1;
-      }
-
-      if (ivsCount >= 0) {
-        this.m_ivsCount = ivsCount;
-        this.m_flag++;
-        this.m_sts[1] = 1;
-      }
-    }
-  }
-
-  reset() {
-    this.m_flag = 0;
-  }
-
-  __$$copyToRDP() {
-    // console.log("__$$copyToRDP() ...rdp.getUid(): ", rdp.getUid());
-    if (this.rdp) {
-      const rdp = this.rdp;
-
-      if (this.m_dynamic) {
-        // console.log("info rdp.getUid(): ", rdp.getUid(), this.m_uid);
-        if (this.m_flag > 0) {
-          // console.log("__$$copyToRDP() ...rdp.getUid(): ", rdp.getUid(), ", this.m_uid: ", this.m_uid);
-          if (this.m_sts[1] > 0) {
-            this.m_sts[1] = 0; // console.log("__$$copyToRDP() ...rdp.setIvsParam(): ", this.m_ivsIndex, this.m_ivsCount);
-
-            rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
-          }
-
-          if (this.m_sts[2] > 0) {
-            this.m_sts[2] = 0;
-
-            if (this.m_wireframe) {
-              rdp.toWireframe();
-            } else {
-              rdp.toCommon();
-            }
-          }
-
-          if (this.m_sts[3] > 0) {
-            this.m_sts[3] = 0;
-            rdp.applyRDPAt(this.m_ivsDataIndex);
-          }
-
-          this.reset();
-        }
-      }
-
-      return rdp.test();
-    }
-
-    return false;
-  }
-
-}
-
-VtxDrawingInfo.s_uid = 0;
-exports.default = VtxDrawingInfo;
-
-/***/ }),
-
 /***/ "d08b":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -25012,21 +24963,12 @@ exports.default = ImageCubeTextureProxy;
 
 /***************************************************************************/
 
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-const Vector3D_1 = __importDefault(__webpack_require__("8e17"));
 /**
  * 在 renderer process 中 通过和摄像机之间的距离, 对可渲染对象渲染先后顺序的排序
  */
-
 
 class CameraDsistanceSorter {
   constructor(rc) {
@@ -25035,13 +24977,13 @@ class CameraDsistanceSorter {
   }
 
   sortRODisplay(nodes, nodesTotal) {
-    let camPos = this.m_rc.getCamera().getPosition();
-
-    for (let i = 0; i < nodesTotal; ++i) {
-      nodes[i].value = -Vector3D_1.default.DistanceSquared(nodes[i].bounds.center, camPos); // nodes[i].value = nodes[i].pos.y;
-    }
-
-    return 0;
+    // let camPos = this.m_rc.getCamera().getPosition();
+    // for (let i = 0; i < nodesTotal; ++i) {
+    //     nodes[i].value = -Vector3D.DistanceSquared(nodes[i].bounds.center, camPos);
+    //     // nodes[i].value = nodes[i].pos.y;
+    // }
+    // return 0;// sort
+    return 1; // disable sort
   }
 
 }
@@ -28684,6 +28626,7 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     this.m_uniqueName = "";
     this.normalEnabled = false;
     this.vtxMatrixTransform = true;
+    this.tns = "";
   }
 
   initialize(texEnabled) {
@@ -28795,7 +28738,7 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
   }
 
   getUniqueShaderName() {
-    return this.m_uniqueName;
+    return this.m_uniqueName + "_" + this.tns;
   }
 
 }
@@ -28805,6 +28748,7 @@ class Default3DMaterial extends MaterialBase_1.default {
     super();
     this.m_data = new Float32Array([1.0, 1.0, 1.0, 1.0]);
     this.m_uvTrans = new Float32Array([0.0, 0.0, 1.0, 1.0]);
+    this.name = "";
     this.vertColorEnabled = false;
     this.premultiplyAlpha = false;
     this.normalEnabled = false;
@@ -28818,6 +28762,7 @@ class Default3DMaterial extends MaterialBase_1.default {
 
   buildBuf() {
     let buf = Default3DMaterial.s_shdCodeBuffer;
+    buf.tns = this.name;
     buf.getShaderCodeBuilder().normalEnabled = this.normalEnabled;
     buf.vertColorEnabled = this.vertColorEnabled;
     buf.premultiplyAlpha = this.premultiplyAlpha;
