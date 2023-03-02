@@ -49,7 +49,6 @@ class AnimationScene {
             sph.setMaterial(material);
             sph.copyMeshFrom(this.m_sphEntity);
         } else {
-            //sph.initialize(radius, 20, 20);
             sph = this.m_sphEntity = VoxEntity.createSphere(radius, 20, 20, material);
         }
 
@@ -130,8 +129,7 @@ export class TransformTest {
     private initMouseInteract(): void {
 
         const mi = VoxUIInteraction.createMouseInteraction();
-        mi.initialize(this.m_rscene, 0, true);
-        mi.setAutoRunning(true);
+        mi.initialize(this.m_rscene, 0, true).setAutoRunning(true);
     }
     private initRenderer(): void {
 
@@ -144,9 +142,8 @@ export class TransformTest {
         rparam.setAttriAntialias(!RD.IsMobileWeb());
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
-        this.m_rscene = VoxRScene.createRendererScene(rparam);
-        this.m_rscene.setClearUint24Color(0x888888);        
-        this.m_rscene.enableMouseEvent( true );
+        this.m_rscene = VoxRScene.createRendererScene(rparam).setAutoRunning(true);
+        this.m_rscene.setClearUint24Color(0x888888);
 
         this.m_rscene.addEventListener(MouseEvent.MOUSE_DOWN, this, this.mouseDown);
     }
@@ -162,11 +159,6 @@ export class TransformTest {
 
         this.initRenderingData();
         new AnimationScene(this.m_rscene, this.m_envMap).initialize();
-    }
-    run(): void {
-        if (this.m_rscene != null) {
-            this.m_rscene.run();
-        }
     }
 }
 

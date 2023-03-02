@@ -43,9 +43,8 @@ export class RenderingState {
         rparam.setAttriAntialias(!RD.IsMobileWeb());
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
-        this.m_rscene = VoxRScene.createRendererScene(rparam);
-
-        // RendererState.COLOR_MASK_ALL_TRUE
+        this.m_rscene = VoxRScene.createRendererScene(rparam).setAutoRunning(true);
+        this.m_rscene.setClearUint24Color(0x888888);
     }
     private m_lightPosList: IVector3D[];
     private m_lightColorList: IColor4[];
@@ -105,11 +104,6 @@ export class RenderingState {
         let torus = VoxEntity.createTorus(80, 30, 20, 30, 1, material);
         torus.setXYZ(200, 0.0, -200.0);
         this.m_rscene.addEntity(torus);
-    }
-    run(): void {
-        if (this.m_rscene != null) {
-            this.m_rscene.run();
-        }
     }
 }
 

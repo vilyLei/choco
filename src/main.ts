@@ -6,9 +6,9 @@
 // import { Shader as Demo } from "./tutorial/Shader";
 // import { MeshCreation as Demo } from "./tutorial/MeshCreation";
 // import { MouseEventTest as Demo } from "./tutorial/MouseEventTest";
-import { PBRShader as Demo } from "./tutorial/PBRShader";
+// import { PBRShader as Demo } from "./tutorial/PBRShader";
 // import { TransformTest as Demo } from "./tutorial/TransformTest";
-// import { RenderingState as Demo } from "./tutorial/RenderingState";
+import { RenderingState as Demo } from "./tutorial/RenderingState";
 
 document.title = "choco app";
 let ins = new Demo() as any;
