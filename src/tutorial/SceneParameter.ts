@@ -27,7 +27,13 @@ export class SceneParameter {
     private initRenderer(): void {
 
         let rparam = VoxRScene.createRendererSceneParam();
+        /**
+         * 设置摄像机位置(世界坐标空间)
+         */
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
+        /**
+         * 设置摄像机视角角度值、近平面距离，远平面距离
+         */
         rparam.setCamProject(45, 20.0, 9000.0);
         this.m_rscene = VoxRScene.createRendererScene( rparam ).setAutoRunning(true);
     }

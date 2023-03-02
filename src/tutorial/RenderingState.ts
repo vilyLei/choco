@@ -29,6 +29,9 @@ export class RenderingState {
     private initRenderer(): void {
 
         let RD = VoxRScene.RendererDevice;
+        /**
+         * 开启打印输出shader构建的相关信息
+         */
         RD.SHADERCODE_TRACE_ENABLED = true;
         RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
         RD.SetWebBodyColor("#888888");
@@ -59,8 +62,13 @@ export class RenderingState {
         planeMaterial.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
         let plane = VoxEntity.createXOZPlane(-350, -350, 700, 700, planeMaterial);
         plane.setXYZ(0, -100, 0);
+        /**
+         * 渲染状态设置为没有face剔除，混合模式为实色混合, 深度检测方式: (true, LESS)
+         */
         plane.setRenderState(RendererState.NONE_CULLFACE_NORMAL_STATE);
         this.m_rscene.addEntity(plane);
+        
+
     }
 }
 

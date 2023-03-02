@@ -53,7 +53,14 @@ export class Shader {
     private initRenderer(): void {
 
         let RD = VoxRScene.RendererDevice;
+        
+        /**
+         * 开启打印输出shader构建的相关信息
+         */
         RD.SHADERCODE_TRACE_ENABLED = true;
+        /**
+         * 顶点shader中的浮点数精度设置为 highp
+         */
         RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
         RD.SetWebBodyColor("#888888");
 
