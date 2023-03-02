@@ -29,8 +29,7 @@ export class PBRShader {
     private initMouseInteract(): void {
 
         const mi = VoxUIInteraction.createMouseInteraction();
-        mi.initialize(this.m_rscene, 0, true);
-        mi.setAutoRunning(true);
+        mi.initialize(this.m_rscene, 0, true).setAutoRunning(true);
     }
     private initRenderer(): void {
 
@@ -43,9 +42,16 @@ export class PBRShader {
         rparam.setAttriAntialias(!RD.IsMobileWeb());
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
-        this.m_rscene = VoxRScene.createRendererScene(rparam);
+        this.m_rscene = VoxRScene.createRendererScene(rparam).setAutoRunning(true);
+        this.m_rscene.setClearUint24Color(0x888888);
     }
+    /**
+     * 记录点光源灯光位置
+     */
     private m_lightPosList: IVector3D[];
+    /**
+     * 记录点光源灯光颜色
+     */
     private m_lightColorList: IColor4[];
     private initRenderingData(): void {
         
@@ -55,6 +61,7 @@ export class PBRShader {
         loader.loadTextureWithUrl(envMapUrl);
         this.m_envMap = loader.texture;
 
+        const color = VoxMaterial.createColor4();
         let dis = 700.0;
         let disY = 400.0;
         this.m_lightPosList = [
@@ -65,10 +72,10 @@ export class PBRShader {
         ];
         let colorSize = 300.0;
         this.m_lightColorList = [
-            VoxMaterial.createColor4().randomRGB(colorSize),
-            VoxMaterial.createColor4().randomRGB(colorSize),
-            VoxMaterial.createColor4().randomRGB(colorSize),
-            VoxMaterial.createColor4().randomRGB(colorSize)
+            color.clone().randomRGB(colorSize),
+            color.clone().randomRGB(colorSize),
+            color.clone().randomRGB(colorSize),
+            color.clone().randomRGB(colorSize)
         ];
     }
     private createMaterial(roughness: number, metallic: number, ao: number = 1.0): IRenderMaterial {
@@ -76,7 +83,7 @@ export class PBRShader {
         let wrapper = new PBREnvLightingMaterialWrapper();
         wrapper.setTextureList([this.m_envMap]);
 
-        for (let i: number = 0; i < 4; ++i) {
+        for (let i = 0; i < 4; ++i) {
             wrapper.setPosAt(i, this.m_lightPosList[i]);
             wrapper.setColorAt(i, this.m_lightColorList[i]);
         }
@@ -103,11 +110,6 @@ export class PBRShader {
         let torus = VoxEntity.createTorus(80, 30, 20, 30, 1, material);
         torus.setXYZ(200, 0.0, -200.0);
         this.m_rscene.addEntity(torus);
-    }
-    run(): void {
-        if (this.m_rscene != null) {
-            this.m_rscene.run();
-        }
     }
 }
 

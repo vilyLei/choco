@@ -22,16 +22,14 @@ export class SceneParameter {
     private initMouseInteract(): void {
 
         const mi = VoxUIInteraction.createMouseInteraction();
-        mi.initialize(this.m_rscene, 0, true);
-        mi.setAutoRunning(true);
+        mi.initialize(this.m_rscene, 0, true).setAutoRunning(true);
     }
     private initRenderer(): void {
 
         let rparam = VoxRScene.createRendererSceneParam();
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
-        this.m_rscene = VoxRScene.createRendererScene( rparam );
-        this.m_rscene.setAutoRunning(true);
+        this.m_rscene = VoxRScene.createRendererScene( rparam ).setAutoRunning(true);
     }
 
     private getTexByUrl(url: string): IRenderTexture {

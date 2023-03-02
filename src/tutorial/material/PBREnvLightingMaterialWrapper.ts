@@ -27,8 +27,6 @@ class PBREnvLightingMaterialWrapper {
     }
     get material(): IRenderMaterial {
 
-        //     oum.uniformNameList = ["u_albedo", "u_params", "u_lightPositions", "u_lightColors", "u_F0"];
-        //     oum.dataList = [this.m_albedo, this.m_params, this.m_lightPositions, this.m_lightColors, this.m_F0];
         if (this.m_material == null) {
             let material = VoxMaterial.createShaderMaterial("pbr_envLighting_shader");
 

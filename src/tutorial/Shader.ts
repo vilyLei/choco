@@ -48,8 +48,7 @@ export class Shader {
     private initMouseInteract(): void {
 
         const mi = VoxUIInteraction.createMouseInteraction();
-        mi.initialize(this.m_rscene, 0, true);
-        mi.setAutoRunning(true);
+        mi.initialize(this.m_rscene, 0, true).setAutoRunning(true);
     }
     private initRenderer(): void {
 
@@ -62,7 +61,7 @@ export class Shader {
         rparam.setAttriAntialias(!RD.IsMobileWeb());
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
-        this.m_rscene = VoxRScene.createRendererScene(rparam);
+        this.m_rscene = VoxRScene.createRendererScene(rparam).setAutoRunning(true);
     }
 
     private getTexByUrl(url: string): IRenderTexture {
@@ -100,11 +99,6 @@ export class Shader {
         sph.setXYZ(300, 200, 0);
         this.m_rscene.addEntity(sph);
         
-    }
-    run(): void {
-        if (this.m_rscene != null) {
-            this.m_rscene.run();
-        }
     }
 }
 

@@ -38,12 +38,12 @@ export class MeshCreation {
         rparam.setAttriAntialias(!RD.IsMobileWeb());
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
-        this.m_rscene = VoxRScene.createRendererScene(rparam);
+        this.m_rscene = VoxRScene.createRendererScene(rparam).setAutoRunning(true);
     }
 
     private getTexByUrl(url: string): IRenderTexture {
 
-        let tex = this.m_rscene.textureBlock.createImageTex2D(64, 64, false);
+        let tex = this.m_rscene.textureBlock.createImageTex2D();
         let img = new Image();
         img.onload = (evt: any): void => {
             tex.setDataFromImage(img);
@@ -93,15 +93,13 @@ export class MeshCreation {
 		this.m_rscene.addEntity(entity);
 	}
     private init3DScene(): void {
-
-        // this.testHasNotIndicesMesh();
-        this.testHasIndicesMesh();
-        
-    }
-    run(): void {
-        if (this.m_rscene != null) {
-            this.m_rscene.run();
+        let flag = true;
+        if(flag) {
+            this.testHasIndicesMesh();
+        }else {
+            this.testHasNotIndicesMesh();
         }
+        
     }
 }
 

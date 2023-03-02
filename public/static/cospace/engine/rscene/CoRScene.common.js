@@ -10592,8 +10592,7 @@ const CoRendererSubScene_1 = __importDefault(__webpack_require__("ee3b"));
 
 const RenderableMaterialBlock_1 = __webpack_require__("1b95");
 
-const RenderableEntityBlock_1 = __webpack_require__("251a"); // declare var CoRScene: ICoRScene;
-
+const RenderableEntityBlock_1 = __webpack_require__("251a");
 
 class CoRendererScene extends RendererSceneBase_1.default {
   constructor() {
@@ -10685,6 +10684,8 @@ class CoRendererScene extends RendererSceneBase_1.default {
         window.requestAnimationFrame(func);
       }
     }
+
+    return this;
   }
 
   isAutoRunning() {
@@ -18394,7 +18395,9 @@ class RendererSceneBase {
     this.m_transUpdater.destroy();
   }
 
-  setAutoRunning(auto) {}
+  setAutoRunning(auto) {
+    return this;
+  }
 
   isAutoRunning() {
     return false;

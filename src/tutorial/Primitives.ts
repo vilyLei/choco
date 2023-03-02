@@ -23,13 +23,11 @@ export class Primitives {
     private initMouseInteract(): void {
 
         const mi = VoxUIInteraction.createMouseInteraction();
-        mi.initialize(this.m_rscene, 0, true);
-        mi.setAutoRunning(true);
+        mi.initialize(this.m_rscene, 0, true).setAutoRunning(true);
     }
     private initRenderer(): void {
 
-        this.m_rscene = VoxRScene.createRendererScene();
-        this.m_rscene.initialize(null).setAutoRunning(true);
+        this.m_rscene = VoxRScene.createRendererScene().initialize(null).setAutoRunning(true);        
         this.m_rscene.addEntity(VoxRScene.createAxis3DEntity());
     }
 
@@ -43,6 +41,7 @@ export class Primitives {
     }
     private init3DScene(): void {
 
+        const rsc = this.m_rscene;
         let boxMaterial = VoxMaterial.createDefaultMaterial();
         boxMaterial.setRGB3f(0.7, 1.0, 1.0);
         boxMaterial.normalEnabled = true;
@@ -53,11 +52,11 @@ export class Primitives {
         let box = VoxEntity.createBox(minPos, maxPos, boxMaterial);
         box.setXYZ(0, -200, 0);
         box.setScaleXYZ(10, 0.5, 10);
-        this.m_rscene.addEntity(box);
+        rsc.addEntity(box);
 
         let cube = VoxEntity.createCube(200, boxMaterial);
         cube.setXYZ(-300, 0, 0);
-        this.m_rscene.addEntity(cube);
+        rsc.addEntity(cube);
 
         let sphMaterial = VoxMaterial.createDefaultMaterial();
         sphMaterial.normalEnabled = true;
@@ -65,21 +64,21 @@ export class Primitives {
         sphMaterial.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
         let sph = VoxEntity.createSphere(150, 20, 20, sphMaterial);
         sph.setXYZ(300, 0, 0);
-        this.m_rscene.addEntity(sph);
+        rsc.addEntity(sph);
 
         let coneMaterial = VoxMaterial.createDefaultMaterial();
         coneMaterial.normalEnabled = true;
         coneMaterial.setRGB3f(0.5, 0.8, 0.2);
         let cone = VoxEntity.createCone(100, 150, 20, coneMaterial);
         cone.setXYZ(300, 0, -300);
-        this.m_rscene.addEntity(cone);
+        rsc.addEntity(cone);
 
         let planeMaterial = VoxMaterial.createDefaultMaterial();
         planeMaterial.normalEnabled = true;
         let plane = VoxEntity.createXOZPlane(-50, -50, 100, 100, planeMaterial);
         plane.setXYZ(-300, 0, 300);
         plane.setRotationXYZ(60, 50, 0);
-        this.m_rscene.addEntity(plane);
+        rsc.addEntity(plane);
     }
 }
 
