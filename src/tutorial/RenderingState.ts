@@ -54,6 +54,7 @@ export class RenderingState {
 
         let planeMaterial = VoxMaterial.createDefaultMaterial();
         planeMaterial.normalEnabled = true;
+        planeMaterial.setUVScale(4.0, 4.0);
         planeMaterial.setRGB3f(0.7, 1.0, 0.3);
         planeMaterial.setTextureList([this.getTexByUrl("static/assets/box.jpg")]);
         let plane = VoxEntity.createXOZPlane(-350, -350, 700, 700, planeMaterial);
