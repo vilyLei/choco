@@ -29,17 +29,15 @@ export class Primitives {
     private initRenderer(): void {
 
         this.m_rscene = VoxRScene.createRendererScene();
-        this.m_rscene.initialize(null);
+        this.m_rscene.initialize(null).setAutoRunning(true);
         this.m_rscene.addEntity(VoxRScene.createAxis3DEntity());
     }
 
     private getTexByUrl(url: string): IRenderTexture {
 
-        let tex = this.m_rscene.textureBlock.createImageTex2D(64, 64, false);
+        let tex = this.m_rscene.textureBlock.createImageTex2D();
         let img = new Image();
-        img.onload = (): void => {
-            tex.setDataFromImage(img);
-        };
+        img.onload = (): void => { tex.setDataFromImage(img); };
         img.src = url;
         return tex;
     }
@@ -82,11 +80,6 @@ export class Primitives {
         plane.setXYZ(-300, 0, 300);
         plane.setRotationXYZ(60, 50, 0);
         this.m_rscene.addEntity(plane);
-    }
-    run(): void {
-        if (this.m_rscene != null) {
-            this.m_rscene.run();
-        }
     }
 }
 

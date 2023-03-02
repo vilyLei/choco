@@ -31,15 +31,14 @@ export class SceneParameter {
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
         this.m_rscene = VoxRScene.createRendererScene( rparam );
+        this.m_rscene.setAutoRunning(true);
     }
 
     private getTexByUrl(url: string): IRenderTexture {
 
-        let tex = this.m_rscene.textureBlock.createImageTex2D(64, 64, false);
+        let tex = this.m_rscene.textureBlock.createImageTex2D();
         let img = new Image();
-        img.onload = (evt: any): void => {
-            tex.setDataFromImage(img);
-        };
+        img.onload = (evt: any): void => { tex.setDataFromImage(img); };
         img.src = url;
         return tex;
     }
@@ -68,11 +67,6 @@ export class SceneParameter {
         let plane = VoxEntity.createXOZPlane(-50, -50, 100, 100, planeMaterial);
         plane.setXYZ(-300, 0, 300);
         this.m_rscene.addEntity(plane);
-    }
-    run(): void {
-        if (this.m_rscene != null) {
-            this.m_rscene.run();
-        }
     }
 }
 
