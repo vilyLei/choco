@@ -5,7 +5,7 @@
 /*                                                                         */
 /***************************************************************************/
 
-// import IRPOUnit from "../IRPOUnit";
+import IRPOUnit from "../IRPOUnit";
 import IRenderProxy from "../IRenderProxy";
 import IRenderMaterial from "../IRenderMaterial";
 import IPassMaterialWrapper from "./IPassMaterialWrapper";
@@ -14,8 +14,8 @@ export default interface IPassProcess {
     
     materials: IPassMaterialWrapper[];
     rc: IRenderProxy;
-    // units: IRPOUnit[];
-    createMaterialWrapper(m: IRenderMaterial, dstRUnit: any): IPassMaterialWrapper
+    units: IRPOUnit[];
+    createMaterialWrapper(m: IRenderMaterial, dstRUnit: IRPOUnit): IPassMaterialWrapper
     run(): void;
     destroy(): void;
 }

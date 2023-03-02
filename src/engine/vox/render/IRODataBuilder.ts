@@ -16,7 +16,7 @@ import IRenderBuffer from "../../vox/render/IRenderBuffer";
 import IROMaterialUpdater from "../../vox/render/IROMaterialUpdater";
 import IROVertexBufUpdater from "../../vox/render/IROVertexBufUpdater";
 import IRenderEntity from "./IRenderEntity";
-// import IRPOUnit from "./IRPOUnit";
+import IRPOUnit from "./IRPOUnit";
 import IShdProgram from "../../vox/material/IShdProgram";
 
 /**
@@ -45,12 +45,12 @@ export default interface IRODataBuilder extends IROMaterialUpdater, IROVertexBuf
      * @param material IRenderMaterial instance
      * @param disp the default value is null
      */
-    updateDispMaterial(runit: any, material: IRenderMaterial, disp?: IRODisplay): IShdProgram;
+    updateDispMaterial(runit: IRPOUnit, material: IRenderMaterial, disp?: IRODisplay): IShdProgram;
     
     buildGpuDisp(disp: IRODisplay, rentity: IRenderEntity): boolean;
     
-    createRPOUnit(): any;
-    restoreRPOUnit(runit: any): boolean;
+    createRPOUnit(): IRPOUnit;
+    restoreRPOUnit(runit: IRPOUnit): boolean;
 
     update(): void;
     updateGlobalMaterial(material: IRenderMaterial, materialUniformUpdate?: boolean): void;
