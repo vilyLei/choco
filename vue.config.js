@@ -1,24 +1,49 @@
 const path = require('path');
 const resolve = dir => path.join(__dirname, dir);
 const { ENV = '' } = process.env;
-//console.log("process.env: ",process.env);
-console.log("process.env: ", process.env.npm_lifecycle_script);
+// console.log("process.env: ",process.env);
+let venv = process.env;
+let vcmd = venv ? venv.npm_lifecycle_event : "";
+console.log("process.env.npm_lifecycle_script: ", process.env.npm_lifecycle_script);
+// console.log("venv: ", venv);
+console.log("vcmd: ", vcmd);
+// console.log("A0 venv.npm_config_argv: ", venv.npm_config_argv);
 
-let devDstStr = process.env.npm_lifecycle_script;
-if (devDstStr.indexOf("vue-cli-service build") < 0) {
+let argv = venv.npm_config_argv;
+let argvObj = JSON.parse(argv);
 
-    let i = devDstStr.indexOf("./src");
-    devDstStr = devDstStr.slice(i, -1);
-    // if (process.env.npm_lifecycle_script == "vue-cli-service serve --voxtype=dev") {
-    //     devDstStr = "./src/dev.ts";
-    // }
-    // else if (process.env.npm_lifecycle_script == "vue-cli-service serve --voxtype=devWeb") {
-    //     devDstStr = "./src/devWeb.ts";
-    // }
+let lcScript = process.env.npm_lifecycle_script;
+
+if(lcScript.indexOf("vue-cli-service serve ") >= 0) {
+    console.log('vcmd != "": ', vcmd != "");
+    if(vcmd != "") {
+        // represent dev process
+        let srcCodeUrl = process.env.npm_lifecycle_script;
+        let i = srcCodeUrl.indexOf("./src");
+        srcCodeUrl = srcCodeUrl.slice(i, -1);
+        
+        let demoName = "";
+        if(argvObj.original && argvObj.original.length > 1) {
+            demoName = argvObj.original[1];
+        }
+        if(demoName != "" && demoName.length > 2) {
+            let begin = vcmd.indexOf(":");
+            if(begin > 0) {
+                // end = 
+                demoName = demoName.slice(2);
+                let projName = vcmd.slice(begin+1);
+                console.log("projName: ", projName+"|", ", demoName: ", demoName);
+                // appDstStr:  ./src/main_tutorial.ts
+                srcCodeUrl = "./src/"+projName+"/" + demoName + ".ts";
+            }
+        }
+        devDstStr = srcCodeUrl;
+    }
 }
-let appDstStr = devDstStr;
 
-console.log("devDstStr, appDstStr: ", devDstStr, appDstStr);
+let appDstStr = devDstStr;
+console.log("appDstStr: ", appDstStr);
+
 module.exports = {
     pages: {
         index: {

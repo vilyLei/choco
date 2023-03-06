@@ -8,10 +8,14 @@
 // import { MouseEventTest as Demo } from "./tutorial/MouseEventTest";
 // import { PBRShader as Demo } from "./tutorial/PBRShader";
 // import { TransformTest as Demo } from "./tutorial/TransformTest";
+
 import { RenderingState as Demo } from "./tutorial/RenderingState";
 
 document.title = "tutorial";
+(document as any).demoState = 1;
+
 let ins = new Demo() as any;
+
 function main(): void {
     console.log("------ demo --- init ------");
     ins.initialize();

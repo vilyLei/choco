@@ -84,3 +84,9 @@ export class RenderingState {
 }
 
 export default RenderingState;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new RenderingState();
+    ins.initialize();
+}
