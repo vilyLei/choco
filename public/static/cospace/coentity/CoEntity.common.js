@@ -189,9 +189,10 @@ exports.createDisplayEntityContainer = createDisplayEntityContainer;
 function createFixScreenPlane(minX = -1.0, minY = -1.0, width = 2.0, height = 2.0, material = null, texEnabled = false) {
   if (typeof CoMesh !== "undefined") {
     let builder = CoMesh.plane;
+    let pmt = material;
     material = initAMaterial(material, texEnabled, (pm, pt) => {
       builder.applyMaterial(pm, pt);
-    });
+    }, false);
     let mesh = builder.createFixScreen(minX, minY, width, height);
     let entity = CoRScene.createDisplayEntity();
     entity.setMaterial(material);
@@ -356,9 +357,11 @@ function createTorus(radius, axisRadius, longitudeNumSegments = 20, latitudeNumS
 
 exports.createTorus = createTorus;
 
-function initAMaterial(material, texEnabled, callback) {
+function initAMaterial(material, texEnabled, callback, vtxMatEnabled = true) {
   if (!material) {
-    material = CoRScene.createDefaultMaterial();
+    let pm = CoRScene.createDefaultMaterial();
+    pm.vtxMatrixTransform = vtxMatEnabled;
+    material = pm;
   }
 
   texEnabled = texEnabled || material.getTextureAt(0) != null;

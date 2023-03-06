@@ -76,7 +76,9 @@ export class SubScene {
 
         let bgPlane = VoxEntity.createFixScreenPlane();
         (bgPlane.getMaterial() as IDefault3DMaterial).setRGB3f(0.1,0.3,0.1);
-        this.m_rscene.addEntity(bgPlane);
+        bgPlane.setRenderState(RendererState.BACK_NORMAL_ALWAYS_STATE);
+        this.m_subRscene.addEntity(bgPlane);
+
         this.m_subRscene.addEntity( VoxEntity.createAxis3DEntity(300) );
 
         // let planeMaterial = VoxMaterial.createDefaultMaterial();
