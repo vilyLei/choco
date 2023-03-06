@@ -1,4 +1,5 @@
 
+import { VoxMath } from "../engine/cospace/math/VoxMath";
 import { ModuleLoader } from "../engine/cospace/modules/loaders/ModuleLoader";
 import { VoxRScene } from "../engine/cospace/voxengine/VoxRScene";
 
@@ -41,6 +42,7 @@ export default class VoxModuleShell {
                                         new ModuleLoader(1, (): void => {
                                             new ModuleLoader(1, (): void => {
                                                 if (commonCallback) {
+                                                    VoxMath.initialize();
                                                     commonCallback();
                                                 }
                                             }).load(url8);
