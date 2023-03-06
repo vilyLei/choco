@@ -6,10 +6,8 @@
   "author": "vily",
   "license": "MIT",
   "scripts": {
-
-
-    "build": "vue-cli-service build --target lib --name VoxApp --dest dist ./src/main.ts",
-    "dev": "vue-cli-service serve --type=dev[./src/main.ts]"
+    "build:tutorial": "vue-cli-service build --target lib --name VoxApp --dest dist ./src/main_tutorial.ts",
+    "dev:tutorial": "vue-cli-service serve --type=dev[./src/main_tutorial.ts]"
   },
   "dependencies": {
     "@tweenjs/tween.js": "^18.4.2",

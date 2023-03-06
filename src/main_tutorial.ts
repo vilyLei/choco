@@ -10,7 +10,7 @@
 // import { TransformTest as Demo } from "./tutorial/TransformTest";
 import { RenderingState as Demo } from "./tutorial/RenderingState";
 
-document.title = "choco app";
+document.title = "tutorial";
 let ins = new Demo() as any;
 function main(): void {
     console.log("------ demo --- init ------");
