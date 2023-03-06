@@ -6,7 +6,7 @@
   "author": "vily",
   "license": "MIT",
   "scripts": {
-    "build:tutorial": "vue-cli-service build --target lib --name VoxApp --dest dist ./src/main_tutorial.ts",
+    "build:tutorial": "vue-cli-service build --target lib --name chocoTutorial --dest dist ./src/main_tutorial.ts",
     "dev:tutorial": "vue-cli-service serve --type=dev[./src/main_tutorial.ts]"
   },
   "dependencies": {
