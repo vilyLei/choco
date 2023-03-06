@@ -25,7 +25,7 @@ installation and running:
    第七步，在集成终端中进入 voxmaterial 目录，在此终端中运行 "yarn install"命令，等待一会儿。如果报错，请看：https://blog.csdn.net/vily_lei/article/details/108725829
    step 7, enter the voxmaterial dir from the integrated terminal, and run the "yarn install" command in this terminal. Wait a few minutes.
    if you see some errors, look this link: https://blog.csdn.net/vily_lei/article/details/108725829
-    
+   
    第八步，在终端中运行 "yarn dev:tutorial" 命令，你就能在浏览器上看到相应的3d程序。
    step 8, run the "yarn dev:tutorial" command, you will see a 3d display in your browser.
    
