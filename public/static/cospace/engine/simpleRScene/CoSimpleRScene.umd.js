@@ -1852,8 +1852,6 @@ class RSEntityFlag {
   }
 
   static TestSpaceEnabled2(flag) {
-    // console.log("   TestSpaceEnabled2(), 0xFFFFF & flag: ", (0xFFFFF & flag));
-    // console.log("                       (0x80000000 & flag) != 0x80000000: ", ((0x80000000 & flag) != 0x80000000));
     return (0xFFFFF & flag) < 1 && (0x80000000 & flag) != 0x80000000;
   }
 
@@ -4288,7 +4286,6 @@ class ShdProgram {
     this.m_texTotal = 0; // recorde uniform GLUniformLocation id
 
     this.m_aLocations = null;
-    this.m_aLocationIVS = new Array(12);
     this.m_aLocationTypes = null;
     this.m_aLocationSizes = null;
     this.m_uLocations = null;
@@ -4307,7 +4304,6 @@ class ShdProgram {
     this.m_uLc = null;
     this.m_uIndex = 0;
     this.m_uid = uid;
-    this.m_aLocationIVS.fill(0);
   }
 
   setShdData(shdData) {
@@ -4346,7 +4342,6 @@ class ShdProgram {
         this.m_aLocations = [];
         this.m_aLocationTypes = [];
         this.m_aLocationSizes = [];
-        const ls = this.m_aLocationTypes;
         len = attriNSList.length;
         let type = 0;
         let altI = 0;
@@ -4355,16 +4350,12 @@ class ShdProgram {
           altI = this.m_gl.getAttribLocation(this.m_program, attriNSList[i]);
           this.m_aLocations.push(altI);
           type = VtxBufConst_1.default.GetVBufAttributeTypeByNS(attriNSList[i]);
-          ls.push(type);
+          this.m_aLocationTypes.push(type);
           this.m_aLocationSizes.push(attriSizeList[i]);
           this.m_attribLIndexList[type] = altI;
           this.m_attribTypeSizeList[type] = attriSizeList[i];
           this.dataUniformEnabled = true;
           ++i;
-        }
-
-        for (i = 0; i < ls.length; ++i) {
-          this.m_aLocationIVS[ls[i]] = i;
         }
 
         this.m_attriSizeList = [];
@@ -4463,10 +4454,6 @@ class ShdProgram {
 
   getLocationTypes() {
     return this.m_aLocationTypes;
-  }
-
-  getLocationIVS() {
-    return this.m_aLocationIVS;
   }
 
   testVertexAttribPointerOffset(offsetList) {
@@ -4991,7 +4978,7 @@ class RenderableEntityBlock {
       let ivs = new Uint16Array([3, 2, 1, 3, 1, 0, 6, 7, 4, 6, 4, 5, 11, 10, 9, 11, 9, 8, 15, 14, 13, 15, 13, 12, 18, 19, 16, 18, 16, 17, 22, 23, 20, 22, 20, 21]);
       let dm = new DataMesh_1.default();
       dm.setVS(vs).setUVS(uvs).setNVS(nvs).setIVS(ivs).setVtxBufRenderData(vtxData);
-      dm.vbWholeDataEnabled = true;
+      dm.vbWholeDataEnabled = false;
       dm.initialize();
       this.unitBox.setMesh(dm);
       vs = new Float32Array(vs);
@@ -5003,7 +4990,7 @@ class RenderableEntityBlock {
 
       dm = new DataMesh_1.default();
       dm.setVS(vs).setUVS(uvs).setNVS(nvs).setIVS(ivs).setVtxBufRenderData(vtxData);
-      dm.vbWholeDataEnabled = true;
+      dm.vbWholeDataEnabled = false;
       dm.initialize();
       this.unitOBox.setMesh(dm);
       vs = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0]);
@@ -5012,7 +4999,7 @@ class RenderableEntityBlock {
       ivs = new Uint16Array([0, 1, 2, 0, 2, 3]);
       dm = new DataMesh_1.default();
       dm.setVS(vs).setUVS(uvs).setNVS(nvs).setIVS(ivs).setVtxBufRenderData(vtxData);
-      dm.vbWholeDataEnabled = true;
+      dm.vbWholeDataEnabled = false;
       dm.initialize();
       this.screenPlane.setMesh(dm);
 
@@ -5022,7 +5009,7 @@ class RenderableEntityBlock {
 
       dm = new DataMesh_1.default();
       dm.setVS(vs).setUVS(uvs).setNVS(nvs).setIVS(ivs).setVtxBufRenderData(vtxData);
-      dm.vbWholeDataEnabled = true;
+      dm.vbWholeDataEnabled = false;
       dm.initialize();
       this.unitXOYPlane.setMesh(dm);
       vs = new Float32Array(vs);
@@ -5035,14 +5022,14 @@ class RenderableEntityBlock {
 
       dm = new DataMesh_1.default();
       dm.setVS(vs).setUVS(uvs).setNVS(nvs).setIVS(ivs).setVtxBufRenderData(vtxData);
-      dm.vbWholeDataEnabled = true;
+      dm.vbWholeDataEnabled = false;
       dm.initialize();
       this.unitOXOYPlane.setMesh(dm);
       vs = new Float32Array([0.5, 0, -0.5, -0.5, 0, -0.5, -0.5, 0, 0.5, 0.5, 0, 0.5]);
       nvs = new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]);
       dm = new DataMesh_1.default();
       dm.setVS(vs).setUVS(uvs).setNVS(nvs).setIVS(ivs).setVtxBufRenderData(vtxData);
-      dm.vbWholeDataEnabled = true;
+      dm.vbWholeDataEnabled = false;
       dm.initialize();
       this.unitXOZPlane.setMesh(dm);
       vs = new Float32Array(vs);
@@ -5055,14 +5042,14 @@ class RenderableEntityBlock {
 
       dm = new DataMesh_1.default();
       dm.setVS(vs).setUVS(uvs).setNVS(nvs).setIVS(ivs).setVtxBufRenderData(vtxData);
-      dm.vbWholeDataEnabled = true;
+      dm.vbWholeDataEnabled = false;
       dm.initialize();
       this.unitOXOZPlane.setMesh(dm);
       vs = new Float32Array([0, -0.5, -0.5, 0, 0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, 0.5]);
       nvs = new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0]);
       dm = new DataMesh_1.default();
       dm.setVS(vs).setUVS(uvs).setNVS(nvs).setIVS(ivs).setVtxBufRenderData(vtxData);
-      dm.vbWholeDataEnabled = true;
+      dm.vbWholeDataEnabled = false;
       dm.initialize();
       this.unitYOZPlane.setMesh(dm);
 
@@ -5074,7 +5061,7 @@ class RenderableEntityBlock {
 
       dm = new DataMesh_1.default();
       dm.setVS(vs).setUVS(uvs).setNVS(nvs).setIVS(ivs).setVtxBufRenderData(vtxData);
-      dm.vbWholeDataEnabled = true;
+      dm.vbWholeDataEnabled = false;
       dm.initialize();
       this.unitOYOZPlane.setMesh(dm);
     }
@@ -7569,8 +7556,7 @@ class DisplayEntity {
         this.m_meshChanged = false;
         this.m_renderProxy.VtxBufUpdater.updateDispVbuf(this.m_display, deferred);
       } else {
-        // this.m_renderProxy.VtxBufUpdater.updateVtxDataToGpuByUid(this.m_display.vbuf.getUid(), deferred);
-        this.m_renderProxy.VtxBufUpdater.updateVtxDataToGpuByUid(this.m_display.getVtxResUid(), deferred);
+        this.m_renderProxy.VtxBufUpdater.updateVtxDataToGpuByUid(this.m_display.vbuf.getUid(), deferred);
       }
     }
   }
@@ -7679,17 +7665,12 @@ class DisplayEntity {
   }
 
   initDisplay(m) {
-    let vbuf = m.__$attachVBuf();
-
-    vbuf.setBufSortFormat(m.getBufSortFormat());
-    const d = this.m_display;
-    d.vbuf = vbuf;
-    d.ivbuf = m.__$attachIVBuf();
-    d.ivsIndex = 0;
-    d.ivsCount = m.vtCount;
-    d.drawMode = m.drawMode;
-    d.trisNumber = m.trisNumber;
-    d.visible = this.m_visible && this.m_drawEnabled;
+    this.m_display.vbuf = m.__$attachVBuf();
+    this.m_display.ivsIndex = 0;
+    this.m_display.ivsCount = m.vtCount;
+    this.m_display.drawMode = m.drawMode;
+    this.m_display.trisNumber = m.trisNumber;
+    this.m_display.visible = this.m_visible && this.m_drawEnabled;
   }
   /**
    * 设置几何相关的数据,必须是构建完备的mesh才能被设置进来
@@ -7698,6 +7679,7 @@ class DisplayEntity {
 
 
   setMesh(m) {
+    // let m = pm as MeshBase;
     if (this.m_mesh == null) {
       if (m != null) {
         if (!m.isEnabled()) {
@@ -7734,8 +7716,6 @@ class DisplayEntity {
 
         this.m_mesh.__$detachVBuf(this.m_display.vbuf);
 
-        this.m_mesh.__$detachIVBuf(this.m_display.ivbuf);
-
         this.m_mesh.__$detachThis();
 
         m.__$attachThis();
@@ -7764,10 +7744,11 @@ class DisplayEntity {
       this.m_display.ivsCount = ivsCount;
 
       if (this.m_display.__$ruid > -1) {
-        let ut = this.m_display.__$$runit;
-        ut.trisNumber = Math.floor((ivsCount - ivsIndex) / 3);
-        ut.setIvsParam(ivsIndex, ivsCount);
-        ut.drawMode = this.m_mesh.drawMode;
+        this.m_display.__$$runit.trisNumber = Math.floor((ivsCount - ivsIndex) / 3);
+
+        this.m_display.__$$runit.setIvsParam(ivsIndex, ivsCount);
+
+        this.m_display.__$$runit.drawMode = this.m_mesh.drawMode;
 
         if (updateBounds && this.isPolyhedral()) {
           if (this.m_localBounds == this.m_mesh.bounds) {
@@ -7823,15 +7804,19 @@ class DisplayEntity {
         this.m_display = RODisplay_1.default.Create();
         this.m_display.setTransform(this.m_transfrom.getMatrix());
         this.m_display.visible = this.m_visible && this.m_drawEnabled;
-      }
+      } //if(this.m_display.getMaterial() != m && this.__$wuid == RSEntityFlag.RENDERER_UID_FLAG && this.m_display.__$ruid < 0)
 
-      const flag = RSEntityFlag_1.default.RENDERER_UID_FLAG;
-      const disp = this.m_display;
 
-      if (disp.getMaterial() != m && (flag & this.__$rseFlag) == flag && disp.__$ruid < 0) {
-        disp.renderState = this.m_renderState;
-        disp.rcolorMask = this.m_rcolorMask;
-        disp.setMaterial(m);
+      if (this.m_display.getMaterial() != m && (RSEntityFlag_1.default.RENDERER_UID_FLAG & this.__$rseFlag) == RSEntityFlag_1.default.RENDERER_UID_FLAG && this.m_display.__$ruid < 0) {
+        // if(m.getMaterialPipeline() == null && this.getMaterialPipeline() != null) {
+        //     m.setMaterialPipeline( this.getMaterialPipeline() );
+        // }
+        // if(m.pipeTypes == null) {
+        //     m.pipeTypes = this.pipeTypes;
+        // }
+        this.m_display.renderState = this.m_renderState;
+        this.m_display.rcolorMask = this.m_rcolorMask;
+        this.m_display.setMaterial(m);
       }
     }
   }
@@ -14274,6 +14259,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+const BitConst_1 = __importDefault(__webpack_require__("ca6c"));
+
 const VtxBufConst_1 = __importDefault(__webpack_require__("8a0a"));
 
 const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
@@ -14375,61 +14362,62 @@ class ShaderData {
         locationsTotal += 1;
         let vbufType = VtxBufConst_1.default.GetVBufTypeByNS(attri.name);
 
-        if (vbufType >= 3001 && vbufType <= 3010) {
-          this.m_layoutBit |= 1 << vbufType - 3001; //BitConst.BIT_ONE_0;
-        } else {
-          locationsTotal -= 1;
-          vbufType = 0;
-        }
-        /*
         switch (vbufType) {
-            case VtxBufConst.VBUF_VS:
-                //mid += mid * 131 + 1;
-                this.m_layoutBit |= BitConst.BIT_ONE_0;
-                break;
-            case VtxBufConst.VBUF_UVS:
-                //mid += mid * 131 + 2;
-                this.m_layoutBit |= BitConst.BIT_ONE_1;
-                break;
-            case VtxBufConst.VBUF_NVS:
-                //mid += mid * 131 + 3;
-                this.m_layoutBit |= BitConst.BIT_ONE_2;
-                break;
-            case VtxBufConst.VBUF_CVS:
-                //mid += mid * 131 + 4;
-                this.m_layoutBit |= BitConst.BIT_ONE_3;
-                break;
-            case VtxBufConst.VBUF_TVS:
-                //mid += mid * 131 + 5;
-                this.m_layoutBit |= BitConst.BIT_ONE_4;
-                break;
-              case VtxBufConst.VBUF_VS2:
-                //mid += mid * 131 + 6;
-                this.m_layoutBit |= BitConst.BIT_ONE_5;
-                break;
-            case VtxBufConst.VBUF_UVS2:
-                //mid += mid * 131 + 7;
-                this.m_layoutBit |= BitConst.BIT_ONE_6;
-                break;
-            case VtxBufConst.VBUF_NVS2:
-                //mid += mid * 131 + 8;
-                this.m_layoutBit |= BitConst.BIT_ONE_7;
-                break;
-            case VtxBufConst.VBUF_CVS2:
-                //mid += mid * 131 + 9;
-                this.m_layoutBit |= BitConst.BIT_ONE_8;
-                break;
-            case VtxBufConst.VBUF_TVS2:
-                //mid += mid * 131 + 11;
-                this.m_layoutBit |= BitConst.BIT_ONE_9;
-                break;
-            default:
-                locationsTotal -= 1;
-                vbufType = 0;
-                break;
-        }
-        //*/
+          case VtxBufConst_1.default.VBUF_VS:
+            //mid += mid * 131 + 1;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_0;
+            break;
 
+          case VtxBufConst_1.default.VBUF_UVS:
+            //mid += mid * 131 + 2;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_1;
+            break;
+
+          case VtxBufConst_1.default.VBUF_NVS:
+            //mid += mid * 131 + 3;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_2;
+            break;
+
+          case VtxBufConst_1.default.VBUF_CVS:
+            //mid += mid * 131 + 4;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_3;
+            break;
+
+          case VtxBufConst_1.default.VBUF_TVS:
+            //mid += mid * 131 + 5;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_4;
+            break;
+
+          case VtxBufConst_1.default.VBUF_VS2:
+            //mid += mid * 131 + 6;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_5;
+            break;
+
+          case VtxBufConst_1.default.VBUF_UVS2:
+            //mid += mid * 131 + 7;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_6;
+            break;
+
+          case VtxBufConst_1.default.VBUF_NVS2:
+            //mid += mid * 131 + 8;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_7;
+            break;
+
+          case VtxBufConst_1.default.VBUF_CVS2:
+            //mid += mid * 131 + 9;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_8;
+            break;
+
+          case VtxBufConst_1.default.VBUF_TVS2:
+            //mid += mid * 131 + 11;
+            this.m_layoutBit |= BitConst_1.default.BIT_ONE_9;
+            break;
+
+          default:
+            locationsTotal -= 1;
+            vbufType = 0;
+            break;
+        }
 
         if (vbufType > 0) {
           layoutTypes.push(VtxBufConst_1.default.GetVBufAttributeTypeByVBufType(vbufType));
@@ -15406,18 +15394,15 @@ class EntityNodeQueue {
   }
 
   createNode() {
-    let node;
     let index = this.getFreeId();
 
     if (index >= 0) {
       this.m_fs[index] = 1;
-      node = this.m_list[index];
-      node.spaceId = index;
-      return node;
+      return this.m_list[index];
     } else {
       // create a new nodeIndex
       index = this.m_listLen;
-      node = Entity3DNode_1.default.Create();
+      let node = Entity3DNode_1.default.Create();
       this.m_list.push(node);
       this.m_entieies.push(null);
       node.spaceId = index; //node.distanceFlag = false;
@@ -18044,13 +18029,15 @@ class BitConst {
 
   static AddBit(target, bit) {
     return bit | target;
-  }
+  } //
+
 
   static AssembleFromIntArray(intArray) {
+    let i = 0;
     let bit = 0x0;
     let len = intArray.length;
 
-    for (let i = 0; i < len; ++i) {
+    for (; i < len; ++i) {
       if (intArray[i] > 0) {
         bit |= 1 << i;
       }
@@ -18146,10 +18133,7 @@ class MeshBase {
     this.m_layoutBit = 0x0;
     this.m_transMatrix = null;
     this.m_vbuf = null;
-    this.m_ivbuf = null;
-    this.m_ivs = null; // setIVtxBuffer(ivbuf: ROIVertexBuffer): void {
-    // }
-
+    this.m_ivs = null;
     /**
      * 强制更新 vertex indices buffer 数据, 默认值为false
      */
@@ -18194,7 +18178,7 @@ class MeshBase {
   }
 
   toElementsTriangles() {
-    this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES; // this.setPolyhedral(true);
+    this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES;
   }
 
   toElementsTriangleStrip() {
@@ -18242,12 +18226,14 @@ class MeshBase {
     return arr.length > 65535 ? new Uint32Array(arr) : new Uint16Array(arr);
   }
 
-  createWireframeIvs(ivs = null) {
-    if (ivs == null) ivs = this.m_ivs;
+  updateWireframeIvs() {
+    this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES;
 
-    if (ivs !== null) {
+    if (this.wireframe && this.m_ivs !== null) {
+      let ivs = this.m_ivs;
       let len = ivs.length * 2;
-      let wivs = len <= 65536 ? new Uint16Array(len) : new Uint32Array(len);
+      let wIvs;
+      if (len < 65535) wIvs = new Uint16Array(len);else wIvs = new Uint32Array(len);
       let a;
       let b;
       let c;
@@ -18257,32 +18243,16 @@ class MeshBase {
         a = ivs[i + 0];
         b = ivs[i + 1];
         c = ivs[i + 2];
-        wivs[k] = a;
-        wivs[k + 1] = b;
-        wivs[k + 2] = b;
-        wivs[k + 3] = c;
-        wivs[k + 4] = c;
-        wivs[k + 5] = a;
+        wIvs[k] = a;
+        wIvs[k + 1] = b;
+        wIvs[k + 2] = b;
+        wIvs[k + 3] = c;
+        wIvs[k + 4] = c;
+        wIvs[k + 5] = a;
         k += 6;
       }
 
-      return wivs;
-    }
-
-    return null;
-  }
-
-  updateWireframeIvs() {
-    this.toElementsTriangles();
-
-    if (this.wireframe) {
-      let wivs = this.createWireframeIvs();
-
-      if (wivs != null) {
-        this.m_ivs = this.createWireframeIvs();
-      }
-
-      this.toElementsLines();
+      this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_LINES;
     }
   }
 
@@ -18349,17 +18319,6 @@ class MeshBase {
         }
       }
     }
-  }
-
-  __$attachIVBuf() {
-    return this.m_ivbuf;
-  }
-
-  __$detachIVBuf(ivbuf) {
-    if (this.m_vbuf != ivbuf) {
-      throw Error("Fatal Error!");
-    } // ROVertexBuffer.__$$DetachAt(this.m_vbuf.getUid());
-
   }
 
   __$attachVBuf() {
@@ -19404,8 +19363,6 @@ const RendererState_1 = __importDefault(__webpack_require__("29ef"));
 class RODisplay {
   constructor() {
     this.m_uid = 0;
-    this.m_partGroup = null;
-    this.m_trans = null;
     this.m_material = null; // 只是持有引用不做任何管理操作
 
     this.m_matFS32 = null;
@@ -19418,14 +19375,15 @@ class RODisplay {
     this.trisNumber = 0;
     this.insCount = 0;
     this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES;
-    this.vbuf = null;
-    this.ivbuf = null; // record render state: shadowMode(one byte) + depthTestMode(one byte) + blendMode(one byte) + cullFaceMode(one byte)
+    this.vbuf = null; // record render state: shadowMode(one byte) + depthTestMode(one byte) + blendMode(one byte) + cullFaceMode(one byte)
     // its value come from: RendererState.CreateRenderState("default", CullFaceMode.BACK,RenderBlendMode.NORMAL,DepthTestMode.OPAQUE);
 
     this.renderState = RendererState_1.default.NORMAL_STATE;
     this.rcolorMask = RendererState_1.default.COLOR_MASK_ALL_TRUE; // mouse interaction enabled flag
 
-    this.mouseEnabled = false; // 只能由渲染系统内部调用
+    this.mouseEnabled = false;
+    this.m_partGroup = null;
+    this.m_trans = null; // 只能由渲染系统内部调用
 
     this.__$ruid = -1; // 用于关联IRPODisplay对象
 
@@ -19434,27 +19392,6 @@ class RODisplay {
     this.__$$rsign = RenderConst_1.DisplayRenderSign.NOT_IN_RENDERER;
     this.__$$runit = null;
     this.m_uid = RODisplay.s_uid++;
-  }
-
-  getVtxResUid() {
-    let v = 131 + this.vbuf.getUid();
-
-    if (this.ivbuf == null) {
-      return v;
-    }
-
-    console.log("RODisplay::getVtxResUid() apply this.ivbuf now.....");
-    return v * 131 + this.ivbuf.getUid();
-  }
-
-  getVtxResVer() {
-    let v = 131 + this.vbuf.version;
-
-    if (this.ivbuf == null) {
-      return v;
-    }
-
-    return v = v * 131 + this.ivbuf.version;
   } // draw parts group: [ivsCount0,ivsIndex0, ivsCount1,ivsIndex1, ivsCount2,ivsIndex2, ...]
 
 
@@ -20386,14 +20323,26 @@ const VtxCombinedBuf_1 = __importDefault(__webpack_require__("f0f0"));
 
 const VtxSeparatedBuf_1 = __importDefault(__webpack_require__("7a04"));
 
-const ROIVertexBuffer_1 = __importDefault(__webpack_require__("febe"));
+const RenderConst_1 = __webpack_require__("e08e");
 
-class ROVertexBuffer extends ROIVertexBuffer_1.default {
+class ROVertexBuffer {
   constructor(bufDataUsage = VtxBufConst_1.default.VTX_STATIC_DRAW) {
-    super(bufDataUsage);
+    this.m_uid = 0;
     this.m_vtxBuf = null;
+    this.m_ivs = null;
+    this.m_bufDataUsage = 0;
+    this.m_ibufStep = 2; // 2 or 4
+
     this.m_bufTypeList = null;
     this.m_bufSizeList = null;
+    this.layoutBit = 0x0;
+    this.vertexVer = 0;
+    this.indicesVer = 0;
+    this.version = 0;
+    this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES;
+    this.bufData = null;
+    this.m_uid = ROVertexBuffer.s_uid++;
+    this.m_bufDataUsage = bufDataUsage;
   }
 
   setVtxBuf(vtxBuf) {
@@ -20509,9 +20458,7 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
    */
 
 
-  destroy() {
-    super.destroy();
-  }
+  destroy() {}
 
   __$destroy() {
     console.log("ROVertexBuffer::__$destroy()... " + this);
@@ -20528,6 +20475,10 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
     this.bufData = null;
     this.m_bufTypeList = null;
     this.m_bufSizeList = null;
+  }
+
+  toString() {
+    return "ROVertexBuffer(uid = " + this.m_uid + ")";
   }
 
   static GetFreeId() {
@@ -20830,6 +20781,7 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
 
 }
 
+ROVertexBuffer.s_uid = 0;
 ROVertexBuffer.s_combinedBufs = [];
 ROVertexBuffer.s_separatedBufs = [];
 ROVertexBuffer.s_FLAG_BUSY = 1;
@@ -21855,14 +21807,7 @@ class ImageTextureLoader {
     }
 
     return null;
-  } // addCallbackByUrl(purl:string, callback: () => void): void {
-  //     if(callback != null) {
-  //         let t = this.m_resMap.get(purl);
-  //         if (t != null) {
-  //         }
-  //     }
-  // }
-
+  }
 
   getImageTexByUrl(purl, mipLevel = 0, offsetTexEnabled = false, powerOf2Fix = false) {
     if (purl == "") {
@@ -22904,119 +22849,6 @@ class BytesTextureProxy extends RawDataTextureProxy_1.default {
 }
 
 exports.default = BytesTextureProxy;
-
-/***/ }),
-
-/***/ "febe":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const VtxBufConst_1 = __importDefault(__webpack_require__("8a0a"));
-
-const RenderConst_1 = __webpack_require__("e08e");
-
-class ROIVertexBuffer {
-  constructor(bufDataUsage = VtxBufConst_1.default.VTX_STATIC_DRAW) {
-    this.m_uid = 0;
-    this.m_layoutBit = 0;
-    this.m_ivs = null;
-    this.m_bufDataUsage = 0;
-    this.m_ibufStep = 2; // 2 or 4
-
-    this.layoutBit = 0x0;
-    this.vertexVer = 0;
-    this.indicesVer = 0;
-    this.version = 0;
-    this.drawMode = RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES;
-    this.bufData = null;
-    this.m_uid = ROIVertexBuffer.s_uid++;
-    this.m_bufDataUsage = bufDataUsage;
-  }
-
-  getUid() {
-    return this.m_uid;
-  }
-
-  getType() {
-    return 0;
-  }
-
-  setBufSortFormat(layoutBit) {
-    this.m_layoutBit = layoutBit;
-  }
-
-  getBufSortFormat() {
-    return this.m_layoutBit;
-  }
-
-  getIBufStep() {
-    return this.m_ibufStep;
-  }
-
-  getBufDataUsage() {
-    return this.m_bufDataUsage;
-  }
-
-  getIvsData() {
-    return this.m_ivs;
-  }
-
-  setUintIVSData(uint16Or32Arr, status = VtxBufConst_1.default.VTX_STATIC_DRAW) {
-    if (uint16Or32Arr instanceof Uint16Array) {
-      this.m_ibufStep = 2;
-
-      if (uint16Or32Arr.length > 65535) {
-        throw Error("its type is not Uint32Array.");
-      }
-    } else if (uint16Or32Arr instanceof Uint32Array) {
-      this.m_ibufStep = 4;
-    } else {
-      console.error("Error: uint16Or32Arr is not an Uint32Array or an Uint16Array bufferArray instance !!!!");
-      return;
-    }
-
-    this.m_ivs = uint16Or32Arr;
-
-    if (uint16Or32Arr != null) {
-      this.indicesVer++;
-    }
-  }
-  /**
-   * this function is only an empty function.
-   */
-
-
-  destroy() {
-    this.m_layoutBit = 0;
-  }
-
-}
-
-ROIVertexBuffer.s_uid = 0;
-exports.default = ROIVertexBuffer;
 
 /***/ }),
 

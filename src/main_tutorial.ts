@@ -9,7 +9,9 @@
 // import { PBRShader as Demo } from "./tutorial/PBRShader";
 // import { TransformTest as Demo } from "./tutorial/TransformTest";
 
-import { RenderingState as Demo } from "./tutorial/RenderingState";
+// import { RenderingState as Demo } from "./tutorial/RenderingState";
+
+import { SubScene as Demo } from "./tutorial/SubScene";
 
 document.title = "tutorial";
 (document as any).demoState = 1;

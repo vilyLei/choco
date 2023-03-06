@@ -421,6 +421,7 @@ class RAdapterContext {
 
     this.autoSyncRenderBufferAndWindowSize = true;
     this.offscreenRenderEnabled = false;
+    this.bodyBgColor = "";
     this.m_resizeFlag = true;
     this.m_WEBGL_lose_context = null;
     this.m_displayWidth = 0;
@@ -436,8 +437,17 @@ class RAdapterContext {
   }
 
   contextlostHandler(evt) {
-    console.log("webglcontextlost...!!!");
+    console.warn("webglcontextlost...!!!");
     console.log(evt);
+  }
+
+  syncHtmlBodyColor(r, g, b) {
+    // if(document) {
+    this.bodyBgColor = this.m_viewEle.getCSSHEXRGB(r, g, b); // let value = this.m_viewEle.getCSSHEXRGB(r, g, b);
+    // const body = document.body;
+    // body.style.background = value;
+    // console.log("syncHtmlBodyColor(), this.bodyBgColor: ", this.bodyBgColor);
+    // }
   }
 
   setWebGLMaxVersion(webgl_ver) {
@@ -474,7 +484,7 @@ class RAdapterContext {
     return this.m_stencilTestEnabled;
   }
 
-  initialize(rcuid, stage, div, rattr = null) {
+  initialize(rcuid, stage, param) {
     this.m_stage = stage;
     var pdocument = null;
     var pwindow = null;
@@ -489,10 +499,12 @@ class RAdapterContext {
     }
 
     if (pdocument != null) {
+      let div = param.getDiv();
+      const rattr = param.getRenderContextAttri();
       this.m_devicePixelRatio = window.devicePixelRatio;
       RendererDevice_1.default.SetDevicePixelRatio(this.m_devicePixelRatio);
       this.m_viewEle.setDiv(div);
-      this.m_viewEle.createViewEle(pdocument, this.autoSyncRenderBufferAndWindowSize);
+      this.m_viewEle.createViewEle(pdocument, this.autoSyncRenderBufferAndWindowSize, param.divW, param.divH);
       this.m_div = div = this.m_viewEle.getDiv();
       let canvas = this.m_canvas = this.m_viewEle.getCanvas();
       this.m_devicePixelRatio = window.devicePixelRatio;
@@ -514,11 +526,11 @@ class RAdapterContext {
         this.m_stencilTestEnabled = attr.stencil;
       }
 
-      console.log("this.m_devicePixelRatio: " + this.m_devicePixelRatio + ",rattr == null: " + (rattr == null));
-      console.log("depthTestEnabled: " + attr.depth);
-      console.log("stencilTestEnabled: " + attr.stencil);
-      console.log("antialiasEnabled: " + attr.antialias);
-      console.log("alphaEnabled: " + attr.alpha);
+      console.log("this.m_devicePixelRatio: ", this.m_devicePixelRatio, ",rattr == null: ", rattr == null);
+      console.log("depthTestEnabled: ", attr.depth);
+      console.log("stencilTestEnabled: ", attr.stencil);
+      console.log("antialiasEnabled: ", attr.antialias);
+      console.log("alphaEnabled: ", attr.alpha);
       let offscreen = null;
 
       if (this.offscreenRenderEnabled) {
@@ -1833,7 +1845,7 @@ class RenderAdapter {
       mb: true,
       ma: true
     };
-    this.m_rcontext = null;
+    this.m_rtx = null;
     this.m_clearMask = 0x0;
     this.m_fboBuf = null;
     this.m_fboIndex = 0;
@@ -1855,6 +1867,8 @@ class RenderAdapter {
     this.m_scissorEnabled = false;
     this.m_rState = null;
     this.m_webglVer = 2;
+    this.m_syncBgColor = true;
+    this.m_bodyBgColor = "";
     this.bgColor = new Float32Array([0, 0, 0, 1]);
     this.uViewProbe = null;
     this.m_devPRatio = 1.0;
@@ -1864,11 +1878,19 @@ class RenderAdapter {
     this.m_rcuid = rcuid;
   }
 
+  syncHtmlBodyColor() {
+    if (this.m_rtx) {
+      const c = this.bgColor;
+      this.m_rtx.syncHtmlBodyColor(c[0], c[1], c[2]);
+    }
+  }
+
   initialize(context, param, rState, uViewProbe) {
-    if (this.m_rcontext == null) {
+    if (this.m_rtx == null) {
+      this.m_syncBgColor = param.syncBgColor;
       this.m_webglVer = context.getWebGLVersion();
       this.m_rState = rState;
-      this.m_rcontext = context;
+      this.m_rtx = context;
       this.m_gl = context.getRC();
       this.m_gl.disable(this.m_gl.SCISSOR_TEST);
       if (context.isDepthTestEnabled()) this.m_gl.enable(this.m_gl.DEPTH_TEST);else this.m_gl.disable(this.m_gl.DEPTH_TEST);
@@ -1955,11 +1977,11 @@ class RenderAdapter {
   }
 
   getDiv() {
-    return this.m_rcontext.getDiv();
+    return this.m_rtx.getDiv();
   }
 
   getCanvas() {
-    return this.m_rcontext.getCanvas();
+    return this.m_rtx.getCanvas();
   }
 
   setClearDepth(depth) {
@@ -1971,40 +1993,40 @@ class RenderAdapter {
   }
 
   setContextViewSize(pw, ph) {
-    this.m_rcontext.autoSyncRenderBufferAndWindowSize = false;
-    this.m_rcontext.resizeBufferSize(pw, ph);
+    this.m_rtx.autoSyncRenderBufferAndWindowSize = false;
+    this.m_rtx.resizeBufferSize(pw, ph);
   }
 
   getViewportX() {
-    return this.m_rcontext.getViewportX();
+    return this.m_rtx.getViewportX();
   }
 
   getViewportY() {
-    return this.m_rcontext.getViewportY();
+    return this.m_rtx.getViewportY();
   }
 
   getViewportWidth() {
-    return this.m_rcontext.getViewportWidth();
+    return this.m_rtx.getViewportWidth();
   }
 
   getViewportHeight() {
-    return this.m_rcontext.getViewportHeight();
+    return this.m_rtx.getViewportHeight();
   }
 
   getFBOFitWidth() {
-    return this.m_rcontext.getFBOWidth();
+    return this.m_rtx.getFBOWidth();
   }
 
   getFBOFitHeight() {
-    return this.m_rcontext.getFBOHeight();
+    return this.m_rtx.getFBOHeight();
   }
 
   getRCanvasWidth() {
-    return this.m_rcontext.getRCanvasWidth();
+    return this.m_rtx.getRCanvasWidth();
   }
 
   getRCanvasHeight() {
-    return this.m_rcontext.getRCanvasHeight();
+    return this.m_rtx.getRCanvasHeight();
   }
 
   setColorMask(mr, mg, mb, ma) {
@@ -2069,8 +2091,21 @@ class RenderAdapter {
 
 
   clearColor(color) {
+    this.m_rtx.syncHtmlBodyColor(color.r, color.g, color.b);
+    this.syncHtmlColor();
     this.m_gl.clearColor(color.r, color.g, color.b, color.a);
     this.m_gl.clear(this.m_gl.COLOR_BUFFER_BIT);
+  }
+
+  syncHtmlColor() {
+    // console.log("this.m_rtx.bodyBgColor: ", this.m_rtx.bodyBgColor);
+    if (this.m_syncBgColor) {
+      if (document && this.m_bodyBgColor != this.m_rtx.bodyBgColor) {
+        this.m_bodyBgColor = this.m_rtx.bodyBgColor;
+        const body = document.body;
+        body.style.background = this.m_bodyBgColor; // console.log("syncHtmlColor(), color: ", this.m_bodyBgColor);
+      }
+    }
   }
 
   clear() {
@@ -2082,30 +2117,34 @@ class RenderAdapter {
       this.m_gl.clearDepth(this.m_clearDepth);
     }
 
-    if (this.m_rcontext.isStencilTestEnabled()) {
+    if (this.m_rtx.isStencilTestEnabled()) {
       this.m_gl.clearStencil(this.m_clearStencil);
     }
 
-    let cvs = this.bgColor;
+    this.syncHtmlColor();
+    const cvs = this.bgColor; // if(DebugFlag.Flag_0 > 0) {
+    // 	console.log("color cvs: ", cvs);
+    // }
+
     this.m_gl.clearColor(cvs[0], cvs[1], cvs[2], cvs[3]);
     this.m_gl.clear(this.m_clearMask); // this.m_rState.setDepthTestMode(mode);
-    //	if (this.m_rcontext.isStencilTestEnabled()) {
-    //		this.m_gl.stencilMask(0x0);
-    //	}
+    // if (this.m_rtx.isStencilTestEnabled()) {
+    // 	this.m_gl.stencilMask(0x0);
+    // }
   }
 
   reset() {
     this.m_rState.setCullFaceMode(RenderConst_1.CullFaceMode.BACK);
     this.m_rState.setDepthTestMode(RenderConst_1.DepthTestMode.OPAQUE);
-    RendererState_1.default.Reset(this.m_rcontext);
+    RendererState_1.default.Reset(this.m_rtx);
   }
 
   getRenderContext() {
-    return this.m_rcontext;
+    return this.m_rtx;
   }
 
   renderBegin() {
-    if (this.m_rcontext != null) {
+    if (this.m_rtx != null) {
       this.m_fboSizeFactor = 1.0;
       this.reseizeViewPort();
       RenderStateObject_1.RenderStateObject.Unlock();
@@ -2129,7 +2168,7 @@ class RenderAdapter {
 
   checkViewPort(dstSize) {
     let srcSize = this.m_viewPortRect;
-    let k = this.m_rcontext.getDevicePixelRatio();
+    let k = this.m_rtx.getDevicePixelRatio();
     let boo = srcSize.testEqual(dstSize);
     boo = boo || Math.abs(this.m_devPRatio - k) > 0.01;
 
@@ -2142,7 +2181,7 @@ class RenderAdapter {
 
   reseizeViewPort() {
     if (this.m_viewportUnlock) {
-      this.checkViewPort(this.m_rcontext.getViewPortSize());
+      this.checkViewPort(this.m_rtx.getViewPortSize());
     }
   }
 
@@ -2170,20 +2209,20 @@ class RenderAdapter {
   update() {}
 
   updateRenderBufferSize() {
-    this.m_rcontext.updateRenderBufferSize();
+    this.m_rtx.updateRenderBufferSize();
   }
 
   destroy() {
-    this.m_rcontext = null;
+    this.m_rtx = null;
     this.m_rState = null;
   }
 
   getDevicePixelRatio() {
-    return this.m_rcontext.getDevicePixelRatio();
+    return this.m_rtx.getDevicePixelRatio();
   }
 
   loseContext() {
-    this.m_rcontext.loseContext();
+    this.m_rtx.loseContext();
   }
   /**
    * @returns return gpu context lost status
@@ -2191,7 +2230,7 @@ class RenderAdapter {
 
 
   isContextLost() {
-    return this.m_rcontext.isContextLost();
+    return this.m_rtx.isContextLost();
   } // read data format include float or unsigned byte ,etc.
 
 
@@ -2338,7 +2377,7 @@ class RenderAdapter {
       if (attachmentIndex == 0) {
         if (this.m_fboBuf != null) {
           if (this.m_synFBOSizeWithViewport) {
-            this.m_fboBuf.initialize(this.m_gl, Math.floor(this.m_rcontext.getFBOWidth() * this.m_fboSizeFactor), Math.floor(this.m_rcontext.getFBOHeight() * this.m_fboSizeFactor));
+            this.m_fboBuf.initialize(this.m_gl, Math.floor(this.m_rtx.getFBOWidth() * this.m_fboSizeFactor), Math.floor(this.m_rtx.getFBOHeight() * this.m_fboSizeFactor));
           } else {
             if (this.m_fboViewportRectBoo) {
               this.m_fboBuf.initialize(this.m_gl, this.m_fboViewportRectData[2], this.m_fboViewportRectData[3]);
@@ -2356,7 +2395,7 @@ class RenderAdapter {
             this.m_fboBuf.writeStencilEnabled = enableStencil;
 
             if (this.m_synFBOSizeWithViewport) {
-              this.m_fboBuf.initialize(this.m_gl, Math.floor(this.m_rcontext.getFBOWidth() * this.m_fboSizeFactor), Math.floor(this.m_rcontext.getFBOHeight() * this.m_fboSizeFactor));
+              this.m_fboBuf.initialize(this.m_gl, Math.floor(this.m_rtx.getFBOWidth() * this.m_fboSizeFactor), Math.floor(this.m_rtx.getFBOHeight() * this.m_fboSizeFactor));
             } else {
               if (this.m_fboViewportRectBoo) {
                 this.m_fboBuf.initialize(this.m_gl, this.m_fboViewportRectData[2], this.m_fboViewportRectData[3]);
@@ -2429,7 +2468,7 @@ class RenderAdapter {
         } else {
           if (this.m_synFBOSizeWithViewport) {
             //console.log("this.m_fboSizeFactor: "+this.m_fboSizeFactor);
-            this.m_fboViewportRect.setTo(0, 0, Math.floor(this.m_rcontext.getFBOWidth() * this.m_fboSizeFactor), Math.floor(this.m_rcontext.getFBOHeight() * this.m_fboSizeFactor));
+            this.m_fboViewportRect.setTo(0, 0, Math.floor(this.m_rtx.getFBOWidth() * this.m_fboSizeFactor), Math.floor(this.m_rtx.getFBOHeight() * this.m_fboSizeFactor));
           } else {
             if (this.m_fboBuf.isSizeChanged()) {
               this.m_fboBuf.initialize(this.m_gl, this.m_fboBuf.getWidth(), this.m_fboBuf.getHeight());
@@ -2843,6 +2882,9 @@ RenderDrawMode.ARRAYS_LINE_STRIP = 6;
 RenderDrawMode.ARRAYS_POINTS = 7;
 RenderDrawMode.ELEMENTS_LINES = 8;
 RenderDrawMode.ELEMENTS_INSTANCED_LINES = 9;
+RenderDrawMode.ELEMENTS_LINES_STRIP = 10;
+RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES_STRIP = 11;
+RenderDrawMode.ELEMENTS_INSTANCED_LINES_STRIP = 12;
 RenderDrawMode.DISABLE = 0;
 exports.default = RenderDrawMode;
 
@@ -7421,13 +7463,16 @@ class FrameBufferObject {
   }
 
   buildColorRBO(rgl, pw, ph) {
+    if (this.m_colorRBO == null) this.m_colorRBO = rgl.createRenderbuffer();
+    rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_colorRBO);
+
     if (this.multisampleEnabled) {
-      if (this.m_colorRBO == null) this.m_colorRBO = rgl.createRenderbuffer();
-      rgl.bindRenderbuffer(rgl.RENDERBUFFER, this.m_colorRBO);
       rgl.renderbufferStorageMultisample(rgl.RENDERBUFFER, this.multisampleLevel, rgl.RGBA8, pw, ph);
-      rgl.framebufferRenderbuffer(this.m_fboTarget, this.m_COLOR_ATTACHMENT0, rgl.RENDERBUFFER, this.m_colorRBO); //
+    } else {
+      rgl.renderbufferStorage(rgl.RENDERBUFFER, rgl.RGBA8, pw, ph);
     }
 
+    rgl.framebufferRenderbuffer(this.m_fboTarget, this.m_COLOR_ATTACHMENT0, rgl.RENDERBUFFER, this.m_colorRBO);
     console.log("FrameBufferObject create only color buf...this.multisampleEnabled: " + this.multisampleEnabled + ",this.multisampleLevel:" + this.multisampleLevel);
   }
 
@@ -7474,6 +7519,7 @@ class FrameBufferObject {
     } else if (this.writeStencilEnabled) {
       this.buildStencilRBO(rgl, pw, ph);
     } else {
+      console.log("fffrfrfrfrfrfr");
       this.buildColorRBO(rgl, pw, ph);
     }
 
@@ -9049,6 +9095,7 @@ class BufRData {
      */
 
     this.stride = 2;
+    this.initDrawMode = RDM.ELEMENTS_TRIANGLES;
     this.drawMode = RDM.ELEMENTS_TRIANGLES;
     this.m_common = true;
     this.bufType = 0;
@@ -9095,12 +9142,30 @@ class BufRData {
 
   updateDrawMode() {
     if (this.hasIvs()) {
-      this.gldm = this.m_common ? this.rc.TRIANGLES : this.rc.LINES;
+      const im = this.initDrawMode;
+      const flag = im == RDM.ELEMENTS_TRIANGLES || im == RDM.ELEMENTS_LINES;
+      const strip = im == RDM.ELEMENTS_TRIANGLE_STRIP || im == RDM.ELEMENTS_LINES_STRIP;
 
-      if (this.insCount < 1) {
-        this.drawMode = this.m_common ? RDM.ELEMENTS_TRIANGLES : RDM.ELEMENTS_LINES;
-      } else {
-        this.drawMode = this.m_common ? RDM.ELEMENTS_INSTANCED_TRIANGLES : RDM.ELEMENTS_INSTANCED_LINES;
+      if (flag || strip) {
+        if (strip) {
+          this.gldm = this.m_common ? this.rc.TRIANGLE_STRIP : this.rc.LINE_STRIP;
+        } else {
+          this.gldm = this.m_common ? this.rc.TRIANGLES : this.rc.LINES;
+        }
+
+        if (this.insCount < 1) {
+          if (strip) {
+            this.drawMode = this.m_common ? RDM.ELEMENTS_TRIANGLES : RDM.ELEMENTS_LINES;
+          } else {
+            this.drawMode = this.m_common ? RDM.ELEMENTS_TRIANGLE_STRIP : RDM.ELEMENTS_LINES_STRIP;
+          }
+        } else {
+          if (strip) {
+            this.drawMode = this.m_common ? RDM.ELEMENTS_INSTANCED_TRIANGLES_STRIP : RDM.ELEMENTS_INSTANCED_LINES_STRIP;
+          } else {
+            this.drawMode = this.m_common ? RDM.ELEMENTS_INSTANCED_TRIANGLES : RDM.ELEMENTS_INSTANCED_LINES;
+          }
+        }
       }
     }
   }
@@ -9450,6 +9515,7 @@ class ROIndicesRes {
       rd.ivsIndex = disp.ivsIndex;
       rd.stride = 2;
       rd.drawMode = disp.drawMode;
+      rd.initDrawMode = disp.drawMode;
       rdp.r0 = rd;
       rdp.r1 = rd;
     }
@@ -9479,16 +9545,16 @@ class ROIndicesRes {
     let r1 = null;
 
     if (shape) {
-      r0 = this.createBuf(rdpIndex, rc, vrc, ivtx, disp.ivsIndex, false);
+      r0 = this.createBuf(rdpIndex, rc, vrc, ivtx, disp, false);
     }
 
     if (wireframe) {
-      r1 = this.createBuf(rdpIndex, rc, vrc, ivtx, disp.ivsIndex, wireframe);
+      r1 = this.createBuf(rdpIndex, rc, vrc, ivtx, disp, wireframe);
     } // console.log("createRDPAt(), r0: ", r0, ", r1: ", r1);
 
 
     if (r0 == null && r1 == null) {
-      r0 = this.createBuf(rdpIndex, rc, vrc, ivtx, disp.ivsIndex, false);
+      r0 = this.createBuf(rdpIndex, rc, vrc, ivtx, disp, false);
     }
 
     if (r0 == null) {
@@ -9504,11 +9570,12 @@ class ROIndicesRes {
     return rdp;
   }
 
-  createBuf(rdpIndex, rc, vrc, ivtx, ivsIndex, wireframe = false) {
+  createBuf(rdpIndex, rc, vrc, ivtx, disp, wireframe = false) {
     // console.log("createBuf(), wireframe:", wireframe, ivtx);
     let ird = ivtx.getIvsDataAt(rdpIndex);
     let ivs = ird.ivs;
     let size = 0;
+    let ivsIndex = disp.ivsIndex;
     let stride = 2;
     let gbuf = vrc.createBuf();
     vrc.bindEleBuf(gbuf);
@@ -9581,6 +9648,7 @@ class ROIndicesRes {
     rd.ivsInitSize = size;
     rd.stride = stride;
     rd.trisNumber = Math.floor(size / 3);
+    rd.initDrawMode = disp.drawMode;
     rd.setCommon(!wireframe);
     rd.ivsIndex = rd.isCommon() ? ivsIndex : ivsIndex * 2;
     rd.ivsOffset = rd.ivsIndex * rd.stride;
@@ -11162,41 +11230,76 @@ class RViewElement {
   setDiv(div) {
     this.m_div = div;
   }
+  /**
+   * @returns for example: #350b7e
+   */
 
-  createViewEle(pdocument, autoResize) {
+
+  getCSSHEXRGB(r, g, b) {
+    let str = "#";
+    let t = Math.floor(r * 255.0);
+
+    if (t < 0xf) {
+      str += "0" + t.toString(16);
+    } else {
+      str += "" + t.toString(16);
+    }
+
+    t = Math.floor(g * 255.0);
+
+    if (t < 0xf) {
+      str += "0" + t.toString(16);
+    } else {
+      str += "" + t.toString(16);
+    }
+
+    t = Math.floor(b * 255.0);
+
+    if (t < 0xf) {
+      str += "0" + t.toString(16);
+    } else {
+      str += "" + t.toString(16);
+    }
+
+    return str;
+  }
+
+  createViewEle(pdocument, autoResize, pw, ph) {
     if (this.m_div == null) {
       this.m_div = document.getElementById("voxEngineDiv");
     }
 
     if (this.m_div == null) {
-      this.m_div = pdocument.createElement('div');
-      this.m_div.style.width = '400px';
-      this.m_div.style.height = '300px';
+      this.m_div = pdocument.createElement("div");
       document.body.appendChild(this.m_div);
     }
 
-    this.m_div.style.display = 'bolck';
-    this.m_div.style.position = 'absolute';
+    const style = this.m_div.style;
+    style.display = "bolck";
+    style.position = "absolute";
 
-    if (this.m_div.style.left == "") {
-      this.m_div.style.left = '0px';
-      this.m_div.style.top = '0px';
+    if (style.left == "") {
+      style.left = "0px";
+      style.top = "0px";
     }
 
     if (autoResize) {
-      this.m_div.style.width = '100%';
-      this.m_div.style.height = '100%';
+      style.width = "100%";
+      style.height = "100%";
+    } else {
+      this.m_div.style.width = pw + "px";
+      this.m_div.style.height = ph + "px";
     }
 
     if (this.m_canvas == null) {
-      this.m_canvas = document.createElement('canvas');
+      this.m_canvas = document.createElement("canvas");
       this.m_div.appendChild(this.m_canvas);
       this.m_canvas.width = 800;
       this.m_canvas.height = 600;
-      this.m_canvas.style.display = 'bolck';
-      this.m_canvas.style.left = '0px';
-      this.m_canvas.style.top = '0px';
-      this.m_canvas.style.position = 'absolute';
+      this.m_canvas.style.display = "bolck";
+      this.m_canvas.style.left = "0px";
+      this.m_canvas.style.top = "0px";
+      this.m_canvas.style.position = "absolute";
     }
   }
 
@@ -11569,8 +11672,7 @@ class RenderShader {
 
   useUniformV1(ult, type, f32Arr, dataSize) {
     const mc = MaterialConst_1.default;
-    const rc = this.m_rc;
-    console.log("useUniformV1 A, dataSize: ", dataSize, ", f32Arr: ", f32Arr);
+    const rc = this.m_rc; // console.log("useUniformV1 A, dataSize: ",dataSize, ", f32Arr: ", f32Arr);
 
     switch (type) {
       case mc.SHADER_MAT4:
@@ -11851,6 +11953,8 @@ class RPOUnit {
     switch (rd.drawMode) {
       case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES:
       case RenderConst_1.RenderDrawMode.ELEMENTS_LINES:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_STRIP:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_LINES_STRIP:
         // console.log("rd.gldm: ", rd.gldm);
         // if(DebugFlag.Flag_0 > 0)console.log("RPOUnit::run(), drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+"),drawOffset: "+this.drawOffset);
         //rc.RContext.drawElements(rc.TRIANGLES, this.ivsCount, rd.ibufType,this.ivsIndex * this.ibufStep);
@@ -11859,15 +11963,11 @@ class RPOUnit {
 
       case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES:
       case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_LINES:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES_STRIP:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_LINES_STRIP:
         //console.log("RPOUnit::run(), drawElementsInstanced(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+", insCount: "+this.insCount+")");
         //rc.RContext.drawElementsInstanced(rc.TRIANGLES,this.ivsCount, rd.bufType, this.ivsIndex * this.ibufStep, this.insCount);
-        gl.drawElementsInstanced(rc.TRIANGLES, ivsCount, rd.bufType, rd.ivsOffset, rd.insCount);
-        break;
-
-      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_STRIP:
-        //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        //rc.RContext.drawElements(rc.TRIANGLE_STRIP, this.ivsCount, rd.bufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_STRIP, ivsCount, rd.bufType, rd.ivsOffset);
+        gl.drawElementsInstanced(rd.gldm, ivsCount, rd.bufType, rd.ivsOffset, rd.insCount);
         break;
 
       case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_FAN:
@@ -11912,6 +12012,8 @@ class RPOUnit {
     switch (rd.drawMode) {
       case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES:
       case RenderConst_1.RenderDrawMode.ELEMENTS_LINES:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_STRIP:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_LINES_STRIP:
         for (; i < this.partTotal;) {
           // 这里面可以增加一个回调函数,这个回调函数可以对uniform(或者transformUniform)做一些数据改变，进而来控制相应的状态
           // 因此可以通过改变uniform实现大量的显示绘制
@@ -11925,15 +12027,11 @@ class RPOUnit {
 
       case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES:
       case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_LINES:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES_STRIP:
+      case RenderConst_1.RenderDrawMode.ELEMENTS_INSTANCED_LINES_STRIP:
         //console.log("RPOUnit::run(), drawElementsInstanced(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+", insCount: "+this.insCount+")");
         //rc.RContext.drawElementsInstanced(rc.TRIANGLES,this.ivsCount, this.ibufType, this.ivsIndex * this.ibufStep, this.insCount);
         gl.drawElementsInstanced(rd.gldm, ivsCount, rd.bufType, rd.ivsOffset, rd.insCount);
-        break;
-
-      case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_STRIP:
-        //console.log("RPOUnit::run(), TRIANGLE_STRIP drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
-        //rc.RContext.drawElements(rc.TRIANGLE_STRIP, this.ivsCount, this.ibufType,this.ivsIndex * this.ibufStep);
-        gl.drawElements(rc.TRIANGLE_STRIP, ivsCount, rd.bufType, rd.ivsOffset);
         break;
 
       case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_FAN:
@@ -13350,7 +13448,7 @@ class RenderProxy {
     this.m_viewPortRect.setTo(px, py, pw, ph);
     let stage = this.m_adapterContext.getStage();
 
-    if (stage != null) {
+    if (stage) {
       stage.setViewPort(pw, py, pw, ph);
       this.updateCameraView();
     }
@@ -13448,7 +13546,7 @@ class RenderProxy {
       this.resizeCallback();
     });
     this.m_adapterContext.setWebGLMaxVersion(this.m_maxWebGLVersion);
-    this.m_adapterContext.initialize(this.m_uid, stage, param.getDiv(), param.getRenderContextAttri());
+    this.m_adapterContext.initialize(this.m_uid, stage, param);
     this.m_WEBGL_VER = this.m_adapterContext.getWebGLVersion();
     this.m_rc = this.m_adapterContext.getRC();
     let selfT = this;
@@ -13535,10 +13633,12 @@ class RenderProxy {
     cvs[0] = pr;
     cvs[1] = pg;
     cvs[2] = pb;
+    this.adapter.syncHtmlBodyColor();
   }
 
   setClearColor(color) {
     color.toArray4(this.m_adapter.bgColor);
+    this.adapter.syncHtmlBodyColor();
   }
   /**
    * @param colorUint24 uint24 number rgb color value, example: 0xff0000, it is red rolor
@@ -13552,6 +13652,7 @@ class RenderProxy {
     cvs[1] = (colorUint24 >> 8 & 0x0000ff) / 255.0;
     cvs[2] = (colorUint24 & 0x0000ff) / 255.0;
     cvs[3] = alpha;
+    this.adapter.syncHtmlBodyColor();
   }
 
   setClearRGBAColor4f(pr, pg, pb, pa) {
@@ -13560,6 +13661,7 @@ class RenderProxy {
     cvs[1] = pg;
     cvs[2] = pb;
     cvs[3] = pa;
+    this.adapter.syncHtmlBodyColor();
   }
 
   getClearRGBAColor4f(color4) {

@@ -186,6 +186,24 @@ function createDisplayEntityContainer() {
 
 exports.createDisplayEntityContainer = createDisplayEntityContainer;
 
+function createFixScreenPlane(minX = -1.0, minY = -1.0, width = 2.0, height = 2.0, material = null, texEnabled = false) {
+  if (typeof CoMesh !== "undefined") {
+    let builder = CoMesh.plane;
+    material = initAMaterial(material, texEnabled, (pm, pt) => {
+      builder.applyMaterial(pm, pt);
+    });
+    let mesh = builder.createFixScreen(minX, minY, width, height);
+    let entity = CoRScene.createDisplayEntity();
+    entity.setMaterial(material);
+    entity.setMesh(mesh);
+    return entity;
+  }
+
+  return null;
+}
+
+exports.createFixScreenPlane = createFixScreenPlane;
+
 function createXOYPlane(minX, minY, width, height, material = null, texEnabled = false) {
   if (typeof CoMesh !== "undefined") {
     let builder = CoMesh.plane;

@@ -2053,12 +2053,15 @@ class PlaneMeshBuilder extends MeshBuilder_1.MeshBuilder {
     return mesh;
   }
   /**
-   * create a rectangle fix screen size plane ,and it parallel the 3d space XOY plane
-   * @param texList textures list, default value is null.
+   * @param px the default value is -1.0
+   * @param py the default value is -1.0
+   * @param pw the default value is 2.0
+   * @param ph the default value is 2.0
+   * @returns IRawMesh instance
    */
 
 
-  createFixScreen() {
+  createFixScreen(px = -1.0, py = -1.0, pw = 2.0, ph = 2.0) {
     return this.createXOY(-1.0, -1.0, 2.0, 2.0);
   }
   /**

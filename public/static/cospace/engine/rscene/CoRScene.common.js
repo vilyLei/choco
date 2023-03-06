@@ -112,6 +112,7 @@ class RSCGraph {
     this.m_map = new Map();
     this.m_nodes = [];
     this.rayPickFlag = false;
+    this.m_autoRRun = false;
   }
 
   clear() {
@@ -214,6 +215,18 @@ class RSCGraph {
     return null;
   }
 
+  addEventListener(type, target, func, captureEnabled = true, bubbleEnabled = false) {
+    if (this.m_nodes.length > 0) {
+      this.m_nodes[0].getRScene().addEventListener(type, target, func, captureEnabled, bubbleEnabled);
+    }
+  }
+
+  removeEventListener(type, target, func) {
+    if (this.m_nodes.length > 0) {
+      this.m_nodes[0].getRScene().removeEventListener(type, target, func);
+    }
+  }
+
   addScene(sc) {
     if (sc != null) {
       let ls = this.m_nodes;
@@ -250,51 +263,89 @@ class RSCGraph {
   }
 
   run() {
-    let pickFlag = true;
     let list = this.m_nodes;
     let total = list.length;
-    let i = total - 1;
-    const node = list[i];
-    let scene = list[i].getRScene();
-    if (node.p0Call0) node.p0Call0(scene, this);
-    scene.runBegin(true, true);
-    scene.update(false, true);
-    pickFlag = scene.isRayPickSelected();
-    this.rayPickFlag = pickFlag;
-    if (node.p0Call1) node.p0Call1(scene, this);
-    i -= 1;
 
-    for (; i >= 0; --i) {
+    if (total > 0) {
+      let pickFlag = true;
+      let i = total - 1;
       const node = list[i];
-      scene = list[i].getRScene();
+      let scene = list[i].getRScene();
       if (node.p0Call0) node.p0Call0(scene, this);
-      scene.runBegin(false, true);
-      scene.update(false, !pickFlag);
-      pickFlag = pickFlag || scene.isRayPickSelected();
+      scene.runBegin(true, true);
+      scene.update(false, true);
+      pickFlag = scene.isRayPickSelected();
       this.rayPickFlag = pickFlag;
       if (node.p0Call1) node.p0Call1(scene, this);
-    } /////////////////////////////////////////////////////// ---- mouseTest end.
-    /////////////////////////////////////////////////////// ---- rendering begin.
+      i -= 1;
+
+      for (; i >= 0; --i) {
+        const node = list[i];
+        scene = list[i].getRScene();
+        if (node.p0Call0) node.p0Call0(scene, this);
+        scene.runBegin(false, true);
+        scene.update(false, !pickFlag);
+        pickFlag = pickFlag || scene.isRayPickSelected();
+        this.rayPickFlag = pickFlag;
+        if (node.p0Call1) node.p0Call1(scene, this);
+      } /////////////////////////////////////////////////////// ---- mouseTest end.
+      /////////////////////////////////////////////////////// ---- rendering begin.
 
 
-    for (i = 0; i < total; ++i) {
-      const node = list[i];
-      scene = list[i].getRScene();
-      if (node.p1Call0) node.p0Call0(scene, this);
-      scene.renderBegin(node.contextResetEnabled);
-      const idList = node.processIdList;
+      for (i = 0; i < total; ++i) {
+        const node = list[i];
+        scene = list[i].getRScene();
+        if (node.p1Call0) node.p0Call0(scene, this);
+        scene.renderBegin(node.contextResetEnabled);
+        const idList = node.processIdList;
 
-      if (idList == null) {
-        scene.run(false);
-      } else {
-        for (let j = 0; j < idList.length; ++j) {
-          scene.runAt(idList[j]);
+        if (idList == null) {
+          scene.run(false);
+        } else {
+          for (let j = 0; j < idList.length; ++j) {
+            scene.runAt(idList[j]);
+          }
         }
-      }
 
-      scene.runEnd();
-      if (node.p1Call0) node.p0Call1(scene, this);
+        scene.runEnd();
+        if (node.p1Call0) node.p0Call1(scene, this);
+      }
     }
+  }
+
+  fakeRun(autoCycle = true) {
+    console.log("corgraph fakeRun ...");
+  }
+
+  setAutoRunning(auto) {
+    if (this.m_autoRRun != auto) {
+      if (this.m_autoRRun) {
+        let runFunc = this.run;
+        this.run = this.fakeRun;
+        this.fakeRun = runFunc;
+        this.m_autoRRun = false;
+      } else {
+        this.m_autoRRun = true;
+        let runFunc = this.fakeRun;
+        this.fakeRun = this.run;
+        this.run = runFunc;
+
+        const func = () => {
+          if (this.m_autoRRun) {
+            this.fakeRun();
+            window.requestAnimationFrame(func);
+          }
+        };
+
+        window.requestAnimationFrame(func);
+      }
+    }
+
+    return this;
+  }
+
+  isAutoRunning() {
+    return this.m_autoRRun;
   }
 
 }
@@ -2635,6 +2686,9 @@ RenderDrawMode.ARRAYS_LINE_STRIP = 6;
 RenderDrawMode.ARRAYS_POINTS = 7;
 RenderDrawMode.ELEMENTS_LINES = 8;
 RenderDrawMode.ELEMENTS_INSTANCED_LINES = 9;
+RenderDrawMode.ELEMENTS_LINES_STRIP = 10;
+RenderDrawMode.ELEMENTS_INSTANCED_TRIANGLES_STRIP = 11;
+RenderDrawMode.ELEMENTS_INSTANCED_LINES_STRIP = 12;
 RenderDrawMode.DISABLE = 0;
 exports.default = RenderDrawMode;
 
@@ -2711,10 +2765,6 @@ class MouseEvent extends EventBase_1.default {
 
   getClassType() {
     return MouseEvent.EventClassType;
-  }
-
-  toString() {
-    return "[MouseEvent]";
   }
 
 }
@@ -10608,7 +10658,7 @@ class CoRendererScene extends RendererSceneBase_1.default {
   }
 
   rendererInsInited() {
-    this.m_camera = this.m_renderProxy.getCamera();
+    this.m_camera = this.m_rproxy.getCamera();
     let srcSt = CoRenderer.RendererState;
     srcSt.rstb.buildToRST(RendererState_1.default);
   }
@@ -12588,18 +12638,21 @@ exports.default = MathConst;
 
 /***************************************************************************/
 
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-class KeyboardEvent {
+const EventBase_1 = __importDefault(__webpack_require__("a996"));
+
+class KeyboardEvent extends EventBase_1.default {
   constructor() {
-    // phase is event flow phase: 0(none phase),1(capture phase),2(bubble phase)
-    this.phase = 0; // 事件类型
-
-    this.type = KeyboardEvent.KEY_DOWN; // 事件发送者
-
-    this.target = null;
+    super();
     this.altKey = false;
     this.ctrlKey = false;
     this.shiftKey = false;
@@ -12611,10 +12664,6 @@ class KeyboardEvent {
 
   getClassType() {
     return KeyboardEvent.EventClassType;
-  }
-
-  toString() {
-    return "[KeyboardEvent]";
   }
 
 }
@@ -13841,6 +13890,8 @@ class StageBase {
     this.m_baseEvt = new EventBase_1.default();
     this.uProbe = null;
     this.pixelRatio = 1.0;
+    this.stageX = 0;
+    this.stageY = 0;
     this.stageWidth = 800;
     this.stageHeight = 600; // 实际宽高, 和gpu端对齐
 
@@ -17399,7 +17450,7 @@ class RendererSceneBase {
     this.___$$$$$$$Author = "VilyLei(vily313@126.com)";
     this.m_uid = -1;
     this.m_adapter = null;
-    this.m_renderProxy = null;
+    this.m_rproxy = null;
     this.m_shader = null;
     this.m_rcontext = null;
     this.m_renderer = null;
@@ -17421,8 +17472,7 @@ class RendererSceneBase {
     this.m_currCamera = null;
     this.m_nodeWaitLinker = null;
     this.m_nodeWaitQueue = null;
-    this.m_camDisSorter = null; // private m_subscList: RendererSubScene[] = [];
-
+    this.m_camDisSorter = null;
     this.m_subscListLen = 0;
     this.m_localRunning = false;
     this.m_containers = [];
@@ -17430,10 +17480,12 @@ class RendererSceneBase {
     this.m_runFlag = -1;
     this.m_autoRunEnabled = true;
     this.m_processUpdate = false;
-    this.m_rparam = null;
     this.m_enabled = true;
+    this.m_rparam = null;
     this.m_currStage3D = null;
-    this.m_stage3D = null;
+    this.m_stage3D = null; // protected m_clearColor = new Color4();
+    // protected m_clearColorFlag = false;
+
     this.runnableQueue = null;
     this.textureBlock = null;
     this.stage3D = null;
@@ -17473,11 +17525,11 @@ class RendererSceneBase {
   }
 
   getDiv() {
-    return this.m_renderProxy.getDiv();
+    return this.m_rproxy.getDiv();
   }
 
   getCanvas() {
-    return this.m_renderProxy.getCanvas();
+    return this.m_rproxy.getCanvas();
   }
 
   getRPONodeBuilder() {
@@ -17485,33 +17537,33 @@ class RendererSceneBase {
   }
 
   getRenderProxy() {
-    return this.m_renderProxy;
+    return this.m_rproxy;
   } // set new view port rectangle area
 
 
   setViewPort(px, py, pw, ph) {
-    if (this.m_renderProxy != null) {
+    if (this.m_rproxy != null) {
       this.m_viewX = px;
       this.m_viewY = py;
       this.m_viewW = pw;
       this.m_viewH = ph;
-      this.m_renderProxy.setViewPort(px, py, pw, ph);
+      this.m_rproxy.setViewPort(px, py, pw, ph);
     }
   }
 
   setViewPortFromCamera(camera) {
-    if (this.m_renderProxy != null && camera != null) {
+    if (this.m_rproxy != null && camera != null) {
       this.m_viewX = camera.getViewX();
       this.m_viewY = camera.getViewY();
       this.m_viewW = camera.getViewWidth();
       this.m_viewH = camera.getViewHeight();
-      this.m_renderProxy.setViewPort(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH);
+      this.m_rproxy.setViewPort(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH);
     }
   } // apply new view port rectangle area
 
 
   reseizeViewPort() {
-    this.m_renderProxy.reseizeRCViewPort();
+    this.m_rproxy.reseizeRCViewPort();
   }
 
   lockViewport() {
@@ -17535,7 +17587,7 @@ class RendererSceneBase {
   }
 
   getStage3D() {
-    return this.m_renderProxy.getStage3D();
+    return this.m_rproxy.getStage3D();
   }
   /**
    * 获取渲染器可渲染对象管理器状态(版本号)
@@ -17547,15 +17599,15 @@ class RendererSceneBase {
   }
 
   getViewWidth() {
-    return this.m_renderProxy.getStage3D().viewWidth;
+    return this.m_rproxy.getStage3D().viewWidth;
   }
 
   getViewHeight() {
-    return this.m_renderProxy.getStage3D().viewHeight;
+    return this.m_rproxy.getStage3D().viewHeight;
   }
 
   getCamera() {
-    return this.m_renderProxy.getCamera();
+    return this.m_rproxy.getCamera();
   }
 
   asynFBOSizeWithViewport() {
@@ -17567,15 +17619,15 @@ class RendererSceneBase {
   }
 
   cameraLock() {
-    this.m_renderProxy.cameraLock();
+    this.m_rproxy.cameraLock();
   }
 
   cameraUnlock() {
-    this.m_renderProxy.cameraUnlock();
+    this.m_rproxy.cameraUnlock();
   }
 
   getMouseXYWorldRay(rl_position, rl_tv) {
-    // this.m_renderProxy.getMouseXYWorldRay(rl_position, rl_tv);
+    // this.m_rproxy.getMouseXYWorldRay(rl_position, rl_tv);
     this.m_camera.getWorldPickingRayByScreenXY(this.m_stage3D.mouseX, this.m_stage3D.mouseY, rl_position, rl_tv);
   }
 
@@ -17596,19 +17648,24 @@ class RendererSceneBase {
   }
 
   setClearUint24Color(colorUint24, alpha = 1.0) {
-    this.m_renderProxy.setClearUint24Color(colorUint24, alpha);
+    this.m_rproxy.setClearUint24Color(colorUint24, alpha); // this.m_clearColorFlag = true;
+    // this.m_clearColor.setRGBUint24(colorUint24);
+    // this.m_clearColor.a = alpha;
   }
 
   setClearRGBColor3f(pr, pg, pb) {
-    this.m_renderProxy.setClearRGBColor3f(pr, pg, pb);
+    this.m_rproxy.setClearRGBColor3f(pr, pg, pb); // this.m_clearColorFlag = true;
+    // this.m_clearColor.setRGB3f(pr, pg, pb);
   }
 
   setClearRGBAColor4f(pr, pg, pb, pa) {
-    this.m_renderProxy.setClearRGBAColor4f(pr, pg, pb, pa);
+    this.m_rproxy.setClearRGBAColor4f(pr, pg, pb, pa); // this.m_clearColorFlag = true;
+    // this.m_clearColor.setRGBA4f(pr, pg, pb, pa);
   }
 
   setClearColor(color) {
-    this.m_renderProxy.setClearRGBAColor4f(color.r, color.g, color.b, color.a);
+    this.m_rproxy.setClearRGBAColor4f(color.r, color.g, color.b, color.a); // this.m_clearColorFlag = true;
+    // if (color) this.m_clearColor.copyFrom(color);
   }
 
   setRenderToBackBuffer() {
@@ -17729,19 +17786,19 @@ class RendererSceneBase {
       }
 
       this.m_rcontext = this.m_renderer.getRendererContext();
-      this.m_renderProxy = this.m_rcontext.getRenderProxy();
-      this.m_adapter = this.m_renderProxy.getRenderAdapter();
-      let stage3D = this.m_renderProxy.getStage3D();
+      this.m_rproxy = this.m_rcontext.getRenderProxy();
+      this.m_adapter = this.m_rproxy.getRenderAdapter();
+      let stage3D = this.m_rproxy.getStage3D();
       this.m_viewW = stage3D.stageWidth;
       this.m_viewH = stage3D.stageHeight;
       this.m_shader = this.m_renderer.getDataBuilder().getRenderShader();
-      this.textureBlock.setRenderer(this.m_renderProxy);
+      this.textureBlock.setRenderer(this.m_rproxy);
       this.rendererInsInited();
-      this.m_camDisSorter = new CameraDsistanceSorter_1.default(this.m_renderProxy);
+      this.m_camDisSorter = new CameraDsistanceSorter_1.default(this.m_rproxy);
 
       if (this.m_rspace == null) {
         let space = new RendererSpace_1.default();
-        space.initialize(this.m_renderer, this.m_renderProxy.getCamera());
+        space.initialize(this.m_renderer, this.m_rproxy.getCamera());
         this.m_rspace = space;
       }
 
@@ -17941,7 +17998,6 @@ class RendererSceneBase {
           if (node != null) {
             re.getTransform().setUpdater(null);
             this.m_nodeWaitLinker.removeNode(node);
-            ;
             this.m_nodeWaitQueue.removeEntity(re);
           }
         }
@@ -17977,27 +18033,27 @@ class RendererSceneBase {
     this.m_currCamera = camera;
 
     if (syncCamView) {
-      this.m_renderProxy.setRCViewPort(camera.getViewX(), camera.getViewY(), camera.getViewWidth(), camera.getViewHeight(), true);
-      this.m_renderProxy.reseizeRCViewPort();
+      this.m_rproxy.setRCViewPort(camera.getViewX(), camera.getViewY(), camera.getViewWidth(), camera.getViewHeight(), true);
+      this.m_rproxy.reseizeRCViewPort();
     }
 
     camera.update();
     this.m_rcontext.resetUniform();
-    this.m_renderProxy.updateCameraDataFromCamera(camera);
+    this.m_rproxy.updateCameraDataFromCamera(camera);
   }
 
   useMainCamera() {
     this.m_currCamera = null;
-    let camera = this.m_renderProxy.getCamera();
-    this.m_renderProxy.setRCViewPort(camera.getViewX(), camera.getViewY(), camera.getViewWidth(), camera.getViewHeight(), true);
-    this.m_renderProxy.reseizeRCViewPort();
-    this.m_renderProxy.updateCamera();
+    let camera = this.m_rproxy.getCamera();
+    this.m_rproxy.setRCViewPort(camera.getViewX(), camera.getViewY(), camera.getViewWidth(), camera.getViewHeight(), true);
+    this.m_rproxy.reseizeRCViewPort();
+    this.m_rproxy.updateCamera();
     this.m_rcontext.resetUniform();
-    this.m_renderProxy.updateCameraDataFromCamera(this.m_renderProxy.getCamera());
+    this.m_rproxy.updateCameraDataFromCamera(this.m_rproxy.getCamera());
   }
 
   updateCameraDataFromCamera(camera) {
-    this.m_renderProxy.updateCameraDataFromCamera(camera);
+    this.m_rproxy.updateCameraDataFromCamera(camera);
   }
   /**
    * reset renderer rendering state
@@ -18017,7 +18073,7 @@ class RendererSceneBase {
   }
 
   enableSynViewAndStage() {
-    this.m_renderProxy.enableSynViewAndStage();
+    this.m_rproxy.enableSynViewAndStage();
   }
   /**
    * the function only resets the renderer instance rendering status.
@@ -18026,31 +18082,36 @@ class RendererSceneBase {
 
 
   renderBegin(contextBeginEnabled = true) {
+    const ry = this.m_rproxy;
+
     if (this.m_currCamera == null) {
       this.m_adapter.unlockViewport();
 
-      if (this.m_renderProxy.isAutoSynViewAndStage()) {
-        let boo = this.m_renderProxy.testViewPortChanged(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH);
-        this.m_viewX = this.m_renderProxy.getViewX();
-        this.m_viewY = this.m_renderProxy.getViewY();
-        this.m_viewW = this.m_renderProxy.getViewWidth();
-        this.m_viewH = this.m_renderProxy.getViewHeight();
+      if (ry.isAutoSynViewAndStage()) {
+        let boo = ry.testViewPortChanged(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH);
+        this.m_viewX = ry.getViewX();
+        this.m_viewY = ry.getViewY();
+        this.m_viewW = ry.getViewWidth();
+        this.m_viewH = ry.getViewHeight();
 
         if (boo) {
-          this.m_renderProxy.setRCViewPort(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH, true);
-          this.m_renderProxy.reseizeRCViewPort();
+          ry.setRCViewPort(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH, true);
+          ry.reseizeRCViewPort();
         }
       } else {
-        this.m_renderProxy.setViewPort(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH);
+        ry.setViewPort(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH);
       }
 
-      this.m_renderProxy.updateCamera();
-      this.m_renderProxy.updateCameraDataFromCamera(this.m_renderProxy.getCamera());
+      ry.updateCamera();
+      ry.updateCameraDataFromCamera(ry.getCamera());
     }
 
     this.m_shader.renderBegin();
 
     if (contextBeginEnabled) {
+      // if(this.m_clearColorFlag) {
+      //     ry.setClearColor(this.m_clearColor);  
+      // }
       this.m_rcontext.renderBegin(this.m_currCamera == null);
     }
 
@@ -18076,8 +18137,8 @@ class RendererSceneBase {
     let camFlag = cam == null;
     this.renderBegin(contextBeginEnabled);
 
-    if (this.m_rspace != null) {
-      this.m_rspace.setCamera(camFlag ? this.m_renderProxy.getCamera() : cam);
+    if (this.m_rspace) {
+      this.m_rspace.setCamera(camFlag ? this.m_rproxy.getCamera() : cam);
       this.m_rspace.runBegin();
     }
   }
@@ -18108,7 +18169,7 @@ class RendererSceneBase {
         // }
         let selector = this.m_rspace.getRaySelector();
 
-        if (selector != null) {
+        if (selector) {
           if (this.m_rayTestEnabled) {
             this.mouseRayTest();
           } else {
@@ -18172,7 +18233,7 @@ class RendererSceneBase {
         let pnode;
         let status;
 
-        while (nextNode != null) {
+        while (nextNode) {
           if (nextNode.entity.hasMesh()) {
             pnode = nextNode;
             nextNode = nextNode.next;
@@ -18204,7 +18265,7 @@ class RendererSceneBase {
       if (this.m_cullingTestBoo) {
         if (this.m_evt3DCtr != null || this.m_processUpdate || this.m_rspace.getRaySelector() != null) {
           this.m_rspace.run();
-          this.m_renderProxy.status.povNumber = this.m_rspace.getPOVNumber();
+          this.m_rproxy.status.povNumber = this.m_rspace.getPOVNumber();
         }
       }
     }
@@ -18233,7 +18294,7 @@ class RendererSceneBase {
   cullingTest() {
     if (this.m_rspace != null) {
       this.m_rspace.run();
-      this.m_renderProxy.status.povNumber = this.m_rspace.getPOVNumber();
+      this.m_rproxy.status.povNumber = this.m_rspace.getPOVNumber();
     }
 
     this.m_cullingTestBoo = false;
@@ -18242,7 +18303,7 @@ class RendererSceneBase {
 
   mouseRayTest() {
     if (this.m_rspace != null) {
-      // this.m_renderProxy.getMouseXYWorldRay(this.m_mouse_rlpv, this.m_mouse_rltv);
+      // this.m_rproxy.getMouseXYWorldRay(this.m_mouse_rlpv, this.m_mouse_rltv);
       this.getMouseXYWorldRay(this.m_mouse_rlpv, this.m_mouse_rltv);
       this.m_rspace.rayTest(this.m_mouse_rlpv, this.m_mouse_rltv);
     }
@@ -18379,14 +18440,14 @@ class RendererSceneBase {
   render() {}
 
   renderFlush() {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.flush();
+    if (this.m_rproxy != null) {
+      this.m_rproxy.flush();
     }
   }
 
   updateCamera() {
-    if (this.m_renderProxy != null) {
-      this.m_renderProxy.updateCamera();
+    if (this.m_rproxy != null) {
+      this.m_rproxy.updateCamera();
     }
   }
 
@@ -21960,18 +22021,24 @@ class RendererParam {
     this.m_tickUpdateTime = 20; // delay 50 ms
 
     this.m_polygonOffsetEnabled = false;
-    this.m_ditherEnabled = false; // display 3d view buf size auto sync window size
+    this.m_ditherEnabled = false;
+    this.divW = 800;
+    this.divH = 600; // display 3d view buf size auto sync window size
 
     this.autoSyncRenderBufferAndWindowSize = true;
     this.maxWebGLVersion = 2;
     this.cameraPerspectiveEnabled = true; // event flow control enable
 
-    this.evtFlowEnabled = false; // x: fov, y: near, z: far
+    this.evtFlowEnabled = false;
+    /**
+     * x: fov, y: near, z: far
+     */
 
     this.camProjParam = new Vector3D_1.default(45.0, 10.0, 5000.0);
     this.camPosition = new Vector3D_1.default(2000.0, 2000.0, 2000.0);
     this.camLookAtPos = new Vector3D_1.default(0.0, 0.0, 0.0);
     this.camUpDirect = new Vector3D_1.default(0.0, 1.0, 0.0);
+    this.syncBgColor = true;
     this.batchEnabled = true;
     this.processFixedState = false;
     this.m_mainDiv = div;
@@ -27241,6 +27308,8 @@ const RunnableQueue_1 = __importDefault(__webpack_require__("9c4d"));
 
 const RendererSceneBase_1 = __importDefault(__webpack_require__("aa80"));
 
+const EntityTransUpdater_1 = __importDefault(__webpack_require__("7c36"));
+
 class CoRendererSubScene extends RendererSceneBase_1.default {
   constructor(parent, renderer, evtFlowEnabled) {
     super(1024);
@@ -27268,8 +27337,8 @@ class CoRendererSubScene extends RendererSceneBase_1.default {
   setEvt3DController(evt3DCtr) {
     if (evt3DCtr != null) {
       if (this.m_currStage3D == null) {
-        this.m_currStage3D = new SubStage3D_1.default(this.m_renderProxy.getRCUid(), null);
-        this.m_currStage3D.uProbe = this.m_renderProxy.uniformContext.createUniformVec4Probe(1);
+        this.m_currStage3D = new SubStage3D_1.default(this.m_rproxy.getRCUid(), null);
+        this.m_currStage3D.uProbe = this.m_rproxy.uniformContext.createUniformVec4Probe(1);
       }
 
       evt3DCtr.initialize(this.getStage3D(), this.m_currStage3D);
@@ -27280,7 +27349,7 @@ class CoRendererSubScene extends RendererSceneBase_1.default {
   }
 
   initialize(rparam, renderProcessesTotal = 3, createNewCamera = true) {
-    if (this.m_renderProxy == null) {
+    if (this.m_rproxy == null) {
       if (renderProcessesTotal < 1) {
         renderProcessesTotal = 1;
       } else if (renderProcessesTotal > 32) {
@@ -27289,6 +27358,7 @@ class CoRendererSubScene extends RendererSceneBase_1.default {
 
       let selfT = this;
       selfT.runnableQueue = new RunnableQueue_1.default();
+      this.m_transUpdater = new EntityTransUpdater_1.default();
       this.m_rparam = rparam;
       this.m_perspectiveEnabled = rparam.cameraPerspectiveEnabled;
 
@@ -27300,14 +27370,14 @@ class CoRendererSubScene extends RendererSceneBase_1.default {
       }
 
       this.m_rcontext = this.m_renderer.getRendererContext();
-      this.m_renderProxy = this.m_rcontext.getRenderProxy();
-      this.m_adapter = this.m_renderProxy.getRenderAdapter();
-      this.m_stage3D = this.m_renderProxy.getStage3D();
+      this.m_rproxy = this.m_rcontext.getRenderProxy();
+      this.m_adapter = this.m_rproxy.getRenderAdapter();
+      this.m_stage3D = this.m_rproxy.getStage3D();
       this.m_viewX = this.m_stage3D.getViewX();
       this.m_viewY = this.m_stage3D.getViewY();
       this.m_viewW = this.m_stage3D.getViewWidth();
       this.m_viewH = this.m_stage3D.getViewHeight();
-      this.m_camera = createNewCamera ? this.createMainCamera() : this.m_renderProxy.getCamera();
+      this.m_camera = createNewCamera ? this.createMainCamera() : this.m_rproxy.getCamera();
 
       if (this.m_rspace == null) {
         let sp = new RendererSpace_1.default();
@@ -27354,19 +27424,19 @@ class CoRendererSubScene extends RendererSceneBase_1.default {
       this.m_rcontext.renderBegin();
     }
 
-    if (this.m_renderProxy.getCamera() != this.m_camera) {
-      //let boo: boolean = this.m_renderProxy.testViewPortChanged(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH);
-      if (this.m_renderProxy.isAutoSynViewAndStage()) {
-        this.m_viewX = this.m_renderProxy.getViewX();
-        this.m_viewY = this.m_renderProxy.getViewY();
-        this.m_viewW = this.m_renderProxy.getViewWidth();
-        this.m_viewH = this.m_renderProxy.getViewHeight();
+    if (this.m_rproxy.getCamera() != this.m_camera) {
+      //let boo: boolean = this.m_rproxy.testViewPortChanged(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH);
+      if (this.m_rproxy.isAutoSynViewAndStage()) {
+        this.m_viewX = this.m_rproxy.getViewX();
+        this.m_viewY = this.m_rproxy.getViewY();
+        this.m_viewW = this.m_rproxy.getViewWidth();
+        this.m_viewH = this.m_rproxy.getViewHeight();
       }
 
       this.m_camera.setViewXY(this.m_viewX, this.m_viewY);
       this.m_camera.setViewSize(this.m_viewW, this.m_viewH);
-      this.m_renderProxy.setRCViewPort(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH, this.m_renderProxy.isAutoSynViewAndStage());
-      this.m_renderProxy.reseizeRCViewPort();
+      this.m_rproxy.setRCViewPort(this.m_viewX, this.m_viewY, this.m_viewW, this.m_viewH, this.m_rproxy.isAutoSynViewAndStage());
+      this.m_rproxy.reseizeRCViewPort();
     }
 
     this.m_camera.update();
@@ -27391,14 +27461,14 @@ class CoRendererSubScene extends RendererSceneBase_1.default {
 
     this.renderBegin(contextBeginEnabled);
 
-    if (this.m_rspace != null) {
+    if (this.m_rspace) {
       this.m_rspace.setCamera(this.m_camera);
       this.m_rspace.runBegin();
     }
   }
 
   render() {
-    if (this.m_renderProxy != null) {
+    if (this.m_rproxy) {
       this.run(true);
     }
   }
