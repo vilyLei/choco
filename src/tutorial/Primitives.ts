@@ -83,3 +83,9 @@ export class Primitives {
 }
 
 export default Primitives;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new Primitives();
+    ins.initialize();
+}

@@ -75,3 +75,9 @@ export class SceneParameter {
 }
 
 export default SceneParameter;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new SceneParameter();
+    ins.initialize();
+}

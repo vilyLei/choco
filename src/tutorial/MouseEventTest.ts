@@ -156,3 +156,9 @@ export class MouseEventTest {
 }
 
 export default MouseEventTest;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new MouseEventTest();
+    ins.initialize();
+}

@@ -163,3 +163,9 @@ export class TransformTest {
 }
 
 export default TransformTest;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new TransformTest();
+    ins.initialize();
+}

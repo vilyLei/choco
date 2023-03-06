@@ -104,3 +104,9 @@ export class MeshCreation {
 }
 
 export default MeshCreation;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new MeshCreation();
+    ins.initialize();
+}

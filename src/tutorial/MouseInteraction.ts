@@ -23,3 +23,9 @@ export class MouseInteraction {
     }
 }
 export default MouseInteraction;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new MouseInteraction();
+    ins.initialize();
+}

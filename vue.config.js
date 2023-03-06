@@ -4,9 +4,9 @@ const { ENV = '' } = process.env;
 // console.log("process.env: ",process.env);
 let venv = process.env;
 let vcmd = venv ? venv.npm_lifecycle_event : "";
-console.log("process.env.npm_lifecycle_script: ", process.env.npm_lifecycle_script);
+// console.log("process.env.npm_lifecycle_script: ", process.env.npm_lifecycle_script);
 // console.log("venv: ", venv);
-console.log("vcmd: ", vcmd);
+// console.log("vcmd: ", vcmd);
 // console.log("A0 venv.npm_config_argv: ", venv.npm_config_argv);
 
 let argv = venv.npm_config_argv;
@@ -15,7 +15,7 @@ let argvObj = JSON.parse(argv);
 let lcScript = process.env.npm_lifecycle_script;
 
 if(lcScript.indexOf("vue-cli-service serve ") >= 0) {
-    console.log('vcmd != "": ', vcmd != "");
+    // console.log('vcmd != "": ', vcmd != "");
     if(vcmd != "") {
         // represent dev process
         let srcCodeUrl = process.env.npm_lifecycle_script;

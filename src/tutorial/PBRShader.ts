@@ -114,3 +114,9 @@ export class PBRShader {
 }
 
 export default PBRShader;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new PBRShader();
+    ins.initialize();
+}

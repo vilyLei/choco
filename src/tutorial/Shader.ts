@@ -110,3 +110,9 @@ export class Shader {
 }
 
 export default Shader;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new Shader();
+    ins.initialize();
+}

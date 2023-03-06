@@ -14,3 +14,9 @@ export class EmptyScene {
     }
 }
 export default EmptyScene;
+
+// for running instance
+if(!((document as any).demoState)) {
+    let ins = new EmptyScene();
+    ins.initialize();
+}
