@@ -26,12 +26,12 @@ installation and running:
    step 7, enter the voxmaterial dir from the integrated terminal, and run the "yarn install" command in this terminal. Wait a few minutes.
    if you see some errors, look this link: https://blog.csdn.net/vily_lei/article/details/108725829
     
-   第八步，在终端中运行 "yarn dev" 命令，你就能在浏览器上看到相应的3d程序。
-   step 8, run the "yarn dev" command, you will see a 3d display in your browser.
+   第八步，在终端中运行 "yarn dev:titorial" 命令，你就能在浏览器上看到相应的3d程序。
+   step 8, run the "yarn dev:titorial" command, you will see a 3d display in your browser.
    
    第九步，在终端中运行 "yarn build" 命令打包js代码。
    step 9, run the "yarn build" command, it can build relevant js package.
 
 other infomation:
 
-    1. You can find some demos in the src/main.ts file.
+    1. You can find some tutorial demos in the src/tutorial/ dir.
