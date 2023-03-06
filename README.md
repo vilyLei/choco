@@ -35,3 +35,4 @@ installation and running:
 other infomation:
 
     1. You can find some tutorial demos in the src/tutorial/ dir.
+    2. Running the specified tutorial demo, for example, running the Primitives demo: yarn dev:tutorial --Primitives
