@@ -36,7 +36,6 @@ export class PBRShader {
         let RD = VoxRScene.RendererDevice;
         RD.SHADERCODE_TRACE_ENABLED = true;
         RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
-        RD.SetWebBodyColor("#888888");
 
         let rparam = VoxRScene.createRendererSceneParam();
         rparam.setAttriAntialias(!RD.IsMobileWeb());

@@ -62,7 +62,6 @@ export class Shader {
          * 顶点shader中的浮点数精度设置为 highp
          */
         RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
-        RD.SetWebBodyColor("#888888");
 
         let rparam = VoxRScene.createRendererSceneParam();
         rparam.setAttriAntialias(!RD.IsMobileWeb());
