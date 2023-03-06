@@ -79,10 +79,8 @@ export class MouseEventTest {
         let RD = VoxRScene.RendererDevice;
         RD.SHADERCODE_TRACE_ENABLED = true;
         RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
-        RD.SetWebBodyColor("#888888");
 
         let rparam = VoxRScene.createRendererSceneParam();
-        rparam.setAttriAntialias(!RD.IsMobileWeb());
         rparam.setCamPosition(1000.0, 1000.0, 1000.0);
         rparam.setCamProject(45, 20.0, 9000.0);
         this.m_rscene = VoxRScene.createRendererScene(rparam).setAutoRunning(true);
