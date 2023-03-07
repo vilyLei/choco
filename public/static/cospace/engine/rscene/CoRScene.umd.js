@@ -7708,6 +7708,8 @@ exports.Keyboard = Keyboard_1.default;
 
 const MeshFactory_1 = __importDefault(__webpack_require__("0238"));
 
+const VtxDrawingInfo_1 = __importDefault(__webpack_require__("d031"));
+
 function createVec3(px = 0.0, py = 0.0, pz = 0.0, pw = 1.0) {
   return new Vector3D_1.default(px, py, pz, pw);
 }
@@ -7821,6 +7823,12 @@ function createDataMeshFromModel(model, material = null, texEnabled = false) {
 }
 
 exports.createDataMeshFromModel = createDataMeshFromModel;
+
+function createVtxDrawingInfo() {
+  return new VtxDrawingInfo_1.default();
+}
+
+exports.createVtxDrawingInfo = createVtxDrawingInfo;
 
 function createDefaultMaterial(normalEnabled = false) {
   let m = new Default3DMaterial_1.default();
@@ -19069,7 +19077,6 @@ exports.default = ShaderData;
 /*                                                                         */
 
 /***************************************************************************/
-// 独立，且使用 DisplayEntityContainer 、transform 等等机制的容器
 
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
@@ -19162,8 +19169,7 @@ class DisplayEntityContainer {
 
     if (this.__$renderer != null) {
       if (renderer == null) {
-        // remove all entities from container
-        //console.log("remove all entities from container, this.m_entitiesTotal: "+this.m_entitiesTotal);
+        // remove all entities from renderer with container
         for (; i < this.m_entitiesTotal; ++i) {
           this.__$renderer.removeEntity(this.m_entities[i]);
         }
@@ -19174,8 +19180,7 @@ class DisplayEntityContainer {
       this.__$renderer = renderer;
 
       if (renderer != null) {
-        // add all entities
-        // console.log("add all entities from container, this.m_entitiesTotal: "+this.m_entitiesTotal+", this.wprocuid: "+this.wprocuid);
+        // add all entities into renderer
         for (; i < this.m_entitiesTotal; ++i) {
           this.m_entities[i].__$rseFlag = RSEntityFlag_1.default.RemoveContainerFlag(this.m_entities[i].__$rseFlag);
 
@@ -19265,51 +19270,67 @@ class DisplayEntityContainer {
     return -1;
   }
 
-  addChild(child) {
-    if (child != null && child.__$wuid < 0 && child.__$contId < 1) {
-      let i = 0;
-
-      for (; i < this.m_childrenTotal; ++i) {
-        if (this.m_children[i] == child) {
-          return;
-        }
+  addChild(et) {
+    if (et != null) {
+      if (et.getREType() < 12) {
+        this.addEntity(et);
+        return;
       }
 
-      if (i >= this.m_childrenTotal) {
-        if (this.m_cbvers != null) {
-          this.m_cbvers.push(-1);
+      let child = et;
+
+      if (child.__$wuid < 0 && child.__$contId < 1) {
+        let i = 0;
+
+        for (; i < this.m_childrenTotal; ++i) {
+          if (this.m_children[i] == child) {
+            return;
+          }
         }
 
-        child.__$contId = 1;
-        child.wprocuid = this.wprocuid;
+        if (i >= this.m_childrenTotal) {
+          if (this.m_cbvers != null) {
+            this.m_cbvers.push(-1);
+          }
 
-        child.__$setParent(this);
+          child.__$contId = 1;
+          child.wprocuid = this.wprocuid;
 
-        this.m_children.push(child);
-        this.m_childrenTotal++;
+          child.__$setParent(this);
+
+          this.m_children.push(child);
+          this.m_childrenTotal++;
+        }
       }
     }
   }
 
-  removeChild(child) {
-    if (child != null && child.getParent() == this) {
-      let i = 0;
+  removeChild(et) {
+    if (et != null) {
+      if (et.getREType() < 12) {
+        this.removeEntity(et);
+        return;
+      }
 
-      for (; i < this.m_childrenTotal; ++i) {
-        if (this.m_children[i] == child) {
-          child.__$contId = 0;
-          child.wprocuid = -1;
+      let child = et;
 
-          child.__$setParent(null);
+      if (child.getParent() == this) {
+        for (let i = 0; i < this.m_childrenTotal; ++i) {
+          if (this.m_children[i] == child) {
+            child.__$contId = 0;
+            child.wprocuid = -1;
 
-          this.m_children.splice(i, 1);
+            child.__$setParent(null);
 
-          if (this.m_cbvers != null) {
-            this.m_cbvers.slice(i, 1);
+            this.m_children.splice(i, 1);
+
+            if (this.m_cbvers != null) {
+              this.m_cbvers.slice(i, 1);
+            }
+
+            --this.m_childrenTotal;
+            break;
           }
-
-          --this.m_childrenTotal;
-          break;
         }
       }
     }
@@ -19317,9 +19338,7 @@ class DisplayEntityContainer {
 
   removeChildByUid(uid) {
     if (uid > -1) {
-      let i = 0;
-
-      for (; i < this.m_childrenTotal; ++i) {
+      for (let i = 0; i < this.m_childrenTotal; ++i) {
         if (this.m_children[i].getUid() == uid) {
           this.m_children[i].__$contId = 0;
           this.m_children.splice(i, 1);
@@ -19345,9 +19364,7 @@ class DisplayEntityContainer {
 
   getChildByUid(uid) {
     if (uid > -1) {
-      let i = 0;
-
-      for (; i < this.m_entitiesTotal; ++i) {
+      for (let i = 0; i < this.m_entitiesTotal; ++i) {
         if (this.m_entities[i].getUid() == uid) {
           return this.m_entities[i];
         }
@@ -19361,71 +19378,85 @@ class DisplayEntityContainer {
     return this.m_childrenTotal;
   }
 
-  addEntity(entity) {
-    if (entity.getMesh() == null) {
-      throw Error("Error: entity.getMesh() == null.");
-    } //console.log("container addEntity entity");
-    //if(entity.__$wuid < 0 && entity.__$contId < 1)
-
-
-    if (entity.__$testContainerEnabled()) {
-      let i = 0;
-
-      for (; i < this.m_entitiesTotal; ++i) {
-        if (this.m_entities[i] == entity) {
-          return;
-        }
+  addEntity(et) {
+    if (et != null) {
+      if (et.getREType() >= 12) {
+        this.addChild(et);
+        return;
       }
 
-      if (i >= this.m_entitiesTotal) {
-        this.m_entities.push(entity);
-        this.m_entitiesTotal++;
+      let entity = et;
 
-        if (this.m_ebvers != null) {
-          this.m_ebvers.push(-1);
+      if (entity.getMesh() == null) {
+        throw Error("Error: entity.getMesh() == null.");
+      }
+
+      if (entity.__$testContainerEnabled()) {
+        let i = 0;
+
+        for (; i < this.m_entitiesTotal; ++i) {
+          if (this.m_entities[i] == entity) {
+            return;
+          }
         }
 
-        entity.getTransform().setParentMatrix(this.getMatrix());
+        if (i >= this.m_entitiesTotal) {
+          this.m_entities.push(entity);
+          this.m_entitiesTotal++;
 
-        if (this.__$renderer != null) {
-          //entity.__$contId = 0;
-          entity.__$rseFlag = RSEntityFlag_1.default.RemoveContainerFlag(entity.__$rseFlag);
+          if (this.m_ebvers != null) {
+            this.m_ebvers.push(-1);
+          }
 
-          this.__$renderer.addEntity(this.m_entities[i], this.wprocuid, false);
+          entity.getTransform().setParentMatrix(this.getMatrix());
+
+          if (this.__$renderer != null) {
+            //entity.__$contId = 0;
+            entity.__$rseFlag = RSEntityFlag_1.default.RemoveContainerFlag(entity.__$rseFlag);
+
+            this.__$renderer.addEntity(this.m_entities[i], this.wprocuid, false);
+          }
+
+          entity.__$rseFlag = RSEntityFlag_1.default.AddContainerFlag(entity.__$rseFlag);
+
+          entity.__$setParent(this);
+
+          entity.update();
         }
-
-        entity.__$rseFlag = RSEntityFlag_1.default.AddContainerFlag(entity.__$rseFlag);
-
-        entity.__$setParent(this);
-
-        entity.update();
       }
     }
   }
 
-  removeEntity(entity) {
-    if (entity != null && entity.__$getParent() == this) {
-      let i = 0;
+  removeEntity(et) {
+    if (et != null) {
+      if (et.getREType() >= 12) {
+        this.removeChild(et);
+        return;
+      }
 
-      for (; i < this.m_entitiesTotal; ++i) {
-        if (this.m_entities[i] == entity) {
-          entity.__$rseFlag = RSEntityFlag_1.default.RemoveContainerFlag(entity.__$rseFlag);
+      let entity = et;
 
-          this.m_entities[i].__$setParent(null);
+      if (entity.__$getParent() == this) {
+        for (let i = 0; i < this.m_entitiesTotal; ++i) {
+          if (this.m_entities[i] == entity) {
+            entity.__$rseFlag = RSEntityFlag_1.default.RemoveContainerFlag(entity.__$rseFlag);
 
-          this.m_entities.splice(i, 1);
+            this.m_entities[i].__$setParent(null);
 
-          if (this.m_ebvers != null) {
-            this.m_ebvers.slice(i, 1);
+            this.m_entities.splice(i, 1);
+
+            if (this.m_ebvers != null) {
+              this.m_ebvers.slice(i, 1);
+            }
+
+            --this.m_entitiesTotal;
+
+            if (this.__$renderer != null) {
+              this.__$renderer.removeEntity(entity);
+            }
+
+            break;
           }
-
-          --this.m_entitiesTotal;
-
-          if (this.__$renderer != null) {
-            this.__$renderer.removeEntity(entity);
-          }
-
-          break;
         }
       }
     }
@@ -19433,9 +19464,7 @@ class DisplayEntityContainer {
 
   removeEntityByUid(uid) {
     if (uid > -1) {
-      let i = 0;
-
-      for (; i < this.m_entitiesTotal; ++i) {
+      for (let i = 0; i < this.m_entitiesTotal; ++i) {
         if (this.m_entities[i].getUid() == uid) {
           this.m_entities[i].__$rseFlag = RSEntityFlag_1.default.RemoveContainerFlag(this.m_entities[i].__$rseFlag);
 
@@ -19486,9 +19515,7 @@ class DisplayEntityContainer {
 
   getEntityByUid(uid) {
     if (uid > -1) {
-      let i = 0;
-
-      for (; i < this.m_entitiesTotal; ++i) {
+      for (let i = 0; i < this.m_entitiesTotal; ++i) {
         if (this.m_entities[i].getUid() == uid) {
           return this.m_entities[i];
         }
@@ -19787,7 +19814,7 @@ class DisplayEntityContainer {
       }
     }
 
-    this.m_transformStatus |= 2; //this.update();    
+    this.m_transformStatus |= 2; //this.update();
 
     let i = 0;
 
@@ -24795,6 +24822,152 @@ class RTTTextureProxy extends TextureProxy_1.default {
 }
 
 exports.default = RTTTextureProxy;
+
+/***/ }),
+
+/***/ "d031":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class VtxDrawingInfo {
+  // rdp: IROIvsRDP = null;
+  constructor() {
+    this.m_uid = VtxDrawingInfo.s_uid++;
+    this.m_ivsIndex = -1;
+    this.m_ivsCount = -1;
+    this.m_wireframe = false;
+    this.m_ver = 0; // private m_sts = new Uint8Array([0, 0, 0, 0]);
+
+    this.m_unlock = true;
+    this.m_ivsDataIndex = 0;
+    this.m_insCount = 0;
+  }
+
+  destroy() {// if (this.rdp != null) {
+    //     this.rdp.clear();
+    //     this.rdp = null;
+    // }
+  }
+
+  lock() {
+    this.m_unlock = false;
+  }
+
+  unlock() {
+    this.m_unlock = true;
+  }
+
+  isUnlock() {
+    return this.m_unlock;
+  }
+
+  setInstanceCount(insCount) {
+    if (this.m_unlock && this.m_insCount != insCount) {
+      this.m_insCount = insCount;
+      this.m_ver++; // this.m_sts[2] = 1;
+    }
+  }
+
+  setWireframe(wireframe) {
+    if (this.m_unlock && this.m_wireframe != wireframe) {
+      this.m_wireframe = wireframe;
+      this.m_ver++; // this.m_sts[2] = 1;
+    }
+  }
+
+  applyIvsDataAt(index) {
+    if (index >= 0 && this.m_ivsDataIndex != index) {
+      this.m_ver++; // this.m_sts[3] = 1;
+
+      this.m_ivsDataIndex = index;
+    }
+  }
+
+  setIvsParam(ivsIndex = -1, ivsCount = -1) {
+    if (this.m_unlock) {
+      if (ivsIndex >= 0 && this.m_ivsIndex != ivsIndex) {
+        this.m_ivsIndex = ivsIndex;
+        this.m_ver++; // this.m_sts[1] = 1;
+      }
+
+      if (ivsCount >= 0 && this.m_ivsCount != ivsCount) {
+        this.m_ivsCount = ivsCount;
+        this.m_ver++; // this.m_sts[1] = 1;
+      }
+    }
+  }
+
+  reset() {
+    this.m_ver = 0;
+  }
+
+  __$$copyToRDP(rdp) {
+    // console.log("__$$copyToRDP() ...rdp.getUid(): ", rdp.getUid());
+    if (rdp) {
+      // const rdp = this.rdp;
+      if (this.m_unlock) {
+        // console.log("info rdp.getUid(): ", rdp.getUid(), this.m_uid);
+        const ver = this.m_ver * 31 + this.m_uid;
+
+        if (rdp.ver != ver) {
+          rdp.ver = ver; // console.log("__$$copyToRDP() ...rdp.getUid(): ", rdp.getUid(), ", this.m_uid: ", this.m_uid);
+
+          rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
+
+          if (this.m_wireframe) {
+            rdp.toWireframe();
+          } else {
+            rdp.toCommon();
+          }
+
+          rdp.applyRDPAt(this.m_ivsDataIndex); // if (this.m_sts[1] > 0) {
+          //     this.m_sts[1] = 0;
+          //     // console.log("__$$copyToRDP() ...rdp.setIvsParam(): ", this.m_ivsIndex, this.m_ivsCount);
+          //     rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
+          // }
+          // if (this.m_sts[2] > 0) {
+          //     this.m_sts[2] = 0;
+          //     if (this.m_wireframe) {
+          //         rdp.toWireframe();
+          //     } else {
+          //         rdp.toCommon();
+          //     }
+          // }
+          // if (this.m_sts[3] > 0) {
+          //     this.m_sts[3] = 0;
+          //     rdp.applyRDPAt(this.m_ivsDataIndex);
+          // }
+          // this.reset();
+        }
+      }
+
+      return rdp.test();
+    }
+
+    return false;
+  }
+
+}
+
+VtxDrawingInfo.s_uid = 0;
+exports.default = VtxDrawingInfo;
 
 /***/ }),
 
