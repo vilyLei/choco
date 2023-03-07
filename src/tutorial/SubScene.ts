@@ -60,7 +60,6 @@ export class SubScene {
     }
 
 	mouseDownListener(evt: any): void {
-		// DebugFlag.Flag_0 = 1;
 		console.log("mouse down ...");
 	}
 	private enterFrame(): void {

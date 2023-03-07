@@ -11,7 +11,9 @@
 
 // import { RenderingState as Demo } from "./tutorial/RenderingState";
 
-import { SubScene as Demo } from "./tutorial/SubScene";
+// import { SubScene as Demo } from "./tutorial/SubScene";
+
+import { EntityContainer as Demo } from "./tutorial/EntityContainer";
 
 document.title = "tutorial";
 (document as any).demoState = 1;
