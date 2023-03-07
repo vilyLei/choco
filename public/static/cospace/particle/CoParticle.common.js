@@ -2641,7 +2641,6 @@ class BillboardMesh {
     this.m_ivs = null;
     this.flipVerticalUV = false;
     this.vtxUVEnabled = true;
-    this.mesh = CoRScene.createDataMesh();
   }
 
   initialize(pwidth, pheight) {
@@ -2667,8 +2666,7 @@ class BillboardMesh {
       }
     }
 
-    let mh = this.mesh;
-    mh.vsStride = 2;
+    let mh = CoRScene.createDataMesh();
     mh.autoBuilding = false;
     mh.vtxTotal = 4;
     mh.trisNumber = 2;
@@ -2677,9 +2675,10 @@ class BillboardMesh {
     mh.bounds.min.setXYZ(minX, minY, minX);
     mh.bounds.max.setXYZ(maxX, maxY, maxX);
     mh.bounds.updateFast();
-    mh.setVS(this.m_vs);
+    mh.setVS(this.m_vs, 2);
     mh.setUVS(this.m_uvs);
     mh.setIVS(this.m_ivs);
+    this.mesh = mh;
   }
 
   destroy() {

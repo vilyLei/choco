@@ -9255,8 +9255,8 @@ class BufRDataPair {
   }
 
   destroy(vrc) {
-    this.r0.destroy(vrc);
-    this.r1.destroy(vrc);
+    if (this.r0 != null) this.r0.destroy(vrc);
+    if (this.r1 != null) this.r1.destroy(vrc);
     this.r0 = null;
     this.r1 = null;
     this.rd = null;
@@ -14828,9 +14828,6 @@ class RODrawState {
 
   setBlendMode(mode, params) {
     if (this.m_blendMode != mode) {
-      // if(DebugFlag.Flag_0 > 0) {
-      //     console.log("this.m_blendMode: ",this.m_blendMode,",mode: ",mode,",params: ", params);
-      // }
       this.m_blendMode = mode;
 
       if (mode > 0) {
@@ -14873,9 +14870,6 @@ class RODrawState {
           break;
 
         case DTM.OPAQUE:
-          // if(DebugFlag.Flag_0 > 0) {
-          //     console.log("setDepthTestMode(), TRUE_LESS");
-          // }
           //console.log("OPAQUE type: ", type,gl.LESS);
           gl.depthMask(true);
           gl.depthFunc(gl.LESS);
@@ -14897,9 +14891,6 @@ class RODrawState {
           break;
 
         case DTM.WIRE_FRAME:
-          // if(DebugFlag.Flag_0 > 0) {
-          //     console.log("setDepthTestMode(), TRUE_LEQUAL");
-          // }
           gl.depthMask(true);
           gl.depthFunc(gl.LEQUAL);
           break;

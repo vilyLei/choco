@@ -211,6 +211,11 @@ class LayouterBase {
     this.m_entities = [];
     this.m_opvs = [];
     this.m_initRect = null;
+    this.m_offsetV = CoMath.createVec3();
+  }
+
+  setOffset(offsetV) {
+    this.m_offsetV.copyFrom(offsetV);
   }
 
   addUIEntity(entity) {
@@ -848,6 +853,7 @@ class ClipLabel extends ClipLabelBase_1.ClipLabelBase {
       let mesh = this.createMesh(atlas, idnsList);
       this.m_vtCount = mesh.vtCount;
       this.m_material = this.createMaterial(obj.texture);
+      this.m_material.vtxInfo = CoRScene.createVtxDrawingInfo();
       let et = CoEntity.createDisplayEntity();
       et.setMaterial(this.m_material);
       et.setMesh(mesh);
@@ -884,6 +890,7 @@ class ClipLabel extends ClipLabelBase_1.ClipLabelBase {
 
         this.m_vtCount = mesh.vtCount;
         this.m_material = this.createMaterial(tex);
+        this.m_material.vtxInfo = CoRScene.createVtxDrawingInfo();
         let et = CoEntity.createDisplayEntity();
         et.setMaterial(this.m_material);
         et.setMesh(mesh);
@@ -926,7 +933,7 @@ class ClipLabel extends ClipLabelBase_1.ClipLabelBase {
       let ls = this.m_entities;
 
       for (let k = 0; k < ls.length; ++k) {
-        ls[k].setIvsParam(i * this.m_step, this.m_step);
+        ls[k].getMaterial().vtxInfo.setIvsParam(i * this.m_step, this.m_step);
       }
 
       i = i << 1;
@@ -1829,8 +1836,8 @@ class RightBottomLayouter extends LayouterBase_1.LayouterBase {
 
     for (let i = 0; i < len; ++i) {
       pv.copyFrom(this.m_offsetvs[i]);
-      pv.x = rect.width - pv.x; // pv.y = rect.height - pv.y;
-
+      pv.x = rect.width - pv.x;
+      pv.addBy(this.m_offsetV);
       ls[i].setPosition(pv);
       ls[i].update();
     }
@@ -2804,6 +2811,7 @@ class UIEntityBase {
 
   getPosition(pv) {
     pv.copyFrom(this.m_pos);
+    return pv;
   }
 
   setRotation(r) {
@@ -2941,8 +2949,11 @@ class FreeLayouter extends LayouterBase_1.LayouterBase {
   update(rect) {
     const ls = this.m_entities;
     const len = ls.length;
+    let pv = CoMath.createVec3();
 
     for (let i = 0; i < len; ++i) {
+      ls[i].getPosition(pv).addBy(this.m_offsetV);
+      ls[i].setPosition(pv);
       ls[i].update();
     }
   }
@@ -3487,6 +3498,7 @@ class LeftTopLayouter extends LayouterBase_1.LayouterBase {
     for (let i = 0; i < len; ++i) {
       pv.copyFrom(this.m_offsetvs[i]);
       pv.y = rect.height - pv.y;
+      pv.addBy(this.m_offsetV);
       ls[i].setPosition(pv);
       ls[i].update();
     }
@@ -3609,6 +3621,7 @@ class RightTopLayouter extends LayouterBase_1.LayouterBase {
       pv.copyFrom(this.m_offsetvs[i]);
       pv.x = rect.width - pv.x;
       pv.y = rect.height - pv.y;
+      pv.addBy(this.m_offsetV);
       ls[i].setPosition(pv);
       ls[i].update();
     }
@@ -3653,9 +3666,9 @@ const FreeLayouter_1 = __webpack_require__("b997");
 
 class UILayout {
   constructor() {
-    this.m_layouters = [];
-    this.m_uirsc = null;
-    this.m_stage = null;
+    this.m_layouters = []; // private m_uirsc: IRendererScene = null;
+    // private m_stage: IRenderStage3D = null;
+
     this.m_rect = null;
   }
 
@@ -4073,7 +4086,7 @@ class CoUIScene {
       this.m_crscene = crscene != null ? crscene : CoRScene.getRendererScene();
       crscene = this.m_crscene;
       let stage = this.m_crscene.getStage3D();
-      crscene.addEventListener(CoRScene.EventBase.RESIZE, this, this.resize);
+      crscene.addEventListener(CoRScene.EventBase.RESIZE, this, this.resizeHandle);
       let rparam = CoRScene.createRendererSceneParam();
       rparam.cameraPerspectiveEnabled = false;
       rparam.setAttriAlpha(false);
@@ -4155,12 +4168,17 @@ class CoUIScene {
     return this.m_stageRect;
   }
 
-  resize(evt) {
+  resize() {
     let st = this.m_rstage;
     let uicamera = this.rscene.getCamera();
     uicamera.translationXYZ(st.stageHalfWidth, st.stageHalfHeight, 1500.0);
     uicamera.update();
-    this.m_stageRect.setTo(0, 0, st.stageWidth, st.stageHeight);
+    this.m_stageRect.setTo(0, 0, st.stageWidth, st.stageHeight); // this.layout.update( this.m_stageRect );
+
+    this.updateLayout();
+  }
+
+  updateLayout() {
     this.layout.update(this.m_stageRect);
   }
 
@@ -4168,6 +4186,10 @@ class CoUIScene {
     if (this.rscene != null) {
       this.rscene.run();
     }
+  }
+
+  resizeHandle(evt) {
+    this.resize();
   }
 
 }
