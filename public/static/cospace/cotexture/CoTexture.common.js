@@ -214,6 +214,43 @@ class ImageTexAtlas extends TextureAtlas_1.default {
     return canvas;
   }
 
+  static CreateCharsCanvasWithSize(width, height, offsetW, offsetH, chars, fontSize, fontColor = null, bgColor = null) {
+    if (fontColor == null) {
+      fontColor = CoMaterial.createColor4(0, 0, 0, 1.0);
+    }
+
+    if (bgColor == null) {
+      bgColor = CoMaterial.createColor4();
+    }
+
+    width = 0 | width;
+    height = 0 | height;
+    let texImg = ImageTexAtlas.CreateCharsCanvas(chars, fontSize, fontColor, bgColor);
+
+    if (width == texImg.width && height == texImg.height) {
+      return texImg;
+    }
+
+    if (width < texImg.width) {
+      console.warn("width < texImg.width in the CreateCharsCanvasWithSize function.");
+      width = Math.round(texImg.width) + offsetW;
+    }
+
+    if (height < texImg.height) {
+      console.warn("height < texImg.height in the CreateCharsCanvasWithSize function.");
+      height = Math.round(texImg.height) + offsetH;
+    }
+
+    let sx = Math.round((width - texImg.width) * 0.5);
+    let sy = Math.round((height - texImg.height) * 0.5);
+    let canvas = ImageTexAtlas.CreateCanvas(width, height, null);
+    let ctx2D = canvas.getContext("2d");
+    ctx2D.fillStyle = bgColor.getCSSDecRGBAColor();
+    ctx2D.fillRect(0, 0, width, height);
+    ctx2D.drawImage(texImg, sx, sy, texImg.width, texImg.height);
+    return canvas;
+  }
+
   static CreateCharsCanvasFixSize(width, height, chars, fontSize, fontColor = null, bgColor = null) {
     if (fontColor == null) {
       fontColor = CoMaterial.createColor4(0, 0, 0, 1.0);
@@ -1189,6 +1226,10 @@ class CanvasTexAtlas {
 
   createCanvas(width, height, bgColor = null, transparent = true) {
     return ImageTexAtlas_1.default.CreateCanvas(width, height, bgColor, transparent);
+  }
+
+  createCharsCanvasWithSize(width, height, offsetW, offsetH, chars, fontSize, fontColor = null, bgColor = null) {
+    return ImageTexAtlas_1.default.CreateCharsCanvasWithSize(width, height, offsetW, offsetH, chars, fontSize, fontColor, bgColor);
   }
 
   createCharsCanvasFixSize(width, height, chars, fontSize, fontColor = null, bgColor = null) {

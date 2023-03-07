@@ -1,6 +1,5 @@
 
 (document as any).demoState = 1;
-document.title = "tutorial";
 
 // import { EmptyScene as Demo } from "./tutorial/EmptyScene";
 // import { MouseInteraction as Demo } from "./tutorial/MouseInteraction";
@@ -16,8 +15,10 @@ document.title = "tutorial";
 
 // import { SubScene as Demo } from "./tutorial/SubScene";
 
-import { EntityContainer as Demo } from "./tutorial/EntityContainer";
+// import { EntityContainer as Demo } from "./tutorial/EntityContainer";
 
+import { UIButton as Demo } from "./tutorial/UIButton";
+document.title = "choco:tutorial";
 
 let ins = new Demo() as any;
 
