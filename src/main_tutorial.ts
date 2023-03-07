@@ -15,9 +15,10 @@
 
 // import { SubScene as Demo } from "./tutorial/SubScene";
 // import { EntityContainer as Demo } from "./tutorial/EntityContainer";
+import { PBRClock as Demo } from "./tutorial/PBRClock";
 
 // import { UIButton as Demo } from "./tutorial/UIButton";
-import { UIButtonGroup as Demo } from "./tutorial/UIButtonGroup";
+// import { UIButtonGroup as Demo } from "./tutorial/UIButtonGroup";
 
 document.title = "choco:tutorial";
 
