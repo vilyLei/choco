@@ -83,8 +83,8 @@ export class UIButton {
 	}
 	private applyColors(btn: IButton): void {
 		
-		let colorHexList0 = [0x4CAF50, 0x00AC6A, 0x6CCF70, 0x00AC6A];
-		let colorHexList1 = [0x5dbea3, 0x33b249, 0x5adbb5, 0x33b249];
+		let colorHexList0 = [0x4CAF50, 0x00AC6A, 0x6CCF70];
+		let colorHexList1 = [0x5dbea3, 0x33b249, 0x5adbb5];
 		let colorHexList = colorHexList1;
 		
 		let label = btn.getLable() as IClipColorLabel;

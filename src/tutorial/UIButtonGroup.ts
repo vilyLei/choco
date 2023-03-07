@@ -77,14 +77,14 @@ export class UIButtonGroup {
 		btnDown.setXY(200, 100);
 		this.m_uiScene.addEntity(btnDown);
 		btnDown.addEventListener(MouseEvent.MOUSE_DOWN, this, this.buttonMouseDown);
-		// this.applyDeselectColors(btnDown);
+		this.applyDeselectColors(btnDown);
 		this.m_btnGroup.addButton(btnDown);
 
 		let btnUp = VoxUI.createTextLabelButton("move_up", "Move Up", 170, 50, textColor);
 		btnUp.setXY(200, 170);
 		this.m_uiScene.addEntity(btnUp);
 		btnUp.addEventListener(MouseEvent.MOUSE_DOWN, this, this.buttonMouseDown);
-		// this.applyDeselectColors(btnUp);
+		this.applyDeselectColors(btnUp);
 		this.m_btnGroup.addButton(btnUp);
 
 		this.m_btnGroup.setSelectedFunction(
@@ -102,14 +102,14 @@ export class UIButtonGroup {
 	}
 	private applySelectColors(btn: IButton): void {
 		
-		let colorHexList = [0x4CAF50, 0x00AC6A, 0x6CCF70, 0x00AC6A];
+		let colorHexList = [0x4CAF50, 0xAAAC6A, 0x6CCF70];
 		
 		let label = btn.getLable() as IClipColorLabel;
 		label.setColorsWithHex(colorHexList);
 	}
 	private applyDeselectColors(btn: IButton): void {
 		
-		let colorHexList = [0x5dbea3, 0x33b249, 0x5adbb5, 0x33b249];		
+		let colorHexList = [0x5dbea3, 0x33b249, 0x5adbb5];		
 		let label = btn.getLable() as IClipColorLabel;
 		label.setColorsWithHex(colorHexList);
 	}
