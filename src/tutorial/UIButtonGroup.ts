@@ -3,11 +3,7 @@ import { MouseEvent, EventBase, VoxRScene } from "../engine/cospace/voxengine/Vo
 import { VoxUIInteraction } from "../engine/cospace/voxengine/ui/VoxUIInteraction";
 import { VoxEntity } from "../engine/cospace/voxentity/VoxEntity";
 import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
-import { VoxMath } from "../engine/cospace/math/VoxMath";
-import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
-import IDisplayEntityContainer from "../engine/vox/entity/IDisplayEntityContainer";
-import IColor4 from "../engine/vox/material/IColor4";
 import IRendererSceneGraph from "../engine/vox/scene/IRendererSceneGraph";
 import { IVoxUIScene } from "../engine/voxui/scene/IVoxUIScene";
 import { VoxUI } from "../engine/voxui/VoxUI";

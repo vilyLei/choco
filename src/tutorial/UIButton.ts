@@ -3,11 +3,7 @@ import { MouseEvent, EventBase, VoxRScene } from "../engine/cospace/voxengine/Vo
 import { VoxUIInteraction } from "../engine/cospace/voxengine/ui/VoxUIInteraction";
 import { VoxEntity } from "../engine/cospace/voxentity/VoxEntity";
 import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
-import { VoxMath } from "../engine/cospace/math/VoxMath";
-import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
-import IDisplayEntityContainer from "../engine/vox/entity/IDisplayEntityContainer";
-import IColor4 from "../engine/vox/material/IColor4";
 import IRendererSceneGraph from "../engine/vox/scene/IRendererSceneGraph";
 import { IVoxUIScene } from "../engine/voxui/scene/IVoxUIScene";
 import { VoxUI } from "../engine/voxui/VoxUI";
@@ -83,9 +79,7 @@ export class UIButton {
 	}
 	private applyColors(btn: IButton): void {
 		
-		let colorHexList0 = [0x4CAF50, 0x00AC6A, 0x6CCF70];
-		let colorHexList1 = [0x5dbea3, 0x33b249, 0x5adbb5];
-		let colorHexList = colorHexList1;
+		let colorHexList = [0x5dbea3, 0x33b249, 0x5adbb5];
 		
 		let label = btn.getLable() as IClipColorLabel;
 		label.setColorsWithHex(colorHexList);
