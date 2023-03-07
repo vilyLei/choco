@@ -766,6 +766,10 @@ class ClipColorLabel extends ClipLabelBase_1.ClipLabelBase {
         ls[i].copyFrom(colors[i]);
       }
 
+      if (len == 3 && ls.length == 4) {
+        ls[3].copyFrom(colors[1]);
+      }
+
       this.setClipIndex(this.m_index);
     }
   }
@@ -781,6 +785,10 @@ class ClipColorLabel extends ClipLabelBase_1.ClipLabelBase {
 
       for (let i = 0; i < len; ++i) {
         ls[i].setRGBUint24(colors[i]);
+      }
+
+      if (len == 3 && ls.length == 4) {
+        ls[3].setRGBUint24(colors[1]);
       }
 
       this.setClipIndex(this.m_index);
@@ -6453,6 +6461,10 @@ class ColorClipLabel extends UIEntityBase_1.UIEntityBase {
         ls[i].copyFrom(colors[i]);
       }
 
+      if (len == 3 && ls.length == 4) {
+        ls[3].copyFrom(colors[1]);
+      }
+
       this.setClipIndex(this.m_index);
     }
   }
@@ -6468,6 +6480,10 @@ class ColorClipLabel extends UIEntityBase_1.UIEntityBase {
 
       for (let i = 0; i < len; ++i) {
         ls[i].setRGBUint24(colors[i]);
+      }
+
+      if (len == 3 && ls.length == 4) {
+        ls[3].setRGBUint24(colors[1]);
       }
 
       this.setClipIndex(this.m_index);
