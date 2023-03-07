@@ -92,6 +92,10 @@ export class SubScene {
         graph.addEventListener(MouseEvent.MOUSE_DOWN, this, this.mouseDownListener);
         graph.addEventListener(EventBase.ENTER_FRAME, this, this.enterFrame);
 
+        this.initMainScene();
+        this.initSubScene();
+    }
+    private initMainScene(): void {
 
         let boxMaterial = VoxMaterial.createDefaultMaterial();
         boxMaterial.setTextureList([this.getTexByUrl("static/assets/wood_02.jpg")]);
@@ -99,6 +103,9 @@ export class SubScene {
         box.setXYZ(350, 0, 0);
         this.m_rscene.addEntity(box);
         this.m_rscene.addEntity(VoxEntity.createAxis3DEntity(300));
+    }
+    
+    private initSubScene(): void {
 
         let bgPlane = VoxEntity.createFixScreenPlane();
         (bgPlane.getMaterial() as IDefault3DMaterial).setRGB3f(0.1, 0.3, 0.1);
