@@ -43,6 +43,7 @@ export default interface IRenderEntityContainer extends IRenderEntityBase {
      */
     getRotationXYZ(rv?: IVector3D): IVector3D;
     setScaleXYZ(sx: number, sy: number, sz: number): void;
+    setRotationY(ry: number): void;
     
     /**
      * @param sv the default value is null

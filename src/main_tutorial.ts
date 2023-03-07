@@ -1,4 +1,7 @@
 
+(document as any).demoState = 1;
+document.title = "tutorial";
+
 // import { EmptyScene as Demo } from "./tutorial/EmptyScene";
 // import { MouseInteraction as Demo } from "./tutorial/MouseInteraction";
 // import { Primitives as Demo } from "./tutorial/Primitives";
@@ -15,8 +18,6 @@
 
 import { EntityContainer as Demo } from "./tutorial/EntityContainer";
 
-document.title = "tutorial";
-(document as any).demoState = 1;
 
 let ins = new Demo() as any;
 
