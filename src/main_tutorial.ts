@@ -14,12 +14,10 @@
 // import { RenderingState as Demo } from "./tutorial/RenderingState";
 
 // import { SubScene as Demo } from "./tutorial/SubScene";
-
 // import { EntityContainer as Demo } from "./tutorial/EntityContainer";
 
-// import { UIButton as Demo } from "./tutorial/UIButton";
-
-import { UIButtonGroup as Demo } from "./tutorial/UIButtonGroup";
+import { UIButton as Demo } from "./tutorial/UIButton";
+// import { UIButtonGroup as Demo } from "./tutorial/UIButtonGroup";
 
 document.title = "choco:tutorial";
 
