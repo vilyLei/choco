@@ -95,7 +95,7 @@ export class UIButtonGroup {
 				this.applyDeselectColors(btn);
 			}
 		);
-		let selectKey = "move_up";
+		let selectKey = btnUp.uuid;
 		if(selectKey != "") {
 			this.m_btnGroup.select(selectKey);
 		}
