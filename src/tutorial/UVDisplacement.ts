@@ -6,6 +6,7 @@ import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
 import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
 import IRenderMaterial from "../engine/vox/render/IRenderMaterial";
+import TextureResLoader from "../engine/vox/assets/TextureResLoader";
 
 
 
@@ -40,6 +41,7 @@ void main()
 
 export class UVDisplacement {
 	private m_rscene: IRendererScene = null;
+	private m_texLoader: TextureResLoader;
 	constructor() {}
 
 	initialize(): void {
@@ -63,6 +65,7 @@ export class UVDisplacement {
 		this.m_rscene = VoxRScene.createRendererScene()
 			.initialize(null)
 			.setAutoRunning(true);
+		this.m_texLoader = new TextureResLoader(this.m_rscene);
 	}
 
 	private m_paramData = new Float32Array([0.0, 0.0, 0.0, 0.0]);
@@ -87,13 +90,7 @@ export class UVDisplacement {
         return material;
     }
 	private getTexByUrl(url: string): IRenderTexture {
-		let tex = this.m_rscene.textureBlock.createImageTex2D();
-		let img = new Image();
-		img.onload = (): void => {
-			tex.setDataFromImage(img);
-		};
-		img.src = url;
-		return tex;
+		return this.m_texLoader.getTexByUrl(url);
 	}
 	private init3DScene(): void {
 
