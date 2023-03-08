@@ -93,11 +93,11 @@ class AnimationScene {
 	initialize(sc: IRendererScene): void {
 		if (this.m_rscene == null && sc != null) {
 			this.m_rscene = sc;
-            
+
             this.m_pbr.sharedLightColor = false;
 			this.m_pbr.initialize(this.m_rscene);
 
-			this.m_time = Date.now();
+			this.m_time = Date.now() + Math.random() * 321.0;
 			let begin = VoxMath.createVec3(-300, 0, 300);
 			let offsetV = VoxMath.createVec3(30, 0, -30);
 			for (let i = 0; i < 20; ++i) {

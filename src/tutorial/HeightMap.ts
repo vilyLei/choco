@@ -6,7 +6,7 @@ import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
 import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
 
-export class Texture {
+export class HeightMap {
 	private m_rscene: IRendererScene = null;
 	constructor() {}
 
@@ -58,10 +58,10 @@ export class Texture {
 	}
 }
 
-export default Texture;
+export default HeightMap;
 
 // for running instance
 if (!(document as any).demoState) {
-	let ins = new Texture();
+	let ins = new HeightMap();
 	ins.initialize();
 }

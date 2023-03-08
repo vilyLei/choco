@@ -114,4 +114,5 @@ export default Shader;
 if(!((document as any).demoState)) {
     let ins = new Shader();
     ins.initialize();
+	document.title = "tutorial:Shader";
 }

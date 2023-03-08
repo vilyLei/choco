@@ -18072,6 +18072,8 @@ class RendererSceneBase {
   /**
    * the function resets the renderer scene status.
    * you should use it on the frame starting time.
+   * @param autoCycle the default value is true
+   * @param contextBeginEnabled the default value is true
    */
 
 
@@ -20487,6 +20489,18 @@ class FBOInstance {
 
   setRenderToRTTTextureAt(systemRTTTexIndex, outputIndex = 0) {
     this.setRenderToTexture(this.m_texStore.getRTTTextureAt(systemRTTTexIndex), outputIndex);
+  }
+  /**
+   * 设置渲染到纹理的目标纹理对象(cube RTT 纹理类型的目标纹理)和framebuffer output attachment index
+   * @param systemCubeRTTTexIndex 作为渲染到目标的目标纹理对象在系统cube rtt 纹理中的序号(0 -> 15)
+   * @param outputIndex framebuffer output attachment index, the default value is 0
+   */
+
+
+  setRenderToCubeRTTTextureAt(systemCubeRTTTexIndex, outputIndex = 0) {
+    this.asynFBOSizeWithViewport();
+    const cubeMap = this.m_texStore.getCubeRTTTextureAt(systemCubeRTTTexIndex);
+    this.setRenderToTexture(cubeMap, outputIndex);
   }
   /**
    * 设置渲染到纹理的目标纹理对象(Float RTT 纹理类型的目标纹理)和framebuffer output attachment index
@@ -24825,10 +24839,6 @@ class RTTTextureProxy extends TextureProxy_1.default {
       default:
         break;
     }
-  }
-
-  toString() {
-    return "[RTTTextureProxy(name:" + this.name + ",uid=" + this.getUid() + ",width=" + this.getWidth() + ",height=" + this.getHeight() + ")]";
   }
 
 }

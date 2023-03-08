@@ -18,6 +18,7 @@
 // import { SubScene as Demo } from "./tutorial/SubScene";
 // import { EntityContainer as Demo } from "./tutorial/EntityContainer";
 // import { PBRClock as Demo } from "./tutorial/PBRClock";
+// import { AnimationContainer as Demo } from "./tutorial/AnimationContainer";
 
 // import { UIButton as Demo } from "./tutorial/UIButton";
 // import { UIButtonGroup as Demo } from "./tutorial/UIButtonGroup";
@@ -26,7 +27,13 @@
 
 // import { MRT as Demo } from "./tutorial/MRT";
 
-import { CubeMRT as Demo } from "./tutorial/CubeMRT";
+// import { CubeMRT as Demo } from "./tutorial/CubeMRT";
+
+import { UVDisplacement as Demo } from "./tutorial/UVDisplacement";
+// import { NormalMap as Demo } from "./tutorial/NormalMap";
+// import { HeightMap as Demo } from "./tutorial/HeightMap";
+
+// import { StencilTest as Demo } from "./tutorial/StencilTest";
 
 document.title = "choco:tutorial";
 
