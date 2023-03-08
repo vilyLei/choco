@@ -13,121 +13,129 @@ import IColor4 from "../engine/vox/material/IColor4";
 import IVector3D from "../engine/vox/math/IVector3D";
 
 class PBRLighting {
+	private m_rscene: IRendererScene = null;
+	private m_envMap: IRenderTexture;
+	sharedLightColor = true;
+	/**
+	 * 记录点光源灯光位置
+	 */
+	private m_lightPosList: IVector3D[];
+	/**
+	 * 记录点光源灯光颜色
+	 */
+	private m_lightColorList: IColor4[];
+	initialize(rscene: IRendererScene): void {
+		this.m_rscene = rscene;
+		this.initRenderingData();
+	}
+	private initRenderingData(): void {
+		let envMapUrl = "static/assets/bytes/spe.mdf";
 
-    private m_rscene: IRendererScene = null;
-    private m_envMap: IRenderTexture;
-    /**
-     * 记录点光源灯光位置
-     */
-     private m_lightPosList: IVector3D[];
-     /**
-      * 记录点光源灯光颜色
-      */
-     private m_lightColorList: IColor4[];
-     initialize(rscene: IRendererScene): void {
-        this.m_rscene = rscene;
-        this.initRenderingData();
-     }
-     private initRenderingData(): void {
-         
-         let envMapUrl = "static/assets/bytes/spe.mdf";
- 
-         let loader = new BinaryTextureLoader(this.m_rscene);
-         loader.loadTextureWithUrl(envMapUrl);
-         this.m_envMap = loader.texture;
- 
-         const color = VoxMaterial.createColor4();
-         const vec3 = VoxMath.createVec3();
-         let dis = 700.0;
-         let disY = 400.0;
-         this.m_lightPosList = [
-             vec3.clone().setXYZ(-dis, disY, -dis),
-             vec3.clone().setXYZ(dis, disY, dis),
-             vec3.clone().setXYZ(dis, disY, -dis),
-             vec3.clone().setXYZ(-dis, disY, dis)
-         ];
-         let colorSize = 300.0;
-         this.m_lightColorList = [
-             color.clone().randomRGB(colorSize),
-             color.clone().randomRGB(colorSize),
-             color.clone().randomRGB(colorSize),
-             color.clone().randomRGB(colorSize)
-         ];
-     }
-     createMaterial(roughness: number, metallic: number, ao: number = 1.0): IRenderMaterial {
- 
-         let wrapper = new PBREnvLightingMaterialWrapper();
-         wrapper.setTextureList([this.m_envMap]);
- 
-         for (let i = 0; i < 4; ++i) {
-             wrapper.setPosAt(i, this.m_lightPosList[i]);
-             wrapper.setColorAt(i, this.m_lightColorList[i]);
-         }
-         wrapper.setRoughness(roughness);
-         wrapper.setMetallic(metallic);
-         wrapper.setAO(ao);
-         wrapper.setAlbedoColor( VoxMaterial.createColor4().randomRGB(1.0) );
-         return wrapper.material;
-     }
+		let loader = new BinaryTextureLoader(this.m_rscene);
+		loader.loadTextureWithUrl(envMapUrl);
+		this.m_envMap = loader.texture;
+
+		const color = VoxMaterial.createColor4();
+		const vec3 = VoxMath.createVec3();
+		let dis = 700.0;
+		let disY = 400.0;
+		this.m_lightPosList = [
+			vec3.clone().setXYZ(-dis, disY, -dis),
+			vec3.clone().setXYZ(dis, disY, dis),
+			vec3.clone().setXYZ(dis, disY, -dis),
+			vec3.clone().setXYZ(-dis, disY, dis)
+		];
+
+		if (this.sharedLightColor) {
+			this.initLightColor();
+		}
+	}
+	private initLightColor(): void {
+		const color = VoxMaterial.createColor4();
+		let colorSize = 300.0;
+		this.m_lightColorList = [
+			color.clone().randomRGB(colorSize),
+			color.clone().randomRGB(colorSize),
+			color.clone().randomRGB(colorSize),
+			color.clone().randomRGB(colorSize)
+		];
+	}
+	createMaterial(roughness: number, metallic: number, ao: number = 1.0): IRenderMaterial {
+		if (!this.sharedLightColor) {
+			this.initLightColor();
+		}
+		let wrapper = new PBREnvLightingMaterialWrapper();
+		wrapper.setTextureList([this.m_envMap]);
+
+		for (let i = 0; i < 4; ++i) {
+			wrapper.setPosAt(i, this.m_lightPosList[i]);
+			wrapper.setColorAt(i, this.m_lightColorList[i]);
+		}
+		wrapper.setRoughness(roughness);
+		wrapper.setMetallic(metallic);
+		wrapper.setAO(ao);
+		wrapper.setAlbedoColor(VoxMaterial.createColor4().randomRGB(1.0));
+		return wrapper.material;
+	}
 }
 
 export class PBRShader {
+	private m_rscene: IRendererScene = null;
+	private m_pbr = new PBRLighting();
+	constructor() {}
 
-    private m_rscene: IRendererScene = null;
-    private m_pbr = new PBRLighting();
-    constructor() { }
+	initialize(): void {
+		new VoxModuleShell().initialize(
+			(): void => {
+				this.initMouseInteract();
+			},
+			(): void => {
+				this.initRenderer();
+			},
+			(): void => {
+				this.init3DScene();
+			}
+		);
+	}
+	private initMouseInteract(): void {
+		const mi = VoxUIInteraction.createMouseInteraction();
+		mi.initialize(this.m_rscene, 0, true).setAutoRunning(true);
+	}
+	private initRenderer(): void {
+		let RD = VoxRScene.RendererDevice;
+		RD.SHADERCODE_TRACE_ENABLED = true;
+		RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
 
-    initialize(): void {
+		let rparam = VoxRScene.createRendererSceneParam();
+		rparam.setCamPosition(1000.0, 1000.0, 1000.0);
+		rparam.setCamProject(45, 20.0, 9000.0);
+		this.m_rscene = VoxRScene.createRendererScene(rparam).setAutoRunning(true);
+		this.m_rscene.setClearUint24Color(0x888888);
+	}
 
-        new VoxModuleShell().initialize(
-            (): void => { this.initMouseInteract(); },
-            (): void => { this.initRenderer(); },
-            (): void => { this.init3DScene(); }
-        );
-    }
-    private initMouseInteract(): void {
+	private init3DScene(): void {
+		this.m_pbr.initialize(this.m_rscene);
 
-        const mi = VoxUIInteraction.createMouseInteraction();
-        mi.initialize(this.m_rscene, 0, true).setAutoRunning(true);
-    }
-    private initRenderer(): void {
+		let material = this.m_pbr.createMaterial(0.9, 0.0, 1.0);
+		let sph = VoxEntity.createSphere(150, 20, 20, material);
+		this.m_rscene.addEntity(sph);
 
-        let RD = VoxRScene.RendererDevice;
-        RD.SHADERCODE_TRACE_ENABLED = true;
-        RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
+		material = this.m_pbr.createMaterial(0.3, 0.5, 1.0);
+		let cone = VoxEntity.createCone(70, 150, 20, material);
+		cone.setXYZ(-200, 0.0, 200.0);
+		this.m_rscene.addEntity(cone);
 
-        let rparam = VoxRScene.createRendererSceneParam();
-        rparam.setCamPosition(1000.0, 1000.0, 1000.0);
-        rparam.setCamProject(45, 20.0, 9000.0);
-        this.m_rscene = VoxRScene.createRendererScene(rparam).setAutoRunning(true);
-        this.m_rscene.setClearUint24Color(0x888888);
-
-    }
-    
-    private init3DScene(): void {
-        
-        this.m_pbr.initialize( this.m_rscene );
-
-        let material = this.m_pbr.createMaterial(0.90, 0.0, 1.0);
-        let sph = VoxEntity.createSphere(150, 20, 20, material);
-        this.m_rscene.addEntity(sph);
-
-        material = this.m_pbr.createMaterial(0.3, 0.5, 1.0);
-        let cone = VoxEntity.createCone(70, 150, 20, material);
-        cone.setXYZ(-200, 0.0, 200.0);
-        this.m_rscene.addEntity(cone);
-
-        material = this.m_pbr.createMaterial(0.3, 0.5, 1.0);
-        let torus = VoxEntity.createTorus(80, 30, 20, 30, 1, material);
-        torus.setXYZ(200, 0.0, -200.0);
-        this.m_rscene.addEntity(torus);
-    }
+		material = this.m_pbr.createMaterial(0.3, 0.5, 1.0);
+		let torus = VoxEntity.createTorus(80, 30, 20, 30, 1, material);
+		torus.setXYZ(200, 0.0, -200.0);
+		this.m_rscene.addEntity(torus);
+	}
 }
 
 export default PBRShader;
 
 // for running instance
-if(!((document as any).demoState)) {
-    let ins = new PBRShader();
-    ins.initialize();
+if (!(document as any).demoState) {
+	let ins = new PBRShader();
+	ins.initialize();
 }

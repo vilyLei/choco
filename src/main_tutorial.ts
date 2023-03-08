@@ -8,8 +8,8 @@
 // import { Shader as Demo } from "./tutorial/Shader";
 // import { MeshCreation as Demo } from "./tutorial/MeshCreation";
 // import { MouseEventTest as Demo } from "./tutorial/MouseEventTest";
-import { PBRShader as Demo } from "./tutorial/PBRShader";
-// import { TransformTest as Demo } from "./tutorial/TransformTest";
+// import { PBRShader as Demo } from "./tutorial/PBRShader";
+import { TransformTest as Demo } from "./tutorial/TransformTest";
 
 // import { RenderingState as Demo } from "./tutorial/RenderingState";
 
