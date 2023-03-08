@@ -111,6 +111,7 @@ export class UVDisplacement {
 		// planeMaterial.setTextureList( textureList );
 
 		let plane = VoxEntity.createXOZPlane(-150, -150, 300, 300, planeMaterial);
+		// let plane = VoxEntity.createTorus(100, 30, 30, 50, 2, planeMaterial);
 		plane.setScaleXYZ(3.0, 3.0, 3.0);
 		rsc.addEntity(plane);
 
