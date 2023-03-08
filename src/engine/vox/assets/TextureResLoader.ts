@@ -16,7 +16,7 @@ import { IBytesTexture } from "../render/texture/IBytesTexture";
 import { IImageCubeTexture } from "../render/texture/IImageCubeTexture";
 import IRendererScene from "../scene/IRendererScene";
 import { MathConst } from "../../cospace/math/VoxMath";
-import { RendererDevice } from "../../cospace/voxengine/VoxRScene";
+import { TextureConst, RendererDevice } from "../../cospace/voxengine/VoxRScene";
 
 // function generateCanvasMipmapsAt(src: any) {
 //     let width = src.width;
