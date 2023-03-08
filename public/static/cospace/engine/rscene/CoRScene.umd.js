@@ -4994,7 +4994,7 @@ const VtxBufConst_1 = __importDefault(__webpack_require__("8a0a"));
 
 class ROIvsData {
   constructor() {
-    this.bufStep = 4;
+    this.unitBytes = 2;
     this.status = VtxBufConst_1.default.VTX_STATIC_DRAW;
     this.wireframe = false;
     this.shape = false;
@@ -5004,13 +5004,13 @@ class ROIvsData {
 
   setData(ivs, status = VtxBufConst_1.default.VTX_STATIC_DRAW) {
     if (ivs instanceof Uint16Array) {
-      this.bufStep = 2;
+      this.unitBytes = 2;
 
       if (ivs.length > 65536) {
         throw Error("ivs.length > 65536, but its type is not Uint32Array.");
       }
     } else if (ivs instanceof Uint32Array) {
-      this.bufStep = 4;
+      this.unitBytes = 4;
     } else {
       throw Error("Error: ivs is not an Uint32Array or an Uint16Array bufferArray instance !!!!");
     }
@@ -18290,7 +18290,7 @@ class RendererSceneBase {
   appendRenderNode(node) {
     if (node != null && node != this) {
       if (this.m_appendNodes == null) this.m_appendNodes = [];
-      let ls = this.m_appendNodes;
+      const ls = this.m_appendNodes;
 
       for (let i = 0; i < ls.length; ++i) {
         if (node == ls[i]) {
@@ -18304,7 +18304,7 @@ class RendererSceneBase {
 
   removeRenderNode(node) {
     if (node != null) {
-      let ls = this.m_prependNodes;
+      const ls = this.m_prependNodes;
 
       if (ls != null) {
         for (let i = 0; i < ls.length; ++i) {
@@ -18332,12 +18332,19 @@ class RendererSceneBase {
       this.runnableQueue.run();
       this.runRenderNodes(this.m_prependNodes);
 
-      if (this.m_localRunning) {
-        for (let i = 0; i < this.m_processidsLen; ++i) {
-          this.m_renderer.runAt(this.m_processids[i]);
-        }
-      } else {
-        this.m_renderer.run();
+      if (this.m_adapter.isFBORunning()) {
+        this.setRenderToBackBuffer();
+      } // if (this.m_localRunning) {
+      // 	for (let i = 0; i < this.m_processidsLen; ++i) {
+      // 		this.m_renderer.runAt(this.m_processids[i]);
+      // 	}
+      // } else {
+      // 	this.m_renderer.run();
+      // }
+
+
+      for (let i = 0; i < this.m_processidsLen; ++i) {
+        this.m_renderer.runAt(this.m_processids[i]);
       }
 
       this.runRenderNodes(this.m_appendNodes);
@@ -20093,6 +20100,7 @@ class FBOInstance {
     this.m_gMateiral = null;
     this.m_gRState = -1;
     this.m_gRColorMask = -1;
+    this.m_processShared = true;
     this.m_rindexs = [];
     this.m_texs = [null, null, null, null, null, null, null, null];
     this.m_texStore = null;
@@ -20111,6 +20119,10 @@ class FBOInstance {
      */
 
     this.uns = "FBOInstance";
+    this.m_lockRenderState = false;
+    this.m_lockMaterial = false;
+    this.m_autoEnd = true;
+    this.m_autoRunBegin = true;
     this.m_renderer = renderer;
     this.m_texStore = texStroe;
     this.m_rproxy = renderer.getRenderProxy();
@@ -20127,10 +20139,14 @@ class FBOInstance {
   }
   /**
    * 设置当前 FBO控制的渲染过程中所需要的 renderer process 序号(id)列表
+   * @param processIDlist 当前渲染器场景中渲染process的序号列表
+   * @param processShared 是否共享process，默认值为true，则表示fbo和renderer scene都会绘制调用
    */
 
 
-  setRProcessIDList(processIDlist) {
+  setRProcessIDList(processIDlist, processShared = true) {
+    this.m_processShared = processShared;
+
     if (processIDlist != null) {
       if (processIDlist.length < 1) {
         throw Error("processIDlist.length < 1, but it must: processIDlist.length >= 1");
@@ -20465,7 +20481,7 @@ class FBOInstance {
   /**
    * 设置渲染到纹理的目标纹理对象(普通 RTT 纹理类型的目标纹理)和framebuffer output attachment index
    * @param systemRTTTexIndex 作为渲染到目标的目标纹理对象在系统普通rtt 纹理中的序号(0 -> 15)
-   * @param outputIndex framebuffer output attachment index
+   * @param outputIndex framebuffer output attachment index, the default value is 0
    */
 
 
@@ -20614,7 +20630,7 @@ class FBOInstance {
   }
 
   setClearRGBAColor4f(pr, pg, pb, pa) {
-    this.m_bgColor.setRGBA4f(pr, pb, pg, pa);
+    this.m_bgColor.setRGBA4f(pr, pg, pb, pa);
   }
   /**
    * @param			clearType, it is IRenderProxy.COLOR or IRenderProxy.DEPTH or IRenderProxy.STENCIL or IRenderProxy.DEPTH_STENCIL
@@ -20717,12 +20733,20 @@ class FBOInstance {
 
       if (this.m_rindexs != null) {
         // rendering running
-        for (let i = 0, len = this.m_rindexs.length; i < len; ++i) {
-          this.m_renderer.runAt(this.m_rindexs[i]);
+        if (this.m_processShared) {
+          for (let i = 0, len = this.m_rindexs.length; i < len; ++i) {
+            this.m_renderer.runAt(this.m_rindexs[i]);
+          }
+        } else {
+          for (let i = 0, len = this.m_rindexs.length; i < len; ++i) {
+            const proc = this.m_renderer.getRenderProcessAt(this.m_rindexs[i]);
+            proc.setEnabled(true);
+            this.m_renderer.runAt(this.m_rindexs[i]);
+            proc.setEnabled(false);
+          }
         }
       }
-    } // this.m_runFlag = true;
-
+    }
 
     if (lockRenderState) this.unlockRenderState();
 
@@ -20830,6 +20854,17 @@ class FBOInstance {
     }
 
     return ins;
+  }
+
+  setRenderingState(lockRenderState = false, lockMaterial = false, autoEnd = true, autoRunBegin = true) {
+    this.m_lockRenderState = lockRenderState;
+    this.m_lockMaterial = lockMaterial;
+    this.m_autoEnd = autoEnd;
+    this.m_autoRunBegin = autoRunBegin;
+  }
+
+  render() {
+    this.run(this.m_lockRenderState, this.m_lockMaterial, this.m_autoEnd, this.m_autoRunBegin);
   }
 
 }
@@ -24023,54 +24058,35 @@ class MeshBase {
 
   createIVSByArray(arr) {
     return arr.length > 65536 ? new Uint32Array(arr) : new Uint16Array(arr);
-  }
+  } // createWireframeIvs(ivs: Uint16Array | Uint32Array = null): Uint16Array | Uint32Array {
+  //     if(ivs == null) ivs = this.m_ivs;
+  //     if(ivs !== null) {
+  //         const len = ivs.length * 2;
+  //         const wivs = len <= 65536 ? new Uint16Array(len) : new Uint32Array(len);
+  //         let a: number;
+  //         let b: number;
+  //         let c: number;
+  //         let k = 0;
+  //         for (let i = 0, l = ivs.length; i < l; i += 3) {
+  //             a = ivs[i + 0];
+  //             b = ivs[i + 1];
+  //             c = ivs[i + 2];
+  //             wivs[k] = a;
+  //             wivs[k + 1] = b;
+  //             wivs[k + 2] = b;
+  //             wivs[k + 3] = c;
+  //             wivs[k + 4] = c;
+  //             wivs[k + 5] = a;
+  //             k += 6;
+  //         }
+  //         return wivs;
+  //     }
+  //     return null;
+  // }
 
-  createWireframeIvs(ivs = null) {
-    if (ivs == null) ivs = this.m_ivs;
-
-    if (ivs !== null) {
-      const len = ivs.length * 2;
-      const wivs = len <= 65536 ? new Uint16Array(len) : new Uint32Array(len);
-      let a;
-      let b;
-      let c;
-      let k = 0;
-
-      for (let i = 0, l = ivs.length; i < l; i += 3) {
-        a = ivs[i + 0];
-        b = ivs[i + 1];
-        c = ivs[i + 2];
-        wivs[k] = a;
-        wivs[k + 1] = b;
-        wivs[k + 2] = b;
-        wivs[k + 3] = c;
-        wivs[k + 4] = c;
-        wivs[k + 5] = a;
-        k += 6;
-      }
-
-      return wivs;
-    }
-
-    return null;
-  }
 
   updateWireframeIvs(ivs = null) {
     return ivs;
-    this.toElementsTriangles();
-    let wivs = null;
-
-    if (this.wireframe) {
-      wivs = this.createWireframeIvs(ivs);
-
-      if (wivs != null) {
-        this.m_ivs = this.createWireframeIvs();
-      }
-
-      this.toElementsLines();
-    }
-
-    return wivs;
   }
 
   buildEnd() {
@@ -24338,10 +24354,6 @@ class MeshBase {
       this.m_bufTypeList = null;
       this.m_bufSizeList = null;
     }
-  }
-
-  toString() {
-    return "[MeshBase()]";
   }
 
 }
@@ -24853,8 +24865,8 @@ class VtxDrawingInfo {
     this.m_ivsIndex = -1;
     this.m_ivsCount = -1;
     this.m_wireframe = false;
-    this.m_ver = 0; // private m_sts = new Uint8Array([0, 0, 0, 0]);
-
+    this.m_ver = 0;
+    this.m_sts = new Uint8Array([0, 0, 0, 0]);
     this.m_unlock = true;
     this.m_ivsDataIndex = 0;
     this.m_insCount = 0;
@@ -24881,21 +24893,23 @@ class VtxDrawingInfo {
   setInstanceCount(insCount) {
     if (this.m_unlock && this.m_insCount != insCount) {
       this.m_insCount = insCount;
-      this.m_ver++; // this.m_sts[2] = 1;
+      this.m_ver++;
+      this.m_sts[0] = 1;
     }
   }
 
   setWireframe(wireframe) {
     if (this.m_unlock && this.m_wireframe != wireframe) {
       this.m_wireframe = wireframe;
-      this.m_ver++; // this.m_sts[2] = 1;
+      this.m_ver++;
+      this.m_sts[2] = 1;
     }
   }
 
   applyIvsDataAt(index) {
     if (index >= 0 && this.m_ivsDataIndex != index) {
-      this.m_ver++; // this.m_sts[3] = 1;
-
+      this.m_ver++;
+      this.m_sts[3] = 1;
       this.m_ivsDataIndex = index;
     }
   }
@@ -24904,18 +24918,19 @@ class VtxDrawingInfo {
     if (this.m_unlock) {
       if (ivsIndex >= 0 && this.m_ivsIndex != ivsIndex) {
         this.m_ivsIndex = ivsIndex;
-        this.m_ver++; // this.m_sts[1] = 1;
+        this.m_ver++;
+        this.m_sts[1] = 1;
       }
 
       if (ivsCount >= 0 && this.m_ivsCount != ivsCount) {
         this.m_ivsCount = ivsCount;
-        this.m_ver++; // this.m_sts[1] = 1;
+        this.m_ver++;
+        this.m_sts[1] = 1;
       }
     }
   }
 
-  reset() {
-    this.m_ver = 0;
+  reset() {// this.m_ver = 0;
   }
 
   __$$copyToRDP(rdp) {
@@ -24929,15 +24944,30 @@ class VtxDrawingInfo {
         if (rdp.ver != ver) {
           rdp.ver = ver; // console.log("__$$copyToRDP() ...rdp.getUid(): ", rdp.getUid(), ", this.m_uid: ", this.m_uid);
 
-          rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
-
-          if (this.m_wireframe) {
-            rdp.toWireframe();
-          } else {
-            rdp.toCommon();
+          if (this.m_sts[0] > 0) {
+            this.m_sts[0] = 0;
+            rdp.setInsCount(this.m_insCount);
           }
 
-          rdp.applyRDPAt(this.m_ivsDataIndex); // if (this.m_sts[1] > 0) {
+          if (this.m_sts[1] > 0) {
+            this.m_sts[1] = 0;
+            rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
+          }
+
+          if (this.m_sts[2] > 0) {
+            this.m_sts[2] = 0;
+
+            if (this.m_wireframe) {
+              rdp.toWireframe();
+            } else {
+              rdp.toCommon();
+            }
+          }
+
+          if (this.m_sts[3] > 0) {
+            this.m_sts[3] = 0;
+            rdp.applyRDPAt(this.m_ivsDataIndex);
+          } // if (this.m_sts[1] > 0) {
           //     this.m_sts[1] = 0;
           //     // console.log("__$$copyToRDP() ...rdp.setIvsParam(): ", this.m_ivsIndex, this.m_ivsCount);
           //     rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
@@ -24955,6 +24985,7 @@ class VtxDrawingInfo {
           //     rdp.applyRDPAt(this.m_ivsDataIndex);
           // }
           // this.reset();
+
         }
       }
 
@@ -26798,8 +26829,8 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
     return this.m_bufSizeList;
   }
 
-  getIBufStep() {
-    return this.m_ibufStep;
+  getIvsUnitBytes() {
+    return this.m_ivsUnitBytes;
   }
 
   getBufDataUsage() {
@@ -29733,7 +29764,7 @@ class ROIVertexBuffer {
     this.m_irdTotal = 0;
     this.m_irds = new Array(1);
     this.m_bufDataUsage = 0;
-    this.m_ibufStep = 2;
+    this.m_ivsUnitBytes = 2;
     this.layoutBit = 0x0;
     this.vertexVer = 0;
     this.indicesVer = 0;
@@ -29759,10 +29790,7 @@ class ROIVertexBuffer {
 
   getBufSortFormat() {
     return this.m_layoutBit;
-  } // getIBufStep(): number {
-  //     return this.m_ibufStep;
-  // }
-
+  }
 
   getBufDataUsage() {
     return this.m_bufDataUsage;

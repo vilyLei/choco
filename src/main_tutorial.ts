@@ -3,13 +3,15 @@
 
 // import { EmptyScene as Demo } from "./tutorial/EmptyScene";
 // import { MouseInteraction as Demo } from "./tutorial/MouseInteraction";
+// import { Texture as Demo } from "./tutorial/Texture";
+// import { CubeTexture as Demo } from "./tutorial/CubeTexture";
 // import { Primitives as Demo } from "./tutorial/Primitives";
 // import { SceneParameter as Demo } from "./tutorial/SceneParameter";
 // import { Shader as Demo } from "./tutorial/Shader";
 // import { MeshCreation as Demo } from "./tutorial/MeshCreation";
 // import { MouseEventTest as Demo } from "./tutorial/MouseEventTest";
 // import { PBRShader as Demo } from "./tutorial/PBRShader";
-import { TransformTest as Demo } from "./tutorial/TransformTest";
+// import { TransformTest as Demo } from "./tutorial/TransformTest";
 
 // import { RenderingState as Demo } from "./tutorial/RenderingState";
 
@@ -19,6 +21,12 @@ import { TransformTest as Demo } from "./tutorial/TransformTest";
 
 // import { UIButton as Demo } from "./tutorial/UIButton";
 // import { UIButtonGroup as Demo } from "./tutorial/UIButtonGroup";
+
+// import { RTT as Demo } from "./tutorial/RTT";
+
+// import { MRT as Demo } from "./tutorial/MRT";
+
+import { CubeMRT as Demo } from "./tutorial/CubeMRT";
 
 document.title = "choco:tutorial";
 

@@ -1874,6 +1874,7 @@ class RenderAdapter {
     this.m_devPRatio = 1.0;
     this.m_viewportUnlock = true;
     this.m_synFBOSizeWithViewport = false;
+    this.m_fboRunning = false;
     this.m_texResource = texResource;
     this.m_rcuid = rcuid;
   }
@@ -2356,6 +2357,10 @@ class RenderAdapter {
 
     return 0;
   }
+
+  isFBORunning() {
+    return this.m_fboRunning;
+  }
   /**
    * bind a texture to fbo attachment by attachment index
    * @param texProxy  IRenderTexture instance
@@ -2408,6 +2413,7 @@ class RenderAdapter {
       }
 
       if (this.m_fboBuf != null) {
+        this.m_fboRunning = true;
         this.m_fboBuf.renderToTexAt(this.m_gl, texProxy, attachmentIndex); //console.log("RenderProxy::setRenderToTexture(), fbo: ",this.m_fboBuf.getFBO());
       }
 
@@ -2484,6 +2490,7 @@ class RenderAdapter {
   }
 
   setRenderToBackBuffer(frameBufferType = FrameBufferType_1.default.FRAMEBUFFER) {
+    this.m_fboRunning = false;
     this.m_activeAttachmentTotal = 1;
     FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, frameBufferType);
     this.reseizeViewPort();
@@ -9176,8 +9183,10 @@ class BufRData {
   }
 
   setInsCount(insCount) {
-    this.insCount = insCount;
-    this.updateDrawMode();
+    if (this.insCount != insCount) {
+      this.insCount = insCount;
+      this.updateDrawMode();
+    }
   }
 
   setIvsParam(ivsIndex, ivsSize) {
@@ -9243,6 +9252,7 @@ class BufRDataPair {
     this.buf = null;
     this.roiRes = null;
     this.ver = 0;
+    this.lifeTime = 0;
     this.m_rdpIndex = index;
   }
 
@@ -9261,9 +9271,14 @@ class BufRDataPair {
     this.r1 = null;
     this.rd = null;
     this.buf = null;
+    this.roiRes = null;
   }
 
   clearBuf() {
+    if (this.lifeTime == 0) {
+      throw Error("illegal operation!!!");
+    }
+
     if (this.r0 != null) {
       this.r0.clear();
       this.r1.clear();
@@ -9314,6 +9329,10 @@ class BufRDataPair {
         rd = this.rd; // console.log("AAAA 1 rd.getUid(): ",rd.getUid(), ", r0.getUid(): ",this.r0.getUid(), ", r0.ivsSize: ",  this.r0.ivsSize, ", r0.rdpIndex: ", this.r0.rdpIndex);
       }
     }
+  }
+
+  setInsCount(insCount) {
+    this.rd.setInsCount(insCount);
   }
 
   getVersion() {
@@ -9393,6 +9412,7 @@ class BufRDataPair {
 
   clone() {
     let rdp = new BufRDataPair(this.getRDPIndex());
+    rdp.lifeTime = this.lifeTime + 1;
     this.copyTo(rdp);
     return rdp;
   }
@@ -9667,6 +9687,7 @@ class ROIndicesRes {
       }
 
       this.m_ivsData = null;
+      this.initRdp = null;
       this.rdp = null;
       console.log("ROIndicesRes::destroy() this.m_uid: ", this.m_uid);
     }
