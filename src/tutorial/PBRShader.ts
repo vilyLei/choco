@@ -13,6 +13,7 @@ import IColor4 from "../engine/vox/material/IColor4";
 import IVector3D from "../engine/vox/math/IVector3D";
 
 class PBRLighting {
+	private static s_envMapLoader: BinaryTextureLoader = null;
 	private m_rscene: IRendererScene = null;
 	private m_envMap: IRenderTexture;
 	sharedLightColor = true;
@@ -31,11 +32,11 @@ class PBRLighting {
 	private initRenderingData(): void {
 		let envMapUrl = "static/assets/bytes/spe.mdf";
 
-		let loader = new BinaryTextureLoader(this.m_rscene);
+		let loader = PBRLighting.s_envMapLoader;
+		loader = PBRLighting.s_envMapLoader = loader == null ? new BinaryTextureLoader(this.m_rscene) : loader;
 		loader.loadTextureWithUrl(envMapUrl);
 		this.m_envMap = loader.texture;
 
-		const color = VoxMaterial.createColor4();
 		const vec3 = VoxMath.createVec3();
 		let dis = 700.0;
 		let disY = 400.0;
