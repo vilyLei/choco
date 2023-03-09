@@ -3,7 +3,7 @@
 
 // import { EmptyScene as Demo } from "./tutorial/EmptyScene";
 // import { MouseInteraction as Demo } from "./tutorial/MouseInteraction";
-import { Texture as Demo } from "./tutorial/Texture";
+// import { Texture as Demo } from "./tutorial/Texture";
 // import { CubeTexture as Demo } from "./tutorial/CubeTexture";
 // import { Primitives as Demo } from "./tutorial/Primitives";
 // import { SceneParameter as Demo } from "./tutorial/SceneParameter";
@@ -17,7 +17,7 @@ import { Texture as Demo } from "./tutorial/Texture";
 
 // import { SubScene as Demo } from "./tutorial/SubScene";
 // import { EntityContainer as Demo } from "./tutorial/EntityContainer";
-// import { PBRClock as Demo } from "./tutorial/PBRClock";
+import { PBRClock as Demo } from "./tutorial/PBRClock";
 // import { AnimationContainer as Demo } from "./tutorial/AnimationContainer";
 
 // import { UIButton as Demo } from "./tutorial/UIButton";
@@ -30,6 +30,7 @@ import { Texture as Demo } from "./tutorial/Texture";
 // import { CubeMRT as Demo } from "./tutorial/CubeMRT";
 
 // import { UVDisplacement as Demo } from "./tutorial/UVDisplacement";
+// import { PBRTextureShader as Demo } from "./tutorial/PBRTextureShader";
 // import { NormalMap as Demo } from "./tutorial/NormalMap";
 // import { HeightMap as Demo } from "./tutorial/HeightMap";
 

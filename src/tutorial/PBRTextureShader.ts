@@ -5,7 +5,7 @@ import { VoxEntity } from "../engine/cospace/voxentity/VoxEntity";
 import VoxModuleShell from "../common/VoxModuleShell";
 import { PBRMateralBuilder } from "./material/PBRMateralBuilder";
 
-export class PBRShader {
+export class PBRTextureShader {
 	private m_rscene: IRendererScene = null;
 	private m_pbr = new PBRMateralBuilder();
 	constructor() {}
@@ -58,10 +58,10 @@ export class PBRShader {
 	}
 }
 
-export default PBRShader;
+export default PBRTextureShader;
 
 // for running instance
 if (!(document as any).demoState) {
-	let ins = new PBRShader();
+	let ins = new PBRTextureShader();
 	ins.initialize();
 }
