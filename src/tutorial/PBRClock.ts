@@ -153,7 +153,7 @@ export class PBRClock {
 	}
 	private initMouseInteract(): void {
 		const mi = VoxUIInteraction.createMouseInteraction();
-		mi.initialize(this.m_rscene, 0, true).setAutoRunning(true);
+		mi.initialize(this.m_rscene).setAutoRunning(true);
 	}
 	private initRenderer(): void {
 

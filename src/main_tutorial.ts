@@ -3,7 +3,7 @@
 
 // import { EmptyScene as Demo } from "./tutorial/EmptyScene";
 // import { MouseInteraction as Demo } from "./tutorial/MouseInteraction";
-// import { Texture as Demo } from "./tutorial/Texture";
+import { Texture as Demo } from "./tutorial/Texture";
 // import { CubeTexture as Demo } from "./tutorial/CubeTexture";
 // import { Primitives as Demo } from "./tutorial/Primitives";
 // import { SceneParameter as Demo } from "./tutorial/SceneParameter";
@@ -29,7 +29,7 @@
 
 // import { CubeMRT as Demo } from "./tutorial/CubeMRT";
 
-import { UVDisplacement as Demo } from "./tutorial/UVDisplacement";
+// import { UVDisplacement as Demo } from "./tutorial/UVDisplacement";
 // import { NormalMap as Demo } from "./tutorial/NormalMap";
 // import { HeightMap as Demo } from "./tutorial/HeightMap";
 
