@@ -8,8 +8,11 @@ import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
 import IDisplayEntityContainer from "../engine/vox/entity/IDisplayEntityContainer";
 import IColor4 from "../engine/vox/material/IColor4";
+import { PBRMateralBuilder } from "./material/PBRMateralBuilder";
+import IRenderMaterial from "../engine/vox/render/IRenderMaterial";
 
 class ClockEntity {
+	private static s_pbr: PBRMateralBuilder = null;
 	private m_rc: IRendererScene = null;
 	private m_hourHand: IDisplayEntityContainer;
 	private m_minutesHand: IDisplayEntityContainer;
@@ -20,6 +23,13 @@ class ClockEntity {
 	initialize(rc: IRendererScene, radius: number): void {
 		if (this.m_rc == null && rc) {
 			this.m_rc = rc;
+
+			
+			if (ClockEntity.s_pbr == null) {
+				const pbr = ClockEntity.s_pbr = new PBRMateralBuilder();
+				pbr.sharedLightColor = false;
+				pbr.initialize(this.m_rc);
+			}
 
 			let bodyContainer = (this.m_body = VoxEntity.createDisplayEntityContainer());
 			this.m_rc.addEntity(bodyContainer);
@@ -35,11 +45,19 @@ class ClockEntity {
 			this.m_rc.addEventListener(MouseEvent.MOUSE_DOWN, this, this.mouseDown);
 		}
 	}
+	private createMaterial(color: IColor4): IRenderMaterial {
+		const pbr = ClockEntity.s_pbr;
+		let material = pbr.createMaterial(Math.random(), Math.random() * 0.2 + 0.8, 1.3);
+		return material;
+	}
 	private createHand(radius: number, long: number, color: IColor4): IDisplayEntityContainer {
 		let container = VoxEntity.createDisplayEntityContainer();
-		let material = VoxMaterial.createDefaultMaterial();
-		material.normalEnabled = true;
-		material.setColor(color);
+		// let material = VoxMaterial.createDefaultMaterial();
+		// material.normalEnabled = true;
+		// material.setColor(color);
+
+		let material = this.createMaterial(color);
+
 		let body = VoxEntity.createCylinder(radius, long * 0.8, 20, material, false, 1, 0.0);
 		container.addChild(body);
 		let head = VoxEntity.createCone(radius + 3, long * 0.2, 20, material, false, 0.0);
@@ -49,8 +67,11 @@ class ClockEntity {
 		return container;
 	}
 	private initHourItem(radius: number, container: IDisplayEntityContainer): void {
-		let material = VoxMaterial.createDefaultMaterial();
-		material.normalEnabled = true;
+		// let material = VoxMaterial.createDefaultMaterial();
+		// material.normalEnabled = true;
+		
+		let material = this.createMaterial(null);
+
 		let itemBox = VoxEntity.createBox(VoxMath.createVec3(-5, -10, -10), VoxMath.createVec3(5, 10, 10), material);
 
 		for (let i = 0; i < 12; ++i) {
@@ -60,9 +81,11 @@ class ClockEntity {
 			const pz = radius * Math.sin(rad);
 			const degree = 360.0 * fk;
 
-			material = VoxMaterial.createDefaultMaterial();
-			material.normalEnabled = true;
-			material.setRGB3f(0.8 * fk, 0.5, 0.9);
+			// material = VoxMaterial.createDefaultMaterial();
+			// material.normalEnabled = true;
+			// material.setRGB3f(0.8 * fk, 0.5, 0.9);
+			// material.initializeByCodeBuf(false);
+			material = this.createMaterial(null);
 			material.initializeByCodeBuf(false);
 
 			const item = VoxEntity.createDisplayEntity();
@@ -70,22 +93,27 @@ class ClockEntity {
 			item.setXYZ(0.0, py, pz).setRotationXYZ(degree, 0.0, 0.0);
 			container.addChild(item);
 		}
-		material = VoxMaterial.createDefaultMaterial();
-		material.normalEnabled = true;
-		material.setRGB3f(0.1, 0.5, 0.8);
+		// material = VoxMaterial.createDefaultMaterial();
+		// material.normalEnabled = true;
+		// material.setRGB3f(0.1, 0.5, 0.8);
+		material = this.createMaterial(null);
 
 		let ring = VoxEntity.createTorus(radius + 15, 5, 30, 50, 0, material);
 		container.addChild(ring);
 
-		material = VoxMaterial.createDefaultMaterial();
-		material.normalEnabled = true;
-		material.setRGB3f(0.3, 0.7, 0.8);
+		// material = VoxMaterial.createDefaultMaterial();
+		// material.normalEnabled = true;
+		// material.setRGB3f(0.3, 0.7, 0.8);
+		material = this.createMaterial(null);
+
 		let center = VoxEntity.createSphere(5, 20, 20, material);
 		container.addChild(center);
 
-		material = VoxMaterial.createDefaultMaterial();
-		material.normalEnabled = true;
-		material.setRGB3f(0.3, 0.7, 0.8);
+		// material = VoxMaterial.createDefaultMaterial();
+		// material.normalEnabled = true;
+		// material.setRGB3f(0.3, 0.7, 0.8);
+		material = this.createMaterial(null);
+
 		let base = VoxEntity.createCylinder(radius + 20, 8, 50, material);
 		base.setXYZ(-5, 0, 0);
 		base.setRotationXYZ(0, 0, 90);

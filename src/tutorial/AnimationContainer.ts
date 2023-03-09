@@ -10,10 +10,10 @@ import ITransformEntity from "../engine/vox/entity/ITransformEntity";
 import IVector3D from "../engine/vox/math/IVector3D";
 import IDisplayEntityContainer from "../engine/vox/entity/IDisplayEntityContainer";
 import RenderStatusDisplay from "../engine/vox/scene/RenderStatusDisplay";
-import {PBRMateralBuilder} from "./material/PBRMateralBuilder";
+import { PBRMateralBuilder } from "./material/PBRMateralBuilder";
 
 class AnimationInstance {
-	private static s_pbr = new PBRMateralBuilder();
+	private static s_pbr: PBRMateralBuilder = null;
 	private static s_sphEntity: ITransformEntity = null;
 
 	private m_rscene: IRendererScene;
@@ -23,23 +23,25 @@ class AnimationInstance {
 	private m_preTime = Math.random() * 321.0;
 
 	container: IDisplayEntityContainer = null;
-	constructor() {}
+	constructor() { }
 	initialize(sc: IRendererScene): AnimationInstance {
 		if (this.m_rscene == null && sc != null) {
 			this.m_rscene = sc;
 
 			this.container = VoxRScene.createDisplayEntityContainer();
 			sc.addEntity(this.container, 1);
-
-			const pbr = AnimationInstance.s_pbr;
-			pbr.sharedLightColor = false;
-			pbr.initialize(this.m_rscene);
+			
+			if (AnimationInstance.s_pbr == null) {
+				const pbr = AnimationInstance.s_pbr = new PBRMateralBuilder();
+				pbr.sharedLightColor = false;
+				pbr.initialize(this.m_rscene);
+			}
 
 			this.m_time = Date.now();
 			let begin = VoxMath.createVec3(-300, 0, 300);
 			let offsetV = VoxMath.createVec3(30, 0, -30);
 			for (let i = 0; i < 20; ++i) {
-				this.createSphere( 15, VoxMath.createVec3().copyFrom(offsetV).scaleBy(i).addBy(begin) );
+				this.createSphere(15, VoxMath.createVec3().copyFrom(offsetV).scaleBy(i).addBy(begin));
 			}
 		}
 		return this;
@@ -88,7 +90,7 @@ class AnimationInstance {
 
 export class AnimationContainer {
 	private m_rscene: IRendererScene = null;
-	constructor() {}
+	constructor() { }
 
 	initialize(): void {
 		new VoxModuleShell().initialize(
