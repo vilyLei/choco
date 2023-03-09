@@ -91,7 +91,7 @@ class ClockEntity {
 		// material.setRGB3f(0.1, 0.5, 0.8);
 		material = this.createMaterial(null);
 
-		let ring = VoxEntity.createTorus(radius + 15, 5, 30, 50, 0, material);
+		let ring = VoxEntity.createTorus(radius + 15, 5, 30, 100, 0, material);
 		container.addChild(ring);
 		
 		// material.setRGB3f(0.3, 0.7, 0.8);
@@ -99,7 +99,7 @@ class ClockEntity {
 
 		let center = VoxEntity.createSphere(5, 20, 20, material);
 		container.addChild(center);
-		
+
 		// material.setRGB3f(0.3, 0.7, 0.8);
 		material = this.createMaterial(null);
 
