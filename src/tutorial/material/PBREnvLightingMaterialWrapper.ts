@@ -16,7 +16,7 @@ import IVector3D from "../../engine/vox/math/IVector3D";
 
 class PBREnvLightingMaterialWrapper {
 
-    private m_albedo = new Float32Array([0.5, 0.0, 0.0, 0.0]);
+    private m_albedo = new Float32Array([0.0, 0.0, 0.0, 0.0]);
     private m_params = new Float32Array([0.0, 0.0, 1.0, 0.0]);
     private m_F0 = new Float32Array([0.0, 0.0, 0.0, 0.0]);
     private m_lightPositions = new Float32Array(4 * 4);

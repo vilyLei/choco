@@ -64,17 +64,17 @@ export class UIButton {
 
 		let textColor = VoxMaterial.createColor4(1,1,1,1);
 
-		let btnDown = VoxUI.createTextLabelButton("move_down", "Move Down", 170, 50, textColor);
-		btnDown.setXY(200, 100);
-		this.m_uiScene.addEntity(btnDown);
-		btnDown.addEventListener(MouseEvent.MOUSE_DOWN, this, this.buttonMouseDown);
-		this.applyColors(btnDown);
+		let btnShow = VoxUI.createTextLabelButton("show", "Show Entity", 170, 50, textColor);
+		btnShow.setXY(200, 100);
+		this.m_uiScene.addEntity(btnShow);
+		btnShow.addEventListener(MouseEvent.MOUSE_DOWN, this, this.buttonMouseDown);
+		this.applyColors(btnShow);
 
-		let btnUp = VoxUI.createTextLabelButton("move_up", "Move Up", 170, 50, textColor);
-		btnUp.setXY(200, 170);
-		this.m_uiScene.addEntity(btnUp);
-		btnUp.addEventListener(MouseEvent.MOUSE_DOWN, this, this.buttonMouseDown);
-		this.applyColors(btnUp);
+		let btnHide = VoxUI.createTextLabelButton("hide", "Hide Entity", 170, 50, textColor);
+		btnHide.setXY(200, 170);
+		this.m_uiScene.addEntity(btnHide);
+		btnHide.addEventListener(MouseEvent.MOUSE_DOWN, this, this.buttonMouseDown);
+		this.applyColors(btnHide);
 
 	}
 	private applyColors(btn: IButton): void {
@@ -87,15 +87,11 @@ export class UIButton {
 	private buttonMouseDown(evt: IMouseEvent): void {
 		console.log("buttonMouseDown(), evt.uuid: ", evt.uuid);
 		switch(evt.uuid) {
-			case "move_up":
-				let pv0 = this.m_axis.getPosition();
-				pv0.y += 2;
-				this.m_axis.setPosition(pv0);
+			case "show":
+				this.m_axis.setVisible(true);
 				break;
-			case "move_down":
-				let pv1 = this.m_axis.getPosition();
-				pv1.y -= 2;
-				this.m_axis.setPosition(pv1);
+			case "hide":
+				this.m_axis.setVisible(false);
 				break;
 		}
 	}

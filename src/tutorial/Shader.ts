@@ -72,7 +72,7 @@ export class Shader {
 
     private getTexByUrl(url: string): IRenderTexture {
 
-        let tex = this.m_rscene.textureBlock.createImageTex2D(64, 64, false);
+        let tex = this.m_rscene.textureBlock.createImageTex2D();
         let img = new Image();
         img.onload = (evt: any): void => {
             tex.setDataFromImage(img);

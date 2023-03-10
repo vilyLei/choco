@@ -1,18 +1,16 @@
-import IRendererScene from "../engine/vox/scene/IRendererScene";
-import { MouseEvent, EventBase, VoxRScene, RendererState } from "../engine/cospace/voxengine/VoxRScene";
-import { VoxUIInteraction } from "../engine/cospace/voxengine/ui/VoxUIInteraction";
-import { VoxEntity } from "../engine/cospace/voxentity/VoxEntity";
-import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
-import { VoxMath } from "../engine/cospace/math/VoxMath";
-import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
-import VoxModuleShell from "../common/VoxModuleShell";
-import IDisplayEntityContainer from "../engine/vox/entity/IDisplayEntityContainer";
-import IColor4 from "../engine/vox/material/IColor4";
-import { PBRMateralBuilder } from "./material/PBRMateralBuilder";
-import IRenderMaterial from "../engine/vox/render/IRenderMaterial";
-import { VoxTexture } from "../engine/cospace/voxtexture/VoxTexture";
+import IRendererScene from "../../engine/vox/scene/IRendererScene";
+import { MouseEvent, EventBase, VoxRScene, RendererState } from "../../engine/cospace/voxengine/VoxRScene";
+import { VoxEntity } from "../../engine/cospace/voxentity/VoxEntity";
+import { VoxMaterial } from "../../engine/cospace/voxmaterial/VoxMaterial";
+import { VoxMath } from "../../engine/cospace/math/VoxMath";
+import IDisplayEntityContainer from "../../engine/vox/entity/IDisplayEntityContainer";
+import IColor4 from "../../engine/vox/material/IColor4";
+import { PBRMateralBuilder } from "../../tutorial/material/PBRMateralBuilder";
+import IRenderMaterial from "../../engine/vox/render/IRenderMaterial";
+import { VoxTexture } from "../../engine/cospace/voxtexture/VoxTexture";
 
-class ClockEntity {
+export class TimeClockEntity {
+	
 	private static s_pbr: PBRMateralBuilder = null;
 	private m_rc: IRendererScene = null;
 	private m_hourHand: IDisplayEntityContainer;
@@ -25,8 +23,8 @@ class ClockEntity {
 		if (this.m_rc == null && rc) {
 			this.m_rc = rc;
 
-			if (ClockEntity.s_pbr == null) {
-				const pbr = (ClockEntity.s_pbr = new PBRMateralBuilder());
+			if (TimeClockEntity.s_pbr == null) {
+				const pbr = (TimeClockEntity.s_pbr = new PBRMateralBuilder());
 				pbr.sharedLightColor = false;
 				pbr.initialize(this.m_rc);
 			}
@@ -51,12 +49,12 @@ class ClockEntity {
 		}
 	}
 	private createMaterial(color: IColor4): IRenderMaterial {
-		const pbr = ClockEntity.s_pbr;
+		const pbr = TimeClockEntity.s_pbr;
 		let material = pbr.createMaterial(Math.random(), Math.random() * 0.2 + 0.8, 1.3, color);
 		return material;
 	}
 	private createMaterial2(roughness: number, metallic: number): IRenderMaterial {
-		const pbr = ClockEntity.s_pbr;
+		const pbr = TimeClockEntity.s_pbr;
 		let material = pbr.createMaterial(roughness, metallic, 1.3);
 		return material;
 	}
@@ -225,64 +223,4 @@ class ClockEntity {
 		// 	this.m_degree += 0.5;
 		// }
 	}
-}
-export class PBRClock {
-	private m_rscene: IRendererScene = null;
-	constructor() {}
-
-	initialize(): void {
-		new VoxModuleShell().initialize(
-			(): void => {
-				this.initMouseInteract();
-			},
-			(): void => {
-				this.initRenderer();
-			},
-			(): void => {
-				this.init3DScene();
-			}
-		);
-	}
-	private initMouseInteract(): void {
-		const mi = VoxUIInteraction.createMouseInteraction();
-		mi.initialize(this.m_rscene).setAutoRunning(true);
-	}
-	private initRenderer(): void {
-		let RD = VoxRScene.RendererDevice;
-		/**
-		 * 开启打印输出shader构建的相关信息
-		 */
-		RD.SHADERCODE_TRACE_ENABLED = true;
-		RD.VERT_SHADER_PRECISION_GLOBAL_HIGHP_ENABLED = true;
-
-		let rparam = VoxRScene.createRendererSceneParam();
-		rparam.setAttriAntialias(true);
-		rparam.setCamPosition(1000.0, 1000.0, 1000.0);
-		rparam.setCamProject(45, 20.0, 9000.0);
-		this.m_rscene = VoxRScene.createRendererScene(rparam).setAutoRunning(true);
-	}
-
-	private getTexByUrl(url: string): IRenderTexture {
-		let tex = this.m_rscene.textureBlock.createImageTex2D();
-		let img = new Image();
-		img.onload = (): void => {
-			tex.setDataFromImage(img);
-		};
-		img.src = url;
-		return tex;
-	}
-	private init3DScene(): void {
-		const rsc = this.m_rscene;
-
-		let clock = new ClockEntity();
-		clock.initialize(rsc, 100.0);
-	}
-}
-
-export default PBRClock;
-
-// for running instance
-if (!(document as any).demoState) {
-	let ins = new PBRClock();
-	ins.initialize();
 }
