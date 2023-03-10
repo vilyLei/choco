@@ -13,10 +13,14 @@ import IRenderEntity from "../../vox/render/IRenderEntity";
 import IRPONodeBuilder from "../../vox/render/IRPONodeBuilder";
 import { IRendererInstanceContext } from "../../vox/scene/IRendererInstanceContext";
 import IRenderProcess from "../render/IRenderProcess";
+import IRenderNode from "../../vox/scene/IRenderNode";
+import { ITextureBlock } from "../texture/ITextureBlock";
 /**
  * define the renderer instance behaviours;
  */
 interface IRenderer {
+  
+	readonly textureBlock: ITextureBlock;
   getUid(): number;
   getRPONodeBuilder(): IRPONodeBuilder;
   getRenderProxy(): IRenderProxy;
@@ -69,5 +73,9 @@ interface IRenderer {
   useCamera(camera: IRenderCamera, syncCamView?: boolean): void;
   useMainCamera(): void;
   updateCamera(): void;
+  
+  prependRenderNode(node: IRenderNode): void;
+  appendRenderNode(node: IRenderNode): void;
+  removeRenderNode(node: IRenderNode): void;
 }
 export default IRenderer;

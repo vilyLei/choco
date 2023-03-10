@@ -2566,12 +2566,7 @@ class RawCodeShaderBuffer extends ShaderCodeBuffer_1.default {
   }
 
   getUniqueShaderName() {
-    //console.log("H ########################### this.m_uniqueName: "+this.m_uniqueName);
     return this.m_uniqueName;
-  }
-
-  toString() {
-    return "[RawCodeShaderBuffer()]";
   }
 
 }
@@ -2642,6 +2637,21 @@ class ShaderMaterial extends MaterialBase_1.default {
 
   getUniformDataAt(uniform_name) {
     if (this.m_map.has(uniform_name)) return this.m_map.get(uniform_name);
+    return null;
+  }
+
+  getUniformDataByIndex(index) {
+    if (this.m_uniformData) {
+      const ls = this.m_uniformData.uniformNameList;
+
+      if (ls.length >= index && index < ls.length) {
+        return {
+          data: this.m_uniformData.dataList[index],
+          name: ls[index]
+        };
+      }
+    }
+
     return null;
   }
 
@@ -7763,7 +7773,7 @@ function createRendererScene(rparam = null, renderProcessesTotal = 3, sceneBlock
   let rs = new CoRendererScene_1.default();
 
   if (rparam != null) {
-    rs.initialize(rparam, 3);
+    rs.initialize(rparam, renderProcessesTotal);
 
     if (sceneBlockEnabled) {
       applySceneBlock(rs);
@@ -11156,11 +11166,11 @@ class TextureBlock {
     return this.m_rttStore;
   }
 
-  createWrapperTex(pw, ph, powerof2Boo = false) {
+  createWrapperTex(pw = 128, ph = 128, powerof2Boo = false) {
     return this.m_rttStore.createWrapperTex(pw, ph, powerof2Boo);
   }
 
-  createRTTTex2D(pw, ph, powerof2Boo = false) {
+  createRTTTex2D(pw = 128, ph = 128, powerof2Boo = false) {
     let tex = this.m_rttStore.createRTTTex2D(pw, ph, powerof2Boo);
 
     tex.__$setRenderProxy(this.m_renderProxy);
@@ -11616,10 +11626,6 @@ class ImageTextureProxy extends TextureProxy_1.default {
 
       super.__$destroy();
     }
-  }
-
-  toString() {
-    return "[ImageTextureProxy(name:" + this.name + ",uid=" + this.getUid() + ",width=" + this.getWidth() + ",height=" + this.getHeight() + ")]";
   }
 
 }
@@ -17584,7 +17590,7 @@ class RendererSceneBase {
   }
 
   createFBOInstance() {
-    return new FBOInstance_1.default(this, this.textureBlock.getRTTStrore());
+    return new FBOInstance_1.default(this);
   }
 
   createMatrix4() {
@@ -18242,6 +18248,8 @@ class RendererSceneBase {
         this.m_evt3DCtr.mouseOutEventTarget();
       }
     }
+
+    this.runnableQueue.run();
   } // 运行渲染可见性裁剪测试，射线检测等空间管理机制
 
 
@@ -18326,24 +18334,26 @@ class RendererSceneBase {
 
   run(autoCycle = true) {
     if (this.m_enabled) {
+      let runFlag = autoCycle;
+
       if (autoCycle && this.m_autoRunEnabled) {
-        if (this.m_runFlag != 1) this.update();
+        if (this.m_runFlag != 1) {
+          this.update();
+          runFlag = false;
+        }
+
         this.m_runFlag = 2;
       }
 
-      this.runnableQueue.run();
+      if (runFlag) {
+        this.runnableQueue.run();
+      }
+
       this.runRenderNodes(this.m_prependNodes);
 
       if (this.m_adapter.isFBORunning()) {
         this.setRenderToBackBuffer();
-      } // if (this.m_localRunning) {
-      // 	for (let i = 0; i < this.m_processidsLen; ++i) {
-      // 		this.m_renderer.runAt(this.m_processids[i]);
-      // 	}
-      // } else {
-      // 	this.m_renderer.run();
-      // }
-
+      }
 
       for (let i = 0; i < this.m_processidsLen; ++i) {
         this.m_renderer.runAt(this.m_processids[i]);
@@ -18757,10 +18767,6 @@ class DepthTextureProxy extends RTTTextureProxy_1.default {
     console.log("DepthTextureProxy uploadData()...");
     let gl = texRes.getRC();
     gl.texImage2D(this.m_sampler, 0, TextureFormat_1.default.ToGL(gl, this.internalFormat), this.m_texWidth, this.m_texHeight, 0, TextureFormat_1.default.ToGL(gl, this.srcFormat), TextureDataType_1.default.ToGL(gl, this.dataType), null);
-  }
-
-  toString() {
-    return "[DepthTextureProxy(name:" + this.name + ",uid=" + this.getUid() + ",width=" + this.getWidth() + ",height=" + this.getHeight() + ")]";
   }
 
 }
@@ -20084,7 +20090,7 @@ const FrameBufferType_1 = __importDefault(__webpack_require__("baae"));
 const RendererState_1 = __importDefault(__webpack_require__("29ef"));
 
 class FBOInstance {
-  constructor(renderer, texStroe) {
+  constructor(renderer) {
     this.m_backBufferColor = new Color4_1.default();
     this.m_adapter = null;
     this.m_rproxy = null;
@@ -20125,8 +20131,9 @@ class FBOInstance {
     this.m_lockMaterial = false;
     this.m_autoEnd = true;
     this.m_autoRunBegin = true;
+    this.m_autoRRun = false;
     this.m_renderer = renderer;
-    this.m_texStore = texStroe;
+    this.m_texStore = renderer.textureBlock.getRTTStrore();
     this.m_rproxy = renderer.getRenderProxy();
     this.m_adapter = this.m_rproxy.getRenderAdapter();
     this.m_rcontext = renderer.getRendererContext();
@@ -20376,13 +20383,13 @@ class FBOInstance {
    * @param fboIndex FBO 对象的序号
    * @param width FBO 对象的viewport width, if width < 1, viewport width is stage width;
    * @param height FBO 对象的viewport height, if height < 1, viewport width is stage height;
-   * @param enableDepth FBO 对象的depth读写是否开启
-   * @param enableStencil FBO 对象的stencil读写是否开启
-   * @param multisampleLevel FBO 对象的multisample level
+   * @param enableDepth FBO 对象的depth读写是否开启, the default value is true
+   * @param enableStencil FBO 对象的stencil读写是否开启, the default value is false
+   * @param multisampleLevel FBO 对象的multisample level, the default value is 0
    */
 
 
-  createFBOAt(fboIndex, width, height, enableDepth = false, enableStencil = false, multisampleLevel = 0) {
+  createFBOAt(fboIndex, width, height, enableDepth = true, enableStencil = false, multisampleLevel = 0) {
     if (fboIndex >= 0 && this.m_fboIndex < 0) {
       this.m_fboType = FrameBufferType_1.default.FRAMEBUFFER;
       this.m_initW = width;
@@ -20399,9 +20406,9 @@ class FBOInstance {
    * @param fboIndex FBO 对象的序号
    * @param width FBO 对象的viewport width, if width < 1, viewport width is stage width;
    * @param height FBO 对象的viewport height, if height < 1, viewport width is stage height;
-   * @param enableDepth FBO 对象的depth读写是否开启
-   * @param enableStencil FBO 对象的stencil读写是否开启
-   * @param multisampleLevel FBO 对象的multisample level
+   * @param enableDepth FBO 对象的depth读写是否开启, the default value is true
+   * @param enableStencil FBO 对象的stencil读写是否开启, the default value is false
+   * @param multisampleLevel FBO 对象的multisample level, the default value is 0
    */
 
 
@@ -20422,9 +20429,9 @@ class FBOInstance {
    * @param fboIndex FBO 对象的序号
    * @param width FBO 对象的viewport width, if width < 1, viewport width is stage width;
    * @param height FBO 对象的viewport height, if height < 1, viewport width is stage height;
-   * @param enableDepth FBO 对象的depth读写是否开启
-   * @param enableStencil FBO 对象的stencil读写是否开启
-   * @param multisampleLevel FBO 对象的multisample level
+   * @param enableDepth FBO 对象的depth读写是否开启, the default value is true
+   * @param enableStencil FBO 对象的stencil读写是否开启, the default value is false
+   * @param multisampleLevel FBO 对象的multisample level, the default value is 0
    */
 
 
@@ -20837,7 +20844,7 @@ class FBOInstance {
   }
 
   clone() {
-    let ins = new FBOInstance(this.m_renderer, this.m_texStore);
+    let ins = new FBOInstance(this.m_renderer);
     ins.m_fboSizeFactor = this.m_fboSizeFactor;
     ins.m_bgColor.copyFrom(this.m_bgColor);
     ins.m_fboIndex = this.m_fboIndex;
@@ -20879,6 +20886,34 @@ class FBOInstance {
 
   render() {
     this.run(this.m_lockRenderState, this.m_lockMaterial, this.m_autoEnd, this.m_autoRunBegin);
+  }
+  /**
+   * @param auto enable auto runnning this instance
+   * @param prepend perpend this into the renderer rendering process or append, the default value is true
+   * @returns instance self
+   */
+
+
+  setAutoRunning(auto, prepend = true) {
+    if (auto != this.m_autoRRun) {
+      this.m_autoRRun = auto;
+
+      if (auto) {
+        if (prepend) {
+          this.m_renderer.prependRenderNode(this);
+        } else {
+          this.m_renderer.appendRenderNode(this);
+        }
+      } else {
+        this.m_renderer.removeRenderNode(this);
+      }
+    }
+
+    return this;
+  }
+
+  isAutoRunning() {
+    return false;
   }
 
 }
@@ -22058,6 +22093,16 @@ class RendererParam {
     this.batchEnabled = true;
     this.processFixedState = false;
     this.m_mainDiv = div;
+
+    if (div) {
+      let str = div.style.width;
+      str = str.slice(0, str.indexOf("px"));
+      this.divW = parseInt(str);
+      str = div.style.height;
+      str = str.slice(0, str.indexOf("px"));
+      this.divH = parseInt(str);
+    }
+
     this.autoSyncRenderBufferAndWindowSize = div == null;
   }
   /**
@@ -24503,8 +24548,6 @@ const RTTTextureProxy_1 = __importDefault(__webpack_require__("cfaf"));
 const DepthTextureProxy_1 = __importDefault(__webpack_require__("acaa"));
 
 const WrapperTextureProxy_1 = __importDefault(__webpack_require__("85b6"));
-
-const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
 /**
  * 本类作为所有RTT纹理对象的管理类
  */
@@ -24512,17 +24555,21 @@ const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
 
 class RTTTextureStore {
   constructor(renderProxy) {
-    this.m_renderProxy = null; // reusable rtt texture resources for one renderer context
+    this.m_rp = null; // reusable rtt texture resources for one renderer context
 
-    this.m_rttTexs = [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null];
-    this.m_rttCubeTexs = [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null];
-    this.m_rttFloatTexs = [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null];
-    this.m_rttDepthTexs = [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null];
-    this.m_renderProxy = renderProxy;
+    this.m_rttTexs = new Array(16);
+    this.m_rttCubeTexs = new Array(16);
+    this.m_rttFloatTexs = new Array(16);
+    this.m_rttDepthTexs = new Array(16);
+    this.m_rp = renderProxy;
+    this.m_rttTexs.fill(null);
+    this.m_rttCubeTexs.fill(null);
+    this.m_rttFloatTexs.fill(null);
+    this.m_rttDepthTexs.fill(null);
   }
 
   getRenderProxy() {
-    return this.m_renderProxy;
+    return this.m_rp;
   }
 
   createWrapperTex(pw, ph, powerof2Boo = false) {
@@ -24540,157 +24587,87 @@ class RTTTextureStore {
     return tex;
   }
 
-  getCubeRTTTextureAt(i) {
+  getCubeRTTTextureAt(i, pw = 64, ph = 64) {
     if (this.m_rttCubeTexs[i] != null) {
-      this.m_rttCubeTexs[i].__$setRenderProxy(this.m_renderProxy);
+      this.m_rttCubeTexs[i].__$setRenderProxy(this.m_rp);
 
       return this.m_rttCubeTexs[i];
     }
 
-    this.m_rttCubeTexs[i] = this.createRTTTex2D(32, 32);
-    this.m_rttCubeTexs[i].toCubeTexture();
-    this.m_rttCubeTexs[i].name = "sys_cube_rttTex_" + i;
-    this.m_rttCubeTexs[i].minFilter = TextureConst_1.default.LINEAR;
-    this.m_rttCubeTexs[i].magFilter = TextureConst_1.default.LINEAR;
-
-    this.m_rttCubeTexs[i].__$setRenderProxy(this.m_renderProxy);
-
-    return this.m_rttCubeTexs[i];
-  }
-
-  createCubeRTTTextureAt(i, pw, ph) {
     pw = pw > 1 ? pw : 1;
     ph = ph > 1 ? ph : 1;
-
-    if (this.m_rttCubeTexs[i] != null) {
-      this.m_rttCubeTexs[i].__$setRenderProxy(this.m_renderProxy);
-
-      return this.m_rttCubeTexs[i];
-    }
-
     this.m_rttCubeTexs[i] = this.createRTTTex2D(pw, ph);
     this.m_rttCubeTexs[i].toCubeTexture();
     this.m_rttCubeTexs[i].name = "sys_cube_rttTex_" + i;
     this.m_rttCubeTexs[i].minFilter = TextureConst_1.default.LINEAR;
     this.m_rttCubeTexs[i].magFilter = TextureConst_1.default.LINEAR;
 
-    this.m_rttCubeTexs[i].__$setRenderProxy(this.m_renderProxy);
+    this.m_rttCubeTexs[i].__$setRenderProxy(this.m_rp);
 
     return this.m_rttCubeTexs[i];
   }
 
-  getRTTTextureAt(i) {
-    if (this.m_rttTexs[i] != null) {
-      this.m_rttTexs[i].__$setRenderProxy(this.m_renderProxy);
-
-      return this.m_rttTexs[i];
-    }
-
-    this.m_rttTexs[i] = this.createRTTTex2D(32, 32);
-    this.m_rttTexs[i].to2DTexture();
-    this.m_rttTexs[i].name = "sys_rttTex_" + i;
-    this.m_rttTexs[i].minFilter = TextureConst_1.default.LINEAR;
-    this.m_rttTexs[i].magFilter = TextureConst_1.default.LINEAR;
-
-    this.m_rttTexs[i].__$setRenderProxy(this.m_renderProxy);
-
-    return this.m_rttTexs[i];
+  createCubeRTTTextureAt(i, pw, ph) {
+    return this.getCubeRTTTextureAt(i, pw, ph);
   }
 
-  createRTTTextureAt(i, pw, ph) {
-    pw = pw > 1 ? pw : 1;
-    ph = ph > 1 ? ph : 1;
-
+  getRTTTextureAt(i, pw = 64, ph = 64) {
     if (this.m_rttTexs[i] != null) {
-      this.m_rttTexs[i].__$setRenderProxy(this.m_renderProxy);
+      this.m_rttTexs[i].__$setRenderProxy(this.m_rp);
 
       return this.m_rttTexs[i];
     }
 
+    pw = pw > 1 ? pw : 1;
+    ph = ph > 1 ? ph : 1;
     this.m_rttTexs[i] = this.createRTTTex2D(pw, ph);
     this.m_rttTexs[i].to2DTexture();
     this.m_rttTexs[i].name = "sys_rttTex_" + i;
     this.m_rttTexs[i].minFilter = TextureConst_1.default.LINEAR;
     this.m_rttTexs[i].magFilter = TextureConst_1.default.LINEAR;
 
-    this.m_rttTexs[i].__$setRenderProxy(this.m_renderProxy);
+    this.m_rttTexs[i].__$setRenderProxy(this.m_rp);
 
     return this.m_rttTexs[i];
   }
 
-  getDepthTextureAt(i) {
+  createRTTTextureAt(i, pw, ph) {
+    return this.getRTTTextureAt(i, pw, ph);
+  }
+
+  getDepthTextureAt(i, pw = 64, ph = 64) {
     if (this.m_rttDepthTexs[i] != null) {
-      this.m_rttDepthTexs[i].__$setRenderProxy(this.m_renderProxy);
+      this.m_rttDepthTexs[i].__$setRenderProxy(this.m_rp);
 
       return this.m_rttDepthTexs[i];
     }
 
-    this.m_rttDepthTexs[i] = this.createDepthTex2D(64, 64);
+    pw = pw > 1 ? pw : 1;
+    ph = ph > 1 ? ph : 1;
+    this.m_rttDepthTexs[i] = this.createDepthTex2D(pw, ph);
     this.m_rttDepthTexs[i].to2DTexture();
     this.m_rttDepthTexs[i].name = "sys_depthTex_" + i;
     this.m_rttDepthTexs[i].minFilter = TextureConst_1.default.NEAREST;
     this.m_rttDepthTexs[i].magFilter = TextureConst_1.default.NEAREST;
 
-    this.m_rttDepthTexs[i].__$setRenderProxy(this.m_renderProxy);
+    this.m_rttDepthTexs[i].__$setRenderProxy(this.m_rp);
 
     return this.m_rttDepthTexs[i];
   }
 
   createDepthTextureAt(i, pw, ph) {
-    pw = pw > 1 ? pw : 1;
-    ph = ph > 1 ? ph : 1;
-
-    if (this.m_rttDepthTexs[i] != null) {
-      this.m_rttDepthTexs[i].__$setRenderProxy(this.m_renderProxy);
-
-      return this.m_rttDepthTexs[i];
-    }
-
-    this.m_rttDepthTexs[i] = this.createDepthTex2D(pw, ph);
-    this.m_rttDepthTexs[i].to2DTexture();
-    this.m_rttDepthTexs[i].name = "sys_depthTex_" + i;
-
-    this.m_rttDepthTexs[i].__$setRenderProxy(this.m_renderProxy);
-
-    return this.m_rttDepthTexs[i];
+    return this.getDepthTextureAt(i, pw, ph);
   }
 
-  getRTTFloatTextureAt(i) {
+  getRTTFloatTextureAt(i, pw = 64, ph = 64) {
     if (this.m_rttFloatTexs[i] != null) {
-      this.m_rttFloatTexs[i].__$setRenderProxy(this.m_renderProxy);
+      this.m_rttFloatTexs[i].__$setRenderProxy(this.m_rp);
 
       return this.m_rttFloatTexs[i];
     }
 
-    let tex = this.createRTTTex2D(64, 64);
-    tex.to2DTexture();
-    this.m_rttFloatTexs[i] = tex;
-    this.m_rttFloatTexs[i].name = "sys_rttFloatTex_" + i;
-    tex.internalFormat = TextureFormat_1.default.RGBA16F;
-    tex.srcFormat = TextureFormat_1.default.RGBA;
-    tex.dataType = TextureDataType_1.default.FLOAT;
-    tex.minFilter = TextureConst_1.default.NEAREST;
-    tex.magFilter = TextureConst_1.default.NEAREST;
-
-    if (RendererDevice_1.default.IsWebGL1()) {
-      tex.dataType = TextureDataType_1.default.HALF_FLOAT_OES;
-    }
-
-    this.m_rttFloatTexs[i].__$setRenderProxy(this.m_renderProxy);
-
-    return tex;
-  }
-
-  createRTTFloatTextureAt(i, pw, ph) {
     pw = pw > 1 ? pw : 1;
     ph = ph > 1 ? ph : 1;
-
-    if (this.m_rttFloatTexs[i] != null) {
-      this.m_rttFloatTexs[i].__$setRenderProxy(this.m_renderProxy);
-
-      return this.m_rttFloatTexs[i];
-    }
-
     let tex = this.createRTTTex2D(pw, ph);
     tex.to2DTexture();
     this.m_rttFloatTexs[i] = tex;
@@ -24701,13 +24678,17 @@ class RTTTextureStore {
     tex.minFilter = TextureConst_1.default.NEAREST;
     tex.magFilter = TextureConst_1.default.NEAREST;
 
-    if (RendererDevice_1.default.IsWebGL1()) {
+    if (this.m_rp.isWebGL1()) {
       tex.dataType = TextureDataType_1.default.HALF_FLOAT_OES;
     }
 
-    this.m_rttFloatTexs[i].__$setRenderProxy(this.m_renderProxy);
+    this.m_rttFloatTexs[i].__$setRenderProxy(this.m_rp);
 
     return tex;
+  }
+
+  createRTTFloatTextureAt(i, pw, ph) {
+    return this.getRTTFloatTextureAt(i, pw, ph);
   }
 
 }
@@ -24761,6 +24742,18 @@ class RTTTextureProxy extends TextureProxy_1.default {
     this.m_type = TextureProxyType_1.TextureProxyType.RTT;
     this.minFilter = TextureConst_1.default.NEAREST;
     this.magFilter = TextureConst_1.default.NEAREST;
+  }
+
+  toRedFormat() {
+    this.srcFormat = TextureFormat_1.default.RED;
+
+    if (this.dataType == TextureDataType_1.default.FLOAT) {
+      this.internalFormat = TextureFormat_1.default.R16F; // this.internalFormat = TextureFormat.R32F;
+    } else {
+      this.internalFormat = TextureFormat_1.default.RED;
+    } // this.srcFormat = TextureFormat.RED;
+    // this.internalFormat = TextureFormat.R16F;
+
   }
 
   to2DTexture() {
@@ -28299,12 +28292,9 @@ function createImageCanvas(img, pw, ph) {
 }
 
 function createImageCanvasAlphaOffset(img, pw, ph) {
-  var canvas = document.createElement('canvas'); //document.body.appendChild(canvas);
-
+  var canvas = document.createElement('canvas');
   canvas.width = pw;
-  canvas.height = ph; //console.log("createImageCanvasAlphaOffset(). size: "+canvas.width+","+canvas.height);
-  //canvas.style.visibility = "hidden";
-
+  canvas.height = ph;
   canvas.style.backgroundColor = "transparent";
   canvas.style.display = "block";
   canvas.style.left = '0px';
@@ -28646,14 +28636,7 @@ class ImageTextureLoader {
     }
 
     return null;
-  } // addCallbackByUrl(purl:string, callback: () => void): void {
-  //     if(callback != null) {
-  //         let t = this.m_resMap.get(purl);
-  //         if (t != null) {
-  //         }
-  //     }
-  // }
-
+  }
 
   getImageTexByUrl(purl, mipLevel = 0, offsetTexEnabled = false, powerOf2Fix = false) {
     if (purl == "") {
@@ -29726,10 +29709,6 @@ class BytesTextureProxy extends RawDataTextureProxy_1.default {
     super.getPixels(px, py, pw, ph, outBytes);
   }
 
-  toString() {
-    return "[BytesTextureProxy(width=" + this.getWidth() + ",height=" + this.getHeight() + ")]";
-  }
-
 }
 
 exports.default = BytesTextureProxy;
@@ -30204,6 +30183,14 @@ class TextureFormat {
         return gl.R8;
         break;
 
+      case tf.R16F:
+        return gl.R16F;
+        break;
+
+      case tf.R32F:
+        return gl.R32F;
+        break;
+
       case tf.RGB:
         return gl.RGB;
         break;
@@ -30268,6 +30255,8 @@ class TextureFormat {
 }
 
 TextureFormat.R8 = 101;
+TextureFormat.R16F = 102;
+TextureFormat.R32F = 102;
 TextureFormat.RGB = 110;
 TextureFormat.RED = 111;
 TextureFormat.RGBA = 121;

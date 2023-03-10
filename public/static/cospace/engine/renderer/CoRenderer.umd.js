@@ -1907,6 +1907,7 @@ class RenderAdapter {
       this.m_gl.enable(this.m_gl.CULL_FACE);
       this.m_gl.cullFace(this.m_gl.BACK);
       this.m_gl.enable(this.m_gl.BLEND);
+      this.m_gl.enable(this.m_gl.BLEND);
       if (param.getDitherEanbled()) this.m_gl.enable(this.m_gl.DITHER);else this.m_gl.disable(this.m_gl.DITHER);
       this.m_gl.frontFace(this.m_gl.CCW); //m_gl.hint(m_gl.PERSPECTIVE_CORRECTION_HINT, m_gl.NICEST);	// Really Nice Perspective Calculations
 
@@ -12713,6 +12714,7 @@ class RendererInstance {
     this.m_roVtxBuilder = null;
     this.m_stage3D = null;
     this.m_fixProcess = null;
+    this.textureBlock = null;
     this.m_uid = RendererInstance.s_uid++;
     this.m_renderInsContext = new RendererInstanceContext_1.RendererInstanceContext(this.m_uid);
   }
@@ -12783,6 +12785,11 @@ class RendererInstance {
   createCamera() {
     return null;
   }
+  /**
+   * @param camera IRenderCamera instance
+   * @param syncCamView the default value is false
+   */
+
 
   useCamera(camera, syncCamView = false) {}
 
@@ -12858,8 +12865,8 @@ class RendererInstance {
   /**
    * add an entity to the renderer process of the renderer instance
    * @param entity IRenderEntity instance(for example: DisplayEntity class instance)
-   * @param processIndex this destination renderer process index of the m_processes array.
-   * @param deferred if the value is true,the entity will not to be immediately add to the renderer process by its id
+   * @param processIndex this destination renderer process index of the m_processes array, the defaule value is 0
+   * @param deferred if the value is true,the entity will not to be immediately add to the renderer process by its id, the defaule value is true
    */
 
 
@@ -12930,7 +12937,7 @@ class RendererInstance {
 
 
   removeEntity(entity) {
-    if (entity != null && entity.getRendererUid() == this.m_uid) {
+    if (entity && entity.getRendererUid() == this.m_uid) {
       this.m_entity3DMana.removeEntity(entity);
 
       entity.__$setRenderProxy(null);
@@ -12944,8 +12951,8 @@ class RendererInstance {
 
 
   removeEntityFromProcess(entity, process) {
-    if (process != null && process.getRCUid() == this.m_uid) {
-      if (entity != null && entity.getRendererUid() == this.m_uid) {
+    if (process && process.getRCUid() == this.m_uid) {
+      if (entity && entity.getRendererUid() == this.m_uid) {
         process.removeDisp(entity.getDisplay());
 
         entity.__$setRenderProxy(null);
@@ -12961,7 +12968,7 @@ class RendererInstance {
 
   removeEntityByProcessIndex(entity, processIndex) {
     if (processIndex >= 0 && processIndex < this.m_processesLen) {
-      if (entity != null && entity.getRendererUid() == this.m_uid) {
+      if (entity && entity.getRendererUid() == this.m_uid) {
         this.m_processes[processIndex].removeDisp(entity.getDisplay());
 
         entity.__$setRenderProxy(null);
@@ -12976,9 +12983,8 @@ class RendererInstance {
   }
 
   setProcessSortEnabled(process, sortEnabled) {
-    if (process != null && process.getRCUid() == this.m_uid) {
-      let p = process;
-      p.setSortEnabled(sortEnabled);
+    if (process && process.getRCUid() == this.m_uid) {
+      process.setSortEnabled(sortEnabled);
     }
   }
   /**
@@ -13126,6 +13132,12 @@ class RendererInstance {
   renderflush() {
     this.m_renderProxy.flush();
   }
+
+  prependRenderNode(node) {}
+
+  appendRenderNode(node) {}
+
+  removeRenderNode(node) {}
 
   toString() {
     return "[RendererInstance(uid = " + this.m_uid + ")]";
@@ -13370,7 +13382,7 @@ class RenderProxy {
   }
 
   drawInstanced(count, offset, instanceCount) {
-    if (this.m_WEBGL_VER == 2) {
+    if (this.isWebGL2()) {
       this.m_rc.drawElementsInstanced(this.TRIANGLES, count, this.UNSIGNED_SHORT, offset, instanceCount);
     } else {
       RCExtension_1.default.ANGLE_instanced_arrays.drawElementsInstancedANGLE(this.TRIANGLES, count, offset, instanceCount);
@@ -13529,6 +13541,14 @@ class RenderProxy {
 
   getGLVersion() {
     return this.m_WEBGL_VER;
+  }
+
+  isWebGL2() {
+    return this.m_WEBGL_VER == 2;
+  }
+
+  isWebGL1() {
+    return this.m_WEBGL_VER == 1;
   }
 
   buildCameraParam() {
@@ -14658,9 +14678,8 @@ class AABB2D {
   }
 
   flipY(height) {
-    this.y = height = this.y;
-    this.m_right = this.width + this.x;
-    this.m_top = this.height + this.y;
+    this.y = height - this.y;
+    this.update();
   }
 
   getX() {
@@ -15409,6 +15428,14 @@ class TextureFormat {
         return gl.R8;
         break;
 
+      case tf.R16F:
+        return gl.R16F;
+        break;
+
+      case tf.R32F:
+        return gl.R32F;
+        break;
+
       case tf.RGB:
         return gl.RGB;
         break;
@@ -15473,6 +15500,8 @@ class TextureFormat {
 }
 
 TextureFormat.R8 = 101;
+TextureFormat.R16F = 102;
+TextureFormat.R32F = 102;
 TextureFormat.RGB = 110;
 TextureFormat.RED = 111;
 TextureFormat.RGBA = 121;
