@@ -86,7 +86,7 @@ export class StencilTest {
 			stencil.setStencilFunc(GLStencilFunc.ALWAYS, 1, 0xff);
 			stencil.setStencilMask(0xff);
 
-			this.m_entity.setVisible(true);
+			// this.m_entity.setVisible(true);
 			renderer.drawEntity(this.m_entity);
 
 			stencil.setStencilFunc(GLStencilFunc.NOTEQUAL, 1, 0xff);

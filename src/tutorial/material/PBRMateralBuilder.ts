@@ -120,9 +120,6 @@ class PBRMateralBuilder {
 			this.initLightColor();
 		}
 		let wrapper = new PBRTextureMaterialWrapper();
-		// if(envMapEnabled) {
-		// 	wrapper.setTextureList([PBRMateralBuilder.s_envMap]);
-		// }
 		let texList: IRenderTexture[] = [];
 		wrapper.envMapEnabled = param.envMap != null;
 		if(wrapper.envMapEnabled) {
@@ -151,8 +148,6 @@ class PBRMateralBuilder {
 		if(wrapper.aoMapEnabled) {
 			texList.push(param.aoMap);
 		}
-
-
 		for (let i = 0; i < 4; ++i) {
 			wrapper.setPosAt(i, this.m_lightPosList[i]);
 			wrapper.setColorAt(i, this.m_lightColorList[i]);

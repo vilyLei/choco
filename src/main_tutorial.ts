@@ -28,11 +28,13 @@
 // import { CubeMRT as Demo } from "./tutorial/CubeMRT";
 
 // import { UVDisplacement as Demo } from "./tutorial/UVDisplacement";
-import { PBRTextureShader as Demo } from "./tutorial/PBRTextureShader";
+// import { PBRTextureShader as Demo } from "./tutorial/PBRTextureShader";
 // import { NormalMap as Demo } from "./tutorial/NormalMap";
 // import { HeightMap as Demo } from "./tutorial/HeightMap";
 
-// import { StencilTest as Demo } from "./tutorial/StencilTest";
+import { StencilTest as Demo } from "./tutorial/StencilTest";
+
+// import { LoadModel as Demo } from "./tutorial/LoadModel";
 
 document.title = "choco:tutorial";
 

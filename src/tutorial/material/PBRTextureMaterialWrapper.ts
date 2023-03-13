@@ -44,7 +44,29 @@ class PBRTextureMaterialWrapper {
 
 		if (this.m_material == null) {
 
-			let material = VoxMaterial.createShaderMaterial("pbr_texture_shader");
+			
+			let uns = "";
+			if (this.envMapEnabled) {
+				uns += "env_";
+			}
+			if (this.diffuseMapEnabled) {
+				uns += "diff_";
+			}
+			if (this.normalMapEnabled) {
+				uns += "morm_";
+			}
+			if (this.roughnessMapEnabled) {
+				uns += "roug_";
+			}
+			if (this.metallicMapEnabled) {
+				uns += "metal_";
+			}
+			if (this.aoMapEnabled) {
+				uns += "ao_";
+			}
+
+			uns = uns != "" ? "pbr_texture_shader" : "pbr_texture_shader_"+uns;
+			let material = VoxMaterial.createShaderMaterial(uns);
 
 			material.setShaderBuilder((coderBuilder: IShaderCodeBuffer): void => {
 				// VOX_ENV_MAP
