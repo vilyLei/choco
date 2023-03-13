@@ -1,13 +1,11 @@
 import IRendererScene from "../engine/vox/scene/IRendererScene";
-import { GLStencilOp, GLStencilFunc, VoxRScene, RendererState } from "../engine/cospace/voxengine/VoxRScene";
+import { VoxRScene, RendererState } from "../engine/cospace/voxengine/VoxRScene";
 
 import { VoxUIInteraction } from "../engine/cospace/voxengine/ui/VoxUIInteraction";
 import { VoxEntity } from "../engine/cospace/voxentity/VoxEntity";
 import { VoxMaterial } from "../engine/cospace/voxmaterial/VoxMaterial";
 import IRenderTexture from "../engine/vox/render/texture/IRenderTexture";
 import VoxModuleShell from "../common/VoxModuleShell";
-import ITransformEntity from "../engine/vox/entity/ITransformEntity";
-import IDefault3DMaterial from "../engine/vox/material/mcase/IDefault3DMaterial";
 
 import { CoGeomDataType, CoModelTeamLoader } from "../engine/cospace/app/common/CoModelTeamLoader";
 import IDisplayEntity from "../engine/vox/entity/IDisplayEntity";
@@ -62,8 +60,6 @@ export class LoadModel {
 		img.src = url;
 		return tex;
 	}
-	private m_entity: ITransformEntity = null;
-	private m_material: IDefault3DMaterial = null;
 	private init3DScene(): void {
 		const rsc = this.m_rscene;
 		this.initModels();
