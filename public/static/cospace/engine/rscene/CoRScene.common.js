@@ -4679,7 +4679,6 @@ class RawMesh extends MeshBase_1.default {
       this.vtCount = this.m_ivs.length;
 
       if (this.autoBuilding) {
-        this.updateWireframeIvs();
         this.vtCount = this.m_ivs.length;
       }
     } else {
@@ -8454,33 +8453,30 @@ class DisplayEntity {
   }
 
   setIvsParam(ivsIndex, ivsCount, updateBounds = false) {
-    if (this.m_display != null) {
-      this.m_display.ivsIndex = ivsIndex;
-      this.m_display.ivsCount = ivsCount;
-
-      if (this.m_display.__$ruid > -1) {
-        const mh = this.m_mesh;
-        let ut = this.m_display.__$$runit;
-        ut.setIvsParam(ivsIndex, ivsCount);
-
-        if (updateBounds && this.isPolyhedral()) {
-          if (this.m_localBounds == mh.bounds) {
-            this.m_localBounds = new AABB_1.default();
-            this.m_localBounds.copyFrom(mh.bounds);
-          }
-
-          this.m_transStatus = ROTransform_1.default.UPDATE_TRANSFORM;
-          this.m_localBounds.reset();
-          let ivs = mh.getIVS();
-          this.m_localBounds.addFloat32AndIndices(mh.getVS(), ivs.subarray(ivsIndex, ivsIndex + ivsCount), mh.getVSStride());
-          this.m_localBounds.update();
-
-          if (this.m_trw != null) {
-            this.m_trw.updateTo();
-          }
-        }
-      }
-    }
+    // if (this.m_display != null) {
+    //     this.m_display.ivsIndex = ivsIndex;
+    //     this.m_display.ivsCount = ivsCount;
+    //     if (this.m_display.__$ruid > -1) {
+    //         const mh = this.m_mesh;
+    //         let ut = this.m_display.__$$runit;
+    //         ut.setIvsParam(ivsIndex, ivsCount);
+    //         if (updateBounds && this.isPolyhedral()) {
+    //             if (this.m_localBounds == mh.bounds) {
+    //                 this.m_localBounds = new AABB();
+    //                 this.m_localBounds.copyFrom(mh.bounds);
+    //             }
+    //             this.m_transStatus = ROTransform.UPDATE_TRANSFORM;
+    //             this.m_localBounds.reset();
+    //             let ivs = mh.getIVS();
+    //             this.m_localBounds.addFloat32AndIndices(mh.getVS(), ivs.subarray(ivsIndex, ivsIndex + ivsCount), mh.getVSStride());
+    //             this.m_localBounds.update();
+    //             if (this.m_trw != null) {
+    //                 this.m_trw.updateTo();
+    //             }
+    //         }
+    //     }
+    // }
+    throw Error("illagel operations ...");
   }
 
   getMesh() {
@@ -10185,8 +10181,11 @@ class DataMesh extends MeshBase_1.default {
     super(bufDataUsage);
     this.m_boundsChanged = true;
     this.m_ils = new Array(1);
+    this.m_iverls = new Array(1);
+    this.m_iver1ls = new Array(1);
     this.m_ists = new Array(1);
     this.m_ls = new Array(10);
+    this.m_verls = new Array(10);
     this.m_rayTester = null;
     this.m_boundsVersion = -2;
     this.autoBuilding = true; // v,u,n,c,t, v2,u2,n2,c2,t2
@@ -10194,7 +10193,10 @@ class DataMesh extends MeshBase_1.default {
     this.m_strides = new Uint8Array([3, 2, 3, 3, 3, 3, 2, 3, 3, 3]);
     this.m_ls.fill(null);
     this.m_ils.fill(null);
+    this.m_iverls.fill(0);
+    this.m_iver1ls.fill(0);
     this.m_ists.fill([true, false]);
+    this.m_verls.fill(0);
   }
 
   setRayTester(rayTester) {
@@ -10209,6 +10211,7 @@ class DataMesh extends MeshBase_1.default {
   setVS(vs, stride = 3) {
     this.m_ls[0] = vs;
     this.m_strides[0] = stride;
+    this.m_verls[0]++;
     this.m_boundsChanged = true;
     return this;
   }
@@ -10221,6 +10224,7 @@ class DataMesh extends MeshBase_1.default {
   setVS2(vs, stride = 3) {
     this.m_ls[5] = vs;
     this.m_strides[5] = stride;
+    this.m_verls[5]++;
     this.m_boundsChanged = true;
     return this;
   }
@@ -10249,6 +10253,7 @@ class DataMesh extends MeshBase_1.default {
   setUVS(uvs, stride = 2) {
     this.m_ls[1] = uvs;
     this.m_strides[1] = stride;
+    this.m_verls[1]++;
     return this;
   }
   /**
@@ -10260,6 +10265,7 @@ class DataMesh extends MeshBase_1.default {
   setUVS2(uvs, stride = 2) {
     this.m_ls[6] = uvs;
     this.m_strides[6] = stride;
+    this.m_verls[6]++;
     return this;
   }
   /**
@@ -10287,6 +10293,7 @@ class DataMesh extends MeshBase_1.default {
   setNVS(nvs, stride = 3) {
     this.m_ls[2] = nvs;
     this.m_strides[2] = stride;
+    this.m_verls[2]++;
     return this;
   }
   /**
@@ -10306,6 +10313,7 @@ class DataMesh extends MeshBase_1.default {
   setCVS(cvs, stride = 3) {
     this.m_ls[3] = cvs;
     this.m_strides[3] = stride;
+    this.m_verls[3]++;
     return this;
   }
   /**
@@ -10325,6 +10333,7 @@ class DataMesh extends MeshBase_1.default {
   setTVS(tvs, stride = 3) {
     this.m_ls[4] = tvs;
     this.m_strides[4] = stride;
+    this.m_verls[4]++;
     return this;
   }
   /**
@@ -10344,14 +10353,15 @@ class DataMesh extends MeshBase_1.default {
     this.setTVS(geom.getTVS());
     this.setIVSAt(geom.getIVS());
     this.m_boundsChanged = true;
-    this.initialize();
+    return this.initialize();
   }
 
-  addFloat32Data(data, type, stride, info = "") {
+  addFloat32Data(data, type, stride, ver, info = "") {
     let free = this.getBufSortFormat() < 1;
-    free = this.isVBufEnabledAt(type) || free && data != null; // console.log("DataMesh::addFloat32Data(), info: ", info, ", free: ", free, ", data: ", data);
+    free = this.isVBufEnabledAt(type) || free && data != null; // console.log("DataMesh::addFloat32Data(), info: ", info, ", free: ", free, ", ver: ", ver);
 
     if (free) {
+      ROVertexBuffer_1.default.AddFloat32DataVer(ver);
       ROVertexBuffer_1.default.AddFloat32Data(data, stride);
     }
   }
@@ -10359,6 +10369,7 @@ class DataMesh extends MeshBase_1.default {
   setIVS(ivs) {
     this.m_ivs = ivs;
     this.m_ils[0] = ivs;
+    this.m_iverls[0] += 1;
     return this;
   }
   /**
@@ -10377,12 +10388,15 @@ class DataMesh extends MeshBase_1.default {
 
     if (index < this.m_ils.length) {
       this.m_ils[index] = ivs;
+      this.m_iverls[index] += 1;
       let ls = this.m_ists[index];
       ls[0] = shape;
       ls[1] = wireframe;
     } else if (index == this.m_ils.length) {
       this.m_ils.push(ivs);
       this.m_ists.push([shape, wireframe]);
+      this.m_iverls.push(1);
+      this.m_iver1ls.push(0);
     }
 
     return this;
@@ -10415,15 +10429,17 @@ class DataMesh extends MeshBase_1.default {
 
       this.m_boundsVersion = this.bounds.version;
       this.m_boundsChanged = false;
-      let ils = this.m_ils;
-      let ivs = ils[0];
+      const ils = this.m_ils;
+      const ivs = ils[0];
+      const verls = this.m_verls;
       const rvb = ROVertexBuffer_1.default;
       ROVertexBuffer_1.default.Reset(); // console.log("XXXXXX vsStride: ", vsStride, ", vs: ", vs);
 
+      rvb.AddFloat32DataVer(verls[0]);
       rvb.AddFloat32Data(vs, vsStride);
       const vc = VtxBufConst_1.default;
       const vcf = this.addFloat32Data.bind(this);
-      vcf(ls[1], vc.VBUF_UVS_INDEX, ds[1]);
+      vcf(ls[1], vc.VBUF_UVS_INDEX, ds[1], verls[1]);
       let nvsIndex = 2;
       let nvs = ls[nvsIndex];
       let free = this.getBufSortFormat() < 1;
@@ -10437,25 +10453,17 @@ class DataMesh extends MeshBase_1.default {
         } // console.log("XXXXXX vsStride: ", ds[nvsIndex], ", nvs: ", nvs);
 
 
+        rvb.AddFloat32DataVer(verls[nvsIndex]);
         rvb.AddFloat32Data(nvs, ds[nvsIndex]);
       }
 
-      vcf(ls[3], vc.VBUF_CVS_INDEX, ds[3]);
-      vcf(ls[4], vc.VBUF_TVS_INDEX, ds[4]);
-      vcf(ls[5], vc.VBUF_VS2_INDEX, ds[5]);
-      vcf(ls[6], vc.VBUF_UVS2_INDEX, ds[6]);
+      vcf(ls[3], vc.VBUF_CVS_INDEX, ds[3], verls[3]);
+      vcf(ls[4], vc.VBUF_TVS_INDEX, ds[4], verls[4]);
+      vcf(ls[5], vc.VBUF_VS2_INDEX, ds[5], verls[5]);
+      vcf(ls[6], vc.VBUF_UVS2_INDEX, ds[6], verls[6]);
       rvb.vbWholeDataEnabled = this.vbWholeDataEnabled;
       this.vtCount = ivs.length;
-
-      if (this.autoBuilding) {
-        this.vtxTotal = vs.length / vsStride; // this.toElementsLines();
-        // let pivs = this.updateWireframeIvs(ivs);
-        // if(this.wireframe && pivs != null) {
-        // 	console.log("pivs: ",pivs);
-        // 	ivs = pivs;
-        // }
-      }
-
+      this.vtxTotal = vs.length / vsStride;
       this.vtCount = ivs.length;
       this.trisNumber = this.vtCount / 3;
 
@@ -10464,7 +10472,6 @@ class DataMesh extends MeshBase_1.default {
       } else {
         let u = this.getBufDataUsage();
         let f = this.getBufSortFormat();
-        this.m_vbuf = rvb.CreateBySaveData(u, f);
 
         if (this.vbWholeDataEnabled) {
           this.m_vbuf = rvb.CreateBySaveData(u, f);
@@ -10479,17 +10486,30 @@ class DataMesh extends MeshBase_1.default {
       bls[1] = this.wireframe;
 
       for (let i = 0; i < ils.length; ++i) {
-        let ird = this.crateROIvsData();
-        bls = sts[i];
-        ird.shape = bls[0];
-        ird.wireframe = bls[1];
-        ird.setData(ils[i]); // console.log("vbuf.setIVSDataAt(), i: ", i, ", ivs: ", ivs);
+        let ird = this.m_vbuf.getIvsDataAt(i);
+        let flag = true;
 
-        this.m_vbuf.setIVSDataAt(ird, i);
+        if (ird == null) {
+          ird = this.crateROIvsData();
+          bls = sts[i];
+          ird.shape = bls[0];
+          ird.wireframe = bls[1];
+        } else {
+          flag = this.m_iver1ls[i] != this.m_iverls[i];
+        }
+
+        this.m_iver1ls[i] = this.m_iverls[i];
+
+        if (flag) {
+          ird.setData(ils[i]);
+          this.m_vbuf.setIVSDataAt(ird, i);
+        }
       }
 
       this.buildEnd();
     }
+
+    return this;
   }
   /**
    * 射线和自身的相交检测(多面体或几何函数(例如球体))
@@ -10518,6 +10538,8 @@ class DataMesh extends MeshBase_1.default {
         this.m_rayTester = null;
       }
 
+      this.m_iverls = [];
+      this.m_iver1ls = [];
       this.m_ls = [];
       this.m_ils = [];
 
@@ -13554,16 +13576,13 @@ const VtxBufID_1 = __importDefault(__webpack_require__("f044"));
 class VtxSeparatedBuf {
   constructor() {
     this.m_uid = -1;
-    this.m_total = 0;
-    this.layoutBit = 0x0;
-    this.m_fOffsetList = null; //private m_pOffsetList:number[] = null;
-
-    this.m_f32List = null;
-    this.m_f32SizeList = null; //private m_f32PreSizeList: number[] = null;
-
-    this.m_f32ChangedList = null;
+    this.m_ofList = null;
+    this.m_list = null;
+    this.m_dirtyList = null;
+    this.m_verList = null;
     this.m_f32Bufs = null;
     this.m_bufersTotal = 0;
+    this.layoutBit = 0x0;
     this.m_uid = VtxBufID_1.default.CreateNewID();
   }
 
@@ -13573,8 +13592,7 @@ class VtxSeparatedBuf {
 
   getType() {
     return 1;
-  } // private m_stepFloatsTotal: number = 0;
-
+  }
 
   getBuffersTotal() {
     return this.m_bufersTotal;
@@ -13585,63 +13603,71 @@ class VtxSeparatedBuf {
   }
 
   getF32DataAt(index) {
-    return this.m_f32List[index];
+    return this.m_list[index];
   }
 
   setF32DataAt(index, float32Arr, stepFloatsTotal, setpOffsets) {
     if (index < 1) this.m_bufersTotal = 1;else this.m_bufersTotal = index + 1;
 
-    if (this.m_f32List == null) {
-      this.m_f32List = [null, null, null, null, null, null, null, null];
-      this.m_f32ChangedList = [false, false, false, false, false, false, false, false];
-      this.m_f32SizeList = [0, 0, 0, 0, 0, 0, 0, 0]; //this.m_f32PreSizeList = [0, 0, 0, 0, 0, 0, 0, 0];
+    if (this.m_list == null) {
+      this.m_list = new Array(8);
+      this.m_list.fill(null);
+      this.m_dirtyList = new Array(8);
+      this.m_dirtyList.fill(false);
+      this.m_verList = new Array(8);
+      this.m_verList.fill(0);
     }
 
-    this.m_f32List[index] = float32Arr;
+    this.m_list[index] = float32Arr;
 
     if (this.m_f32Bufs != null && float32Arr != null) {
-      this.m_f32ChangedList[index] = true;
+      this.m_dirtyList[index] = true;
     }
 
-    if (setpOffsets != null) this.m_fOffsetList = setpOffsets; // console.log("VtxSeparatedBuf::setF32DataAt(), this.m_bufersTotal: ",this.m_bufersTotal);
+    if (setpOffsets != null) this.m_ofList = setpOffsets; // console.log("VtxSeparatedBuf::setF32DataAt(), this.m_bufersTotal: ",this.m_bufersTotal);
+    // if (float32Arr != null) {
+    //     this.m_sizeList[index] = float32Arr.length;
+    // }
+  }
 
-    if (float32Arr != null) {
-      this.m_f32SizeList[index] = float32Arr.length;
-    }
+  getF32DataVerAt(index) {
+    // console.log("VtxSeparatedBuf::getF32DataVerAt(), VVV index: ",index, ", ver: ", this.m_verList[index]);
+    return this.m_verList[index];
+  }
+
+  setF32DataVerAt(index, ver) {
+    // console.log("VtxSeparatedBuf::setF32DataVerAt(), VVV index: ",index, ", ver: ", ver);
+    this.m_verList[index] = ver;
   }
 
   setData4fAt(vertexI, attribI, px, py, pz, pw) {
-    vertexI *= this.m_fOffsetList[attribI];
-    this.m_f32List[attribI][vertexI++] = px;
-    this.m_f32List[attribI][vertexI++] = py;
-    this.m_f32List[attribI][vertexI++] = pz;
-    this.m_f32List[attribI][vertexI++] = pw;
+    vertexI *= this.m_ofList[attribI];
+    this.m_list[attribI][vertexI++] = px;
+    this.m_list[attribI][vertexI++] = py;
+    this.m_list[attribI][vertexI++] = pz;
+    this.m_list[attribI][vertexI++] = pw;
   }
 
   setData3fAt(vertexI, attribI, px, py, pz) {
-    vertexI *= this.m_fOffsetList[attribI];
-    this.m_f32List[attribI][vertexI++] = px;
-    this.m_f32List[attribI][vertexI++] = py;
-    this.m_f32List[attribI][vertexI++] = pz;
+    vertexI *= this.m_ofList[attribI];
+    this.m_list[attribI][vertexI++] = px;
+    this.m_list[attribI][vertexI++] = py;
+    this.m_list[attribI][vertexI++] = pz;
   }
 
   setData2fAt(vertexI, attribI, px, py) {
-    vertexI *= this.m_fOffsetList[attribI];
-    this.m_f32List[attribI][vertexI++] = px;
-    this.m_f32List[attribI][vertexI++] = py;
+    vertexI *= this.m_ofList[attribI];
+    this.m_list[attribI][vertexI++] = px;
+    this.m_list[attribI][vertexI++] = py;
   }
 
   destroy() {
-    this.m_f32List = null;
-    this.m_f32ChangedList = null;
-    this.m_f32SizeList = null; //this.m_f32PreSizeList = null;
+    this.m_list = null;
+    this.m_dirtyList = null; // this.m_sizeList = null;
+    // //this.m_f32PreSizeList = null;
 
     console.log("VtxSeparatedBuf::__$destroy()... ", this);
-    this.m_f32List = null;
-  }
-
-  toString() {
-    return "VtxSeparatedBuf(uid = " + this.m_uid + ")";
+    this.m_list = null;
   }
 
 }
@@ -13715,6 +13741,10 @@ class Entity3DNode {
     this.rpoNode = null;
     this.spaceId = -1;
     this.camVisi = 0;
+  }
+
+  isVisible() {
+    return this.rpoNode.isVsible() && this.entity.isDrawEnabled();
   }
 
   static GetFreeId() {
@@ -14594,6 +14624,35 @@ exports.SpecularMode = SpecularMode;
 
 /***/ }),
 
+/***/ "8414":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class VtxNormalType {}
+
+VtxNormalType.FLAT = 210;
+VtxNormalType.GOURAND = 310;
+exports.default = VtxNormalType;
+
+/***/ }),
+
 /***/ "85b6":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14902,6 +14961,10 @@ Object.defineProperty(exports, "__esModule", {
 
 const BitConst_1 = __importDefault(__webpack_require__("ca6c"));
 
+const VtxNormalType_1 = __importDefault(__webpack_require__("8414"));
+
+exports.VtxNormalType = VtxNormalType_1.default;
+
 class VtxBufConst {
   static ToGL(gl, param) {
     const vbc = VtxBufConst;
@@ -15106,12 +15169,6 @@ VtxBufConst.VBUF_CVS_NS = "a_cvs";
 VtxBufConst.VBUF_CVS2_NS = "a_cvs2";
 VtxBufConst.VBUF_TVS_NS = "a_tvs";
 VtxBufConst.VBUF_TVS2_NS = "a_tvs2";
-
-class VtxNormalType {}
-
-VtxNormalType.FLAT = 210;
-VtxNormalType.GOURAND = 310;
-exports.VtxNormalType = VtxNormalType;
 exports.default = VtxBufConst;
 
 /***/ }),
@@ -16982,7 +17039,7 @@ class RendererSpace {
   }
 
   getPOVNumber() {
-    return this.m_cullingor != null ? this.m_cullingor.getPOVNumber() : 0;
+    return this.m_cullingor ? this.m_cullingor.getPOVNumber() : 0;
   } // 可以添加真正被渲染的实体也可以添加只是为了做检测的实体(不允许有material)
 
 
@@ -17040,17 +17097,17 @@ class RendererSpace {
         --this.m_entitysTotal;
       }
     }
-  }
+  } // updateEntity(entity: IRenderEntity): void {
+  // 	//  if(RSEntityFlag.TestSpaceContains( entity.__$rseFlag ))
+  // 	//  {
+  // 	//      let node:Entity3DNode = this.m_nodeQueue.getNodeByEntity(entity);
+  // 	//      //  if(node != null)
+  // 	//      //  {
+  // 	//      //      node.distanceFlag = RSEntityFlag.TestSortEnabled(entity.__$rseFlag);
+  // 	//      //  }
+  // 	//  }
+  // }
 
-  updateEntity(entity) {//  if(RSEntityFlag.TestSpaceContains( entity.__$rseFlag ))
-    //  {
-    //      let node:Entity3DNode = this.m_nodeQueue.getNodeByEntity(entity);
-    //      //  if(node != null)
-    //      //  {
-    //      //      node.distanceFlag = RSEntityFlag.TestSortEnabled(entity.__$rseFlag);
-    //      //  }
-    //  }
-  }
 
   update() {}
 
@@ -17063,7 +17120,9 @@ class RendererSpace {
       let pnode = null;
 
       while (nextNode != null) {
-        if (nextNode.entity.isInRendererProcess()) {
+        const entity = nextNode.entity;
+
+        if (entity.isInRendererProcess()) {
           pnode = nextNode;
           pnode.rstatus = 1;
           nextNode = nextNode.next;
@@ -17071,7 +17130,7 @@ class RendererSpace {
           this.m_nodeSLinker.addNode(pnode);
 
           if (pnode.rpoNode == null) {
-            pnode.rpoNode = this.m_rpoNodeBuilder.getNodeByUid(pnode.entity.getDisplay().__$rpuid);
+            pnode.rpoNode = this.m_rpoNodeBuilder.getNodeByUid(entity.getDisplay().__$rpuid);
           }
         } else {
           nextNode = nextNode.next;
@@ -17083,35 +17142,44 @@ class RendererSpace {
 
     if (nextNode != null) {
       let total = 0;
+      const cor = this.m_cullingor;
 
-      if (this.m_cullingor != null) {
-        this.m_cullingor.setCamera(this.m_camera);
-        this.m_cullingor.setCullingNodeHead(nextNode);
-        this.m_cullingor.run();
+      if (cor) {
+        cor.setCamera(this.m_camera);
+        cor.setCullingNodeHead(nextNode);
+        cor.run();
         total = this.m_cullingor.total;
       } else {
         let ab = null;
-        let cam = this.m_camera; //let camPos:IVector3D = cam.getPosition();
+        let cam = this.m_camera;
+        let vboo = false;
 
         while (nextNode != null) {
-          if (nextNode.rpoNode.isVsible() && nextNode.entity.isDrawEnabled()) {
+          vboo = false; // if (nextNode.rpoNode.isVsible() && nextNode.entity.isDrawEnabled()) {
+
+          if (nextNode.isVisible()) {
             ab = nextNode.bounds;
-            const boo = cam.visiTestSphere2(ab.center, ab.radius);
-            nextNode.drawEnabled = boo;
-            nextNode.entity.drawEnabled = boo;
-            nextNode.rpoNode.drawEnabled = boo;
-            total += boo ? 1 : 0; //  if(nextNode.drawEnabled && nextNode.distanceFlag)
+            vboo = cam.visiTestSphere2(ab.center, ab.radius); // nextNode.drawEnabled = boo;
+            // nextNode.entity.drawEnabled = boo;
+            // nextNode.rpoNode.drawEnabled = boo;
+            // total += vboo ? 1 : 0;
+
+            if (vboo) total += 1; //  if(nextNode.drawEnabled && nextNode.distanceFlag)
             //  {
             //      nextNode.rpoNode.setValue(-IVector3D.DistanceSquared(camPos,ab.center));
             //      //console.log((nextNode.entity as any).name,",a runit.value: ",nextNode.rpoNode.unit.value);
             //  }
-          } else {
-            nextNode.drawEnabled = false;
-            nextNode.entity.drawEnabled = false;
-            nextNode.rpoNode.drawEnabled = false;
-          } // if(DebugFlag.Flag_0 > 0) console.log("nextNode.rpoNode.isVsible(): ",nextNode.rpoNode.isVsible(), nextNode.entity.isDrawEnabled(), nextNode.drawEnabled);
+          } // else {
+          // 	nextNode.drawEnabled = false;
+          // 	nextNode.entity.drawEnabled = false;
+          // 	nextNode.rpoNode.drawEnabled = false;
+          // }
+          // if(DebugFlag.Flag_0 > 0) console.log("nextNode.rpoNode.isVsible(): ",nextNode.rpoNode.isVsible(), nextNode.entity.isDrawEnabled(), nextNode.drawEnabled);
 
 
+          nextNode.drawEnabled = vboo;
+          nextNode.entity.drawEnabled = vboo;
+          nextNode.rpoNode.drawEnabled = vboo;
           nextNode = nextNode.next;
         }
       }
@@ -17148,10 +17216,6 @@ class RendererSpace {
 
   getCullingNodeHead() {
     return this.m_nodeSLinker.getBegin();
-  }
-
-  toString() {
-    return "[RendererSpace(uid = " + this.m_uid + ")]";
   }
 
 }
@@ -17793,7 +17857,7 @@ class RendererSceneBase {
 
       for (; i < this.m_containersTotal; ++i) {
         if (this.m_containers[i] == container) {
-          return;
+          break;
         }
       }
 
@@ -17844,7 +17908,8 @@ class RendererSceneBase {
       let process = this.m_renderer.getProcessAt(processIndex);
       sorter = sorter != null ? sorter : this.m_camDisSorter;
 
-      if (process != null) {// process.setSorter(sorter);
+      if (process != null) {
+        process.setSorter(sorter);
       }
     }
   }
@@ -19118,7 +19183,14 @@ class DisplayEntityContainer {
     this.m_visible = true;
     this.m_parentVisible = true;
     this.m_globalBounds = null;
-    this.m_gboundsStatus = -1;
+    this.m_gboundsStatus = -1; // 父级, 不允许外面其他代码调用
+
+    this.__$parent = null;
+    this.__$renderer = null;
+    this.m_entities = [];
+    this.m_entitiesTotal = 0;
+    this.m_children = [];
+    this.m_childrenTotal = 0;
     /**
      * entity global bounds version list
      */
@@ -19137,17 +19209,10 @@ class DisplayEntityContainer {
 
     this.__$weid = -1; // 记录自身是否再容器中(取值为0和1), 不允许外外面其他代码调用
 
-    this.__$contId = 0; // 父级, 不允许外面其他代码调用
-
-    this.__$parent = null;
-    this.__$renderer = null;
+    this.__$contId = 0;
     this.uuid = ""; // mouse interaction enabled
 
     this.mouseEnabled = false;
-    this.m_entities = [];
-    this.m_entitiesTotal = 0;
-    this.m_children = [];
-    this.m_childrenTotal = 0;
     this.m_rx = 0;
     this.m_ry = 0;
     this.m_rz = 0;
@@ -24108,35 +24173,6 @@ class MeshBase {
 
   createIVSByArray(arr) {
     return arr.length > 65536 ? new Uint32Array(arr) : new Uint16Array(arr);
-  } // createWireframeIvs(ivs: Uint16Array | Uint32Array = null): Uint16Array | Uint32Array {
-  //     if(ivs == null) ivs = this.m_ivs;
-  //     if(ivs !== null) {
-  //         const len = ivs.length * 2;
-  //         const wivs = len <= 65536 ? new Uint16Array(len) : new Uint32Array(len);
-  //         let a: number;
-  //         let b: number;
-  //         let c: number;
-  //         let k = 0;
-  //         for (let i = 0, l = ivs.length; i < l; i += 3) {
-  //             a = ivs[i + 0];
-  //             b = ivs[i + 1];
-  //             c = ivs[i + 2];
-  //             wivs[k] = a;
-  //             wivs[k + 1] = b;
-  //             wivs[k + 2] = b;
-  //             wivs[k + 3] = c;
-  //             wivs[k + 4] = c;
-  //             wivs[k + 5] = a;
-  //             k += 6;
-  //         }
-  //         return wivs;
-  //     }
-  //     return null;
-  // }
-
-
-  updateWireframeIvs(ivs = null) {
-    return ivs;
   }
 
   buildEnd() {
@@ -24183,7 +24219,8 @@ class MeshBase {
   }
 
   crateROIvsData() {
-    const ird = new ROIvsData_1.default();
+    const ird = new ROIvsData_1.default(); // console.log(this, ", crateROIvsData, (), this.wireframe: ", this.wireframe);
+
     ird.wireframe = this.wireframe;
     ird.shape = this.shape;
     return ird;
@@ -24853,24 +24890,18 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class VtxDrawingInfo {
-  // rdp: IROIvsRDP = null;
   constructor() {
     this.m_uid = VtxDrawingInfo.s_uid++;
     this.m_ivsIndex = -1;
     this.m_ivsCount = -1;
     this.m_wireframe = false;
     this.m_ver = 0;
-    this.m_sts = new Uint8Array([0, 0, 0, 0]);
     this.m_unlock = true;
     this.m_ivsDataIndex = 0;
     this.m_insCount = 0;
   }
 
-  destroy() {// if (this.rdp != null) {
-    //     this.rdp.clear();
-    //     this.rdp = null;
-    // }
-  }
+  destroy() {}
 
   lock() {
     this.m_unlock = false;
@@ -24888,7 +24919,6 @@ class VtxDrawingInfo {
     if (this.m_unlock && this.m_insCount != insCount) {
       this.m_insCount = insCount;
       this.m_ver++;
-      this.m_sts[0] = 1;
     }
   }
 
@@ -24896,14 +24926,12 @@ class VtxDrawingInfo {
     if (this.m_unlock && this.m_wireframe != wireframe) {
       this.m_wireframe = wireframe;
       this.m_ver++;
-      this.m_sts[2] = 1;
     }
   }
 
   applyIvsDataAt(index) {
     if (index >= 0 && this.m_ivsDataIndex != index) {
       this.m_ver++;
-      this.m_sts[3] = 1;
       this.m_ivsDataIndex = index;
     }
   }
@@ -24913,19 +24941,16 @@ class VtxDrawingInfo {
       if (ivsIndex >= 0 && this.m_ivsIndex != ivsIndex) {
         this.m_ivsIndex = ivsIndex;
         this.m_ver++;
-        this.m_sts[1] = 1;
       }
 
       if (ivsCount >= 0 && this.m_ivsCount != ivsCount) {
         this.m_ivsCount = ivsCount;
         this.m_ver++;
-        this.m_sts[1] = 1;
       }
     }
   }
 
-  reset() {// this.m_ver = 0;
-  }
+  reset() {}
 
   __$$copyToRDP(rdp) {
     // console.log("__$$copyToRDP() ...rdp.getUid(): ", rdp.getUid());
@@ -24938,48 +24963,16 @@ class VtxDrawingInfo {
         if (rdp.ver != ver) {
           rdp.ver = ver; // console.log("__$$copyToRDP() ...rdp.getUid(): ", rdp.getUid(), ", this.m_uid: ", this.m_uid);
 
-          if (this.m_sts[0] > 0) {
-            this.m_sts[0] = 0;
-            rdp.setInsCount(this.m_insCount);
+          rdp.setInsCount(this.m_insCount);
+          rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
+
+          if (this.m_wireframe) {
+            rdp.toWireframe();
+          } else {
+            rdp.toCommon();
           }
 
-          if (this.m_sts[1] > 0) {
-            this.m_sts[1] = 0;
-            rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
-          }
-
-          if (this.m_sts[2] > 0) {
-            this.m_sts[2] = 0;
-
-            if (this.m_wireframe) {
-              rdp.toWireframe();
-            } else {
-              rdp.toCommon();
-            }
-          }
-
-          if (this.m_sts[3] > 0) {
-            this.m_sts[3] = 0;
-            rdp.applyRDPAt(this.m_ivsDataIndex);
-          } // if (this.m_sts[1] > 0) {
-          //     this.m_sts[1] = 0;
-          //     // console.log("__$$copyToRDP() ...rdp.setIvsParam(): ", this.m_ivsIndex, this.m_ivsCount);
-          //     rdp.setIvsParam(this.m_ivsIndex, this.m_ivsCount);
-          // }
-          // if (this.m_sts[2] > 0) {
-          //     this.m_sts[2] = 0;
-          //     if (this.m_wireframe) {
-          //         rdp.toWireframe();
-          //     } else {
-          //         rdp.toCommon();
-          //     }
-          // }
-          // if (this.m_sts[3] > 0) {
-          //     this.m_sts[3] = 0;
-          //     rdp.applyRDPAt(this.m_ivsDataIndex);
-          // }
-          // this.reset();
-
+          rdp.applyRDPAt(this.m_ivsDataIndex);
         }
       }
 
@@ -26839,11 +26832,20 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
     return this.m_vtxBuf.getAttribsTotal();
   }
 
+  getF32DataVerAt(index) {
+    return this.m_vtxBuf.getF32DataVerAt(index);
+  }
+
+  setF32DataVerAt(index, ver) {
+    this.m_vtxBuf.setF32DataVerAt(index, ver);
+  }
+
   getF32DataAt(index) {
     return this.m_vtxBuf.getF32DataAt(index);
   }
 
   setF32DataAt(index, float32Arr, stepFloatsTotal, setpOffsets) {
+    // console.log("setF32DataAt(), ",index, ", float32Arr: ", float32Arr);
     this.m_vtxBuf.setF32DataAt(index, float32Arr, stepFloatsTotal, setpOffsets);
     this.vertexVer++;
   }
@@ -26908,35 +26910,38 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
   }
 
   static Create(bufDataUsage = VtxBufConst_1.default.VTX_STATIC_DRAW) {
+    const rvb = ROVertexBuffer;
     let unit = null;
-    let index = ROVertexBuffer.GetFreeId();
+    let index = rvb.GetFreeId();
 
     if (index >= 0) {
-      unit = ROVertexBuffer.s_unitList[index];
+      unit = rvb.s_unitList[index];
       unit.setBufDataUsage(bufDataUsage);
-      ROVertexBuffer.s_unitFlagList[index] = ROVertexBuffer.s_FLAG_BUSY;
+      rvb.s_unitFlagList[index] = rvb.s_FLAG_BUSY;
     } else {
       unit = new ROVertexBuffer(bufDataUsage);
-      ROVertexBuffer.s_unitList.push(unit);
-      ROVertexBuffer.s_unitFlagList.push(ROVertexBuffer.s_FLAG_BUSY);
-      ROVertexBuffer.s_unitListLen++;
+      rvb.s_unitList.push(unit);
+      rvb.s_unitFlagList.push(rvb.s_FLAG_BUSY);
+      rvb.s_unitListLen++;
     }
 
     unit.vertexVer = 0;
     unit.indicesVer = 0;
     unit.version++; //console.log("ROVertexBuffer::Create(), ROVertexBuffer.s_unitList.length: "+ROVertexBuffer.s_unitList.length+", new buf: "+unit);
 
-    ROVertexBuffer.s_vtxStore.__$attachAt(unit.getUid());
+    rvb.s_vtxStore.__$attachAt(unit.getUid());
 
     return unit;
   }
 
   static __$Restore(pobj) {
-    if (pobj != null && ROVertexBuffer.s_unitFlagList[pobj.getUid()] == ROVertexBuffer.s_FLAG_BUSY) {
+    const rvb = ROVertexBuffer;
+
+    if (pobj != null && rvb.s_unitFlagList[pobj.getUid()] == rvb.s_FLAG_BUSY) {
       //console.log("ROVertexBuffer::__$Restore, pobj: "+pobj);
-      let uid = pobj.getUid();
-      ROVertexBuffer.s_freeIdList.push(uid);
-      ROVertexBuffer.s_unitFlagList[uid] = ROVertexBuffer.s_FLAG_FREE;
+      const uid = pobj.getUid();
+      rvb.s_freeIdList.push(uid);
+      rvb.s_unitFlagList[uid] = rvb.s_FLAG_FREE;
 
       pobj.__$destroy();
     }
@@ -26951,36 +26956,44 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
   }
 
   static Reset() {
-    ROVertexBuffer.BufDataList = [];
-    ROVertexBuffer.s_stride = 0;
-    ROVertexBuffer.BufStatusList = [];
-    ROVertexBuffer.BufDataStepList = [];
-    ROVertexBuffer.vtxFS32 = null;
-    ROVertexBuffer.vbWholeDataEnabled = false;
-    ROVertexBuffer.dynBufSegEnabled = false;
-    ROVertexBuffer.useBufByIndexEnabled = false;
+    const rvb = ROVertexBuffer;
+    rvb.BufDataList = [];
+    rvb.s_stride = 0;
+    rvb.BufStatusList = [];
+    rvb.BufDataStepList = [];
+    rvb.BufVerList = [];
+    rvb.vtxFS32 = null;
+    rvb.vbWholeDataEnabled = false;
+    rvb.dynBufSegEnabled = false;
+    rvb.useBufByIndexEnabled = false;
+  }
+
+  static AddFloat32DataVer(ver) {
+    ROVertexBuffer.BufVerList.push(ver);
   }
 
   static AddFloat32Data(float32Arr, step, status = VtxBufConst_1.default.VTX_STATIC_DRAW) {
-    ROVertexBuffer.BufDataList.push(float32Arr);
-    ROVertexBuffer.BufDataStepList.push(step);
-    ROVertexBuffer.BufStatusList.push(status);
-    ROVertexBuffer.s_stride += step;
+    const rvb = ROVertexBuffer;
+    rvb.BufDataList.push(float32Arr);
+    rvb.BufDataStepList.push(step);
+    rvb.BufStatusList.push(status);
+    rvb.s_stride += step;
   }
 
   static CreateBySaveData(bufDataUsage = VtxBufConst_1.default.VTX_STATIC_DRAW, layoutBit = 0x0) {
+    const rvb = ROVertexBuffer;
     let i = 0;
     let k = 0;
     let stride = 0;
-    let bufTot = ROVertexBuffer.BufDataStepList.length;
+    let bufTot = rvb.BufDataStepList.length;
     let offsetList = [];
 
     for (; i < bufTot; i++) {
       offsetList.push(stride);
-      stride += ROVertexBuffer.BufDataStepList[i];
+      stride += rvb.BufDataStepList[i];
     }
 
-    let tot = ROVertexBuffer.BufDataList[0].length / ROVertexBuffer.BufDataStepList[0];
+    let tot = rvb.BufDataList[0].length / rvb.BufDataStepList[0];
     let vtxfs32 = new Float32Array(stride * tot);
     let j = 0;
     let segLen = 0;
@@ -26991,19 +27004,19 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
       k = i * stride;
 
       for (j = 0; j < bufTot; ++j) {
-        segLen = ROVertexBuffer.BufDataStepList[j];
-        parrf32 = ROVertexBuffer.BufDataList[j];
+        segLen = rvb.BufDataStepList[j];
+        parrf32 = rvb.BufDataList[j];
         subArr = parrf32.subarray(i * segLen, (i + 1) * segLen);
         vtxfs32.set(subArr, k);
         k += segLen;
       }
     }
 
-    let vb = ROVertexBuffer.Create(bufDataUsage);
+    let vb = rvb.Create(bufDataUsage);
     vb.layoutBit = layoutBit;
 
-    if (ROVertexBuffer.s_combinedBufs.length > 0) {
-      let vtx = ROVertexBuffer.s_combinedBufs.pop();
+    if (rvb.s_combinedBufs.length > 0) {
+      let vtx = rvb.s_combinedBufs.pop();
       vb.setVtxBuf(vtx);
     } else {
       vb.setVtxBuf(new VtxCombinedBuf_1.default(vb.getBufDataUsage()));
@@ -27024,40 +27037,48 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
       stride += bufDataStepList[i];
     }
 
-    let vb = ROVertexBuffer.Create(bufDataUsage);
+    const rvb = ROVertexBuffer;
+    let vb = rvb.Create(bufDataUsage);
     vb.layoutBit = layoutBit;
 
-    if (ROVertexBuffer.s_combinedBufs.length > 0) {
-      let vtx = ROVertexBuffer.s_combinedBufs.pop();
+    if (rvb.s_combinedBufs.length > 0) {
+      let vtx = rvb.s_combinedBufs.pop();
       vb.setVtxBuf(vtx);
     } else {
       vb.setVtxBuf(new VtxCombinedBuf_1.default(vb.getBufDataUsage()));
     }
 
     vb.setF32DataAt(0, vtxfs32, stride, offsetList);
+    const vls = rvb.BufVerList;
+
+    if (vls.length > 0) {
+      vb.setF32DataVerAt(0, vls[0]);
+    }
+
     return vb;
   }
 
   static UpdateCombinedBufData(vb) {
+    const rvb = ROVertexBuffer;
     let i = 0;
     let k = 0;
     let stride = 0;
-    let bufTot = ROVertexBuffer.BufDataStepList.length;
-    let tot = ROVertexBuffer.BufDataList[0].length / ROVertexBuffer.BufDataStepList[0];
+    let bufTot = rvb.BufDataStepList.length;
+    let tot = rvb.BufDataList[0].length / rvb.BufDataStepList[0];
     let vtxfs32 = vb.getF32DataAt(0);
-    let newBoo = ROVertexBuffer.s_stride * tot != vtxfs32.length;
+    let newBoo = rvb.s_stride * tot != vtxfs32.length;
     let offsetList = null;
 
     if (newBoo) {
       offsetList = [];
-      vtxfs32 = new Float32Array(ROVertexBuffer.s_stride * tot);
+      vtxfs32 = new Float32Array(rvb.s_stride * tot);
 
       for (; i < bufTot; i++) {
         offsetList.push(stride);
-        stride += ROVertexBuffer.BufDataStepList[i];
+        stride += rvb.BufDataStepList[i];
       }
     } else {
-      stride = ROVertexBuffer.s_stride;
+      stride = rvb.s_stride;
     }
 
     let j = 0;
@@ -27069,8 +27090,8 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
       k = i * stride;
 
       for (j = 0; j < bufTot; ++j) {
-        segLen = ROVertexBuffer.BufDataStepList[j];
-        parrf32 = ROVertexBuffer.BufDataList[j];
+        segLen = rvb.BufDataStepList[j];
+        parrf32 = rvb.BufDataList[j];
         subArr = parrf32.subarray(i * segLen, (i + 1) * segLen);
         vtxfs32.set(subArr, k);
         k += segLen;
@@ -27081,6 +27102,12 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
       vb.setF32DataAt(0, vtxfs32, stride, offsetList);
     } else {
       vb.setF32DataAt(0, vtxfs32, stride, null);
+    }
+
+    const vls = rvb.BufVerList;
+
+    if (vls.length > 0) {
+      vb.setF32DataVerAt(0, vls[0]);
     }
   }
 
@@ -27098,11 +27125,12 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
     let bufTot = bufData.getAttributesTotal();
     let offsetList = new Array(bufTot);
     offsetList.fill(0);
-    let vb = ROVertexBuffer.Create(bufDataUsage);
+    const rvb = ROVertexBuffer;
+    let vb = rvb.Create(bufDataUsage);
     vb.layoutBit = layoutBit;
 
-    if (ROVertexBuffer.s_separatedBufs.length > 0) {
-      let vtx = ROVertexBuffer.s_separatedBufs.pop();
+    if (rvb.s_separatedBufs.length > 0) {
+      let vtx = rvb.s_separatedBufs.pop();
       vb.setVtxBuf(vtx);
     } else {
       vb.setVtxBuf(new VtxSeparatedBuf_1.default());
@@ -27114,36 +27142,62 @@ class ROVertexBuffer extends ROIVertexBuffer_1.default {
 
     vb.setIVSDataAt(bufData.getIndexDataAt(0));
     vb.bufData = bufData;
+    const vls = rvb.BufVerList;
+
+    if (vls.length > 0) {
+      for (i = 0; i < bufTot; i++) {
+        vb.setF32DataVerAt(i, vls[i]);
+      }
+    }
+
     return vb;
   }
 
   static CreateBySaveDataSeparate(bufDataUsage = VtxBufConst_1.default.VTX_STATIC_DRAW) {
+    const rvb = ROVertexBuffer;
     let i = 0;
     let stride = 0;
-    let bufTot = ROVertexBuffer.BufDataStepList.length;
+    let bufTot = rvb.BufDataStepList.length;
     let offsetList = new Array(bufTot);
-    let vb = ROVertexBuffer.Create(bufDataUsage);
+    let vb = rvb.Create(bufDataUsage);
 
-    if (ROVertexBuffer.s_separatedBufs.length > 0) {
-      let vtx = ROVertexBuffer.s_separatedBufs.pop();
+    if (rvb.s_separatedBufs.length > 0) {
+      let vtx = rvb.s_separatedBufs.pop();
       vb.setVtxBuf(vtx);
     } else {
       vb.setVtxBuf(new VtxSeparatedBuf_1.default());
     }
 
     for (i = 0; i < bufTot; i++) {
-      vb.setF32DataAt(i, ROVertexBuffer.BufDataList[i], stride, offsetList);
+      vb.setF32DataAt(i, rvb.BufDataList[i], stride, offsetList);
+    }
+
+    const vls = rvb.BufVerList;
+
+    if (vls.length > 0) {
+      for (i = 0; i < bufTot; i++) {
+        vb.setF32DataVerAt(i, vls[i]);
+      }
     }
 
     return vb;
   }
 
   static UpdateSeparatedBufData(vb) {
-    let bufTot = ROVertexBuffer.BufDataStepList.length;
+    const rvb = ROVertexBuffer;
+    let bufTot = rvb.BufDataStepList.length;
     let offsetList = new Array(bufTot); // console.log("ROVertexBuffer::CreateBySaveDataSeparate(), bufTot: "+bufTot);
 
     for (let i = 0; i < bufTot; i++) {
-      vb.setF32DataAt(i, ROVertexBuffer.BufDataList[i], 0, offsetList);
+      vb.setF32DataAt(i, rvb.BufDataList[i], 0, offsetList);
+    }
+
+    const vls = rvb.BufVerList;
+
+    if (vls.length > 0) {
+      for (let i = 0; i < bufTot; i++) {
+        vb.setF32DataVerAt(i, vls[i]);
+      }
     }
 
     return vb;
@@ -27208,6 +27262,7 @@ ROVertexBuffer.s_stride = 0;
 ROVertexBuffer.BufDataList = null;
 ROVertexBuffer.BufDataStepList = null;
 ROVertexBuffer.BufStatusList = null;
+ROVertexBuffer.BufVerList = null;
 ROVertexBuffer.vtxDataFS32 = null;
 ROVertexBuffer.vbWholeDataEnabled = false;
 ROVertexBuffer.dynBufSegEnabled = false;
@@ -27966,6 +28021,7 @@ class VtxCombinedBuf {
   constructor(bufDataUsage) {
     this.m_uid = -1;
     this.m_total = 0;
+    this.m_ver = 0;
     this.layoutBit = 0x0;
     this.m_offsetList = null;
     this.m_f32 = null;
@@ -27989,13 +28045,21 @@ class VtxCombinedBuf {
     return this.m_offsetList.length;
   }
 
+  getF32DataVerAt(index) {
+    // console.log("VtxCombinedBuf::getF32DataVerAt(), index: ",index, ", ver: ", this.m_ver);
+    return this.m_ver;
+  }
+
+  setF32DataVerAt(index, ver) {}
+
   getF32DataAt(index) {
     return this.m_f32;
   }
 
   setF32DataAt(index, float32Arr, stepFloatsTotal, setpOffsets) {
     if (setpOffsets != null) this.m_offsetList = setpOffsets;
-    this.m_f32Stride = stepFloatsTotal; //console.log("VtxCombinedBuf::setF32DataAt(),"+this+" m_f32.length: "+float32Arr.length+", this.m_f32PreSize: "+this.m_f32PreSize);
+    this.m_f32Stride = stepFloatsTotal;
+    this.m_ver++; //console.log("VtxCombinedBuf::setF32DataAt(),"+this+" m_f32.length: "+float32Arr.length+", this.m_f32PreSize: "+this.m_f32PreSize);
 
     this.m_f32 = float32Arr;
   }
@@ -29777,7 +29841,7 @@ class ROIVertexBuffer {
   }
 
   getIvsDataAt(index = 0) {
-    // console.log("FFFFFFFFFF 0 getIvsDataAt(), index: ", index);
+    // console.log("FFFFFFFFFF 0 getIvsDataAt(), index: ", index, ", this.m_irdTotal: ", this.m_irdTotal, this.m_irds);
     if (index >= 0 && index < this.m_irdTotal) {
       // console.log("FFFFFFFFFF 0 this.m_irds["+index+"]: ", this.m_irds[index]);
       return this.m_irds[index];
@@ -29789,11 +29853,14 @@ class ROIVertexBuffer {
   setIVSDataAt(data, index = 0) {
     // console.log("A index: ", index, ", XXXXX this.m_irds.length: ", this.m_irds.length);
     if (index < this.m_irds.length) {
-      if (this.m_irds[index]) {
-        this.m_irds[index].destroy();
-      }
+      if (this.m_irds[index] != data) {
+        if (this.m_irds[index]) {
+          this.m_irds[index].destroy();
+        }
 
-      this.m_irds[index] = data;
+        this.m_irds[index] = data;
+      } // console.log("A1 index: ", index, ", XXXXX  this.m_irds: ",  this.m_irds);
+
     } else {
       this.m_irds.push(data);
     }

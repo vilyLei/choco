@@ -21,7 +21,7 @@
 // import { AnimationContainer as Demo } from "./tutorial/AnimationContainer";
 
 // import { UIButton as Demo } from "./tutorial/UIButton";
-// import { UIButtonGroup as Demo } from "./tutorial/UIButtonGroup";
+import { UIButtonGroup as Demo } from "./tutorial/UIButtonGroup";
 
 // import { RTT as Demo } from "./tutorial/RTT";
 // import { MRT as Demo } from "./tutorial/MRT";
@@ -34,7 +34,7 @@
 
 // import { StencilTest as Demo } from "./tutorial/StencilTest";
 
-import { LoadModel as Demo } from "./tutorial/LoadModel";
+// import { LoadModel as Demo } from "./tutorial/LoadModel";
 
 document.title = "choco:tutorial";
 
