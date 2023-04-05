@@ -438,6 +438,7 @@ class TextEntity {
   createMaterial(texList) {
     this.m_material.create();
     this.m_material.material.setTextureList(texList);
+    this.m_material.material.vtxInfo = CoRScene.createVtxDrawingInfo();
   }
 
   initialize(text, h5Text, texList = null) {
@@ -478,7 +479,7 @@ class TextEntity {
 
       if (this.m_rentity.getTransform() != null) {
         if (this.m_dynamicEnbaled) {
-          this.m_rentity.setIvsParam(0, this.m_mesh.vtCount);
+          this.m_rentity.getMaterial().vtxInfo.setIvsParam(0, this.m_mesh.vtCount);
         }
       }
     }
@@ -1220,7 +1221,7 @@ class TextGeometryBuilder {
       this.createMesh(text);
         // ROVertexBuffer.vbWholeDataEnabled = this.vbWholeDataEnabled;
       // this.m_vbuf = ROVertexBuffer.CreateBySaveData(this.getBufDataUsage());
-      // this.m_vbuf.setUintIVSData(this.m_ivs);
+      // this.m_vbuf.setIVSDataAt( this.crateROIvsData().setData(this.m_ivs) );
       // //this.drawMode = RenderDrawMode.ELEMENTS_TRIANGLE_STRIP;
       // this.buildEnd();
   }

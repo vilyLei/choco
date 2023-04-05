@@ -176,11 +176,6 @@ class RCExtension {
       selfT.EXT_blend_minmax = gl.getExtension('EXT_blend_minmax');
       if (selfT.EXT_blend_minmax != null) console.log("Use EXT_blend_minmax Extension success!");else console.log("EXT_blend_minmax Extension can not support!");
     } else {
-      //  selfT.OES_standard_derivatives = gl.getExtension('OES_standard_derivatives');
-      //  if(selfT.OES_standard_derivatives != null)
-      //  console.log("Use OES_standard_derivatives Extension success!");
-      //  else
-      //  console.log("OES_standard_derivatives Extension can not support!");
       selfT.EXT_shader_texture_lod = gl.getExtension('EXT_shader_texture_lod');
       if (selfT.EXT_shader_texture_lod != null) console.log("Use EXT_shader_texture_lod Extension success!");else console.log("EXT_shader_texture_lod Extension can not support!");
       selfT.EXT_color_buffer_half_float = gl.getExtension('EXT_color_buffer_half_float');
@@ -2096,7 +2091,9 @@ class RenderAdapter {
     this.m_rtx.syncHtmlBodyColor(color.r, color.g, color.b);
     this.syncHtmlColor();
     this.m_gl.clearColor(color.r, color.g, color.b, color.a);
-    this.m_gl.clear(this.m_gl.COLOR_BUFFER_BIT);
+    this.m_gl.clear(this.m_gl.COLOR_BUFFER_BIT); // if (DebugFlag.Flag_0 > 0) {
+    // 	console.log("clearColor >>>>>>>");
+    // }
   }
 
   syncHtmlColor() {
@@ -2124,7 +2121,10 @@ class RenderAdapter {
     }
 
     this.syncHtmlColor();
-    const cvs = this.bgColor; // if(DebugFlag.Flag_0 > 0) {
+    const cvs = this.bgColor; // if (DebugFlag.Flag_0 > 0) {
+    // 	console.log("clear >>>>>>>");
+    // }
+    // if(DebugFlag.Flag_0 > 0) {
     // 	console.log("color cvs: ", cvs);
     // }
 
@@ -2300,7 +2300,7 @@ class RenderAdapter {
 
   asynFBOSizeWithViewport() {
     this.m_synFBOSizeWithViewport = false;
-  } // 
+  } //
 
   /**
    * if synFBOSizeWithViewport is true, fbo size = factor * view port size;
@@ -2458,8 +2458,26 @@ class RenderAdapter {
         }
 
         if (this.m_webglVer == 1) {
-          // m_gl.colorMask(m_colorMask.mr,m_colorMask.mg,m_colorMask.mb,m_colorMask.ma);
-          this.m_gl.clear(this.m_clearMask);
+          // // m_gl.colorMask(m_colorMask.mr,m_colorMask.mg,m_colorMask.mb,m_colorMask.ma);
+          // this.m_gl.clear(this.m_clearMask);
+          const gl = this.m_gl;
+          let mask = 0x0;
+
+          if (clearColorBoo) {
+            mask |= gl.COLOR_BUFFER_BIT;
+          }
+
+          if (clearDepthBoo) {
+            mask |= gl.DEPTH_BUFFER_BIT;
+          }
+
+          if (clearStencilBoo) {
+            mask |= gl.STENCIL_BUFFER_BIT;
+          }
+
+          if (mask > 0) {
+            gl.clear(mask);
+          }
         }
 
         let size = this.m_viewPortRect;
@@ -2643,35 +2661,55 @@ class DispEntity3DManager {
     let display = entity.getDisplay();
 
     if (display != null && display.__$$runit != null) {
+      const re = display.__$$runit.rentity;
+
+      let parent = re.__$getParent();
+
+      let flag = 0;
+
+      while (parent) {
+        if (!parent.hasParent() && parent.getREType() >= 20) {
+          console.log("DispEntity3DManager::removeEntity(), 容器内驱动渲染，不需要从渲染 process 中 移除, parent.__$wprocuid: ", parent.__$wprocuid);
+          const rprocess = this.m_processBuider.getNodeByUid(parent.__$wprocuid);
+          rprocess.forceRemoveDisp(display);
+          flag = 1;
+          break;
+        }
+
+        parent = parent.getParent();
+      }
+
       let puid = display.__$ruid;
       let po = this.m_rpoUnitBuilder.getRCRPObj(puid);
 
-      if (po != null) {
-        if (po.count > 0) {
-          if (po.count < 2) {
-            if (po.rprocessUid > -1) {
-              this.m_rprocess = this.m_processBuider.getNodeByUid(po.rprocessUid);
-              this.m_rprocess.removeDisp(display);
-              po.rprocessUid = -1;
-            }
-          } else {
-            let len = RPOUnitBuilder_1.RCRPObj.RenerProcessMaxTotal;
-
-            for (let i = 0; i < len; ++i) {
-              if ((po.idsFlag & 1 << i) > 0) {
-                // the value of list[i] is the uid of a node;
-                this.m_rprocess = this.m_processBuider.getNodeByUid(i);
+      if (flag < 1) {
+        if (po) {
+          if (po.count > 0) {
+            if (po.count < 2) {
+              if (po.rprocessUid > -1) {
+                this.m_rprocess = this.m_processBuider.getNodeByUid(po.rprocessUid);
                 this.m_rprocess.removeDisp(display);
+                po.rprocessUid = -1;
+              }
+            } else {
+              let len = RPOUnitBuilder_1.RCRPObj.RenerProcessMaxTotal;
+
+              for (let i = 0; i < len; ++i) {
+                if ((po.idsFlag & 1 << i) > 0) {
+                  // the value of list[i] is the uid of a node;
+                  this.m_rprocess = this.m_processBuider.getNodeByUid(i);
+                  this.m_rprocess.removeDisp(display);
+                }
               }
             }
           }
+        } else {
+          this.m_rprocess = this.m_processBuider.getNodeByUid(display.__$$runit.getRPROUid());
+          this.m_rprocess.removeDisp(display);
         }
-      } else {
-        this.m_rprocess = this.m_processBuider.getNodeByUid(display.__$$runit.getRPROUid());
-        this.m_rprocess.removeDisp(display);
       }
 
-      if (po.count == 0) {
+      if (flag > 0 || po.count == 0) {
         //console.log("DispEntity3DManager::removeEntity(), remove a entity from all processes.");
         if (display.__$$rsign != RenderConst_1.DisplayRenderSign.LIVE_IN_RENDERER) {
           // error!!!
@@ -2692,14 +2730,14 @@ class DispEntity3DManager {
     entity.__$rseFlag = RSEntityFlag_1.default.RemoveRendererLoad(entity.__$rseFlag);
     entity.__$rseFlag = RSEntityFlag_1.default.RemoveSortEnabled(entity.__$rseFlag);
 
-    if (this.m_entityManaListener != null) {
+    if (this.m_entityManaListener) {
       this.m_entityManaListener.removeFromRenderer(entity, this.m_rendererUid, -1);
     }
   }
 
   addEntity(entity, processUid, deferred = false) {
     if (entity != null) {
-      //console.log("add entity into entity 3d manager.");
+      // console.log("add entity into entity 3d manager B.");
       let disp = entity.getDisplay();
 
       if (disp != null) {
@@ -2757,6 +2795,16 @@ class DispEntity3DManager {
     return false;
   }
 
+  addContainer(container, processUid) {
+    const rprocess = this.m_processBuider.getNodeByUid(processUid);
+    rprocess.addContainer(container);
+  }
+
+  removeContainer(container, processUid) {
+    const rprocess = this.m_processBuider.getNodeByUid(processUid);
+    rprocess.removeContainer(container);
+  }
+
   ensureAdd(entity, disp, processUid) {
     entity.update();
     entity.__$rseFlag = RSEntityFlag_1.default.AddRendererUid(entity.__$rseFlag, this.m_rendererUid);
@@ -2784,9 +2832,11 @@ class DispEntity3DManager {
       this.m_entityManaListener.addToRenderer(entity, this.m_rendererUid, processUid);
     }
 
-    if (entity.getGlobalBounds() != null) {
-      disp.__$$runit.bounds = entity.getGlobalBounds();
-      disp.__$$runit.pos = disp.__$$runit.bounds.center;
+    const b = entity.getGlobalBounds();
+
+    if (b) {
+      disp.__$$runit.bounds = b;
+      disp.__$$runit.pos = b.center;
     }
 
     this.version++;
@@ -3349,34 +3399,45 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+const RPONode_1 = __importDefault(__webpack_require__("265e"));
+
+const RPOBlock_1 = __importDefault(__webpack_require__("5f3c"));
+
 const PassProcess_1 = __importDefault(__webpack_require__("34cd"));
 
-class RenderSortBlock {
+const RPOUnitCont_1 = __importDefault(__webpack_require__("e39a"));
+
+class NodeCont {
+  destroy() {
+    this.container = null;
+    this.node.unit.reset();
+    this.node.reset();
+    this.node = null;
+  }
+
+}
+
+class RenderSortBlock extends RPOBlock_1.default {
   constructor(shader) {
+    // this.m_shader = shader;
+    super(shader);
     this.m_begin = null;
     this.m_end = null;
     this.m_next = null;
-    this.m_node = null;
-    this.m_nodes = [];
-    this.m_nodesTotal = 0;
-    this.m_shader = null;
+    this.m_unit = null;
+    this.m_units = [];
+    this.m_unitsTotal = 0;
     this.m_renderTotal = 0;
-    this.m_sorter = null;
-    this.sortEnabled = true;
+    this.m_nodeConts = [];
     this.m_passProc = new PassProcess_1.default();
     this.m_shdUpdate = false;
-    this.m_shader = shader;
-  }
-
-  setSorter(sorter) {
-    this.m_sorter = sorter;
   }
 
   showInfo() {
     let info = "";
     let next = this.m_begin;
 
-    while (next != null) {
+    while (next) {
       //info += "("+next.unit.value+","+next.uid+"),";
       info += next.unit.value + ",";
       next = next.next;
@@ -3386,8 +3447,8 @@ class RenderSortBlock {
   }
 
   clear() {
-    if (this.m_shader != null) {
-      if (this.m_nodes.length > 0) this.m_nodes = [];
+    if (this.m_shader) {
+      if (this.m_units.length > 0) this.m_units = [];
       let next = this.m_begin;
       let curr = null;
 
@@ -3399,7 +3460,7 @@ class RenderSortBlock {
       }
 
       this.m_begin = this.m_end = null;
-      this.m_nodesTotal = 0;
+      this.m_unitsTotal = 0;
       this.m_renderTotal = 0;
       this.sortEnabled = true;
       this.m_shader = null;
@@ -3414,36 +3475,103 @@ class RenderSortBlock {
     }
   }
 
+  addContainer(container) {
+    let i = 0;
+    const ls = this.m_nodeConts;
+
+    for (; i < ls.length; ++i) {
+      if (ls[i].container == container) {
+        break;
+      }
+    }
+
+    if (i >= ls.length) {
+      let unit = new RPOUnitCont_1.default();
+      unit.shader = this.m_shader;
+      unit.rentity = container;
+      unit.retype = container.getREType();
+      unit.bounds = container.getGlobalBounds();
+      unit.pos = unit.bounds.center;
+      let node = new RPONode_1.default();
+      node.unit = unit;
+      this.addNode(node);
+      let nc = new NodeCont();
+      nc.container = container;
+      nc.node = node;
+      ls.push(nc);
+      console.log("RenderSortBlock::addContainer() ...unit: ", unit);
+      return true;
+    }
+
+    return false;
+  }
+
+  removeContainer(container) {
+    let i = 0;
+    const ls = this.m_nodeConts;
+
+    for (; i < ls.length; ++i) {
+      if (ls[i].container == container) {
+        const node = ls[i].node;
+        this.removeNode(node);
+        ls[i].destroy();
+        ls.splice(i, 1);
+        console.log("RenderSortBlock::removeContainer() ...");
+        break;
+      }
+    }
+
+    if (i >= ls.length) {
+      let unit = new RPOUnitCont_1.default();
+      unit.shader = this.m_shader;
+      unit.rentity = container;
+      unit.retype = container.getREType();
+      let node = new RPONode_1.default();
+      node.unit = unit;
+      this.removeNode(node);
+      return true;
+    }
+
+    return false;
+  }
+
   run(rc) {
     this.m_shader.resetUniform();
     let unit = null;
-    let nodes = this.m_nodes;
+    let uints = this.m_units;
     this.m_shdUpdate = false;
     const proc = this.m_passProc;
     proc.shader = this.m_shader;
 
     for (let i = 0; i < this.m_renderTotal; ++i) {
-      unit = nodes[i];
-      this.m_shader.bindToGpu(unit.shdUid);
-      unit.updateVtx();
+      unit = uints[i];
 
-      if (unit.drawEnabled) {
-        if (unit.rgraph && unit.rgraph.isEnabled()) {
-          proc.units = [unit];
-          proc.rc = rc;
-          proc.vtxFlag = true;
-          proc.texFlag = true;
-          unit.rgraph.run(proc);
-          this.m_shdUpdate = true;
-        } else {
-          if (this.m_shdUpdate) {
-            unit.applyShader(true);
-            this.m_shdUpdate = false;
+      if (unit.retype < 12) {
+        if (unit.rendering) {
+          this.m_shader.bindToGpu(unit.shdUid);
+          unit.updateVtx();
+
+          if (unit.drawing) {
+            if (unit.rgraph && unit.rgraph.isEnabled()) {
+              proc.units = [unit];
+              proc.rc = rc;
+              proc.vtxFlag = true;
+              proc.texFlag = true;
+              unit.rgraph.run(proc);
+              this.m_shdUpdate = true;
+            } else {
+              if (this.m_shdUpdate) {
+                unit.applyShader(true);
+                this.m_shdUpdate = false;
+              }
+
+              unit.run(rc);
+              unit.draw(rc);
+            }
           }
-
-          unit.run(rc);
-          unit.draw(rc);
         }
+      } else {
+        unit.run(rc);
       }
     }
   }
@@ -3451,36 +3579,50 @@ class RenderSortBlock {
   runLockMaterial(rc) {
     this.m_shader.resetUniform();
     let unit = null;
-    let nodes = this.m_nodes;
+    let units = this.m_units;
 
     for (let i = 0; i < this.m_renderTotal; ++i) {
-      unit = nodes[i];
-      this.m_shader.bindToGpu(unit.shdUid);
-      unit.updateVtx();
+      unit = units[i];
 
-      if (unit.drawEnabled) {
-        unit.vro.run();
+      if (unit.retype < 12) {
+        if (unit.rendering) {
+          this.m_shader.bindToGpu(unit.shdUid);
+          unit.updateVtx();
+
+          if (unit.drawing) {
+            unit.vro.run();
+            unit.runLockMaterial2(null);
+            unit.draw(rc);
+          }
+        }
+      } else {
         unit.runLockMaterial2(null);
-        unit.draw(rc);
       }
     }
   }
 
   sort() {
-    if (this.m_nodesTotal > 0) {
+    if (this.m_unitsTotal > 0) {
       // 整个sort执行过程放在渲染运行时渲染执行阶段是不妥的,但是目前还没有好办法
       // 理想的情况是运行时不会被复杂计算打断，复杂计算应该再渲染执行之前完成
       let next = this.m_begin;
 
-      if (this.m_nodes.length < this.m_nodesTotal) {
-        this.m_nodes = new Array(Math.round(this.m_nodesTotal * 1.1) + 1);
+      if (this.m_units.length < this.m_unitsTotal) {
+        this.m_units = new Array(Math.round(this.m_unitsTotal * 1.1) + 1);
       }
 
       let i = 0;
 
       while (next != null) {
-        if (next.drawEnabled && next.unit.drawEnabled) {
-          this.m_nodes[i] = next.unit;
+        const unit = next.unit;
+
+        if (unit.retype < 12) {
+          if (unit.rendering && unit.drawing) {
+            this.m_units[i] = unit;
+            ++i;
+          }
+        } else {
+          this.m_units[i] = unit;
           ++i;
         }
 
@@ -3489,9 +3631,10 @@ class RenderSortBlock {
 
       this.m_renderTotal = i;
       let flat = 0;
+      const st = this.m_sorter;
 
-      if (this.m_sorter != null) {
-        flat = this.m_sorter.sortRODisplay(this.m_nodes, i);
+      if (st) {
+        flat = st.sortRODisplay(this.m_units, i);
       }
 
       if (flat < 1) {
@@ -3501,9 +3644,9 @@ class RenderSortBlock {
   }
 
   sorting(low, high) {
-    let arr = this.m_nodes;
-    this.m_node = arr[low];
-    let pvalue = this.m_node.value;
+    let arr = this.m_units;
+    this.m_unit = arr[low];
+    let pvalue = this.m_unit.value;
 
     while (low < high) {
       while (low < high && arr[high].value >= pvalue) {
@@ -3519,7 +3662,7 @@ class RenderSortBlock {
       arr[high] = arr[low];
     }
 
-    arr[low] = this.m_node;
+    arr[low] = this.m_unit;
     return low;
   }
 
@@ -3532,7 +3675,7 @@ class RenderSortBlock {
   }
 
   getNodesTotal() {
-    return this.m_nodesTotal;
+    return this.m_unitsTotal;
   }
 
   getBegin() {
@@ -3549,11 +3692,12 @@ class RenderSortBlock {
   }
 
   isEmpty() {
-    return this.m_nodesTotal < 1; // return this.m_begin == null;
+    return this.m_unitsTotal < 1;
   }
 
   addNode(node) {
-    //console.log("sort add node: ",node);
+    console.log("sort add node: ", node);
+
     if (node.prev == null && node.next == null) {
       if (this.m_begin == null) {
         this.m_end = this.m_begin = node;
@@ -3570,7 +3714,8 @@ class RenderSortBlock {
       }
 
       this.m_end.next = null;
-      this.m_nodesTotal++; //console.log("sort add node,this.m_nodesTotal: ",this.m_nodesTotal);
+      this.m_unitsTotal++;
+      console.log("sort add node,this.m_unitsTotal: ", this.m_unitsTotal);
     }
   }
 
@@ -3594,7 +3739,8 @@ class RenderSortBlock {
 
       node.prev = null;
       node.next = null;
-      this.m_nodesTotal--; //console.log("sort remove node,this.m_nodesTotal: ",this.m_nodesTotal);
+      this.m_unitsTotal--;
+      console.log("sort remove node,this.m_unitsTotal: ", this.m_unitsTotal);
     }
   }
 
@@ -3629,13 +3775,14 @@ Object.defineProperty(exports, "__esModule", {
 class RPONode {
   constructor() {
     this.__$ruid = -1;
-    this.drawEnabled = true;
     this.uid = -1;
     this.index = -1;
     this.shdUid = -1;
     this.vtxUid = -1;
     this.texMid = -1;
-    this.rtokey = -1;
+    this.rtokey = -1; // it the value is less 12, it is a renderable entity, or not is a entity container
+    // reType = 1;
+
     this.prev = null;
     this.next = null;
     this.unit = null;
@@ -3643,14 +3790,6 @@ class RPONode {
     this.tro = null;
     this.rvroI = -1;
     this.rtroI = -1;
-  }
-
-  setValue(value) {
-    this.unit.value = value;
-  }
-
-  isVsible() {
-    return this.unit == null || this.unit.drawEnabled;
   }
 
   updateData() {
@@ -3664,7 +3803,7 @@ class RPONode {
   }
 
   reset() {
-    this.drawEnabled = true;
+    // this.reType = 1;
     this.uid = -1;
     this.index = -1;
     this.shdUid = -1;
@@ -3802,6 +3941,10 @@ class PoolNodeBuilder {
 
   restoreUid(uid) {}
 
+  hasFreeNode() {
+    return this.m_freeIdList.length > 0;
+  }
+
   getFreeId() {
     if (this.m_freeIdList.length > 0) {
       return this.m_freeIdList.pop();
@@ -3812,6 +3955,10 @@ class PoolNodeBuilder {
 
   getNodeByUid(uid) {
     return this.m_nodes[uid];
+  }
+
+  getNodes() {
+    return this.m_nodes;
   }
 
   create() {
@@ -3856,6 +4003,13 @@ class PoolNodeBuilder {
     }
 
     return false;
+  }
+
+  destroy() {
+    this.m_nodes = [];
+    this.m_freeIdList = [];
+    this.m_flags = [];
+    this.m_nodesTotal = 0;
   }
 
 }
@@ -4110,6 +4264,411 @@ class ShaderUniformProbe {
 
 ShaderUniformProbe.s_uid = 0;
 exports.default = ShaderUniformProbe;
+
+/***/ }),
+
+/***/ "3420":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+// 用于对 MaterialRPOBlock 进行必要的组织, 例如 合批或者按照 shader不同来分类, 以及依据其他机制分类等等
+// 目前一个block内的所有node 所使用的shader program 是相同的
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
+
+const RPONodeLinker_1 = __importDefault(__webpack_require__("df9d"));
+
+const RenderColorMask_1 = __webpack_require__("070b");
+
+const RenderStateObject_1 = __webpack_require__("a5ba");
+
+const RPOBlock_1 = __importDefault(__webpack_require__("5f3c"));
+
+const PassProcess_1 = __importDefault(__webpack_require__("34cd"));
+
+class MaterialRPOBlock extends RPOBlock_1.default {
+  constructor(shader) {
+    super(shader);
+    this.m_nodeLinker = new RPONodeLinker_1.default();
+    this.m_runs = new Array(5);
+    this.m_passProc = new PassProcess_1.default();
+    this.m_shdUpdate = false;
+    const ls = this.m_runs;
+    ls.fill(null);
+    ls[0] = this.run0.bind(this);
+    ls[1] = this.run1.bind(this);
+    ls[2] = this.run2.bind(this);
+  }
+
+  showInfo() {
+    this.m_nodeLinker.showInfo();
+  }
+
+  addNode(node) {
+    this.m_nodeLinker.addNodeAndSort(node);
+  }
+
+  rejoinNode(node) {
+    if (this.m_nodeLinker.containsNode(node)) {
+      this.m_nodeLinker.removeNodeAndSort(node);
+      this.m_nodeLinker.addNodeAndSort(node);
+    }
+  }
+
+  removeNode(node) {
+    this.m_nodeLinker.removeNodeAndSort(node);
+  }
+
+  isEmpty() {
+    return this.m_nodeLinker.getBegin() == null;
+  }
+
+  run(rc) {
+    this.m_runs[this.runMode](rc);
+  }
+
+  run0(rc) {
+    let nextNode = this.m_nodeLinker.getBegin();
+
+    if (nextNode != null) {
+      this.m_shader.bindToGpu(this.shdUid);
+      this.m_shader.resetUniform();
+      let unit = null;
+      this.m_shdUpdate = false;
+      const proc = this.m_passProc;
+      proc.shader = this.m_shader;
+
+      while (nextNode) {
+        unit = nextNode.unit;
+
+        if (unit.rendering) {
+          unit.updateVtx();
+
+          if (unit.drawing) {
+            if (unit.rgraph && unit.rgraph.isEnabled()) {
+              proc.units = [unit];
+              proc.rc = rc;
+              proc.vtxFlag = true;
+              proc.texFlag = true;
+              unit.rgraph.run(proc);
+              this.m_shdUpdate = true;
+            } else {
+              if (this.m_shdUpdate) {
+                unit.applyShader(true);
+                this.m_shdUpdate = false;
+              }
+
+              unit.run(rc);
+              unit.draw(rc);
+            }
+          }
+        }
+
+        nextNode = nextNode.next;
+      }
+    }
+  }
+
+  run1(rc) {
+    let nextNode = this.m_nodeLinker.getBegin();
+
+    if (nextNode != null) {
+      this.m_shader.bindToGpu(this.shdUid);
+      this.m_shader.resetUniform();
+      const proc = this.m_passProc;
+      proc.shader = this.m_shader;
+      let linker = this.m_nodeLinker;
+      let unit = null;
+      let vtxTotal = linker.getVtxTotalAt(nextNode.rvroI);
+      let texTotal = linker.getTexTotalAt(nextNode.rtroI);
+      let vtxFlag = vtxTotal > 0;
+      let texFlag = texTotal > 0;
+      this.m_shdUpdate = false; // console.log("run1", vtxFlag, texFlag, this.procuid);
+
+      while (nextNode != null) {
+        if (vtxTotal < 1) {
+          vtxTotal = linker.getVtxTotalAt(nextNode.rvroI);
+          vtxFlag = true;
+        }
+
+        vtxTotal--;
+
+        if (texTotal < 1) {
+          texTotal = linker.getTexTotalAt(nextNode.rtroI);
+          texFlag = true;
+        }
+
+        texTotal--; // if(DebugFlag.Flag_0 > 0) console.log("nextNode.drawEnabled: ",nextNode.drawEnabled);
+
+        unit = nextNode.unit;
+
+        if (unit.rendering) {
+          // if(DebugFlag.Flag_0 > 0) console.log("unit.drawEnabled: ",unit.drawEnabled);
+          // console.log("unit.rdp.getUid(): ", unit.rdp.getUid(), unit.vdrInfo.rdp.getUid());
+          vtxFlag = unit.updateVtx() || vtxFlag;
+
+          if (unit.drawing) {
+            if (unit.rgraph && unit.rgraph.isEnabled()) {
+              proc.units = [unit];
+              proc.rc = rc;
+              proc.vtxFlag = vtxFlag;
+              proc.texFlag = texFlag;
+              unit.rgraph.run(proc);
+              this.m_shdUpdate = true;
+            } else {
+              this.draw1(rc, unit, vtxFlag, texFlag);
+            }
+
+            vtxFlag = false;
+            texFlag = false;
+          }
+        }
+
+        nextNode = nextNode.next;
+      }
+    }
+  }
+
+  draw1(rc, unit, vtxFlag, texFlag) {
+    if (this.m_shdUpdate) {
+      unit.applyShader(true);
+      this.m_shdUpdate = false;
+    }
+
+    if (vtxFlag) {
+      unit.vro.run();
+      vtxFlag = false;
+    }
+
+    if (texFlag) {
+      unit.tro.run();
+      texFlag = false;
+    }
+
+    unit.run2(rc);
+    unit.draw(rc);
+  }
+
+  run2(rc) {
+    let nextNode = this.m_nodeLinker.getBegin();
+
+    if (nextNode != null) {
+      const shader = this.m_shader;
+      shader.bindToGpu(this.shdUid);
+      shader.resetUniform();
+      let unit = null;
+      RenderStateObject_1.RenderStateObject.UseRenderState(nextNode.unit.renderState);
+      RenderColorMask_1.RenderColorMask.UseRenderState(nextNode.unit.rcolorMask);
+      let vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
+      let texTotal = this.m_nodeLinker.getTexTotalAt(nextNode.rtroI);
+      let vtxFlag = vtxTotal > 0;
+      let texFlag = texTotal > 0;
+
+      while (nextNode) {
+        if (vtxTotal < 0) {
+          vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
+          vtxFlag = true;
+        }
+
+        vtxTotal--;
+
+        if (texTotal < 0) {
+          texTotal = this.m_nodeLinker.getTexTotalAt(nextNode.rtroI);
+          texFlag = true;
+        }
+
+        texTotal--;
+        unit = nextNode.unit;
+
+        if (unit.rendering) {
+          vtxFlag = unit.updateVtx() || vtxFlag;
+
+          if (unit.drawing) {
+            if (vtxFlag) {
+              unit.vro.run();
+              vtxFlag = false;
+            }
+
+            if (texFlag) {
+              unit.tro.run();
+              texFlag = false;
+            }
+
+            if (unit.ubo != null) {
+              unit.ubo.run(rc);
+            }
+
+            shader.useTransUniform(unit.transUniform);
+            shader.useUniform(unit.uniform);
+            unit.draw(rc);
+          }
+        }
+
+        nextNode = nextNode.next;
+      }
+    }
+  }
+
+  runLockMaterial(rc) {
+    let nextNode = this.m_nodeLinker.getBegin();
+
+    if (nextNode) {
+      this.m_shader.bindToGpu(this.shdUid);
+      this.m_shader.resetUniform();
+      let texUnlock = this.m_shader.isTextureUnLocked();
+      rc.Texture.unlocked = texUnlock;
+      let unit = null;
+
+      if (this.batchEnabled) {
+        let vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
+        let vtxFlag = vtxTotal > 0;
+
+        while (nextNode != null) {
+          if (vtxTotal < 1) {
+            vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
+            vtxFlag = true;
+          }
+
+          vtxTotal--;
+          unit = nextNode.unit;
+
+          if (unit.rendering) {
+            vtxFlag = unit.updateVtx() || vtxFlag;
+
+            if (unit.drawing) {
+              if (vtxFlag) {
+                unit.vro.run();
+                vtxFlag = false;
+              }
+
+              if (texUnlock) {
+                unit.tro.run();
+              }
+
+              unit.runLockMaterial2(null);
+              unit.draw(rc);
+            }
+          }
+
+          nextNode = nextNode.next;
+        }
+      } else {
+        while (nextNode != null) {
+          unit = nextNode.unit;
+
+          if (unit.rendering) {
+            unit.updateVtx();
+
+            if (unit.drawing) {
+              unit.runLockMaterial();
+
+              if (texUnlock) {
+                nextNode.tro.run();
+              }
+
+              unit.draw(rc);
+            }
+          }
+
+          nextNode = nextNode.next;
+        }
+      }
+
+      rc.Texture.unlocked = false;
+    }
+  } // 在锁定material的时候,直接绘制单个unit
+
+
+  drawUnit(rc, unit, disp) {
+    unit.updateVtx();
+
+    if (unit.drawing) {
+      this.m_shader.bindToGpu(unit.shdUid);
+      unit.updateVtx();
+      unit.run(rc);
+      unit.draw(rc);
+    }
+  } // 在锁定material的时候,直接绘制单个unit
+
+
+  drawLockMaterialByUnit(rc, unit, disp, useGlobalUniform, forceUpdateUniform) {
+    unit.updateVtx();
+
+    if (unit.drawing) {
+      if (forceUpdateUniform) {
+        this.m_shader.resetUniform();
+      } // console.log("****** drawLockMaterialByUnit(), unit: ",unit);
+
+
+      let vro = unit.vro;
+
+      if (RendererDevice_1.default.IsMobileWeb()) {
+        // 如果不这么做，vro和shader attributes没有完全匹配的时候可能在某些设备上会有问题(例如ip6s上无法正常绘制)
+        // 注意临时产生的 vro 对象的回收问题
+        // let vro: IVertexRenderObj = this.vtxResource.getVROByResUid(disp.vbuf.getUid(), this.m_shader.getCurrentShd(), true);
+        vro = this.vtxResource.getVROByResUid(disp.getVtxResUid(), this.m_shader.getCurrentShd(), true);
+      }
+
+      vro.run();
+      unit.runLockMaterial2(useGlobalUniform ? this.m_shader.__$globalUniform : null);
+      unit.draw(rc);
+    }
+  }
+
+  reset() {
+    let nextNode = this.m_nodeLinker.getBegin();
+    let node = null;
+
+    if (nextNode != null) {
+      let runit;
+
+      while (nextNode != null) {
+        node = nextNode;
+        nextNode = nextNode.next;
+        this.rpoUnitBuilder.setRPNodeParam(node.__$ruid, this.procuid, -1);
+        node.reset();
+        runit = node.unit;
+
+        if (this.rpoNodeBuilder.restore(node)) {
+          this.rpoUnitBuilder.restore(runit);
+        }
+      }
+    }
+
+    this.m_nodeLinker.clear();
+    this.m_runs.fill(null);
+    super.reset();
+  }
+
+  destroy() {
+    super.destroy();
+  }
+
+}
+
+exports.default = MaterialRPOBlock;
 
 /***/ }),
 
@@ -4634,8 +5193,11 @@ class RODataBuilder {
         disp.__$$rsign = RenderConst_1.DisplayRenderSign.LIVE_IN_RENDERER;
         let runit = this.m_rpoUnitBuilder.create();
         runit.rentity = rentity;
+        runit.retype = rentity.getREType();
         disp.__$ruid = runit.uid;
         disp.__$$runit = runit;
+        runit.rendering = disp.rendering;
+        runit.shader = this.m_shader;
         const group = disp.getPartGroup();
 
         if (group) {
@@ -5148,6 +5710,8 @@ Object.defineProperty(exports, "__esModule", {
 
 const PoolNodeBuilder_1 = __importDefault(__webpack_require__("2be1"));
 
+const RPOUnit_1 = __importDefault(__webpack_require__("c62b"));
+
 const RPONode_1 = __importDefault(__webpack_require__("265e"));
 /*
  * render process object node pool management
@@ -5161,6 +5725,10 @@ class RPONodeBuilder extends PoolNodeBuilder_1.default {
 
   createRPONode() {
     return new RPONode_1.default();
+  }
+
+  createRPOUnit() {
+    return new RPOUnit_1.default();
   }
 
 }
@@ -5270,12 +5838,11 @@ class ROVertexRes {
 
         for (let i = 0; i < len; ++i) {
           const ver = vtx.getF32DataVerAt(i); // console.log("updateToGpu(), i:", i, ", ver: ", ver, ", this.m_verList[i]: ", this.m_verList[i]);
-          // console.log("sizeList[i], fvs.length: ", sizeList[i], fvs.length);
 
           if (this.m_verList[i] != ver) {
             this.m_verList[i] = ver; // console.log("updateToGpu() updating data i: ", i);
 
-            fvs = vtx.getF32DataAt(i);
+            fvs = vtx.getF32DataAt(i); // console.log("sizeList[i], fvs.length: ", sizeList[i], fvs.length);
 
             if (sizeList[i] >= fvs.byteLength) {
               rc.bindArrBuf(this.m_gpuBufs[i]);
@@ -6232,7 +6799,7 @@ exports.default = TextureTarget;
 /*                                                                         */
 
 /***************************************************************************/
-// 用于对 RPOBlock 进行必要的组织, 例如 合批或者按照 shader不同来分类, 以及依据其他机制分类等等
+// 用于对 MaterialRPOBlock 进行必要的组织, 例如 合批或者按照 shader不同来分类, 以及依据其他机制分类等等
 // 目前一个block内的所有node 所使用的shader program 是相同的
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -6247,22 +6814,15 @@ Object.defineProperty(exports, "__esModule", {
 
 const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
 
-const RPONodeLinker_1 = __importDefault(__webpack_require__("df9d"));
-
-const RenderColorMask_1 = __webpack_require__("070b");
-
-const RenderStateObject_1 = __webpack_require__("a5ba");
-
-const PassProcess_1 = __importDefault(__webpack_require__("34cd")); //import DebugFlag from "../debug/DebugFlag";
+const SortNodeLinker_1 = __webpack_require__("f571"); //import DebugFlag from "../debug/DebugFlag";
 
 
-class RPOBlock {
+class RPOBlock extends SortNodeLinker_1.SortNodeLinkerNode {
   constructor(shader) {
-    this.m_uid = -1; // 用于唯一记录运行时的自己(RPOBlock实例)唯一id
-
-    this.m_nodeLinker = new RPONodeLinker_1.default();
+    super();
+    this.m_uid = -1;
     this.m_shader = null;
-    this.m_runs = new Array(5);
+    this.m_sorter = null;
     this.index = -1; // 记录自身在 RenderProcess blocks数组中的序号
 
     this.shdUid = -1; // 记录 material 对应的 shader program uid
@@ -6274,295 +6834,42 @@ class RPOBlock {
     this.rpoNodeBuilder = null;
     this.rpoUnitBuilder = null;
     this.vtxResource = null;
-    this.m_passProc = new PassProcess_1.default();
-    this.m_shdUpdate = false;
+    this.sortEnabled = true;
     this.m_shader = shader;
     this.m_uid = RPOBlock.s_uid++;
-    const ls = this.m_runs;
-    ls.fill(null);
-    ls[0] = this.run0.bind(this);
-    ls[1] = this.run1.bind(this);
-    ls[2] = this.run2.bind(this);
   }
 
-  showInfo() {
-    this.m_nodeLinker.showInfo();
+  showInfo() {}
+
+  getType() {
+    return -1;
   }
 
-  addNode(node) {
-    this.m_nodeLinker.addNodeAndSort(node);
+  setSorter(sorter) {
+    this.m_sorter = sorter;
   }
 
-  rejoinNode(node) {
-    if (this.m_nodeLinker.containsNode(node)) {
-      this.m_nodeLinker.removeNodeAndSort(node);
-      this.m_nodeLinker.addNodeAndSort(node);
-    }
-  }
+  sort() {}
 
-  removeNode(node) {
-    this.m_nodeLinker.removeNodeAndSort(node);
-  }
+  addNode(node) {}
+
+  rejoinNode(node) {}
+
+  removeNode(node) {}
 
   isEmpty() {
-    return this.m_nodeLinker.getBegin() == null;
+    return true;
   }
 
-  run(rc) {
-    this.m_runs[this.runMode](rc);
-  }
+  run(rc) {}
 
-  run0(rc) {
-    let nextNode = this.m_nodeLinker.getBegin();
-
-    if (nextNode != null) {
-      this.m_shader.bindToGpu(this.shdUid);
-      this.m_shader.resetUniform();
-      let unit = null;
-      this.m_shdUpdate = false;
-      const proc = this.m_passProc;
-      proc.shader = this.m_shader;
-
-      while (nextNode) {
-        if (nextNode.drawEnabled) {
-          unit = nextNode.unit;
-          unit.updateVtx();
-
-          if (unit.drawEnabled) {
-            if (unit.rgraph && unit.rgraph.isEnabled()) {
-              proc.units = [unit];
-              proc.rc = rc;
-              proc.vtxFlag = true;
-              proc.texFlag = true;
-              unit.rgraph.run(proc);
-              this.m_shdUpdate = true;
-            } else {
-              if (this.m_shdUpdate) {
-                unit.applyShader(true);
-                this.m_shdUpdate = false;
-              }
-
-              unit.run(rc);
-              unit.draw(rc);
-            }
-          }
-        }
-
-        nextNode = nextNode.next;
-      }
-    }
-  }
-
-  run1(rc) {
-    let nextNode = this.m_nodeLinker.getBegin();
-
-    if (nextNode != null) {
-      this.m_shader.bindToGpu(this.shdUid);
-      this.m_shader.resetUniform();
-      const proc = this.m_passProc;
-      proc.shader = this.m_shader;
-      let linker = this.m_nodeLinker;
-      let unit = null;
-      let vtxTotal = linker.getVtxTotalAt(nextNode.rvroI);
-      let texTotal = linker.getTexTotalAt(nextNode.rtroI);
-      let vtxFlag = vtxTotal > 0;
-      let texFlag = texTotal > 0;
-      this.m_shdUpdate = false; // console.log("run1", vtxFlag, texFlag, this.procuid);
-
-      while (nextNode != null) {
-        if (vtxTotal < 1) {
-          vtxTotal = linker.getVtxTotalAt(nextNode.rvroI);
-          vtxFlag = true;
-        }
-
-        vtxTotal--;
-
-        if (texTotal < 1) {
-          texTotal = linker.getTexTotalAt(nextNode.rtroI);
-          texFlag = true;
-        }
-
-        texTotal--; // if(DebugFlag.Flag_0 > 0) console.log("nextNode.drawEnabled: ",nextNode.drawEnabled);
-
-        if (nextNode.drawEnabled) {
-          unit = nextNode.unit; // if(DebugFlag.Flag_0 > 0) console.log("unit.drawEnabled: ",unit.drawEnabled);
-          // console.log("unit.rdp.getUid(): ", unit.rdp.getUid(), unit.vdrInfo.rdp.getUid());
-
-          vtxFlag = unit.updateVtx() || vtxFlag;
-
-          if (unit.drawEnabled) {
-            if (unit.rgraph && unit.rgraph.isEnabled()) {
-              proc.units = [unit];
-              proc.rc = rc;
-              proc.vtxFlag = vtxFlag;
-              proc.texFlag = texFlag;
-              unit.rgraph.run(proc);
-              this.m_shdUpdate = true;
-            } else {
-              this.draw1(rc, unit, vtxFlag, texFlag);
-            }
-
-            vtxFlag = false;
-            texFlag = false;
-          }
-        }
-
-        nextNode = nextNode.next;
-      }
-    }
-  }
-
-  draw1(rc, unit, vtxFlag, texFlag) {
-    if (this.m_shdUpdate) {
-      unit.applyShader(true);
-      this.m_shdUpdate = false;
-    }
-
-    if (vtxFlag) {
-      unit.vro.run();
-      vtxFlag = false;
-    }
-
-    if (texFlag) {
-      unit.tro.run();
-      texFlag = false;
-    }
-
-    unit.run2(rc);
-    unit.draw(rc);
-  }
-
-  run2(rc) {
-    let nextNode = this.m_nodeLinker.getBegin();
-
-    if (nextNode != null) {
-      const shader = this.m_shader;
-      shader.bindToGpu(this.shdUid);
-      shader.resetUniform();
-      let unit = null;
-      RenderStateObject_1.RenderStateObject.UseRenderState(nextNode.unit.renderState);
-      RenderColorMask_1.RenderColorMask.UseRenderState(nextNode.unit.rcolorMask);
-      let vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-      let texTotal = this.m_nodeLinker.getTexTotalAt(nextNode.rtroI);
-      let vtxFlag = vtxTotal > 0;
-      let texFlag = texTotal > 0;
-
-      while (nextNode != null) {
-        if (vtxTotal < 0) {
-          vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-          vtxFlag = true;
-        }
-
-        vtxTotal--;
-
-        if (texTotal < 0) {
-          texTotal = this.m_nodeLinker.getTexTotalAt(nextNode.rtroI);
-          texFlag = true;
-        }
-
-        texTotal--;
-
-        if (nextNode.drawEnabled) {
-          unit = nextNode.unit;
-          vtxFlag = unit.updateVtx() || vtxFlag;
-
-          if (unit.drawEnabled) {
-            if (vtxFlag) {
-              unit.vro.run();
-              vtxFlag = false;
-            }
-
-            if (texFlag) {
-              unit.tro.run();
-              texFlag = false;
-            }
-
-            if (unit.ubo != null) {
-              unit.ubo.run(rc);
-            }
-
-            shader.useTransUniform(unit.transUniform);
-            shader.useUniform(unit.uniform);
-            unit.draw(rc);
-          }
-        }
-
-        nextNode = nextNode.next;
-      }
-    }
-  }
-
-  runLockMaterial(rc) {
-    let nextNode = this.m_nodeLinker.getBegin();
-
-    if (nextNode != null) {
-      this.m_shader.bindToGpu(this.shdUid);
-      this.m_shader.resetUniform();
-      let texUnlock = this.m_shader.isTextureUnLocked();
-      rc.Texture.unlocked = texUnlock;
-      let unit = null;
-
-      if (this.batchEnabled) {
-        let vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-        let vtxFlag = vtxTotal > 0;
-
-        while (nextNode != null) {
-          if (vtxTotal < 1) {
-            vtxTotal = this.m_nodeLinker.getVtxTotalAt(nextNode.rvroI);
-            vtxFlag = true;
-          }
-
-          vtxTotal--;
-
-          if (nextNode.drawEnabled) {
-            unit = nextNode.unit;
-            vtxFlag = unit.updateVtx() || vtxFlag;
-
-            if (unit.drawEnabled) {
-              if (vtxFlag) {
-                unit.vro.run();
-                vtxFlag = false;
-              }
-
-              if (texUnlock) {
-                unit.tro.run();
-              }
-
-              unit.runLockMaterial2(null);
-              unit.draw(rc);
-            }
-          }
-
-          nextNode = nextNode.next;
-        }
-      } else {
-        while (nextNode != null) {
-          if (nextNode.drawEnabled) {
-            unit = nextNode.unit;
-            unit.updateVtx();
-
-            if (unit.drawEnabled) {
-              unit.runLockMaterial();
-
-              if (texUnlock) {
-                nextNode.tro.run();
-              }
-
-              unit.draw(rc);
-            }
-          }
-
-          nextNode = nextNode.next;
-        }
-      }
-
-      rc.Texture.unlocked = false;
-    }
-  } // 在锁定material的时候,直接绘制单个unit
+  runLockMaterial(rc) {} // 在锁定material的时候,直接绘制单个unit
 
 
   drawUnit(rc, unit, disp) {
-    if (unit.drawEnabled) {
+    unit.updateVtx();
+
+    if (unit.drawing) {
       this.m_shader.bindToGpu(unit.shdUid);
       unit.updateVtx();
       unit.run(rc);
@@ -6574,7 +6881,7 @@ class RPOBlock {
   drawLockMaterialByUnit(rc, unit, disp, useGlobalUniform, forceUpdateUniform) {
     unit.updateVtx();
 
-    if (unit.drawEnabled) {
+    if (unit.drawing) {
       if (forceUpdateUniform) {
         this.m_shader.resetUniform();
       } // console.log("****** drawLockMaterialByUnit(), unit: ",unit);
@@ -6596,34 +6903,15 @@ class RPOBlock {
   }
 
   reset() {
-    let nextNode = this.m_nodeLinker.getBegin();
-    let node = null;
-
-    if (nextNode != null) {
-      let runit;
-
-      while (nextNode != null) {
-        node = nextNode;
-        nextNode = nextNode.next;
-        this.rpoUnitBuilder.setRPNodeParam(node.__$ruid, this.procuid, -1);
-        node.reset();
-        runit = node.unit;
-
-        if (this.rpoNodeBuilder.restore(node)) {
-          this.rpoUnitBuilder.restore(runit);
-        }
-      }
-    }
-
     this.index = -1;
     this.shdUid = -1;
     this.procuid = -1;
-    this.m_nodeLinker.clear();
     this.rpoNodeBuilder = null;
     this.rpoUnitBuilder = null;
     this.vtxResource = null;
-    this.m_runs.fill(null);
   }
+
+  clear() {}
 
   destroy() {
     this.reset();
@@ -8196,9 +8484,13 @@ Object.defineProperty(exports, "__esModule", {
 
 const RenderSortBlock_1 = __importDefault(__webpack_require__("264c"));
 
-const RPOBlock_1 = __importDefault(__webpack_require__("5f3c"));
+const MaterialRPOBlock_1 = __importDefault(__webpack_require__("3420"));
 
 const ROTransPool_1 = __importDefault(__webpack_require__("9156"));
+
+const SortNodeLinker_1 = __webpack_require__("f571");
+
+const ContainerRPOBlock_1 = __importDefault(__webpack_require__("91da"));
 
 class RenderProcess {
   constructor(shader, rpoNodeBuilder, rpoUnitBuilder, vtxResource, batchEnabled, processFixedState) {
@@ -8208,13 +8500,15 @@ class RenderProcess {
     this.m_rpIndex = -1;
     this.m_nodesLen = 0;
     this.m_enabled = true;
-    this.m_blockList = []; // 记录以相同shader的node为一个集合对象(RPOBlock) 的数组
+    this.m_blockList = []; // 记录以相同shader的node为一个集合对象(MaterialRPOBlock) 的数组
 
     this.m_blockListLen = 0;
-    this.m_blockFList = new Int8Array(RenderProcess.s_max_shdTotal); // 记录以相同shader的node为一个集合对象(RPOBlock)的构建状态 的数组
+    this.m_blockFList = new Int8Array(RenderProcess.s_max_shdTotal); // 记录以相同shader的node为一个集合对象(MaterialRPOBlock)的构建状态 的数组
 
     this.m_blockFListLen = RenderProcess.s_max_shdTotal; // 假定引擎中同时存在的最多的shader 有1024种
 
+    this.m_containerBlocks = [];
+    this.m_scTotal = 0;
     this.m_shader = null;
     this.m_rpoNodeBuilder = null;
     this.m_rpoUnitBuilder = null;
@@ -8223,6 +8517,7 @@ class RenderProcess {
     this.m_fixBlock = null;
     this.m_sortBlock = null;
     this.m_sorter = null;
+    this.m_blockLinker = new SortNodeLinker_1.SortNodeLinker();
     this.m_batchEnabled = true;
     this.m_fixedState = true;
     this.m_sortEnabled = false;
@@ -8242,7 +8537,7 @@ class RenderProcess {
   }
 
   createBlock() {
-    let block = new RPOBlock_1.default(this.m_shader);
+    let block = new MaterialRPOBlock_1.default(this.m_shader);
     block.rpoNodeBuilder = this.m_rpoNodeBuilder;
     block.rpoUnitBuilder = this.m_rpoUnitBuilder;
     block.vtxResource = this.m_vtxResource;
@@ -8281,7 +8576,7 @@ class RenderProcess {
   setSorter(sorter) {
     this.m_sorter = sorter;
 
-    if (this.m_sortBlock != null) {
+    if (this.m_sortBlock) {
       this.m_sortBlock.setSorter(sorter);
     }
   }
@@ -8289,7 +8584,7 @@ class RenderProcess {
   setSortEnabled(sortEnabled) {
     if (this.m_nodesLen < 1) {
       this.m_sortEnabled = sortEnabled;
-    } else if (this.m_sortBlock != null) {
+    } else if (this.m_sortBlock) {
       this.m_sortBlock.sortEnabled = sortEnabled;
     }
   }
@@ -8331,11 +8626,12 @@ class RenderProcess {
       block.procuid = this.m_rpIndex;
       this.m_blockList.push(block);
       this.m_blockFList[node.shdUid] = this.m_blockListLen;
-      ++this.m_blockListLen; //  console.log("RenderProcess::addDisp(), this.uid: ",this.getUid());
-      //  console.log("RenderProcess::addDisp(), create a new RPOBlock instance, block: ",block);
-      //  console.log("RenderProcess::addDisp(), create a new RPOBlock instance, this.m_blockList: ",this.m_blockList);
+      ++this.m_blockListLen;
+      this.m_blockLinker.addNode(block); //  console.log("RenderProcess::addDisp(), this.uid: ",this.getUid());
+      //  console.log("RenderProcess::addDisp(), create a new MaterialRPOBlock instance, block: ",block);
+      //  console.log("RenderProcess::addDisp(), create a new MaterialRPOBlock instance, this.m_blockList: ",this.m_blockList);
     } else {
-      //console.log("RenderProcess::addDisp(), use old RPOBlock instance, m_blockFList["+node.shdUid+"]: "+this.m_blockFList[node.shdUid]);
+      //console.log("RenderProcess::addDisp(), use old MaterialRPOBlock instance, m_blockFList["+node.shdUid+"]: "+this.m_blockFList[node.shdUid]);
       block = this.m_blockList[this.m_blockFList[node.shdUid]];
     }
 
@@ -8344,34 +8640,121 @@ class RenderProcess {
   }
 
   rejoinRunitForTro(runit) {
-    let node = this.m_rpoNodeBuilder.getNodeByUid(runit.__$rpuid);
+    if (!this.m_sortBlock) {
+      let node = this.m_rpoNodeBuilder.getNodeByUid(runit.__$rpuid);
 
-    if (node != null) {
-      node.tro = runit.tro;
-      node.texMid = node.unit.texMid;
-      this.m_blockList[node.index].rejoinNode(node);
+      if (node) {
+        node.tro = runit.tro;
+        node.texMid = node.unit.texMid;
+        this.m_blockList[node.index].rejoinNode(node);
+      }
     }
   }
 
   rejoinRunitForVro(runit) {
-    let node = this.m_rpoNodeBuilder.getNodeByUid(runit.__$rpuid);
+    if (!this.m_sortBlock) {
+      let node = this.m_rpoNodeBuilder.getNodeByUid(runit.__$rpuid);
 
-    if (node != null) {
-      node.vtxUid = runit.vtxUid;
-      node.vro = runit.vro;
-      this.m_blockList[node.index].rejoinNode(node);
-      this.m_version++;
+      if (node) {
+        node.vtxUid = runit.vtxUid;
+        node.vro = runit.vro;
+        this.m_blockList[node.index].rejoinNode(node);
+        this.m_version++;
+      }
     }
+  }
+
+  addContainer(container) {
+    console.log("RenderProcess::addContainer() this.m_sortBlock: ", this.m_sortBlock);
+    this.createSortBlock();
+
+    if (this.m_sortBlock) {
+      if (this.m_sortBlock.addContainer(container)) {
+        this.m_scTotal++;
+      }
+    } else {
+      const ls = this.m_containerBlocks;
+      let i = ls.length - 1;
+      let flag = ls.length > 0;
+
+      for (; i >= 0; --i) {
+        if (ls[i].isEmpty() && flag) {
+          ls[i].addContainer(container);
+          flag = true;
+          break;
+        }
+
+        flag = false;
+
+        if (ls[i].hasContainer(container)) {
+          break;
+        }
+      }
+
+      if (i == -1 && !flag) {
+        let block = new ContainerRPOBlock_1.default(this.m_shader);
+        block.addContainer(container);
+        this.m_blockLinker.addNode(block);
+        ls.push(block);
+      }
+    }
+  }
+
+  removeContainer(container) {
+    if (this.m_sortBlock) {
+      if (this.m_sortBlock.removeContainer(container)) {
+        this.m_scTotal--;
+      }
+    } else {
+      const ls = this.m_containerBlocks;
+      let i = 0;
+
+      for (; i < ls.length; ++i) {
+        if (ls[i].hasContainer(container)) {
+          ls[i].removeContainer(container);
+        }
+      }
+    }
+  }
+
+  createSortBlock() {
+    if (this.m_sortEnabled && !this.m_sortBlock) {
+      this.m_sortBlock = new RenderSortBlock_1.default(this.m_shader);
+      this.m_sortBlock.setSorter(this.m_sorter);
+      this.m_blockLinker.addNode(this.m_sortBlock);
+    } // if (this.m_sortBlock) {
+    // 	this.m_sortBlock.addNode(node);
+    // } else {
+    // 	this.m_sortBlock = new RenderSortBlock(this.m_shader);
+    // 	this.m_sortBlock.setSorter(this.m_sorter);
+    // 	this.m_sortBlock.addNode(node);
+    // 	this.m_blockLinker.addNode(this.m_sortBlock);
+    // }
+
   }
 
   addDisp(disp) {
     if (disp != null) {
-      if (disp.__$$runit != null && disp.__$$runit.getRPROUid() < 0) {
+      if (disp.__$$runit && disp.__$$runit.getRPROUid() < 0) {
+        const re = disp.__$$runit.rentity;
+
+        let parent = re.__$getParent();
+
+        while (parent) {
+          if (!parent.hasParent() && parent.getREType() >= 20) {
+            // console.log("RenderProcess(" + this.uid + ")::addDisp(), 容器内驱动渲染，不需要直接加入渲染 process.");
+            return;
+            break;
+          }
+
+          parent = parent.getParent();
+        }
+
         if (disp.__$$runit.getRPROUid() != this.uid) {
           // console.log("RenderProcess(" + this.uid + ")::addDisp(): ", disp.ivsCount, disp, disp.drawMode);
           let node = this.m_rpoNodeBuilder.create();
-          node.unit = this.m_rpoUnitBuilder.getNodeByUid(disp.__$ruid);
-          node.unit.shader = this.m_shader;
+          node.unit = this.m_rpoUnitBuilder.getNodeByUid(disp.__$ruid); // node.unit.shader = this.m_shader;
+
           node.unit.__$rprouid = this.uid;
           disp.__$rpuid = node.uid;
           node.__$ruid = disp.__$ruid;
@@ -8381,15 +8764,16 @@ class RenderProcess {
           this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.getUid(), node.uid);
 
           if (this.m_sortEnabled) {
-            console.log("sort process add a disp...");
-
-            if (this.m_sortBlock != null) {
-              this.m_sortBlock.addNode(node);
-            } else {
-              this.m_sortBlock = new RenderSortBlock_1.default(this.m_shader);
-              this.m_sortBlock.setSorter(this.m_sorter);
-              this.m_sortBlock.addNode(node);
-            }
+            // console.log("sort process add a disp...");
+            this.createSortBlock();
+            this.m_sortBlock.addNode(node); // if (this.m_sortBlock) {
+            // 	this.m_sortBlock.addNode(node);
+            // } else {
+            // 	this.m_sortBlock = new RenderSortBlock(this.m_shader);
+            // 	this.m_sortBlock.setSorter(this.m_sorter);
+            // 	this.m_blockLinker.addNode(this.m_sortBlock);
+            // 	this.m_sortBlock.addNode(node);
+            // }
           } else {
             this.addNodeToBlock(node);
           }
@@ -8403,51 +8787,62 @@ class RenderProcess {
   }
 
   updateDispMateiral(disp) {
-    if (disp.__$$runit != null) {
-      let nodeUId = disp.__$$runit.getRPOUid();
+    if (disp.__$$runit) {
+      if (!this.m_sortBlock) {
+        let nodeUId = disp.__$$runit.getRPOUid();
 
-      let node = this.m_rpoNodeBuilder.getNodeByUid(nodeUId); // material info etc.
+        let node = this.m_rpoNodeBuilder.getNodeByUid(nodeUId); // material info etc.
 
-      node.shdUid = node.unit.shdUid;
-      node.texMid = node.unit.texMid;
-      node.tro = node.unit.tro;
-      let block = this.m_blockList[node.index];
-      block.removeNode(node);
-      this.addNodeToBlock(node);
+        node.shdUid = node.unit.shdUid;
+        node.texMid = node.unit.texMid;
+        node.tro = node.unit.tro;
+        let block = this.m_blockList[node.index];
+        block.removeNode(node);
+        this.addNodeToBlock(node);
+      }
     }
   }
 
   removeDisp(disp) {
-    if (disp != null) {
-      if (disp.__$$runit != null) {
+    if (disp) {
+      if (disp.__$$runit) {
+        // const re = (disp.__$$runit as RPOUnit).rentity as IRenderEntity;
+        // let parent = re.__$getParent();
+        // console.log("removeDisp() B ............");
+        // while (parent) {
+        // 	if (!parent.hasParent() && parent.getREType() >= 20) {
+        // 		console.log("RenderProcess(" + this.uid + ")::removeDisp(), 容器内驱动渲染，不需要直接从渲染 process 移除.");
+        // 		return;
+        // 		break;
+        // 	}
+        // 	parent = parent.getParent();
+        // }
         let nodeUId = disp.__$$runit.getRPOUid();
 
         let node = this.m_rpoNodeBuilder.getNodeByUid(nodeUId); // console.log("RenderProcess("+this.uid+")::removeDisp(), nodeUId: ",nodeUId,disp);
         // console.log("removeDisp(), node != null: "+(node != null),", this.m_blockList: ",this.m_blockList);
 
-        if (node != null) {
+        if (node) {
           let runit = node.unit;
           let transU = runit.transUniform;
 
-          if (transU != null) {
+          if (transU) {
             ROTransPool_1.default.RemoveTransUniform(transU.key);
           }
 
-          if (this.m_sortBlock == null) {
+          if (this.m_sortBlock) {
+            this.m_sortBlock.removeNode(node);
+          } else {
             let block = this.m_blockList[node.index];
             block.removeNode(node);
-          } else {
-            this.m_sortBlock.removeNode(node);
-          } // this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.m_rpIndex, -1);
-
+          }
 
           this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.getUid(), -1);
           --this.m_nodesLen;
 
           if (this.m_rpoNodeBuilder.restore(node)) {
             this.m_rpoUnitBuilder.restore(runit);
-          } // this.m_vtxResource.__$detachRes(disp.vbuf.getUid());
-
+          }
 
           this.m_vtxResource.__$detachRes(disp.getVtxResUid());
 
@@ -8461,6 +8856,27 @@ class RenderProcess {
     }
   }
 
+  forceRemoveDisp(disp) {
+    if (disp && disp.__$$runit) {
+      // console.log("RenderProcess(" + this.uid + ")::forceRemoveDisp(), 容器内驱动渲染，不需要直接从渲染 process 移除.");
+      let runit = disp.__$$runit;
+      let transU = runit.transUniform;
+
+      if (transU) {
+        ROTransPool_1.default.RemoveTransUniform(transU.key);
+      }
+
+      this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.getUid(), -1);
+      this.m_rpoUnitBuilder.restore(runit);
+
+      this.m_vtxResource.__$detachRes(disp.getVtxResUid());
+
+      disp.__$$runit = null;
+      disp.__$ruid = -1;
+      this.m_version++;
+    }
+  }
+
   getStatus() {
     return this.m_version;
   }
@@ -8470,18 +8886,17 @@ class RenderProcess {
 
 
   removeDispUnit(disp) {
-    if (disp != null) {
+    if (disp) {
       if (disp.__$ruid > -1) {
         let nodeUId = disp.__$$runit.getRPOUid();
 
         let node = this.m_rpoNodeBuilder.getNodeByUid(nodeUId);
 
-        if (node != null) {
-          if (this.m_sortBlock == null) {
-            let block = this.m_blockList[node.index];
-            block.removeNode(node);
-          } else {
+        if (node) {
+          if (this.m_sortBlock) {
             this.m_sortBlock.removeNode(node);
+          } else {
+            this.m_blockList[node.index].removeNode(node);
           }
 
           this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.m_rpIndex, -1);
@@ -8494,42 +8909,59 @@ class RenderProcess {
   }
 
   update() {
-    if (this.m_enabled && this.m_nodesLen > 0) {
-      if (this.m_sortBlock != null) {
+    const total = this.m_nodesLen + this.m_containerBlocks.length + this.m_scTotal;
+
+    if (this.m_enabled && total > 0) {
+      if (this.m_sortBlock) {
         this.m_sortBlock.update();
       }
     }
   }
 
   run() {
-    if (this.m_enabled && this.m_nodesLen > 0) {
-      let rc = this.m_rc;
+    const total = this.m_nodesLen + this.m_containerBlocks.length + this.m_scTotal;
 
-      if (this.m_sortBlock == null) {
-        if (this.m_shader.isUnLocked()) {
-          for (let i = 0; i < this.m_blockListLen; ++i) {
-            this.m_blockList[i].run(rc);
-          }
-        } else {
-          for (let i = 0; i < this.m_blockListLen; ++i) {
-            this.m_blockList[i].runLockMaterial(rc);
-          }
+    if (this.m_enabled && total > 0) {
+      const rc = this.m_rc;
+      const linker = this.m_blockLinker;
+      let node = linker.getBegin();
+
+      if (this.m_shader.isUnLocked()) {
+        while (node) {
+          node.run(rc);
+          node = node.next;
         }
       } else {
-        if (this.m_shader.isUnLocked()) {
-          this.m_sortBlock.run(rc);
-        } else {
-          this.m_sortBlock.runLockMaterial(rc);
+        while (node) {
+          node.runLockMaterial(rc);
+          node = node.next;
         }
-      }
+      } // if (this.m_sortBlock) {
+      // 	if (this.m_shader.isUnLocked()) {
+      // 		this.m_sortBlock.run(rc);
+      // 	} else {
+      // 		this.m_sortBlock.runLockMaterial(rc);
+      // 	}
+      // } else {
+      // 	if (this.m_shader.isUnLocked()) {
+      // 		for (let i = 0; i < this.m_blockListLen; ++i) {
+      // 			this.m_blockList[i].run(rc);
+      // 		}
+      // 	} else {
+      // 		for (let i = 0; i < this.m_blockListLen; ++i) {
+      // 			this.m_blockList[i].runLockMaterial(rc);
+      // 		}
+      // 	}
+      // }
+
     }
   }
 
   drawDisp(disp, useGlobalUniform = false, forceUpdateUniform = true) {
-    if (disp != null) {
+    if (disp) {
       let unit = disp.__$$runit;
 
-      if (unit != null) {
+      if (unit) {
         if (this.m_shader.isUnLocked()) {
           if (forceUpdateUniform) {
             this.m_shader.resetUniform();
@@ -8593,7 +9025,7 @@ class RenderProcess {
     this.m_enabled = boo;
   }
 
-  getEnabled() {
+  isEnabled() {
     return this.m_enabled;
   }
 
@@ -8601,6 +9033,142 @@ class RenderProcess {
 
 RenderProcess.s_max_shdTotal = 1024;
 exports.default = RenderProcess;
+
+/***/ }),
+
+/***/ "7f1c":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2019-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const PassProcess_1 = __importDefault(__webpack_require__("34cd"));
+/**
+ * 渲染器渲染运行时核心关键执行显示单元,一个unit代表着一个draw call所渲染的所有数据
+ * renderer rendering runtime core executable display unit.
+ */
+
+
+class ContainerFlowRenderer {
+  constructor() {
+    this.passProc = new PassProcess_1.default();
+    this.shdUpdate = false;
+    this.shader = null;
+  }
+
+  runContainer(rc, container) {
+    const els = container.getEntities();
+    const elen = els.length;
+
+    if (elen > 0) {
+      const proc = this.passProc;
+      proc.shader = this.shader; // 可能需要排序
+
+      for (let i = 0; i < elen; ++i) {
+        const et = els[i];
+
+        if (et.isPolyhedral() && et.isVisible() && et.isInRenderer()) {
+          const unit = et.getDisplay().__$$runit;
+
+          if (unit && unit.rendering) {
+            this.shader.bindToGpu(unit.shdUid);
+            unit.updateVtx();
+
+            if (unit.drawing) {
+              if (unit.rgraph && unit.rgraph.isEnabled()) {
+                proc.units = [unit];
+                proc.rc = rc;
+                proc.vtxFlag = true;
+                proc.texFlag = true;
+                unit.rgraph.run(proc);
+                this.shdUpdate = true;
+              } else {
+                if (this.shdUpdate) {
+                  unit.applyShader(true);
+                  this.shdUpdate = false;
+                }
+
+                unit.run(rc);
+                unit.draw(rc);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const cls = container.getContainers();
+    const clen = cls.length;
+
+    if (clen > 0) {
+      for (let i = 0; i < clen; ++i) {
+        this.runContainer(rc, cls[i]);
+      }
+    }
+  }
+
+  runContainerLock(rc, container) {
+    const els = container.getEntities();
+    const elen = els.length;
+
+    if (elen > 0) {
+      const proc = this.passProc;
+      proc.shader = this.shader; // 可能需要排序
+
+      for (let i = 0; i < elen; ++i) {
+        const et = els[i];
+
+        if (et.isPolyhedral() && et.isVisible() && et.isInRenderer()) {
+          const unit = et.getDisplay().__$$runit;
+
+          if (unit && unit.rendering) {
+            this.shader.bindToGpu(unit.shdUid);
+            unit.updateVtx();
+
+            if (unit.drawing) {
+              unit.vro.run();
+              unit.runLockMaterial2(null);
+              unit.draw(rc);
+            }
+          }
+        }
+      }
+    }
+
+    const cls = container.getContainers();
+    const clen = cls.length;
+
+    if (clen > 0) {
+      for (let i = 0; i < clen; ++i) {
+        this.runContainerLock(rc, cls[i]);
+      }
+    }
+  }
+
+}
+
+exports.default = ContainerFlowRenderer;
 
 /***/ }),
 
@@ -10121,6 +10689,122 @@ exports.default = VROBase;
 
 /***/ }),
 
+/***/ "91da":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const RPOBlock_1 = __importDefault(__webpack_require__("5f3c"));
+
+const PassProcess_1 = __importDefault(__webpack_require__("34cd"));
+
+const ContainerFlowRenderer_1 = __importDefault(__webpack_require__("7f1c"));
+
+class ContainerRPOBlock extends RPOBlock_1.default {
+  constructor(shader) {
+    super(shader);
+    this.m_unitsTotal = 0;
+    this.m_container = null;
+    this.m_cr = new ContainerFlowRenderer_1.default();
+    this.m_passProc = new PassProcess_1.default();
+  }
+
+  resetCR() {
+    const cr = this.m_cr;
+    cr.passProc = this.m_passProc;
+    cr.shdUpdate = false;
+    cr.shader = this.m_shader;
+  }
+
+  showInfo() {}
+
+  clear() {
+    if (this.m_shader) {
+      this.m_shader = null;
+      this.m_container = null;
+    }
+  }
+
+  update() {
+    if (this.sortEnabled) {
+      this.sort();
+    }
+  }
+
+  addContainer(container) {
+    this.m_container = container;
+  }
+
+  removeContainer(container) {
+    if (container == this.m_container) {
+      this.m_container = null;
+    }
+  }
+
+  hasContainer(container) {
+    return this.m_container == container;
+  }
+
+  isEmpty() {
+    return this.m_container == null;
+  }
+
+  run(rc) {
+    // this.m_shader.resetUniform();
+    const c = this.m_container;
+
+    if (c && c.isVisible()) {
+      this.resetCR();
+      this.m_cr.runContainer(rc, c);
+    }
+  }
+
+  runLockMaterial(rc) {
+    // this.m_shader.resetUniform();
+    const c = this.m_container;
+
+    if (c && c.isVisible()) {
+      this.resetCR();
+      this.m_cr.runContainerLock(rc, c);
+    }
+  }
+
+  getNodesTotal() {
+    return this.m_unitsTotal;
+  }
+
+  addNode(node) {}
+
+  removeNode(node) {}
+
+}
+
+exports.default = ContainerRPOBlock;
+
+/***/ }),
+
 /***/ "984e":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -11604,10 +12288,10 @@ class RenderShader {
         this.m_fragOutputTotal = shd.getFragOutputTotal();
 
         if (this.m_fragOutputTotal != this.getActiveAttachmentTotal()) {
-          //if(RendererDevice.SHOWLOG_ENABLED) {
+          // if(RendererDevice.SHOWLOG_ENABLED) {
           console.log("shd.getUniqueShaderName(): string: " + shd.getUniqueShaderName());
           console.log("this.m_fragOutputTotal: " + this.m_fragOutputTotal + ", rc.getActiveAttachmentTotal(): " + this.getActiveAttachmentTotal());
-          console.error("Error: MRT output amount is not equal to current shader( " + shd.toString() + " ) frag shader output amount !!!"); //}
+          console.error("Error: MRT output amount is not equal to current shader( " + shd.toString() + " ) frag shader output amount !!!"); // }
         }
 
         this.m_gpuProgram = shd.getGPUProgram();
@@ -11881,6 +12565,7 @@ const RenderStateObject_1 = __webpack_require__("a5ba");
 class RPOUnit {
   constructor() {
     this.rentity = null;
+    this.retype = 0;
     this.uid = -1;
     this.value = -1; // 记录自身和RPONode的对应关系
 
@@ -11899,7 +12584,12 @@ class RPOUnit {
      */
 
     this.visible = true;
-    this.drawEnabled = true;
+    this.drawing = true;
+    /**
+     * 是否对当前unit进行渲染的状态
+     */
+
+    this.rendering = true;
     this.renderState = 0;
     this.rcolorMask = 0; // 用于记录 renderState(低10位)和ColorMask(高10位) 的状态组合
 
@@ -11987,12 +12677,12 @@ class RPOUnit {
       throw Error("illegal operation !!!");
     }
 
-    this.drawEnabled = this.visible && this.rdp.rd.ivsSize > 0;
+    this.drawing = this.visible && this.rdp.rd.ivsSize > 0;
   }
 
   setVisible(boo) {
     this.visible = boo;
-    this.testVisible(); // if(DebugFlag.Flag_0 > 0) console.log("#### setVisible(): ", boo, "this.drawEnabled: ",this.drawEnabled);
+    this.testVisible(); // if(DebugFlag.Flag_0 > 0) console.log("#### setVisible(): ", boo, "this.drawing: ",this.drawing);
   }
 
   setDrawFlag(renderState, rcolorMask) {
@@ -12222,7 +12912,8 @@ class RPOUnit {
       this.drawFlag = 0x0;
       this.renderState = 0;
       this.rcolorMask = 0;
-      this.drawEnabled = true;
+      this.drawing = true;
+      this.rendering = true;
       this.shader = null;
       this.bounds = null;
       this.pos = null;
@@ -12943,6 +13634,22 @@ class RendererInstance {
   setEntityManaListener(listener) {
     this.m_entity3DMana.setListener(listener);
   }
+
+  addContainer(container, processIndex = 0) {
+    if (container) {
+      if (processIndex > -1 && processIndex < this.m_processesLen) {
+        this.m_entity3DMana.addContainer(container, this.m_processes[processIndex].getUid());
+      }
+    }
+  }
+
+  removeContainer(container, processIndex = 0) {
+    if (container) {
+      if (processIndex > -1 && processIndex < this.m_processesLen) {
+        this.m_entity3DMana.removeContainer(container, this.m_processes[processIndex].getUid());
+      }
+    }
+  }
   /**
    * add an entity to the renderer process of the renderer instance
    * @param entity IRenderEntity instance(for example: DisplayEntity class instance)
@@ -12952,7 +13659,7 @@ class RendererInstance {
 
 
   addEntity(entity, processIndex = 0, deferred = true) {
-    if (entity != null) {
+    if (entity) {
       if (entity.__$testRendererEnabled()) {
         if (processIndex > -1 && processIndex < this.m_processesLen) {
           this.m_entity3DMana.addEntity(entity, this.m_processes[processIndex].getUid(), deferred);
@@ -12962,7 +13669,7 @@ class RendererInstance {
   }
 
   addEntityToProcess(entity, process, deferred = true) {
-    if (process != null && entity != null) {
+    if (process && entity) {
       if (entity.__$testRendererEnabled()) {
         if (process.getRCUid() == this.m_uid) {
           this.m_entity3DMana.addEntity(entity, process.getUid(), deferred);
@@ -12977,7 +13684,7 @@ class RendererInstance {
 
 
   moveEntityToProcessAt(entity, dstProcessIndex) {
-    if (entity != null && entity.getRendererUid() == this.m_uid) {
+    if (entity && entity.getRendererUid() == this.m_uid) {
       if (entity.isInRendererProcess()) {
         if (dstProcessIndex > -1 && dstProcessIndex < this.m_processesLen) {
           let srcUid = entity.getDisplay().__$$runit.getRPROUid();
@@ -12996,7 +13703,7 @@ class RendererInstance {
   }
 
   moveEntityToProcess(entity, dstProcess) {
-    if (dstProcess != null && entity != null && entity.getRendererUid() == this.m_uid) {
+    if (dstProcess && entity && entity.getRendererUid() == this.m_uid) {
       if (entity.isInRendererProcess()) {
         let srcUid = entity.getDisplay().__$$runit.getRPROUid();
 
@@ -13111,6 +13818,12 @@ class RendererInstance {
   setRendererProcessParam(index, batchEnabled, processFixedState) {
     if (index > -1 && index < this.m_processesLen) {
       this.m_processes[index].setRenderParam(batchEnabled, processFixedState);
+    }
+  }
+
+  setProcessEnabledAt(i, enabled) {
+    if (i > -1 && i < this.m_processesLen) {
+      this.m_processes[i].setEnabled(enabled);
     }
   }
 
@@ -13364,6 +14077,10 @@ class RenderProxy {
     this.m_autoSynViewAndStage = true;
     this.m_initMainCamera = true;
     this.m_uid = rcuid;
+  }
+
+  applyStencil(st) {
+    st.apply(this.RDrawState);
   }
   /**
    * @returns return system gpu context
@@ -14782,6 +15499,84 @@ exports.default = AABB2D;
 
 /***/ }),
 
+/***/ "e39a":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2019-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const RPOUnit_1 = __importDefault(__webpack_require__("c62b"));
+
+const PassProcess_1 = __importDefault(__webpack_require__("34cd"));
+
+const ContainerFlowRenderer_1 = __importDefault(__webpack_require__("7f1c"));
+
+class RPOUnitCont extends RPOUnit_1.default {
+  constructor() {
+    super();
+    this.m_passProc = new PassProcess_1.default();
+    this.m_cr = new ContainerFlowRenderer_1.default();
+  }
+
+  resetCR() {
+    const cr = this.m_cr;
+    cr.passProc = this.m_passProc;
+    cr.shdUpdate = false;
+    cr.shader = this.shader;
+  }
+
+  run(rc) {
+    const c = this.rentity;
+
+    if (c && c.isVisible()) {
+      this.resetCR();
+      this.m_cr.runContainer(rc, c);
+    }
+  }
+
+  runLockMaterial2(puniform) {
+    const c = this.rentity;
+
+    if (c && c.isVisible()) {
+      this.resetCR();
+      this.m_cr.runContainerLock(this.shader.getRC(), c);
+    }
+  }
+
+  reset() {
+    this.shader = null;
+    this.rentity = null;
+    this.bounds = null;
+    this.pos = null;
+  }
+
+}
+
+exports.default = RPOUnitCont;
+
+/***/ }),
+
 /***/ "e602":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -15123,8 +15918,7 @@ Object.defineProperty(exports, "__esModule", {
 
 const PoolNodeBuilder_1 = __importDefault(__webpack_require__("2be1"));
 
-const RPOUnit_1 = __importDefault(__webpack_require__("c62b")); //import PoolNodeBuilder = PoolNodeBuilderT.vox.base.PoolNodeBuilder;
-// 这个类的实例，和每一个RPOUnit或者RODisplay关联(通过唯一的uid)
+const RPOUnit_1 = __importDefault(__webpack_require__("c62b")); // 这个类的实例，和每一个RPOUnit或者RODisplay关联(通过唯一的uid)
 
 
 class RCRPObj {
@@ -15205,6 +15999,219 @@ class RPOUnitBuilder extends PoolNodeBuilder_1.default {
 }
 
 exports.RPOUnitBuilder = RPOUnitBuilder;
+
+/***/ }),
+
+/***/ "f571":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class SortNodeLinkerNode {
+  constructor() {
+    this.value = 0;
+    this.uid = -1;
+    this.prev = null;
+    this.next = null;
+  }
+
+}
+
+exports.SortNodeLinkerNode = SortNodeLinkerNode;
+
+class SortNodeLinker {
+  constructor() {
+    this.m_begin = null;
+    this.m_end = null;
+    this.m_next = null;
+    this.m_node = null;
+    this.m_nodes = [];
+    this.m_nodesTotal = 0;
+  }
+
+  showInfo() {
+    let info = "";
+    let next = this.m_begin;
+
+    while (next != null) {
+      info += "(" + next.value + "," + next.uid + "),"; //info += next.value+",";
+
+      next = next.next;
+    }
+
+    console.log("SortNodeLinker info: \n", info);
+  }
+
+  clear() {
+    this.m_nodes = [];
+    let next = this.m_begin;
+    let curr = null;
+
+    while (next != null) {
+      curr = next;
+      next = next.next;
+      curr.prev = null;
+      curr.next = null;
+    }
+
+    this.m_begin = this.m_end = null;
+    this.m_nodesTotal = 0;
+  }
+
+  sort() {
+    if (this.m_nodesTotal > 0) {
+      //console.log("this.m_nodesTotal: ",this.m_nodesTotal);
+      // 如果是remove实际上是不需要排序的
+      let next = this.m_begin;
+
+      if (this.m_nodes.length < this.m_nodesTotal) {
+        this.m_nodes = new Array(Math.round(this.m_nodesTotal * 1.1) + 1);
+      }
+
+      let i = 0;
+
+      while (next != null) {
+        this.m_nodes[i] = next;
+        next = next.next;
+        ++i;
+      }
+
+      this.snsort(0, this.m_nodesTotal - 1);
+      this.m_begin = this.m_nodes[0];
+      this.m_begin.uid = 2;
+      this.m_begin.next = null;
+      this.m_begin.prev = null;
+      let prev = this.m_begin;
+
+      for (i = 1; i < this.m_nodesTotal; ++i) {
+        next = this.m_nodes[i];
+        next.uid = 2 + i;
+        next.prev = prev;
+        prev.next = next;
+        next.next = null;
+        prev = next;
+      }
+
+      this.m_end = this.m_nodes[this.m_nodesTotal - 1];
+      this.m_next = this.m_begin;
+    }
+  }
+
+  sorting(low, high) {
+    let arr = this.m_nodes;
+    this.m_node = arr[low];
+
+    while (low < high) {
+      while (low < high && arr[high].value >= this.m_node.value) {
+        --high;
+      }
+
+      arr[low] = arr[high];
+
+      while (low < high && arr[low].value <= this.m_node.value) {
+        ++low;
+      }
+
+      arr[high] = arr[low];
+    }
+
+    arr[low] = this.m_node;
+    return low;
+  }
+
+  snsort(low, high) {
+    if (low < high) {
+      let pos = this.sorting(low, high);
+      this.snsort(low, pos - 1);
+      this.snsort(pos + 1, high);
+    }
+  }
+
+  getNodesTotal() {
+    return this.m_nodesTotal;
+  }
+
+  getBegin() {
+    this.m_next = this.m_begin;
+    return this.m_begin;
+  }
+
+  getNext() {
+    if (this.m_next != null) {
+      this.m_next = this.m_next.next;
+    }
+
+    return this.m_next;
+  }
+
+  isEmpty() {
+    return this.m_nodesTotal < 1; // return this.m_begin == null;
+  }
+
+  addNode(node) {
+    if (node.prev == null && node.next == null) {
+      if (this.m_begin == null) {
+        this.m_end = this.m_begin = node;
+      } else {
+        if (this.m_end.prev != null) {
+          this.m_end.next = node;
+          node.prev = this.m_end;
+          this.m_end = node;
+        } else {
+          this.m_begin.next = node;
+          node.prev = this.m_end;
+          this.m_end = node;
+        }
+      }
+
+      this.m_end.next = null;
+      this.m_nodesTotal++;
+    }
+  }
+
+  removeNode(node) {
+    if (node.prev != null || node.next != null) {
+      if (node == this.m_begin) {
+        if (node == this.m_end) {
+          this.m_begin = this.m_end = null;
+        } else {
+          this.m_begin = node.next;
+          this.m_begin.prev = null;
+        }
+      } else if (node == this.m_end) {
+        this.m_end = node.prev;
+        this.m_end.next = null;
+      } else {
+        node.next.prev = node.prev;
+        node.prev.next = node.next;
+      }
+
+      node.prev = null;
+      node.next = null;
+      this.m_nodesTotal--;
+    }
+  }
+
+}
+
+exports.SortNodeLinker = SortNodeLinker;
+exports.default = SortNodeLinker;
 
 /***/ }),
 
@@ -15404,23 +16411,27 @@ class PassMaterialWrapper {
   build(m) {
     if (m.hasShaderData()) {
       if (this.m_mt != m) {
-        if (this.m_mt != null) {
+        if (this.m_mt) {
           this.m_mt.__$detachThis();
         }
 
         this.m_mt = m;
         const builder = this.rdataBuilder;
 
-        if (this.m_mt != null) {
+        if (this.m_mt) {
           this.m_mt.__$attachThis();
 
           if (this.unit == null) {
             this.unit = builder.createRPOUnit();
           }
 
-          builder.updateDispMaterial(this.unit, this.m_mt, this.hostUnit.rentity.getDisplay());
+          let entity = this.hostUnit.rentity;
+
+          if (entity.getREType() < 12) {
+            builder.updateDispMaterial(this.unit, this.m_mt, entity.getDisplay());
+          }
         } else {
-          if (this.unit != null) {
+          if (this.unit) {
             this.unit.destroy();
             builder.restoreRPOUnit(this.unit);
             this.unit = null;

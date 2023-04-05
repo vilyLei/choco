@@ -500,7 +500,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class MeshVertex {
-  //
   constructor(px = 0, py = 0, pz = 0, pindex = 0) {
     // pos
     this.x = 0.0;
@@ -513,7 +512,8 @@ class MeshVertex {
     this.nx = 0.0;
     this.ny = 0.0;
     this.nz = 0.0;
-    this.index = 0; // pos
+    this.index = 0;
+    this.f = 0; // pos
 
     this.x = px;
     this.y = py;
@@ -528,6 +528,7 @@ class MeshVertex {
     vtx.nz = this.nz;
     vtx.u = this.u;
     vtx.v = this.v;
+    vtx.f = this.f;
     return vtx;
   }
 
@@ -541,6 +542,7 @@ class MeshVertex {
     this.ny = pv.ny;
     this.nz = pv.nz;
     this.index = pv.index;
+    this.f = pv.f;
   }
 
 }

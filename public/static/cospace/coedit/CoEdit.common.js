@@ -205,6 +205,7 @@ class DragRayCrossPlane extends MoveCtr_1.MoveCtr {
     this.m_entity.setVisible(visible);
     this.m_circle.entity.setVisible(visible);
     this.m_billPos.entity.setVisible(visible);
+    return this;
   }
 
   getVisible() {
@@ -214,12 +215,14 @@ class DragRayCrossPlane extends MoveCtr_1.MoveCtr {
   setXYZ(px, py, pz) {
     this.m_entity.setXYZ(px, py, pz);
     this.m_circle.setXYZ(px, py, pz);
+    return this;
   }
 
   setPosition(pv) {
     this.m_entity.setPosition(pv);
     this.m_circle.setPosition(pv);
     this.m_billPos.setPosition(pv);
+    return this;
   }
 
   getPosition(pv) {
@@ -231,22 +234,27 @@ class DragRayCrossPlane extends MoveCtr_1.MoveCtr {
     this.m_entity.setScaleXYZ(sx, sy, sz);
     this.m_circle.setScaleXY(sx, sy);
     this.m_billPos.setScaleXY(sx, sy);
+    return this;
   }
 
   getScaleXYZ(pv) {
     this.m_entity.getScaleXYZ(pv);
+    return pv;
   }
 
   setRotation3(r) {
     this.m_entity.setRotation3(r);
+    return this;
   }
 
   setRotationXYZ(rx, ry, rz) {
     this.m_entity.setRotationXYZ(rx, ry, rz);
+    return this;
   }
 
   getRotationXYZ(pv) {
     this.m_entity.getRotationXYZ(pv);
+    return pv;
   }
 
   localToGlobal(pv) {
@@ -596,6 +604,7 @@ class RotationCamZCircle extends RotationCtr_1.RotationCtr {
     this.m_entity.setVisible(visible);
     if (!visible) this.m_ring.setVisible(visible);
     this.m_camVer = -7;
+    return this;
   }
 
   getVisible() {
@@ -605,21 +614,31 @@ class RotationCamZCircle extends RotationCtr_1.RotationCtr {
   setXYZ(px, py, pz) {
     this.m_entity.setXYZ(px, py, pz);
     this.m_camVer = -7;
+    return this;
   }
 
-  setRotation3(r) {}
+  setRotation3(r) {
+    return this;
+  }
 
-  setRotationXYZ(rx, ry, rz) {}
+  setRotationXYZ(rx, ry, rz) {
+    return this;
+  }
 
   setScaleXYZ(sx, sy, sz) {
     this.m_entity.setScaleXYZ(sx, sy, sz);
     this.m_camVer = -7;
     this.run(this.m_editRS.getCamera(), null);
+    return this;
   }
 
-  getScaleXYZ(pv) {}
+  getScaleXYZ(pv) {
+    return pv;
+  }
 
-  getRotationXYZ(pv) {}
+  getRotationXYZ(pv) {
+    return pv;
+  }
 
   localToGlobal(pv) {
     this.m_entity.localToGlobal(pv);
@@ -680,6 +699,7 @@ class RotationCamZCircle extends RotationCtr_1.RotationCtr {
 
   setPosition(pos) {
     this.m_entity.setPosition(pos);
+    return this;
   }
 
   getPosition(pv) {
@@ -968,6 +988,7 @@ class ScaleDragLine extends ScaleCtr_1.ScaleCtr {
   setVisible(visible) {
     this.m_entity.setVisible(visible);
     this.m_box.setVisible(visible);
+    return this;
   }
 
   getVisible() {
@@ -976,26 +997,32 @@ class ScaleDragLine extends ScaleCtr_1.ScaleCtr {
 
   setXYZ(px, py, pz) {
     this.m_entity.setXYZ(px, py, pz);
+    return this;
   }
 
   setRotation3(r) {
     this.m_entity.setRotation3(r);
+    return this;
   }
 
   setRotationXYZ(rx, ry, rz) {
     this.m_entity.setRotationXYZ(rx, ry, rz);
+    return this;
   }
 
   setScaleXYZ(sx, sy, sz) {
     this.m_entity.setScaleXYZ(sx, sy, sz);
+    return this;
   }
 
   getScaleXYZ(pv) {
     this.m_entity.getScaleXYZ(pv);
+    return pv;
   }
 
   getRotationXYZ(pv) {
     this.m_entity.getRotationXYZ(pv);
+    return pv;
   }
 
   localToGlobal(pv) {
@@ -1044,6 +1071,7 @@ class ScaleDragLine extends ScaleCtr_1.ScaleCtr {
 
   setPosition(pos) {
     this.m_entity.setPosition(pos);
+    return this;
   }
 
   getPosition(pv) {
@@ -1210,6 +1238,8 @@ class RotatedTarget extends CtrlTargetBase_1.CtrlTargetBase {
       this.m_controllers[i].setPosition(pv);
       this.m_flags[i] = true;
     }
+
+    return this;
   }
 
   getPosition(pv) {
@@ -1267,10 +1297,13 @@ class RotatedTarget extends CtrlTargetBase_1.CtrlTargetBase {
 
       this.m_changed = true;
     }
+
+    return this;
   }
 
   getRotationXYZ(rv) {
     rv.setXYZ(0.0, 0.0, 0.0);
+    return rv;
   }
 
 }
@@ -1627,6 +1660,7 @@ class ScaleDragPlane extends ScaleCtr_1.ScaleCtr {
   setVisible(visible) {
     this.m_entity.setVisible(visible);
     this.m_frameEntity.setVisible(visible);
+    return this;
   }
 
   getVisible() {
@@ -1636,11 +1670,13 @@ class ScaleDragPlane extends ScaleCtr_1.ScaleCtr {
   setXYZ(px, py, pz) {
     this.m_entity.setXYZ(px, py, pz);
     this.m_frameEntity.setXYZ(px, py, pz);
+    return this;
   }
 
   setPosition(pv) {
     this.m_entity.setPosition(pv);
     this.m_frameEntity.setPosition(pv);
+    return this;
   }
 
   getPosition(pv) {
@@ -1651,22 +1687,27 @@ class ScaleDragPlane extends ScaleCtr_1.ScaleCtr {
   setScaleXYZ(sx, sy, sz) {
     this.m_entity.setScaleXYZ(sx, sy, sz);
     this.m_frameEntity.setScaleXYZ(sx, sy, sz);
+    return this;
   }
 
   getScaleXYZ(pv) {
-    this.m_entity.getScaleXYZ(pv);
+    return this.m_entity.getScaleXYZ(pv);
   }
 
-  setRotation3(r) {// this.m_entity.setRotation3(r);
+  setRotation3(r) {
+    // this.m_entity.setRotation3(r);
     // this.m_frameEntity.setRotation3(r);
+    return this;
   }
 
-  setRotationXYZ(rx, ry, rz) {// this.m_entity.setRotationXYZ(rx, ry, rz);
+  setRotationXYZ(rx, ry, rz) {
+    // this.m_entity.setRotationXYZ(rx, ry, rz);
     // this.m_frameEntity.setRotationXYZ(rx, ry, rz);
+    return this;
   }
 
   getRotationXYZ(pv) {
-    this.m_entity.getRotationXYZ(pv);
+    return this.m_entity.getRotationXYZ(pv);
   }
 
   getGlobalBounds() {
@@ -2309,6 +2350,7 @@ class DragPlane extends MoveCtr_1.MoveCtr {
   setVisible(visible) {
     this.m_entity.setVisible(visible);
     this.m_frameEntity.setVisible(visible);
+    return this;
   }
 
   getVisible() {
@@ -2318,11 +2360,13 @@ class DragPlane extends MoveCtr_1.MoveCtr {
   setXYZ(px, py, pz) {
     this.m_entity.setXYZ(px, py, pz);
     this.m_frameEntity.setXYZ(px, py, pz);
+    return this;
   }
 
   setPosition(pv) {
     this.m_entity.setPosition(pv);
     this.m_frameEntity.setPosition(pv);
+    return this;
   }
 
   getPosition(pv) {
@@ -2333,22 +2377,29 @@ class DragPlane extends MoveCtr_1.MoveCtr {
   setScaleXYZ(sx, sy, sz) {
     this.m_entity.setScaleXYZ(sx, sy, sz);
     this.m_frameEntity.setScaleXYZ(sx, sy, sz);
+    return this;
   }
 
   getScaleXYZ(pv) {
     this.m_entity.getScaleXYZ(pv);
+    return pv;
   }
 
-  setRotation3(r) {// this.m_entity.setRotation3(r);
+  setRotation3(r) {
+    // this.m_entity.setRotation3(r);
     // this.m_frameEntity.setRotation3(r);
+    return this;
   }
 
-  setRotationXYZ(rx, ry, rz) {// this.m_entity.setRotationXYZ(rx, ry, rz);
+  setRotationXYZ(rx, ry, rz) {
+    // this.m_entity.setRotationXYZ(rx, ry, rz);
     // this.m_frameEntity.setRotationXYZ(rx, ry, rz);
+    return this;
   }
 
   getRotationXYZ(rv) {
     this.m_entity.getRotationXYZ(rv);
+    return rv;
   }
 
   localToGlobal(pv) {
@@ -2655,6 +2706,7 @@ class ScaleCamZCircle extends ScaleCtr_1.ScaleCtr {
     // console.log("ScaleCamZCircle::setVisible() ..., visible: ", visible);
     this.m_entity.setVisible(visible);
     this.m_camVer = -7;
+    return this;
   }
 
   getVisible() {
@@ -2664,21 +2716,31 @@ class ScaleCamZCircle extends ScaleCtr_1.ScaleCtr {
   setXYZ(px, py, pz) {
     this.m_entity.setXYZ(px, py, pz);
     this.m_camVer = -7;
+    return this;
   }
 
-  setRotation3(r) {}
+  setRotation3(r) {
+    return this;
+  }
 
-  setRotationXYZ(rx, ry, rz) {}
+  setRotationXYZ(rx, ry, rz) {
+    return this;
+  }
 
   setScaleXYZ(sx, sy, sz) {
     this.m_entity.setScaleXYZ(sx, sy, sz);
     this.m_camVer = -7;
     this.run(this.m_editRS.getCamera(), null);
+    return this;
   }
 
-  getScaleXYZ(pv) {}
+  getScaleXYZ(pv) {
+    return pv;
+  }
 
-  getRotationXYZ(pv) {}
+  getRotationXYZ(pv) {
+    return pv;
+  }
 
   localToGlobal(pv) {
     this.m_entity.localToGlobal(pv);
@@ -2732,6 +2794,7 @@ class ScaleCamZCircle extends ScaleCtr_1.ScaleCtr {
 
   setPosition(pos) {
     this.m_entity.setPosition(pos);
+    return this;
   }
 
   getPosition(pv) {
@@ -3097,6 +3160,7 @@ class RotationCircle extends RotationCtr_1.RotationCtr {
     // console.log("RotationCircle::setVisible() ..., visible: ", visible);
     this.m_entity.setVisible(visible);
     if (!visible) this.m_ring.setVisible(visible);
+    return this;
   }
 
   getVisible() {
@@ -3107,23 +3171,32 @@ class RotationCircle extends RotationCtr_1.RotationCtr {
     this.m_entity.setXYZ(px, py, pz);
     this.m_circle.setXYZ(px, py, pz);
     this.m_ring.setXYZ(px, py, pz);
+    return this;
   }
 
-  setRotation3(r) {}
+  setRotation3(r) {
+    return this;
+  }
 
-  setRotationXYZ(rx, ry, rz) {}
+  setRotationXYZ(rx, ry, rz) {
+    return this;
+  }
 
   setScaleXYZ(sx, sy, sz) {
     this.m_entity.setScaleXYZ(sx, sy, sz);
     this.m_circle.setScaleXYZ(sx, sy, sz);
     this.m_ring.setScaleXYZ(sx, sy, sz);
+    return this;
   }
 
   getScaleXYZ(pv) {
     this.m_entity.getScaleXYZ(pv);
+    return pv;
   }
 
-  getRotationXYZ(pv) {}
+  getRotationXYZ(pv) {
+    return pv;
+  }
 
   localToGlobal(pv) {
     this.m_entity.localToGlobal(pv);
@@ -3205,6 +3278,7 @@ class RotationCircle extends RotationCtr_1.RotationCtr {
     this.m_entity.setPosition(pos);
     this.m_circle.setPosition(pos);
     this.m_ring.setPosition(pos);
+    return this;
   }
 
   getPosition(pv) {
@@ -3417,6 +3491,7 @@ class MovedTarget extends CtrlTargetBase_1.CtrlTargetBase {
 
     this.position.copyFrom(pv);
     this.m_changed = true;
+    return this;
   }
 
 }
@@ -3521,24 +3596,38 @@ class CtrlTargetBase {
     }
   }
 
-  setXYZ(px, py, pz) {}
+  setXYZ(px, py, pz) {
+    return this;
+  }
 
-  setPosition(pv) {}
+  setPosition(pv) {
+    return this;
+  }
 
   getPosition(pv) {
     pv.copyFrom(this.position);
     return pv;
   }
 
-  setRotation3(r) {}
+  setRotation3(r) {
+    return this;
+  }
 
-  setRotationXYZ(rx, ry, rz) {}
+  setRotationXYZ(rx, ry, rz) {
+    return this;
+  }
 
-  setScaleXYZ(sx, sy, sz) {}
+  setScaleXYZ(sx, sy, sz) {
+    return this;
+  }
 
-  getRotationXYZ(rv) {}
+  getRotationXYZ(rv) {
+    return null;
+  }
 
-  getScaleXYZ(sv) {}
+  getScaleXYZ(sv) {
+    return null;
+  }
 
   getGlobalBounds() {
     return null;
@@ -3625,14 +3714,11 @@ Object.defineProperty(exports, "__esModule", {
 class DragTransController {
   constructor() {
     this.m_controllers = [];
-    this.m_pos0 = CoMath.createVec3();
-    this.m_pos1 = CoMath.createVec3();
     this.m_rpv = CoMath.createVec3();
     this.m_rtv = CoMath.createVec3();
     this.m_tempPos = CoMath.createVec3();
     this.m_mv0 = CoMath.createVec3(-100000, -100000, 0);
     this.m_mv1 = CoMath.createVec3();
-    this.m_px = 0;
     this.m_visible = true;
     this.m_enabled = true;
     this.m_editRS = null;
@@ -3722,22 +3808,7 @@ class DragTransController {
       let ls = this.m_controllers;
       this.m_tempPos.copyFrom(this.m_target.position);
       let cam = this.m_editRS.getCamera();
-      let stage = this.m_editRS.getStage3D(); // if (this.fixSize > 0.01) {
-      //     // let vmat = cam.getViewMatrix();
-      //     // let pmat = cam.getProjectMatrix();
-      //     // vmat.transformVector3Self(this.m_tempPos);
-      //     // this.m_pos0.setXYZ(0.0, 0.0, this.m_tempPos.z);
-      //     // this.m_pos1.setXYZ(100.0, 0.0, this.m_tempPos.z);
-      //     // pmat.transformVectorSelf(this.m_pos0);
-      //     // pmat.transformVectorSelf(this.m_pos1);
-      //     // this.m_pos1.x = this.m_pos1.x / this.m_pos1.w - this.m_pos0.x / this.m_pos0.w;
-      //     // if (Math.abs(this.m_px - this.m_pos1.x) > 0.0001) {
-      //     //     this.m_px = this.m_pos1.x;
-      //     //     let scale = this.fixSize / this.m_pos1.x;
-      //     //     this.m_target.setCtrlScaleXYZ(scale, scale, scale);
-      //     //     this.m_target.update();
-      //     // }
-      // }
+      let stage = this.m_editRS.getStage3D();
 
       for (let i = 0; i < ls.length; ++i) {
         if (ls[i].getVisible()) {
@@ -3808,6 +3879,8 @@ class DragTransController {
     for (let i = 0; i < this.m_controllers.length; ++i) {
       this.m_controllers[i].setVisible(visible);
     }
+
+    return this;
   }
 
   moveByRay(rpv, rtv) {}
@@ -3816,11 +3889,14 @@ class DragTransController {
     return this.m_visible;
   }
 
-  setXYZ(px, py, pz) {}
+  setXYZ(px, py, pz) {
+    return this;
+  }
 
   setPosition(pv) {
     this.m_target.setPosition(pv);
     this.m_target.update();
+    return this;
   }
 
   getPosition(pv) {
@@ -3830,21 +3906,29 @@ class DragTransController {
 
   setRotation3(r) {
     this.m_target.setRotation3(r);
+    return this;
   }
 
-  setRotationXYZ(rx, ry, rz) {}
+  setRotationXYZ(rx, ry, rz) {
+    return this;
+  }
 
   setScaleXYZ(sx, sy, sz) {
     this.m_target.setScaleXYZ(sx, sy, sz);
+    return this;
   }
 
   setCtrlScaleXYZ(sx, sy, sz) {
     this.m_target.setCtrlScaleXYZ(sx, sy, sz);
   }
 
-  getRotationXYZ(pv) {}
+  getRotationXYZ(pv) {
+    return null;
+  }
 
-  getScaleXYZ(pv) {}
+  getScaleXYZ(pv) {
+    return null;
+  }
 
   getGlobalBounds() {
     return null;
@@ -3952,6 +4036,8 @@ class ScaleTarget extends CtrlTargetBase_1.CtrlTargetBase {
       this.m_controllers[i].setPosition(pv);
       this.m_flags[i] = true;
     }
+
+    return this;
   }
 
   setScaleXYZ(sx, sy, sz) {
@@ -3983,10 +4069,13 @@ class ScaleTarget extends CtrlTargetBase_1.CtrlTargetBase {
 
       this.m_changed = true;
     }
+
+    return this;
   }
 
   getScaleXYZ(sv) {
     sv.setXYZ(1.0, 1.0, 1.0);
+    return sv;
   }
 
 }
@@ -4131,6 +4220,7 @@ class RotationCamXYCircle extends RotationCtr_1.RotationCtr {
     this.m_entity.setVisible(visible);
     this.m_circle.setVisible(visible);
     this.m_camVer = -7;
+    return this;
   }
 
   getVisible() {
@@ -4141,15 +4231,24 @@ class RotationCamXYCircle extends RotationCtr_1.RotationCtr {
     this.m_entity.setXYZ(px, py, pz);
     this.m_circle.setXYZ(px, py, pz);
     this.m_camVer = -7;
+    return this;
   }
 
-  setRotation3(r) {}
+  setRotation3(r) {
+    return this;
+  }
 
-  setRotationXYZ(rx, ry, rz) {}
+  setRotationXYZ(rx, ry, rz) {
+    return this;
+  }
 
-  getScaleXYZ(pv) {}
+  getScaleXYZ(pv) {
+    return pv;
+  }
 
-  getRotationXYZ(pv) {}
+  getRotationXYZ(pv) {
+    return pv;
+  }
 
   setScaleXYZ(sx, sy, sz) {
     this.m_entity.setScaleXYZ(sx, sy, sz);
@@ -4157,6 +4256,7 @@ class RotationCamXYCircle extends RotationCtr_1.RotationCtr {
     this.m_camVer = -7; // console.log("sx: ",sx);
 
     this.run(this.m_editRS.getCamera(), null);
+    return this;
   }
 
   localToGlobal(pv) {
@@ -4194,6 +4294,7 @@ class RotationCamXYCircle extends RotationCtr_1.RotationCtr {
   setPosition(pos) {
     this.m_entity.setPosition(pos);
     this.m_circle.setPosition(pos);
+    return this;
   }
 
   getPosition(pv) {
@@ -4447,6 +4548,7 @@ class RotationRing {
       mesh = ml.createLines(posList);
       ring.setMesh(mesh);
       this.m_material = CoMaterial.createLineMaterial(ml.dynColorEnabled);
+      this.m_material.vtxInfo = CoRScene.createVtxDrawingInfo();
       ring.setMaterial(this.m_material);
       ring.update();
       this.m_ring = ring;
@@ -4473,9 +4575,10 @@ class RotationRing {
       if (n > tot) {
         n = tot;
       } // console.log("setProgress(), n: ", n);
+      // this.m_ring.setIvsParam(0, n);
 
 
-      this.m_ring.setIvsParam(0, n);
+      this.m_ring.getMaterial().vtxInfo.setIvsParam(0, n);
     }
   }
 
@@ -4698,6 +4801,7 @@ class DragScaleRayCrossPlane extends ScaleCtr_1.ScaleCtr {
     this.m_entity.setVisible(visible);
     this.m_circle.entity.setVisible(visible);
     this.m_billPos.entity.setVisible(visible);
+    return this;
   }
 
   getVisible() {
@@ -4707,12 +4811,14 @@ class DragScaleRayCrossPlane extends ScaleCtr_1.ScaleCtr {
   setXYZ(px, py, pz) {
     this.m_entity.setXYZ(px, py, pz);
     this.m_circle.setXYZ(px, py, pz);
+    return this;
   }
 
   setPosition(pv) {
     this.m_entity.setPosition(pv);
     this.m_circle.setPosition(pv);
     this.m_billPos.setPosition(pv);
+    return this;
   }
 
   getPosition(pv) {
@@ -4724,22 +4830,27 @@ class DragScaleRayCrossPlane extends ScaleCtr_1.ScaleCtr {
     this.m_entity.setScaleXYZ(sx, sy, sz);
     this.m_circle.setScaleXY(sx, sy);
     this.m_billPos.setScaleXY(sx, sy);
+    return this;
   }
 
   getScaleXYZ(pv) {
     this.m_entity.getScaleXYZ(pv);
+    return pv;
   }
 
   setRotation3(r) {
     this.m_entity.setRotation3(r);
+    return this;
   }
 
   setRotationXYZ(rx, ry, rz) {
     this.m_entity.setRotationXYZ(rx, ry, rz);
+    return this;
   }
 
   getRotationXYZ(pv) {
     this.m_entity.getRotationXYZ(pv);
+    return pv;
   }
 
   getGlobalBounds() {
@@ -4950,6 +5061,7 @@ class DragLine extends MoveCtr_1.MoveCtr {
   setVisible(visible) {
     this.m_entity.setVisible(visible);
     this.m_cone.setVisible(visible);
+    return this;
   }
 
   getVisible() {
@@ -4958,26 +5070,32 @@ class DragLine extends MoveCtr_1.MoveCtr {
 
   setXYZ(px, py, pz) {
     this.m_entity.setXYZ(px, py, pz);
+    return this;
   }
 
   setRotation3(r) {
     this.m_entity.setRotation3(r);
+    return this;
   }
 
   setRotationXYZ(rx, ry, rz) {
     this.m_entity.setRotationXYZ(rx, ry, rz);
+    return this;
   }
 
   setScaleXYZ(sx, sy, sz) {
     this.m_entity.setScaleXYZ(sx, sy, sz);
+    return this;
   }
 
   getScaleXYZ(pv) {
     this.m_entity.getScaleXYZ(pv);
+    return pv;
   }
 
   getRotationXYZ(pv) {
     this.m_entity.getRotationXYZ(pv);
+    return pv;
   }
 
   localToGlobal(pv) {
@@ -5032,6 +5150,7 @@ class DragLine extends MoveCtr_1.MoveCtr {
 
   setPosition(pos) {
     this.m_entity.setPosition(pos);
+    return this;
   }
 
   getPosition(outPos) {
@@ -5470,7 +5589,9 @@ class UserEditCtr {
     }
   }
 
-  setVisible(visible) {}
+  setVisible(visible) {
+    return this;
+  }
 
   getVisible() {
     return false;

@@ -1052,8 +1052,8 @@ class TextureAtlas {
         texRect.x += area.offset;
         texRect.y += area.offset;
         texRect.width -= area.offset * 2;
-        texRect.height -= area.offset * 2; // texRect.flipY(this.m_height);
-
+        texRect.height -= area.offset * 2;
+        texRect.flipY(this.m_height);
         let uMin = texRect.x / this.m_width;
         let vMin = texRect.y / this.m_height;
         let uMax = texRect.getRight() / this.m_width;

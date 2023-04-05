@@ -166,24 +166,6 @@ function createBoundsEntity() {
 
 exports.createBoundsEntity = createBoundsEntity;
 
-function createLine(beginV, endV, color = null) {
-  if (typeof CoMesh !== "undefined") {
-    let builder = CoMesh.line;
-    let mesh = builder.createLine(beginV, endV);
-    let material = CoRScene.createLineMaterial(true);
-    if (color != null) material.setColor(color);
-    let entity = CoRScene.createMouseEventEntity();
-    entity.mouseEnabled = false;
-    entity.setMaterial(material);
-    entity.setMesh(mesh);
-    return entity;
-  }
-
-  return null;
-}
-
-exports.createLine = createLine;
-
 function createFreeAxis3DEntity(minV, maxV) {
   return CoRScene.createFreeAxis3DEntity(minV, maxV);
 }
