@@ -1,6 +1,6 @@
 /***************************************************************************/
 /*                                                                         */
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 /*  Vily(vily313@126.com)                                                  */
 /*                                                                         */
 /***************************************************************************/
@@ -8,27 +8,56 @@
 import IVector3D from "../../vox/math/IVector3D";
 
 interface IRendererParam {
-    
+
     divW: number;
     divH: number;
-
-    // display 3d view buf size auto sync window size
+	/**
+	 * the default value is true
+	 */
+	autoAttachingHtmlDoc: boolean;
+    /**
+	 * display 3d view buf size auto sync window size
+	 * the default value is true
+	 */
     autoSyncRenderBufferAndWindowSize: boolean;
+	/**
+	 * the default value is false
+	 */
+	offscreenRenderEnabled: boolean;
+	/**
+	 * the default value is 2
+	 */
     maxWebGLVersion: number;
     cameraPerspectiveEnabled: boolean;
     // event flow control enable
     evtFlowEnabled: boolean;
+	/**
+	 * the default value is true
+	 */
+	hideWindowFrame: boolean;
+	/**
+	 * the default value is true
+	 */
+	viewSizeWithTwo: boolean;
+	/**
+	 * the default value is true
+	 */
+	viewSizeToBigger: boolean;
+
     // x: fov, y: near, z: far
     readonly camProjParam: IVector3D;
 
     readonly camPosition: IVector3D;
     readonly camLookAtPos: IVector3D;
     readonly camUpDirect: IVector3D;
-
+	/**
+	 * the default value is true
+	 */
     syncBgColor: boolean;
     batchEnabled: boolean;
     processFixedState: boolean;
-    
+
+	sysEvtReceived: boolean;
     /**
      * @param   tickUpdateTime default value 50 ms delay
      */
@@ -36,6 +65,7 @@ interface IRendererParam {
     getTickUpdateTime(): number;
     setPolygonOffsetEanbled(polygonOffsetEnabled: boolean): void;
     getPolygonOffsetEanbled(): boolean;
+	getScissorTestEanbled(): boolean;
     setDitherEanbled(ditherEnabled: boolean): void;
     getDitherEanbled(): boolean;
     getDiv(): HTMLDivElement;
@@ -43,6 +73,7 @@ interface IRendererParam {
     setAttriDepth(boo: boolean): void;
     setAttriStencil(boo: boolean): void;
     setAttriAlpha(boo: boolean): void;
+	getAttriAlpha(): boolean;
     setAttriPremultipliedAlpha(boo: boolean): void;
     setAttriAntialias(boo: boolean): void;
     setAttripreserveDrawingBuffer(boo: boolean): void;

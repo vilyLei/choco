@@ -1,6 +1,6 @@
 /***************************************************************************/
 /*                                                                         */
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 /*  Vily(vily313@126.com)                                                  */
 /*                                                                         */
 /***************************************************************************/
@@ -14,7 +14,7 @@ interface IOBB {
 	version: number;
 	radius: number;
 
-	readonly axis: IVector3D[];
+	readonly axes: IVector3D[];
 	readonly extent: IVector3D;
 	readonly center: IVector3D;
 

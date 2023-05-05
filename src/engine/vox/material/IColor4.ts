@@ -1,6 +1,6 @@
 /***************************************************************************/
 /*                                                                         */
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 /*  Vily(vily313@126.com)                                                  */
 /*                                                                         */
 /***************************************************************************/
@@ -23,7 +23,18 @@ interface IColor4 {
      */
     a: number;
 
+    h: number;
+    s: number;
+    l: number;
+    v: number;
+
+    c: number;
+    m: number;
+    y: number;
+    k: number;
+
     clone(): IColor4;
+	gammaCorrect(): IColor4;
     /**
      * example: [0],[1],[2],[3] => r,g,b,a
      */
@@ -60,9 +71,14 @@ interface IColor4 {
      */
     setRGBUint24(rgbUint24: number): IColor4;
     /**
+     * @param argbUint32 example: 0xFFFF88cc
+     */
+    setARGBUint32(argbUint32: number): IColor4;
+    getARGBUint32(): number;
+    /**
      * @param r example: 40
-     * @param g example: 50 
-     * @param b example: 60 
+     * @param g example: 50
+     * @param b example: 60
      */
     setRGB3Bytes(r: number, g: number, b: number): IColor4;
     getRGBUint24(): number;
@@ -74,9 +90,19 @@ interface IColor4 {
      * @param a example: 1.0
      */
     setRGBA4f(r: number, g: number, b: number, a: number): IColor4;
+    setAlpha(a: number): IColor4;
+	setContrast(contrast: number): IColor4;
+	toGray(): IColor4;
+	setHSL( h: number, s: number, l: number ): IColor4;
+	/**
+	 * @param target the default value is null
+	 */
+	getHSL( target?: IColor4 ): IColor4;
     copyFrom(c: IColor4): IColor4;
     copyFromRGB(c: IColor4): IColor4;
     scaleBy(s: number): IColor4;
+    rgbSizeTo(size: number): IColor4;
+
     inverseRGB(): IColor4;
     /**
      * @param density the default value is 1.0
@@ -85,7 +111,10 @@ interface IColor4 {
     randomRGB(density: number, bias?: number): IColor4;
     normalizeRandom(density?: number, bias?: number): IColor4;
     normalize(density: number): IColor4;
+	lerp(color: IColor4, factor: number): IColor4;
 
+	lerpColors(color1: IColor4, color2: IColor4, factor: number): IColor4;
+	lerpHSL(color: IColor4, factor: number): IColor4;
     /**
      * @returns for example: rgba(255,255,255,1.0)
      */
@@ -94,5 +123,9 @@ interface IColor4 {
      * @returns for example: #350b7e
      */
     getCSSHeXRGBColor(): string;
+	copySRGBToLinear( color: IColor4 ): IColor4;
+	copyLinearToSRGB( color: IColor4 ): IColor4;
+	convertSRGBToLinear(): IColor4;
+	convertLinearToSRGB(): IColor4;
 }
 export default IColor4;

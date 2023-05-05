@@ -1,6 +1,6 @@
 /***************************************************************************/
 /*                                                                         */
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 /*  Vily(vily313@126.com)                                                  */
 /*                                                                         */
 /***************************************************************************/
@@ -78,8 +78,8 @@ export default interface IRenderProxy {
 
     lockViewport(): void;
     unlockViewport(): void;
-    getDiv(): any;
-    getCanvas(): any;
+    getDiv(): HTMLDivElement;
+    getCanvas(): HTMLCanvasElement;
     cameraLock(): void;
     cameraUnlock(): void;
     getCamera(): IRenderCamera;
@@ -105,6 +105,7 @@ export default interface IRenderProxy {
     getMouseXYWorldRay(rl_position: IVector3D, rl_tv: IVector3D): void;
     testViewPortChanged(px: number, py: number, pw: number, ph: number): boolean;
     testRCViewPortChanged(px: number, py: number, pw: number, ph: number): boolean;
+	getDevicePixelRatio(): number;
     getViewX(): number;
     getViewY(): number;
     getViewWidth(): number;

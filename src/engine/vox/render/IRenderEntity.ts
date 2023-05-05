@@ -1,12 +1,11 @@
 /***************************************************************************/
 /*                                                                         */
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 /*  Vily(vily313@126.com)                                                  */
 /*                                                                         */
 /***************************************************************************/
 
 import IVector3D from "../../vox/math/IVector3D";
-// import { SpaceCullingMask } from "../../vox/space/SpaceCullingMask";
 import IRenderMaterial from "../../vox/render/IRenderMaterial";
 import IRenderProxy from "../../vox/render/IRenderProxy";
 import IEvtDispatcher from "../../vox/event/IEvtDispatcher";
@@ -26,6 +25,7 @@ export default interface IRenderEntity extends IRenderEntityBase {
     __$testContainerEnabled(): boolean;
     __$testRendererEnabled(): boolean;
 
+	intoRendererListener?: () =>void;
     getRendererUid(): number;
     /**
      * @returns 自身是否未被任何渲染器相关的系统使用

@@ -1,17 +1,20 @@
 /***************************************************************************/
 /*                                                                         */
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 /*  Vily(vily313@126.com)                                                  */
 /*                                                                         */
 /***************************************************************************/
 
 import IVector3D from "../../vox/math/IVector3D";
 import Float32Data from "../../vox/base/Float32Data";
-// import Matrix4 from "./Matrix4";
 
 interface IMatrix4 extends Float32Data {
-
-	setData(data: number[]): void;
+	/**
+	 * @param array matrix4 data, 16 number elements
+	 * @param offset the default value is 0
+	 */
+	fromArray(array: number[] | ArrayLike<number>, offset?: number): IMatrix4;
+	setData(array16: number[] | ArrayLike<number>): IMatrix4;
 	getCapacity(): number;
 	getUid(): number;
 	getLocalFS32(): Float32Array;
@@ -89,10 +92,10 @@ interface IMatrix4 extends Float32Data {
 	copyRowFrom(row_index: number, v3: IVector3D): void;
 	copyRowTo(row_index: number, v3: IVector3D): void;
 	/**
-	 * @param orientationStyle the value example: OrientationType.EULER_ANGLES
+	 * @param orientationStyle the default value is OrientationType.EULER_ANGLES
 	 * @returns [position, rotation, scale]
 	 */
-	decompose(orientationStyle: number): IVector3D[];
+	decompose(orientationStyle?: number): IVector3D[];
 	invert(): boolean;
 	pointAt(pos: IVector3D, at: IVector3D, up: IVector3D): void;
 	prepend(rhs: IMatrix4): void;
@@ -136,7 +139,7 @@ interface IMatrix4 extends Float32Data {
 	multiply(m: IMatrix4): IMatrix4;
 	invertThis(): IMatrix4;
 
-	
+
 	lookAtRH(eyePos: IVector3D, atPos: IVector3D, up: IVector3D): void;
 	lookAtLH(eyePos: IVector3D, atPos: IVector3D, up: IVector3D): void;
 

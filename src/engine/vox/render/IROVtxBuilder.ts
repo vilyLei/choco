@@ -1,6 +1,6 @@
 /***************************************************************************/
 /*                                                                         */
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 /*  Vily(vily313@126.com)                                                  */
 /*                                                                         */
 /***************************************************************************/
@@ -9,7 +9,6 @@
 import IVtxShdCtr from "../../vox/material/IVtxShdCtr";
 
 export default interface IROVtxBuilder {
-	RContext: any;
 	/**
 	 * @returns return system gpu context
 	 */
