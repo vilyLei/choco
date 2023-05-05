@@ -487,7 +487,7 @@ exports.TubeMeshBuilder = TubeMeshBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -717,7 +717,7 @@ exports.TorusMeshBuilder = TorusMeshBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1543,7 +1543,7 @@ exports.CylinderMeshBuilder = CylinderMeshBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2219,7 +2219,7 @@ exports.PlaneMeshBuilder = PlaneMeshBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2424,7 +2424,7 @@ exports.default = CoTubeGeometry;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

@@ -1512,6 +1512,10 @@ class UIEntityContainer extends UIEntityBase_1.UIEntityBase {
     }
   }
 
+  initContainer() {
+    this.init();
+  }
+
   addedEntity(entity) {}
 
   removedEntity(entity) {}
@@ -1590,7 +1594,7 @@ class UIEntityContainer extends UIEntityBase_1.UIEntityBase {
     this.m_rcontainer.localToGlobal(pv);
   }
 
-  getEneitysTotal() {
+  getEntitiesTotal() {
     return this.m_uientities.length;
   }
 
@@ -2183,6 +2187,8 @@ const TipsSystem_1 = __webpack_require__("1389");
 
 const PanelSystem_1 = __webpack_require__("dd4e");
 
+const UIEntityContainer_1 = __webpack_require__("5e13");
+
 function createColorLabel() {
   return new ColorLabel_1.ColorLabel();
 }
@@ -2242,6 +2248,12 @@ function createTextButton(width, height, idns, texAtlas, textParam, colors) {
 }
 
 exports.createTextButton = createTextButton;
+
+function creatUIEntityContainer() {
+  return new UIEntityContainer_1.UIEntityContainer();
+}
+
+exports.creatUIEntityContainer = creatUIEntityContainer;
 
 function createUIPanel() {
   return new UIPanel_1.UIPanel();

@@ -92,17 +92,6 @@ module.exports =
 
 "use strict";
 
-/***************************************************************************/
-
-/*                                                                         */
-
-/*  Copyright 2018-2022 by                                                 */
-
-/*  Vily(vily313@126.com)                                                  */
-
-/*                                                                         */
-
-/***************************************************************************/
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -163,7 +152,7 @@ if (typeof window !== 'undefined') {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -549,7 +538,7 @@ exports.createSphere = createSphere;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -622,7 +611,7 @@ exports.default = SegmentLine;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -869,7 +858,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -994,7 +983,7 @@ exports.default = PlaneUtils;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1179,7 +1168,7 @@ exports.default = Line;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1228,7 +1217,7 @@ exports.default = Sphere;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1358,7 +1347,7 @@ exports.isLessRealZero = isLessRealZero;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

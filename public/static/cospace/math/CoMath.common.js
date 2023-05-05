@@ -193,7 +193,7 @@ exports.Vector3D = Vector3D;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -206,6 +206,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class MathConst {
+  // compute euclidean modulo of m % n
+  // https://en.wikipedia.org/wiki/Modulo_operation
+  static EuclideanModulo(n, m) {
+    return (n % m + m) % m;
+  }
+
   static Clamp(value, min, max) {
     return Math.max(Math.min(value, max), min);
   }
@@ -469,7 +475,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -499,7 +505,7 @@ exports.default = OrientationType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -634,6 +640,8 @@ class AABB2D {
   constructor(px = 0.0, py = 0.0, pwidth = 100.0, pheight = 100.0) {
     this.m_right = 100;
     this.m_top = 100;
+    this.m_cx = 0;
+    this.m_cy = 0;
     this.x = 0;
     this.y = 0;
     this.width = 100;
@@ -645,13 +653,70 @@ class AABB2D {
     this.update();
   }
 
-  copyFrom(dst) {
-    this.x = dst.x;
-    this.y = dst.y;
-    this.width = dst.width;
-    this.height = dst.height;
-    this.m_right = dst.m_right;
-    this.m_top = dst.m_top;
+  getCenterX() {
+    return this.m_cx;
+  }
+
+  getCenterY() {
+    return this.m_cy;
+  }
+
+  moveCenterTo(px, py) {
+    this.x += px - this.m_cx;
+    this.y += py - this.m_cy;
+    this.update();
+    return this;
+  }
+
+  scaleBy(s) {
+    this.x *= s;
+    this.y *= s;
+    this.width *= s;
+    this.height *= s;
+    this.m_right = this.x + this.width;
+    this.m_top = this.y + this.height;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
+  }
+
+  union(r) {
+    this.addXY(r.x, r.y);
+    this.addXY(r.getRight(), r.getTop());
+    return this;
+  }
+
+  addXY(pvx, pvy) {
+    if (this.x > pvx) this.x = pvx;
+    if (this.m_right < pvx) this.m_right = pvx;
+    if (this.y > pvy) this.y = pvy;
+    if (this.m_top < pvy) this.m_top = pvy;
+    this.width = this.m_right - this.x;
+    this.height = this.m_top - this.y;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
+  }
+
+  reset() {
+    this.x = this.y = 0xfffffff;
+    this.m_right = this.m_top = -0xfffffff;
+    this.width = this.height = 0;
+    this.m_cx = 0;
+    this.m_cy = 0;
+    return this;
+  }
+
+  copyFrom(src) {
+    this.x = src.x;
+    this.y = src.y;
+    this.width = src.width;
+    this.height = src.height;
+    this.m_right = src.getRight();
+    this.m_top = src.getTop();
+    this.m_cx = src.getCenterX();
+    this.m_cy = src.getCenterY();
+    return this;
   }
 
   clone() {
@@ -672,14 +737,14 @@ class AABB2D {
   }
   /**
    * 当前矩形是否包含目标矩形
-   * @param dst 目标矩形
+   * @param src 目标矩形
    * @returns 返回当前矩形是否包含目标矩形
    */
 
 
-  contains(dst) {
-    if (dst.x >= this.x && dst.m_right <= this.m_right) {
-      if (dst.y >= this.y && dst.m_top <= this.m_top) {
+  contains(src) {
+    if (src.x >= this.x && src.getRight() <= this.m_right) {
+      if (src.y >= this.y && src.getTop() <= this.m_top) {
         return true;
       }
     }
@@ -688,16 +753,16 @@ class AABB2D {
   }
   /**
    * 当前矩形是否和目标矩形相交
-   * @param dst 目标矩形
+   * @param src 目标矩形
    * @returns 返回当前矩形是否和目标矩形相交
    */
 
 
-  intersect(dst) {
-    if (dst.x > this.m_right) return false;
-    if (dst.m_right < this.x) return false;
-    if (dst.y > this.m_top) return false;
-    if (dst.m_top < this.y) return false;
+  intersect(src) {
+    if (src.x > this.m_right) return false;
+    if (src.getRight() < this.x) return false;
+    if (src.y > this.m_top) return false;
+    if (src.getTop() < this.y) return false;
     return true;
   }
 
@@ -708,6 +773,9 @@ class AABB2D {
     this.height = height;
     this.m_right = this.width + this.x;
     this.m_top = this.height + this.y;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
   }
 
   setSize(width, height) {
@@ -715,10 +783,13 @@ class AABB2D {
     this.height = height;
     this.m_right = this.width + this.x;
     this.m_top = this.height + this.y;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
   }
 
-  testEqual(dst) {
-    return this.x != dst.x || this.y != dst.y || this.width != dst.width || this.height != dst.height;
+  testEqual(src) {
+    return this.x != src.x || this.y != src.y || this.width != src.width || this.height != src.height;
   }
 
   testEqualWithParams(px, py, pw, ph) {
@@ -728,12 +799,15 @@ class AABB2D {
   update() {
     this.m_right = this.width + this.x;
     this.m_top = this.height + this.y;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
   }
 
   flipY(height) {
-    this.y = height = this.y;
-    this.m_right = this.width + this.x;
-    this.m_top = this.height + this.y;
+    this.y = height - this.y;
+    this.update();
+    return this;
   }
 
   getX() {

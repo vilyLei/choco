@@ -100,7 +100,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -115,7 +115,7 @@ class RCExtension {
 
     if (webVer == 1) {
       //#extension OES_standard_derivatives : enable
-      selfT.OES_standard_derivatives = gl.getExtension('OES_standard_derivatives');
+      selfT.OES_standard_derivatives = gl.getExtension("OES_standard_derivatives");
       if (selfT.OES_standard_derivatives != null) console.log("Use OES_standard_derivatives Extension success!");else console.log("OES_standard_derivatives Extension can not support!"); //#extension GL_EXT_shader_texture_lod : enable, for example: textureCubeLodEXT(envMap, dir, mipLv)
       // vec4 texture2DLodEXT(sampler2D sampler, vec2 coord, float lod)
       // vec4 texture2DProjLodEXT(sampler2D sampler, vec3 coord, float lod)
@@ -126,64 +126,62 @@ class RCExtension {
       // vec4 texture2DProjGradEXT(sampler2D sampler, vec4 P, vec2 dPdx, vec2 dPdy)
       // vec4 textureCubeGradEXT(samplerCube sampler, vec3 P, vec3 dPdx, vec3 dPdy)
 
-      selfT.EXT_shader_texture_lod = gl.getExtension('EXT_shader_texture_lod');
+      selfT.EXT_shader_texture_lod = gl.getExtension("EXT_shader_texture_lod");
       if (selfT.EXT_shader_texture_lod != null) console.log("Use EXT_shader_texture_lod Extension success!");else console.log("EXT_shader_texture_lod Extension can not support!");
       /*
       <script type="x-shader/x-fragment">
       #extension GL_EXT_shader_texture_lod : enable
       #extension GL_OES_standard_derivatives : enable
-      
       uniform sampler2D myTexture;
       varying vec2 texcoord;
-      
       void main(){
-        gl_FragColor = texture2DGradEXT(myTexture, mod(texcoord, vec2(0.1, 0.5)),
-                                        dFdx(texcoord), dFdy(texcoord));
+      gl_FragColor = texture2DGradEXT(myTexture, mod(texcoord, vec2(0.1, 0.5)),
+                            dFdx(texcoord), dFdy(texcoord));
       }
       </script>
       */
 
-      selfT.WEBGL_draw_buffers = gl.getExtension('WEBGL_draw_buffers');
+      selfT.WEBGL_draw_buffers = gl.getExtension("WEBGL_draw_buffers");
       if (selfT.WEBGL_draw_buffers != null) console.log("Use WEBGL_draw_buffers Extension success!");else console.log("WEBGL_draw_buffers Extension can not support!"); //DivLog.ShowLog("selfT.WEBGL_draw_buffers != null: "+(selfT.WEBGL_draw_buffers != null));
 
-      selfT.OES_vertex_array_object = gl.getExtension('OES_vertex_array_object');
+      selfT.OES_vertex_array_object = gl.getExtension("OES_vertex_array_object");
       if (selfT.OES_vertex_array_object != null) console.log("Use OES_vertex_array_object Extension success!");else console.log("OES_vertex_array_object Extension can not support!");
-      selfT.ANGLE_instanced_arrays = gl.getExtension('ANGLE_instanced_arrays');
+      selfT.ANGLE_instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
       if (selfT.ANGLE_instanced_arrays != null) console.log("Use ANGLE_instanced_arrays Extension success!");else console.log("ANGLE_instanced_arrays Extension can not support!");
-      selfT.EXT_color_buffer_float = gl.getExtension('EXT_color_buffer_float');
+      selfT.EXT_color_buffer_float = gl.getExtension("EXT_color_buffer_float");
       if (selfT.EXT_color_buffer_float != null) console.log("Use EXT_color_buffer_float Extension success!");else console.log("EXT_color_buffer_float Extension can not support!");
-      selfT.EXT_color_buffer_half_float = gl.getExtension('EXT_color_buffer_half_float');
+      selfT.EXT_color_buffer_half_float = gl.getExtension("EXT_color_buffer_half_float");
       if (selfT.EXT_color_buffer_half_float != null) console.log("Use EXT_color_buffer_half_float Extension success!");else console.log("EXT_color_buffer_half_float Extension can not support!");
-      selfT.OES_texture_half_float = gl.getExtension('OES_texture_half_float');
+      selfT.OES_texture_half_float = gl.getExtension("OES_texture_half_float");
       if (selfT.OES_texture_half_float != null) console.log("Use OES_texture_half_float Extension success!");else console.log("OES_texture_half_float Extension can not support!");
-      selfT.OES_texture_half_float_linear = gl.getExtension('OES_texture_half_float_linear');
+      selfT.OES_texture_half_float_linear = gl.getExtension("OES_texture_half_float_linear");
       if (selfT.OES_texture_half_float_linear != null) console.log("Use OES_texture_half_float_linear Extension success!");else console.log("OES_texture_half_float_linear Extension can not support!");
-      selfT.OES_texture_float = gl.getExtension('OES_texture_float');
+      selfT.OES_texture_float = gl.getExtension("OES_texture_float");
       if (selfT.OES_texture_float != null) console.log("Use OES_texture_float Extension success!");else console.log("OES_texture_float Extension can not support!"); //
 
-      selfT.OES_element_index_uint = gl.getExtension('OES_element_index_uint');
+      selfT.OES_element_index_uint = gl.getExtension("OES_element_index_uint");
       if (selfT.OES_element_index_uint != null) console.log("Use OES_element_index_uint Extension success!");else console.log("OES_element_index_uint Extension can not support!"); //EXT_blend_minmax
 
-      selfT.EXT_blend_minmax = gl.getExtension('EXT_blend_minmax');
+      selfT.EXT_blend_minmax = gl.getExtension("EXT_blend_minmax");
       if (selfT.EXT_blend_minmax != null) console.log("Use EXT_blend_minmax Extension success!");else console.log("EXT_blend_minmax Extension can not support!");
     } else {
-      selfT.EXT_shader_texture_lod = gl.getExtension('EXT_shader_texture_lod');
+      selfT.EXT_shader_texture_lod = gl.getExtension("EXT_shader_texture_lod");
       if (selfT.EXT_shader_texture_lod != null) console.log("Use EXT_shader_texture_lod Extension success!");else console.log("EXT_shader_texture_lod Extension can not support!");
-      selfT.EXT_color_buffer_half_float = gl.getExtension('EXT_color_buffer_half_float');
+      selfT.EXT_color_buffer_half_float = gl.getExtension("EXT_color_buffer_half_float");
       if (selfT.EXT_color_buffer_half_float != null) console.log("Use EXT_color_buffer_half_float Extension success!");else console.log("EXT_color_buffer_half_float Extension can not support!");
-      selfT.OES_texture_half_float_linear = gl.getExtension('OES_texture_half_float_linear');
+      selfT.OES_texture_half_float_linear = gl.getExtension("OES_texture_half_float_linear");
       if (selfT.OES_texture_half_float_linear != null) console.log("Use OES_texture_half_float_linear Extension success!");else console.log("OES_texture_half_float_linear Extension can not support!");
-      selfT.EXT_color_buffer_float = gl.getExtension('EXT_color_buffer_float');
+      selfT.EXT_color_buffer_float = gl.getExtension("EXT_color_buffer_float");
       if (selfT.EXT_color_buffer_float != null) console.log("Use EXT_color_buffer_float Extension success!");else console.log("EXT_color_buffer_float Extension can not support!");
     }
 
-    selfT.OES_texture_float_linear = gl.getExtension('OES_texture_float_linear');
+    selfT.OES_texture_float_linear = gl.getExtension("OES_texture_float_linear");
     if (selfT.OES_texture_float_linear != null) console.log("Use OES_texture_float_linear Extension success!");else console.log("OES_texture_float_linear Extension can not support!");
-    selfT.WEBGL_depth_texture = gl.getExtension('WEBGL_depth_texture');
+    selfT.WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
     if (selfT.WEBGL_depth_texture != null) console.log("Use WEBGL_depth_texture Extension success!");else console.log("WEBGL_depth_texture Extension can not support!");
-    selfT.WEBGL_debug_renderer_info = gl.getExtension('WEBGL_debug_renderer_info');
-    if (selfT.WEBGL_debug_renderer_info != null) console.log("Use WEBGL_debug_renderer_info Extension success!");else console.log("WEBGL_debug_renderer_info Extension can not support!"); //
-    //console.log("RCExtension.WEBGL_depth_texture: ",RCExtension.WEBGL_depth_texture);
+    selfT.WEBGL_debug_renderer_info = gl.getExtension("WEBGL_debug_renderer_info");
+    if (selfT.WEBGL_debug_renderer_info != null) console.log("Use WEBGL_debug_renderer_info Extension success!");else console.log("WEBGL_debug_renderer_info Extension can not support!");
+    console.log("RCExtension.Initialize(), gl: ", gl);
   }
 
 }
@@ -216,7 +214,7 @@ exports.default = RCExtension;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -358,7 +356,7 @@ exports.RenderColorMask = RenderColorMask;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -390,7 +388,7 @@ const AABB2D_1 = __importDefault(__webpack_require__("e2fe"));
 
 class RAdapterContext {
   constructor() {
-    this.m_mouseEvtDisplather = new ContextMouseEvtDispatcher_1.default();
+    this.m_sysEvt = new ContextMouseEvtDispatcher_1.default();
     this.m_div = null;
     this.m_canvas = null;
     this.m_scissorEnabled = false;
@@ -402,18 +400,23 @@ class RAdapterContext {
     this.m_viewPortRect = new AABB2D_1.default(0, 0, 800, 600);
     this.m_maxWebGLVersion = 2;
     this.m_webGLVersion = 2;
-    this.m_devicePixelRatio = 1.0;
+    this.m_dpr = 1.0;
     this.m_viewEle = new RViewElement_1.default(); // display 3d view buf size auto sync window size
 
     this.autoSyncRenderBufferAndWindowSize = true;
     this.offscreenRenderEnabled = false;
     this.bodyBgColor = "";
+    this.m_ctxAttri = null;
+    this.m_glVersion = 0;
+    this.m_param = null;
     this.m_resizeFlag = true;
-    this.m_WEBGL_lose_context = null;
+    this.m_glLoseCtx = null;
     this.m_displayWidth = 0;
     this.m_displayHeight = 0;
     this.m_rcanvasWidth = 0;
     this.m_rcanvasHeight = 0;
+    this.m_sizeWithTwo = true;
+    this.m_toBigger = true;
     this.m_resizeCallback = null;
   }
 
@@ -428,12 +431,7 @@ class RAdapterContext {
   }
 
   syncHtmlBodyColor(r, g, b) {
-    // if(document) {
-    this.bodyBgColor = this.m_viewEle.getCSSHEXRGB(r, g, b); // let value = this.m_viewEle.getCSSHEXRGB(r, g, b);
-    // const body = document.body;
-    // body.style.background = value;
-    // console.log("syncHtmlBodyColor(), this.bodyBgColor: ", this.bodyBgColor);
-    // }
+    this.bodyBgColor = this.m_viewEle.getCSSHEXRGB(r, g, b);
   }
 
   setWebGLMaxVersion(webgl_ver) {
@@ -450,16 +448,16 @@ class RAdapterContext {
     return this.m_div;
   }
 
+  getCanvas() {
+    return this.m_offcanvas ? this.m_offcanvas : this.m_canvas;
+  }
+
   setDivStyleLeftAndTop(px, py) {
     this.m_viewEle.setDivStyleLeftAndTop(px, py);
   }
 
   setDivStyleSize(pw, ph) {
     this.m_viewEle.setDivStyleSize(pw, ph);
-  }
-
-  getCanvas() {
-    return this.m_canvas;
   }
 
   isDepthTestEnabled() {
@@ -470,13 +468,66 @@ class RAdapterContext {
     return this.m_stencilTestEnabled;
   }
 
+  buildGLCtx(canvas, attr) {
+    this.m_gl = null;
+    let offscreen = null;
+
+    if (this.offscreenRenderEnabled) {
+      if (!(canvas instanceof OffscreenCanvas)) {
+        offscreen = canvas.transferControlToOffscreen();
+        canvas = offscreen;
+      }
+    }
+
+    this.m_offcanvas = offscreen = canvas;
+
+    if (this.m_maxWebGLVersion == 2) {
+      this.m_gl = offscreen == null ? canvas.getContext("webgl2", attr) : offscreen.getContext("webgl2", attr);
+
+      if (this.m_gl) {
+        console.log("Use WebGL2 success!");
+        this.m_webGLVersion = 2;
+      } else {
+        console.log("WebGL2 can not support!");
+      }
+    }
+
+    if (this.m_gl == null) {
+      if (offscreen == null) {
+        this.m_gl = canvas.getContext("webgl", attr) || canvas.getContext("experimental-webgl", attr);
+      } else {
+        this.m_gl = offscreen.getContext("webgl", attr) || offscreen.getContext("experimental-webgl", attr);
+      }
+
+      if (this.m_gl != null) {
+        console.log("Use WebGL1 success!");
+        this.m_webGLVersion = 1;
+      } else {
+        console.log("WebGL1 can not support!");
+      }
+    }
+
+    if (!this.m_gl) {
+      this.m_webGLVersion = -1;
+      alert("Unable to initialize WebGL. Your browser or machine may not support it.");
+      throw Error("WebGL initialization failure.");
+    }
+
+    this.m_gl.version = this.m_glVersion;
+    canvas.version = this.m_glVersion;
+    this.m_glVersion++;
+    canvas.addEventListener("webglcontextrestored", this.contextrestoredHandler, false);
+    canvas.addEventListener("webglcontextlost", this.contextlostHandler, false);
+    RCExtension_1.default.Initialize(this.m_webGLVersion, this.m_gl);
+  }
+
   initialize(rcuid, stage, param) {
     this.m_stage = stage;
     var pdocument = null;
     var pwindow = null;
 
     try {
-      if (document != undefined) {
+      if (document) {
         pdocument = document;
         pwindow = window;
       }
@@ -484,17 +535,25 @@ class RAdapterContext {
       console.log("RAdapterContext::initialize(), document is undefined.");
     }
 
-    if (pdocument != null) {
+    this.m_param = param;
+
+    if (pdocument) {
+      if (param.hideWindowFrame) {
+        document.body.style.overflow = "hidden";
+      }
+
+      this.m_toBigger = param.viewSizeToBigger;
+      this.m_sizeWithTwo = param.viewSizeWithTwo;
+      this.m_dpr = window.devicePixelRatio;
       let div = param.getDiv();
-      const rattr = param.getRenderContextAttri();
-      this.m_devicePixelRatio = window.devicePixelRatio;
-      RendererDevice_1.default.SetDevicePixelRatio(this.m_devicePixelRatio);
+      RendererDevice_1.default.SetDevicePixelRatio(this.m_dpr);
       this.m_viewEle.setDiv(div);
-      this.m_viewEle.createViewEle(pdocument, this.autoSyncRenderBufferAndWindowSize, param.divW, param.divH);
+      this.m_viewEle.createViewEle(pdocument, this.autoSyncRenderBufferAndWindowSize, param.divW, param.divH, param.autoAttachingHtmlDoc, this.offscreenRenderEnabled);
       this.m_div = div = this.m_viewEle.getDiv();
       let canvas = this.m_canvas = this.m_viewEle.getCanvas();
-      this.m_devicePixelRatio = window.devicePixelRatio;
-      this.m_mouseEvtDisplather.dpr = this.m_devicePixelRatio;
+      this.m_dpr = window.devicePixelRatio;
+      this.m_sysEvt.dpr = this.m_dpr;
+      const rattr = param.getRenderContextAttri();
       let attr = rattr;
 
       if (rattr == null) {
@@ -512,52 +571,14 @@ class RAdapterContext {
         this.m_stencilTestEnabled = attr.stencil;
       }
 
-      console.log("this.m_devicePixelRatio: ", this.m_devicePixelRatio, ",rattr == null: ", rattr == null);
+      this.m_ctxAttri = attr;
+      console.log("offscreenRenderEnabled: ", this.offscreenRenderEnabled);
+      console.log("this.m_dpr: ", this.m_dpr, ",rattr == null: ", rattr == null);
       console.log("depthTestEnabled: ", attr.depth);
       console.log("stencilTestEnabled: ", attr.stencil);
       console.log("antialiasEnabled: ", attr.antialias);
       console.log("alphaEnabled: ", attr.alpha);
-      let offscreen = null;
-
-      if (this.offscreenRenderEnabled) {
-        offscreen = canvas.transferControlToOffscreen();
-      }
-
-      this.m_offcanvas = offscreen;
-
-      if (this.m_maxWebGLVersion == 2) {
-        this.m_gl = offscreen == null ? canvas.getContext('webgl2', attr) : offscreen.getContext('webgl2', attr);
-
-        if (this.m_gl != null) {
-          console.log("Use WebGL2 success!");
-          this.m_webGLVersion = 2;
-        } else {
-          console.log("WebGL2 can not support!");
-        }
-      }
-
-      if (this.m_gl == null) {
-        if (offscreen == null) {
-          this.m_gl = canvas.getContext('webgl', attr) || canvas.getContext("experimental-webgl", attr);
-        } else {
-          this.m_gl = offscreen.getContext('webgl', attr) || offscreen.getContext("experimental-webgl", attr);
-        }
-
-        if (this.m_gl != null) {
-          console.log("Use WebGL1 success!");
-          this.m_webGLVersion = 1;
-        } else {
-          console.log("WebGL1 can not support!");
-        }
-      }
-
-      if (!this.m_gl) {
-        this.m_webGLVersion = -1;
-        alert('Unable to initialize WebGL. Your browser or machine may not support it.');
-        throw Error("WebGL initialization failure.");
-        return;
-      }
-
+      this.buildGLCtx(canvas, attr);
       let gl = this.m_gl;
       gl.rcuid = rcuid;
       let glStencilFunc = RenderConst_1.GLStencilFunc;
@@ -604,10 +625,8 @@ class RAdapterContext {
       let viewPortIMS = this.m_gl.getParameter(this.m_gl.MAX_VIEWPORT_DIMS);
       device.MAX_VIEWPORT_WIDTH = viewPortIMS[0];
       device.MAX_VIEWPORT_HEIGHT = viewPortIMS[1];
-      RCExtension_1.default.Initialize(this.m_webGLVersion, this.m_gl);
       RendererDevice_1.default.Initialize([this.m_webGLVersion]);
-      console.log("RadapterContext stage: ", stage);
-      if (stage != null) this.m_mouseEvtDisplather.initialize(canvas, div, stage); //  console.log("viewPortIMS: ",viewPortIMS);
+      console.log("RadapterContext stage: ", stage); //  console.log("viewPortIMS: ",viewPortIMS);
 
       console.log("MAX_TEXTURE_SIZE: ", RendererDevice_1.default.MAX_TEXTURE_SIZE);
       console.log("IsMobileWeb: ", RendererDevice_1.default.IsMobileWeb());
@@ -626,9 +645,9 @@ class RAdapterContext {
 
       let debugInfo = RCExtension_1.default.WEBGL_debug_renderer_info;
 
-      if (debugInfo != null) {
-        let webgl_vendor = this.m_gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
-        let webgl_renderer = this.m_gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+      if (debugInfo) {
+        let webgl_vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+        let webgl_renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
         device.GPU_VENDOR = webgl_vendor;
         device.GPU_RENDERER = webgl_renderer;
         console.log("webgl_vendor: ", webgl_vendor);
@@ -641,28 +660,48 @@ class RAdapterContext {
 
       }
 
-      pwindow.onresize = evt => {
-        if (this.autoSyncRenderBufferAndWindowSize) {
-          this.m_resizeFlag = true;
-          this.updateRenderBufferSize();
-        }
-      };
-
-      canvas.addEventListener('webglcontextrestored', this.contextrestoredHandler, false);
-      canvas.addEventListener('webglcontextlost', this.contextlostHandler, false);
+      this.initEvt();
       this.updateRenderBufferSize();
     } else {
       console.log("initialize WebGL failure!");
     }
   }
 
-  loseContext() {
-    if (this.m_WEBGL_lose_context == null) {
-      this.m_WEBGL_lose_context = this.m_gl.getExtension('WEBGL_lose_context');
+  setCanvas(canvas) {
+    let c0 = this.m_canvas;
+    this.m_viewEle.setCanvas(canvas);
+    let c1 = this.m_viewEle.getCanvas();
+
+    if (c0 != c1) {
+      this.m_offcanvas = null;
+      this.m_canvas = c1;
+      this.buildGLCtx(c1, this.m_ctxAttri);
+      this.m_glLoseCtx = null;
+      this.initEvt();
     }
 
-    if (this.m_WEBGL_lose_context == null) {
-      this.m_WEBGL_lose_context.loseContext();
+    return c0 != c1;
+  }
+
+  initEvt() {
+    if (this.m_param.sysEvtReceived) {
+      this.m_sysEvt.initialize(this.m_canvas, this.m_div, this.m_stage);
+
+      let winOnresize = evt => {
+        if (this.autoSyncRenderBufferAndWindowSize) {
+          this.m_resizeFlag = true;
+          this.updateRenderBufferSize();
+        }
+      };
+
+      this.m_sysEvt.sysEvt.addWindowResizeEvt(this, winOnresize);
+    }
+  }
+
+  loseContext() {
+    if (!this.m_glLoseCtx) {
+      this.m_glLoseCtx = this.m_gl.getExtension("WEBGL_lose_context");
+      this.m_glLoseCtx.loseContext();
     }
   }
   /**
@@ -697,7 +736,7 @@ class RAdapterContext {
   }
 
   setScissorRect(px, py, pw, ph) {
-    //this.m_gl.scissor(Math.floor(px*this.m_devicePixelRatio),Math.floor(py*this.m_devicePixelRatio), pw,ph);
+    //this.m_gl.scissor(Math.floor(px*this.m_dpr),Math.floor(py*this.m_dpr), pw,ph);
     this.m_gl.scissor(px, py, pw, ph);
   }
 
@@ -706,25 +745,63 @@ class RAdapterContext {
   }
 
   getDevicePixelRatio() {
-    return this.m_devicePixelRatio;
+    return this.m_dpr;
   }
 
-  resizeBufferSize(pw, ph) {
-    pw = Math.floor(pw);
-    ph = Math.floor(ph);
-    let k = window.devicePixelRatio;
-    let dprChanged = Math.abs(k - this.m_devicePixelRatio) > 0.01 || this.m_resizeFlag;
-    this.m_devicePixelRatio = k;
-    this.m_mouseEvtDisplather.dpr = k;
-    RendererDevice_1.default.SetDevicePixelRatio(this.m_devicePixelRatio); // console.log("this.m_devicePixelRatio: "+this.m_devicePixelRatio);
+  normlizeViewSize(pw, ph, sync, k) {
+    let calc = this.m_toBigger ? Math.round : Math.floor;
 
+    if (sync && this.m_sizeWithTwo) {
+      pw = calc(pw * k * 0.5) * 2;
+      ph = calc(ph * k * 0.5) * 2;
+    } else {
+      pw = calc(pw * k);
+      ph = calc(ph * k);
+    }
+
+    return [pw, ph];
+  }
+  /**
+   * @param pw buffer div width
+   * @param ph buffer div height
+   * @param sync the default value is true
+   */
+
+
+  resizeBufferSize(pw, ph, sync = true) {
+    // if (sync) {
+    // 	pw = Math.round(pw * 0.5) * 2;
+    // 	ph = Math.round(ph * 0.5) * 2;
+    // } else {
+    // 	pw = Math.round(pw);
+    // 	ph = Math.round(ph);
+    // }
+    let params = this.normlizeViewSize(pw, ph, sync, 1.0);
+    pw = params[0];
+    ph = params[1];
+    let k = sync ? window.devicePixelRatio : 1.0;
+    let dprChanged = Math.abs(k - this.m_dpr) > 0.01 || this.m_resizeFlag;
+    this.m_dpr = k;
+    this.m_sysEvt.dpr = k;
+    RendererDevice_1.default.SetDevicePixelRatio(this.m_dpr);
+    console.log("window.devicePixelRatio: ", this.m_dpr, ", sync: ", sync, ", this.m_dpr: ", this.m_dpr);
     this.m_resizeFlag = false;
 
     if (this.m_displayWidth != pw || this.m_displayHeight != ph || dprChanged) {
       this.m_displayWidth = pw;
-      this.m_displayHeight = ph;
-      this.m_rcanvasWidth = Math.floor(pw * k);
-      this.m_rcanvasHeight = Math.floor(ph * k);
+      this.m_displayHeight = ph; // if (sync) {
+      // 	pw = Math.round(pw * k * 0.5) * 2;
+      // 	ph = Math.round(ph * k * 0.5) * 2;
+      // } else {
+      // 	pw = Math.round(pw * k);
+      // 	ph = Math.round(ph * k);
+      // }
+
+      params = this.normlizeViewSize(pw, ph, sync, k);
+      pw = params[0];
+      ph = params[1];
+      this.m_rcanvasWidth = pw;
+      this.m_rcanvasHeight = ph;
 
       if (this.m_offcanvas == null) {
         this.m_canvas.width = this.m_rcanvasWidth;
@@ -734,27 +811,28 @@ class RAdapterContext {
         this.m_offcanvas.height = this.m_rcanvasHeight;
       }
 
-      this.m_canvas.style.width = this.m_displayWidth + 'px';
-      this.m_canvas.style.height = this.m_displayHeight + 'px';
+      this.m_canvas.style.width = this.m_displayWidth + "px";
+      this.m_canvas.style.height = this.m_displayHeight + "px";
+      const st = this.m_stage;
 
-      if (this.m_stage != null) {
-        this.m_stage.stageWidth = this.m_rcanvasWidth;
-        this.m_stage.stageHeight = this.m_rcanvasHeight;
-        this.m_stage.viewWidth = this.m_displayWidth;
-        this.m_stage.viewHeight = this.m_displayHeight;
-        this.m_stage.pixelRatio = k;
-        console.log("size to stage size: ", this.m_stage.stageWidth, this.m_stage.stageHeight);
-        console.log("size to view size: ", this.m_stage.viewWidth, this.m_stage.viewHeight); //  DivLog.ShowLogOnce("stageSize: "+this.m_stage.stageWidth+","+this.m_stage.stageHeight);
+      if (st) {
+        st.stageWidth = this.m_rcanvasWidth;
+        st.stageHeight = this.m_rcanvasHeight;
+        st.viewWidth = this.m_displayWidth;
+        st.viewHeight = this.m_displayHeight;
+        st.pixelRatio = k;
+        console.log("size to stage size: ", st.stageWidth, st.stageHeight);
+        console.log("size to view size: ", st.viewWidth, st.viewHeight); //  DivLog.ShowLogOnce("stageSize: "+this.m_stage.stageWidth+","+this.m_stage.stageHeight);
         //  DivLog.ShowLog("canvasSize: "+this.m_canvas.width+","+this.m_canvas.height);
         //  DivLog.ShowLog("dispSize: "+this.m_displayWidth+","+this.m_displayHeight);
-        //  DivLog.ShowLog("pixelRatio:"+this.m_devicePixelRatio);
+        //  DivLog.ShowLog("pixelRatio:"+this.m_dpr);
         //  console.log("display size: "+this.m_displayWidth+","+this.m_displayHeight);
         //  console.log("RAdapterContext::resize(), canvas.width:"+this.m_canvas.width+", canvas.height:"+this.m_canvas.height);
         //  console.log("RAdapterContext::resize(), stageWidth:"+this.m_stage.stageWidth+", stageHeight:"+this.m_stage.stageHeight);
         //  console.log("RAdapterContext::resize(), m_rcanvasWidth:"+this.m_rcanvasWidth+", m_rcanvasHeight:"+this.m_rcanvasHeight);
         //  console.log("RAdapterContext::resize(), stw:"+this.m_stage.stageWidth+", sth:"+this.m_stage.stageHeight);
 
-        this.m_stage.update();
+        st.update();
       }
 
       if (this.m_resizeCallback != null) {
@@ -830,14 +908,26 @@ class RAdapterContext {
   getRCanvasHeight() {
     return this.m_rcanvasHeight;
   }
+  /**
+   * @param sync the default value is true
+   */
 
-  updateRenderBufferSize() {
-    let rect = this.m_div.getBoundingClientRect();
-    console.log("updateRenderBufferSize() rect.width, rect.height: ", rect.width, rect.height);
-    this.m_canvas.style.width = Math.floor(rect.width) + 'px';
-    this.m_canvas.style.height = Math.floor(rect.height) + 'px';
-    rect = this.m_div.getBoundingClientRect();
-    this.resizeBufferSize(rect.width, rect.height);
+
+  updateRenderBufferSize(sync = true) {
+    const div = this.m_div;
+
+    if (div.parentElement) {
+      // let rect = div.getBoundingClientRect();
+      // console.log("updateRenderBufferSize() rect.width, rect.height: ", rect.width, rect.height);
+      // this.m_canvas.style.width = Math.floor(rect.width) + 'px';
+      // this.m_canvas.style.height = Math.floor(rect.height) + 'px';
+      // rect = div.getBoundingClientRect();
+      let rect = div.getBoundingClientRect();
+      this.resizeBufferSize(rect.width, rect.height);
+    } else {
+      const canvas = this.m_offcanvas ? this.m_offcanvas : this.m_canvas;
+      this.resizeBufferSize(canvas.width, canvas.height, false);
+    }
   }
 
 }
@@ -855,7 +945,7 @@ exports.default = RAdapterContext;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -875,27 +965,124 @@ Object.defineProperty(exports, "__esModule", {
 
 const RendererDevice_1 = __importDefault(__webpack_require__("3b73"));
 
+class SysEvtNode {
+  constructor() {
+    this.ls = [];
+    this.funcs = [];
+  }
+
+  add(l, func) {
+    let i = 0;
+    let ls = this.ls;
+
+    for (; i < this.ls.length; ++i) {
+      if (l == ls[i]) {
+        break;
+      }
+    }
+
+    if (i >= this.ls.length) {
+      ls.push(l);
+      this.funcs.push(func);
+    }
+  }
+
+  remove(l) {
+    let ls = this.ls;
+
+    for (let i = 0; i < this.ls.length; ++i) {
+      if (l == ls[i]) {
+        ls.splice(i, 1);
+        this.funcs.splice(i, 1);
+        break;
+      }
+    }
+  }
+
+  run(evt) {
+    for (let i = 0; i < this.ls.length; ++i) {
+      this.funcs[i](evt);
+    }
+  }
+
+}
+
+class SysEvtMana {
+  constructor() {
+    this.evts = null;
+  }
+
+  init() {
+    if (this.evts == null) {
+      this.evts = [];
+
+      for (let i = 0; i < 2; ++i) {
+        this.evts.push(new SysEvtNode()); // [new SysEvtNode(), new SysEvtNode()]
+      }
+    }
+
+    var pdocument = null;
+    var pwindow = null;
+
+    if (document) {
+      pdocument = document;
+      pwindow = window;
+
+      pdocument.onmouseup = evt => {
+        this.evts[1].run(evt);
+      };
+    }
+
+    if (pwindow) {
+      pwindow.onresize = evt => {
+        this.evts[0].run(evt);
+      };
+    }
+  }
+
+  addWindowResizeEvt(l, func) {
+    this.evts[0].add(l, func);
+  }
+
+  removeWindowResizeEvt(l) {
+    this.evts[0].remove(l);
+  }
+
+  addDocMouUpEvt(l, func) {
+    this.evts[1].add(l, func);
+  }
+
+  removeDocMouUpEvt(l) {
+    this.evts[1].remove(l);
+  }
+
+}
+
 class ContextMouseEvtDispatcher {
   constructor() {
     this.m_singleDown = false;
     this.m_mouseX = 0;
     this.m_mouseY = 0;
     this.m_mouseClickTime = 0;
+    this.sysEvt = null;
     this.dpr = 1.0;
+    this.m_canvas = null;
+    this.sysEvt = ContextMouseEvtDispatcher.s_sevt;
+    this.sysEvt.init();
   }
 
   initMobile(canvas, div, stage) {
     var pdocument = null;
 
     try {
-      if (document != undefined) {
+      if (document) {
         pdocument = document;
       }
     } catch (err) {
       console.log("ContextMouseEvtDispatcher::initMobile(), document is undefined.");
     }
 
-    if (pdocument != null) {
+    if (pdocument) {
       let selfT = this;
       div.addEventListener('touchstart', evt => {
         /*
@@ -1036,6 +1223,16 @@ class ContextMouseEvtDispatcher {
   initPC(canvas, div, stage) {
     var pdocument = null;
 
+    if (this.m_canvas != null) {
+      let pcanvas = this.m_canvas;
+      pcanvas.onmousewheel = null;
+      pcanvas.onmousedown = null;
+      pcanvas.onmouseup = null;
+      pcanvas.onmousemove = null;
+      pcanvas.onclick = null;
+      pcanvas.canvas = null;
+    }
+
     try {
       if (document != undefined) {
         pdocument = document;
@@ -1045,6 +1242,8 @@ class ContextMouseEvtDispatcher {
     }
 
     if (pdocument != null) {
+      this.m_canvas = canvas;
+
       if (canvas.onmousewheel == undefined && canvas.addEventListener != undefined) {
         //use firefox browser mousewheel evt
         let func = function (evt) {
@@ -1096,9 +1295,20 @@ class ContextMouseEvtDispatcher {
         } else if (evt.button == 2) {
           stage.mouseRightUp(1);
         }
-      };
+      }; // document.onmouseup = (evt: any): void => {
+      //     if (evt.button == 0) {
+      //         stage.mouseWindowUp(1);
+      //     }
+      //     else if (evt.button == 1) {
+      //         // stage.mouseMiddleUp();
+      //     }
+      //     else if (evt.button == 2) {
+      //         stage.mouseWindowRightUp(1);
+      //     }
+      // }
 
-      document.onmouseup = evt => {
+
+      let docOnmouseup = evt => {
         if (evt.button == 0) {
           stage.mouseWindowUp(1);
         } else if (evt.button == 1) {// stage.mouseMiddleUp();
@@ -1106,6 +1316,8 @@ class ContextMouseEvtDispatcher {
           stage.mouseWindowRightUp(1);
         }
       };
+
+      this.sysEvt.addDocMouUpEvt(this, docOnmouseup);
 
       canvas.onmousemove = evt => {
         // console.log("ContextMouseEvtDispatcher::onmouseMove"+evt.pageX+","+evt.pageY);
@@ -1160,6 +1372,7 @@ class ContextMouseEvtDispatcher {
 
 }
 
+ContextMouseEvtDispatcher.s_sevt = new SysEvtMana();
 exports.default = ContextMouseEvtDispatcher;
 
 /***/ }),
@@ -1173,7 +1386,7 @@ exports.default = ContextMouseEvtDispatcher;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1462,7 +1675,7 @@ class RendererInstanceContext {
   }
 
   setRenderToBackBuffer() {
-    if (this.m_adapter != null) {
+    if (this.m_adapter) {
       this.m_adapter.setRenderToBackBuffer(FrameBufferType_1.default.FRAMEBUFFER);
       this.m_renderProxy.rshader.resetRenderState();
       this.m_materialProxy.renderBegin();
@@ -1626,7 +1839,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1777,7 +1990,7 @@ exports.default = RSEntityFlag;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1857,12 +2070,20 @@ class RenderAdapter {
     this.m_bodyBgColor = "";
     this.bgColor = new Float32Array([0, 0, 0, 1]);
     this.uViewProbe = null;
+    this.m_param = null;
     this.m_devPRatio = 1.0;
     this.m_viewportUnlock = true;
     this.m_synFBOSizeWithViewport = false;
-    this.m_fboRunning = false;
     this.m_texResource = texResource;
     this.m_rcuid = rcuid;
+  }
+
+  setSyncBgColor(boo) {
+    this.m_syncBgColor = boo;
+  }
+
+  getSyncBgColor() {
+    return this.m_syncBgColor;
   }
 
   syncHtmlBodyColor() {
@@ -1872,30 +2093,45 @@ class RenderAdapter {
     }
   }
 
+  initGLCtx(context, param) {
+    if (param.getScissorTestEanbled()) {
+      this.m_gl.enable(this.m_gl.SCISSOR_TEST);
+    } else {
+      this.m_gl.disable(this.m_gl.SCISSOR_TEST);
+    }
+
+    if (context.isDepthTestEnabled()) this.m_gl.enable(this.m_gl.DEPTH_TEST);else this.m_gl.disable(this.m_gl.DEPTH_TEST);
+
+    if (context.isStencilTestEnabled()) {
+      this.m_gl.enable(this.m_gl.STENCIL_TEST);
+    } else {
+      console.warn("STENCIL_TEST disable !!!");
+      this.m_gl.disable(this.m_gl.STENCIL_TEST);
+    }
+
+    if (param.getPolygonOffsetEanbled()) this.enabledPolygonOffset();else this.disabledPolygonOffset();
+    this.m_gl.enable(this.m_gl.CULL_FACE);
+    this.m_gl.cullFace(this.m_gl.BACK);
+    this.m_gl.enable(this.m_gl.BLEND);
+    this.m_gl.enable(this.m_gl.BLEND);
+    if (param.getDitherEanbled()) this.m_gl.enable(this.m_gl.DITHER);else this.m_gl.disable(this.m_gl.DITHER);
+    this.m_gl.frontFace(this.m_gl.CCW);
+  }
+
+  updateGLCtx() {
+    this.m_gl = this.m_rtx.getRC();
+    this.initGLCtx(this.m_rtx, this.m_param);
+  }
+
   initialize(context, param, rState, uViewProbe) {
     if (this.m_rtx == null) {
       this.m_syncBgColor = param.syncBgColor;
       this.m_webglVer = context.getWebGLVersion();
       this.m_rState = rState;
       this.m_rtx = context;
+      this.m_param = param;
       this.m_gl = context.getRC();
-      this.m_gl.disable(this.m_gl.SCISSOR_TEST);
-      if (context.isDepthTestEnabled()) this.m_gl.enable(this.m_gl.DEPTH_TEST);else this.m_gl.disable(this.m_gl.DEPTH_TEST);
-
-      if (context.isStencilTestEnabled()) {
-        this.m_gl.enable(this.m_gl.STENCIL_TEST);
-      } else {
-        console.warn("STENCIL_TEST disable !!!");
-        this.m_gl.disable(this.m_gl.STENCIL_TEST);
-      }
-
-      if (param.getPolygonOffsetEanbled()) this.enabledPolygonOffset();else this.disabledPolygonOffset();
-      this.m_gl.enable(this.m_gl.CULL_FACE);
-      this.m_gl.cullFace(this.m_gl.BACK);
-      this.m_gl.enable(this.m_gl.BLEND);
-      this.m_gl.enable(this.m_gl.BLEND);
-      if (param.getDitherEanbled()) this.m_gl.enable(this.m_gl.DITHER);else this.m_gl.disable(this.m_gl.DITHER);
-      this.m_gl.frontFace(this.m_gl.CCW); //m_gl.hint(m_gl.PERSPECTIVE_CORRECTION_HINT, m_gl.NICEST);	// Really Nice Perspective Calculations
+      this.initGLCtx(context, param); //m_gl.hint(m_gl.PERSPECTIVE_CORRECTION_HINT, m_gl.NICEST);	// Really Nice Perspective Calculations
 
       this.m_clearMask = this.m_gl.COLOR_BUFFER_BIT | this.m_gl.DEPTH_BUFFER_BIT | this.m_gl.STENCIL_BUFFER_BIT; //
       //this.m_rState = context.getRenderState();
@@ -2116,7 +2352,8 @@ class RenderAdapter {
     // 	console.log("clear >>>>>>>");
     // }
     // if(DebugFlag.Flag_0 > 0) {
-    // 	console.log("color cvs: ", cvs);
+    // 	console.log("RenderAdapter::clear(), this.m_gl: ", this.m_gl);
+    // 	console.log("RenderAdapter::clear(), color cvs: ", cvs);
     // }
 
     this.m_gl.clearColor(cvs[0], cvs[1], cvs[2], cvs[3]);
@@ -2153,8 +2390,8 @@ class RenderAdapter {
   updateViewPort() {
     let size = this.m_viewPortRect;
     this.uViewProbe.setVec4Data(size.x, size.y, size.width, size.height);
-    this.uViewProbe.update(); //DivLog.ShowLog("reseizeFBOViewPort: " + this.m_viewX + "," + this.m_viewY + "," + this.m_viewWidth + "," + this.m_viewHeight);
-    //console.log("reseizeFBOViewPort: "+this.m_viewX+","+this.m_viewY+","+this.m_viewWidth+","+this.m_viewHeight);
+    this.uViewProbe.update(); // DivLog.ShowLog("reseizeFBOViewPort: " + this.m_viewX + "," + this.m_viewY + "," + this.m_viewWidth + "," + this.m_viewHeight);
+    // console.log("reseizeFBOViewPort(), size: ", size.clone());
 
     this.m_gl.viewport(size.x, size.y, size.width, size.height);
   }
@@ -2200,9 +2437,13 @@ class RenderAdapter {
   renderEnd() {}
 
   update() {}
+  /**
+   * @param sync the default value is true
+   */
 
-  updateRenderBufferSize() {
-    this.m_rtx.updateRenderBufferSize();
+
+  updateRenderBufferSize(sync = true) {
+    this.m_rtx.updateRenderBufferSize(sync);
   }
 
   destroy() {
@@ -2348,10 +2589,11 @@ class RenderAdapter {
     }
 
     return 0;
-  }
+  } // private m_fboRunning = false;
+
 
   isFBORunning() {
-    return this.m_fboRunning;
+    return FrameBufferObject_1.default.IsFBORunning(this.m_rcuid);
   }
   /**
    * bind a texture to fbo attachment by attachment index
@@ -2404,8 +2646,8 @@ class RenderAdapter {
         }
       }
 
-      if (this.m_fboBuf != null) {
-        this.m_fboRunning = true;
+      if (this.m_fboBuf) {
+        // this.m_fboRunning = true;
         this.m_fboBuf.renderToTexAt(this.m_gl, texProxy, attachmentIndex); //console.log("RenderProxy::setRenderToTexture(), fbo: ",this.m_fboBuf.getFBO());
       }
 
@@ -2500,9 +2742,9 @@ class RenderAdapter {
   }
 
   setRenderToBackBuffer(frameBufferType = FrameBufferType_1.default.FRAMEBUFFER) {
-    this.m_fboRunning = false;
+    // this.m_fboRunning = false;
     this.m_activeAttachmentTotal = 1;
-    FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, frameBufferType);
+    FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, frameBufferType, this.m_rcuid);
     this.reseizeViewPort();
   }
 
@@ -2548,13 +2790,13 @@ class RenderAdapter {
     if (readFBOIndex >= 0 && this.m_fboBufList[readFBOIndex] != null) {
       this.m_fboBufList[readFBOIndex].bind(FrameBufferType_1.default.READ_FRAMEBUFFER);
     } else {
-      FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, FrameBufferType_1.default.READ_FRAMEBUFFER);
+      FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, FrameBufferType_1.default.READ_FRAMEBUFFER, this.m_rcuid);
     }
 
     if (writeFBOIndex >= 0 && this.m_fboBufList[writeFBOIndex] != null) {
       this.m_fboBufList[writeFBOIndex].bind(FrameBufferType_1.default.DRAW_FRAMEBUFFER);
     } else {
-      FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, FrameBufferType_1.default.DRAW_FRAMEBUFFER);
+      FrameBufferObject_1.default.BindToBackbuffer(this.m_gl, FrameBufferType_1.default.DRAW_FRAMEBUFFER, this.m_rcuid);
     }
 
     if (clearType > 0) {
@@ -2592,7 +2834,7 @@ exports.default = RenderAdapter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2775,10 +3017,12 @@ class DispEntity3DManager {
   }
 
   testValidData(entity) {
-    if (entity.getMaterial() != null && entity.hasMesh()) {
-      if (entity.getMaterial().hasShaderData()) {
+    let mt = entity.getMaterial();
+
+    if (mt != null && entity.hasMesh()) {
+      if (mt.hasShaderData()) {
         return true;
-      } else if (entity.getMaterial().getCodeBuf() != null) {
+      } else if (mt.getCodeBuf() != null) {
         entity.activeDisplay();
       }
     }
@@ -2912,7 +3156,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2948,7 +3192,7 @@ exports.default = RenderDrawMode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2975,24 +3219,12 @@ class ROVtxBuilder {
     this.m_rcuid = 0;
     this.m_glVer = 2;
     this.m_rc = null;
-    this.RGBA = 0;
-    this.UNSIGNED_BYTE = 0;
-    this.TRIANGLE_STRIP = 0;
-    this.TRIANGLE_FAN = 0;
-    this.TRIANGLES = 0;
-    this.LINES = 0;
-    this.LINE_STRIP = 0;
-    this.UNSIGNED_SHORT = 0;
-    this.UNSIGNED_INT = 0;
-    this.COLOR = 0;
-    this.DEPTH = 0;
-    this.STENCIL = 0;
-    this.DEPTH_STENCIL = 0;
-    this.MAX = 0;
-    this.MIN = 0;
-    this.RContext = null;
     this.vroUid = 0;
     this.rioUid = 0;
+  }
+
+  setGLCtx(gl) {
+    this.m_rc = gl;
   }
   /**
    * @returns return system gpu context
@@ -3124,7 +3356,7 @@ class ROVtxBuilder {
     selfT.TRIANGLE_STRIP = gl.TRIANGLE_STRIP;
     selfT.TRIANGLE_FAN = gl.TRIANGLE_FAN;
     selfT.TRIANGLES = gl.TRIANGLES;
-    selfT.LINES = this.m_rc.LINES;
+    selfT.LINES = gl.LINES;
     selfT.LINE_STRIP = gl.LINE_STRIP;
     selfT.UNSIGNED_SHORT = gl.UNSIGNED_SHORT;
     selfT.UNSIGNED_INT = gl.UNSIGNED_INT;
@@ -3132,16 +3364,7 @@ class ROVtxBuilder {
     selfT.DEPTH = gl.DEPTH;
     selfT.STENCIL = gl.STENCIL;
     selfT.DEPTH_STENCIL = gl.DEPTH_STENCIL;
-
-    if (this.m_glVer > 1) {
-      selfT.MIN = gl.MIN;
-      selfT.MAX = gl.MAX;
-    } else {
-      selfT.MIN = RCExtension_1.default.EXT_blend_minmax.MIN_EXT;
-      selfT.MAX = RCExtension_1.default.EXT_blend_minmax.MAX_EXT;
-    }
-
-    selfT.RContext = gl;
+    this.setGLCtx(gl);
   }
 
   renderBegin() {
@@ -3194,7 +3417,7 @@ if (typeof window !== 'undefined') {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3217,7 +3440,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3318,7 +3541,7 @@ exports.default = TextureDataType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3372,7 +3595,7 @@ exports.default = CameraUniformBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3932,6 +4155,10 @@ class PoolNodeBuilder {
 
   restoreUid(uid) {}
 
+  getFreeTotal() {
+    return this.m_freeIdList.length;
+  }
+
   hasFreeNode() {
     return this.m_freeIdList.length > 0;
   }
@@ -4020,7 +4247,7 @@ exports.default = PoolNodeBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4075,7 +4302,7 @@ exports.default = UniformVec4Probe;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4267,7 +4494,7 @@ exports.default = ShaderUniformProbe;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4672,7 +4899,7 @@ exports.default = MaterialRPOBlock;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4794,7 +5021,7 @@ exports.default = PassProcess;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4846,7 +5073,8 @@ class RODataBuilder {
     this.m_deferredTROs = [];
     this.m_deferredTextures = [];
     this.m_haveDeferredUpdate = false;
-    this.m_shdpBuilder = null; // build vtx gpu data
+    this.m_shdpBuilder = null;
+    this.transPool = new ROTransPool_1.default(); // build vtx gpu data
 
     this.m_emptyVDRInfo = new EmptyVDRInfo_1.default();
     this.m_shdpBuilder = shdProgramBuilder;
@@ -4867,6 +5095,11 @@ class RODataBuilder {
       this.m_shdUniformTool = new ShdUniformTool_1.default();
       this.m_shdUniformTool.initialize();
     }
+  }
+
+  setGLCtx(gl) {
+    this.transPool.clear();
+    TextureRenderObj_1.TextureRenderObj.Clear(this.m_rc.getRCUid());
   }
 
   getRenderProxy() {
@@ -4986,7 +5219,7 @@ class RODataBuilder {
         material.initializeByCodeBuf(texEnabled);
       }
 
-      shdp = this.m_shdpBuilder.create(material.getShaderData());
+      shdp = this.m_shdpBuilder.create(material.getShaderData(), rc);
       shdp.upload(rc.RContext, rc.getUid());
       runit.shdUid = shdp.getUid();
       let tro = null;
@@ -5043,7 +5276,7 @@ class RODataBuilder {
       if (hasTrans) {
         if (dispFlag && disp.getTransform() != null) {
           //console.log("disp.getTransform().getUid(): "+disp.getTransform().getUid());
-          runit.transUniform = ROTransPool_1.default.GetTransUniform(disp.getTransform(), shdp); //console.log("RODataBuilder::updateDispMaterial(), get runit.transUniform: ",runit.transUniform);
+          runit.transUniform = this.transPool.getTransUniform(disp.getTransform(), shdp); //console.log("RODataBuilder::updateDispMaterial(), get runit.transUniform: ",runit.transUniform);
         }
       } // console.log("RODataBuilder::updateDispMaterial(), runit: ",runit);
       // console.log("RODataBuilder::updateDispMaterial(), runit.uid: ",runit.getUid());
@@ -5053,7 +5286,7 @@ class RODataBuilder {
       if (dispFlag) {
         if (runit.transUniform == null) {
           runit.transUniform = this.m_shdUniformTool.buildLocalFromTransformV(hasTrans ? disp.getMatrixFS32() : null, shdp);
-          ROTransPool_1.default.SetTransUniform(disp.getTransform(), runit.transUniform, shdp);
+          this.transPool.setTransUniform(disp.getTransform(), runit.transUniform, shdp);
         } else {
           runit.transUniform = this.m_shdUniformTool.updateLocalFromTransformV(runit.transUniform, hasTrans ? disp.getMatrixFS32() : null, shdp);
         }
@@ -5218,6 +5451,10 @@ class RODataBuilder {
           this.buildVtxRes(disp, runit, null);
         }
 
+        if (rentity && rentity.intoRendererListener) {
+          rentity.intoRendererListener();
+        }
+
         return true;
       } else {
         console.log("Error RODataBuilder::buildGpuDisp(), material is null !!!");
@@ -5313,7 +5550,7 @@ class RODataBuilder {
         texList = material.getTextureList();
       }
 
-      shdp = this.m_shdpBuilder.create(material.getShaderData());
+      shdp = this.m_shdpBuilder.create(material.getShaderData(), rc);
       shdp.upload(rc.RContext, rc.getUid());
       let texTotal = shdp.getTexTotal();
 
@@ -5370,7 +5607,7 @@ exports.default = RODataBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5394,6 +5631,11 @@ class RendererDevice {
 
   static SetLanguage(language) {
     RendererDevice.s_language = language;
+  }
+
+  static IsChineseLanguage() {
+    let lg = RendererDevice.GetLanguage();
+    return lg == "zh-CN";
   }
 
   static GetLanguage() {
@@ -5622,7 +5864,7 @@ exports.default = RendererDevice;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5737,7 +5979,7 @@ exports.default = RPONodeBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6243,7 +6485,7 @@ exports.createRendererInstance = createRendererInstance;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6297,6 +6539,10 @@ class ShdUniformTool {
     this.m_builders = [];
     this.m_buildersTot = 0;
     this.m_emptyUniform = new ShaderUniform_1.ShaderUniform();
+  }
+
+  clear() {
+    this.m_uniformDict.clear();
   }
 
   appendUniformBuilder(builder) {
@@ -6413,7 +6659,8 @@ class ShdUniformTool {
 
           for (i = 0; i < pdata.uniformSize; ++i) {
             pdata.types.push(shdp.getUniformTypeByNS(pdata.uniformNameList[i]));
-            pdata.locations.push(shdp.getUniformLocationByNS(pdata.uniformNameList[i]));
+            pdata.locations.push(shdp.getUniformLocationByNS(pdata.uniformNameList[i])); // let ul = shdp.getUniformLocationByNS(pdata.uniformNameList[i]);
+            // pdata.locations.push(ul);
           } //console.log("global uniform names: "+pdata.uniformNameList);
           //console.log("global uniform types: "+pdata.types);
           //console.log("global uniform locations: "+pdata.locations);
@@ -6546,7 +6793,7 @@ exports.default = ShdUniformTool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6606,7 +6853,7 @@ exports.UniformDataSlot = UniformDataSlot;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6660,7 +6907,7 @@ exports.RenderingState = RenderingState;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6678,9 +6925,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-const RCExtension_1 = __importDefault(__webpack_require__("030e")); //import RCExtension = RCExtensionT.vox.render.RCExtension;
-//import RAdapterContext = RAdapterContextT.vox.render.RAdapterContext;
-
+const RCExtension_1 = __importDefault(__webpack_require__("030e"));
 
 class RenderFBOProxy {
   static SetRenderer(pr) {
@@ -6725,7 +6970,7 @@ exports.default = RenderFBOProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6783,7 +7028,7 @@ exports.default = TextureTarget;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7110,7 +7355,7 @@ exports.default = MaterialConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7208,7 +7453,7 @@ exports.GpuVtxObject = GpuVtxObject;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7241,6 +7486,7 @@ class FrameBufferObject {
     this.m_uid = -1; // renderer context unique id
 
     this.m_rcuid = 0;
+    this.m_texRes = null;
     this.m_COLOR_ATTACHMENT0 = 0x0;
     this.m_fbo = null;
     this.m_depthStencilRBO = null;
@@ -7274,6 +7520,19 @@ class FrameBufferObject {
 
     this.m_resizeW = 2;
     this.m_resizeH = 2;
+    let fs = FrameBufferObject.s_bindFT;
+
+    if (fs == null) {
+      fs = new Array(128);
+      fs.fill(null);
+    }
+
+    if (fs[rcuid] == null) {
+      fs[rcuid] = new Int16Array(4);
+      fs[rcuid].fill(-9);
+    }
+
+    FrameBufferObject.s_bindFT = fs;
     this.m_rcuid = rcuid;
     this.m_texRes = texResource;
     this.m_bufferLType = frameBufType;
@@ -7304,39 +7563,19 @@ class FrameBufferObject {
 
   getAttachmentTotal() {
     return this.m_attachmentMaskList.length;
-  }
+  } // bindToBackbuffer(frameBufferType: number): void {
+  // 	switch (frameBufferType) {
+  // 		case FrameBufferType.DRAW_FRAMEBUFFER:
+  // 			this.m_gl.bindFramebuffer(this.m_gl.DRAW_FRAMEBUFFER, null);
+  // 			break;
+  // 		case FrameBufferType.READ_FRAMEBUFFER:
+  // 			this.m_gl.indFramebuffer(this.m_gl.READ_FRAMEBUFFER, null);
+  // 			break;
+  // 		default:
+  // 			this.m_gl.bindFramebuffer(this.m_gl.FRAMEBUFFER, null);
+  // 	}
+  // }
 
-  bindToBackbuffer(frameBufferType) {
-    switch (frameBufferType) {
-      case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
-        this.m_gl.bindFramebuffer(this.m_gl.DRAW_FRAMEBUFFER, null);
-        break;
-
-      case FrameBufferType_1.default.READ_FRAMEBUFFER:
-        this.m_gl.indFramebuffer(this.m_gl.READ_FRAMEBUFFER, null);
-        break;
-
-      default:
-        this.m_gl.bindFramebuffer(this.m_gl.FRAMEBUFFER, null);
-    }
-  }
-
-  bind(frameBufferType) {
-    if (this.m_fbo != null) {
-      switch (frameBufferType) {
-        case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
-          this.m_gl.bindFramebuffer(this.m_gl.DRAW_FRAMEBUFFER, this.m_fbo);
-          break;
-
-        case FrameBufferType_1.default.READ_FRAMEBUFFER:
-          this.m_gl.bindFramebuffer(this.m_gl.READ_FRAMEBUFFER, this.m_fbo);
-          break;
-
-        default:
-          this.m_gl.bindFramebuffer(this.m_gl.FRAMEBUFFER, this.m_fbo);
-      }
-    }
-  }
 
   getFBO() {
     return this.m_fbo;
@@ -7377,8 +7616,9 @@ class FrameBufferObject {
     if (attachmentIndex == 0) {
       this.m_preFTIndex = 0;
       this.m_haveDepthTex = false; // 注意, 防止多次重复调用的没必要重设
+      // this.m_gl.bindFramebuffer(this.m_fboTarget, this.m_fbo);
 
-      this.m_gl.bindFramebuffer(this.m_fboTarget, this.m_fbo);
+      this.bind(this.m_bufferLType);
 
       if (inFormat != TextureFormat_1.default.DEPTH_COMPONENT && inFormat != TextureFormat_1.default.DEPTH_STENCIL) {
         this.m_activeAttachmentTotal = 0;
@@ -7387,15 +7627,16 @@ class FrameBufferObject {
     }
 
     let targetType = -1;
-    let rTex = null; //trace("FrameBufferObject::use(), texProxy != null: "+(texProxy != null));
+    let rTex = null; // console.log("$$$$$ FrameBufferObject::use(), texProxy != null: ",(texProxy != null));
 
     if (texProxy != null) {
       targetType = texProxy.getTargetType();
-      rTex = this.m_texRes.getGpuBuffer(texProxy.getResUid());
       texProxy.uploadFromFbo(this.m_texRes, this.m_width, this.m_height);
+      rTex = this.m_texRes.getGpuBuffer(texProxy.getResUid());
     } else {
       targetType = this.m_texTargetTypes[this.m_activeAttachmentTotal];
-    }
+    } // console.log("$$$$$ renderToTexAt() rTex: ", rTex);
+
 
     this.framebufferTextureBind(rgl, targetType, inFormat, rTex);
   }
@@ -7439,8 +7680,7 @@ class FrameBufferObject {
         /*
         if(this.m_attachmentMaskList[this.m_activeAttachmentTotal])
         {
-            
-            //rgl.framebufferTexture2D(this.m_fboTarget, this.m_COLOR_ATTACHMENT0 + this.m_attachmentIndex, rgl.TEXTURE_2D, rTex, this.textureLevel);
+              //rgl.framebufferTexture2D(this.m_fboTarget, this.m_COLOR_ATTACHMENT0 + this.m_attachmentIndex, rgl.TEXTURE_2D, rTex, this.textureLevel);
             this.glFramebufferTex2D(this.m_COLOR_ATTACHMENT0 + this.m_attachmentIndex, rTex);
             ++this.m_attachmentIndex;
             if (rTex != null)
@@ -7542,7 +7782,7 @@ class FrameBufferObject {
   use(rgl) {
     this.m_gl = rgl;
 
-    if (this.m_fbo != null) {
+    if (this.m_fbo) {
       //console.log("this.m_preAttachIndex,this.m_attachmentIndex: ",this.m_preAttachIndex,this.m_attachmentIndex,this.m_activeAttachmentTotal);
       if (this.m_activeAttachmentTotal > 1) {
         if (this.m_preAttachIndex != this.m_attachmentIndex) {
@@ -7558,7 +7798,7 @@ class FrameBufferObject {
               this.m_gl.framebufferTexture2D(this.m_fboTarget, this.m_preAttachments[i], this.m_preTragets[i], null, 0);
             }
           } // support webgl2 and webgl1
-          //console.log("AAA attachments 0: ",attachments);
+          // console.log("AAA attachments 0: ",attachments);
 
 
           RenderFBOProxy_1.default.DrawBuffers(attachments);
@@ -7567,11 +7807,12 @@ class FrameBufferObject {
       } else if (this.m_preAttachIndex != this.m_attachmentIndex) {
         if (this.m_preAttachIndex > this.m_attachmentIndex) {
           for (let i = 1; i < this.m_preAttachIndex; ++i) {
+            // console.log( "AAA attachments 1 a: ",this.m_preAttachments[i], this.m_preTragets[i] );
             this.m_gl.framebufferTexture2D(this.m_fboTarget, this.m_preAttachments[i], this.m_preTragets[i], null, 0);
           }
         }
 
-        let attachments = [this.m_COLOR_ATTACHMENT0]; //console.log("AAA attachments 1: ",attachments);
+        let attachments = [this.m_COLOR_ATTACHMENT0]; // console.log( "AAA attachments 1: ",attachments );
 
         RenderFBOProxy_1.default.DrawBuffers(attachments);
         this.m_preAttachIndex = this.m_attachmentIndex;
@@ -7772,7 +8013,8 @@ class FrameBufferObject {
       rgl.renderbufferStorage(rgl.RENDERBUFFER, rgl.RGBA8, pw, ph);
     }
 
-    rgl.framebufferRenderbuffer(this.m_fboTarget, this.m_COLOR_ATTACHMENT0, rgl.RENDERBUFFER, this.m_colorRBO);
+    rgl.framebufferRenderbuffer(this.m_fboTarget, rgl.COLOR_ATTACHMENT0, rgl.RENDERBUFFER, this.m_colorRBO); // console.log("this.m_COLOR_ATTACHMENT0: ", this.m_COLOR_ATTACHMENT0);
+
     console.log("FrameBufferObject create only color buf...this.multisampleEnabled: " + this.multisampleEnabled + ",this.multisampleLevel:" + this.multisampleLevel);
   }
 
@@ -7786,25 +8028,23 @@ class FrameBufferObject {
     this.m_resizeH = ph; //trace("XXXXXXXXXXXXXX ready create framebuf, m_fbo: ", m_fbo);
 
     if (boo) this.m_fbo = rgl.createFramebuffer(); //trace("XXXXXXXXXXXXXX doing create framebuf, m_fbo: ", m_fbo);
+    // switch (this.m_bufferLType) {
+    // 	case FrameBufferType.DRAW_FRAMEBUFFER:
+    // 		this.m_fboTarget = rgl.DRAW_FRAMEBUFFER;
+    // 		//console.log("create FrameBufferType is DRAW_FRAMEBUFFER.");
+    // 		break;
+    // 	case FrameBufferType.READ_FRAMEBUFFER:
+    // 		this.m_fboTarget = rgl.READ_FRAMEBUFFER;
+    // 		//console.log("create FrameBufferType is READ_FRAMEBUFFER.");
+    // 		break;
+    // 	default:
+    // 		this.m_fboTarget = rgl.FRAMEBUFFER;
+    // 		//console.log("create FrameBufferType is FRAMEBUFFER.");
+    // 		break;
+    // }
+    // rgl.bindFramebuffer(this.m_fboTarget, this.m_fbo);
 
-    switch (this.m_bufferLType) {
-      case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
-        this.m_fboTarget = rgl.DRAW_FRAMEBUFFER; //console.log("create FrameBufferType is DRAW_FRAMEBUFFER.");
-
-        break;
-
-      case FrameBufferType_1.default.READ_FRAMEBUFFER:
-        this.m_fboTarget = rgl.READ_FRAMEBUFFER; //console.log("create FrameBufferType is READ_FRAMEBUFFER.");
-
-        break;
-
-      default:
-        this.m_fboTarget = rgl.FRAMEBUFFER; //console.log("create FrameBufferType is FRAMEBUFFER.");
-
-        break;
-    }
-
-    rgl.bindFramebuffer(this.m_fboTarget, this.m_fbo); //console.log("FrameBufferObject::initialize() writeDepthEnabled: "+this.writeDepthEnabled+", writeDepthEnabled: " , this.writeDepthEnabled+" ,size("+pw + "," ,ph+")");
+    this.m_fboTarget = this.bind(this.m_bufferLType); //console.log("FrameBufferObject::initialize() writeDepthEnabled: "+this.writeDepthEnabled+", writeDepthEnabled: " , this.writeDepthEnabled+" ,size("+pw + "," ,ph+")");
 
     if (this.writeDepthEnabled) {
       //trace("FrameBufferObject writeStencilEnabled: " ,this.writeStencilEnabled);
@@ -7819,12 +8059,11 @@ class FrameBufferObject {
     } else if (this.writeStencilEnabled) {
       this.buildStencilRBO(rgl, pw, ph);
     } else {
-      console.log("fffrfrfrfrfrfr");
       this.buildColorRBO(rgl, pw, ph);
     }
 
     if (boo) {
-      let e = rgl.checkFramebufferStatus(this.m_fboTarget); //trace("XXXXX   XXXXXXXXx Err: "+e+", rgl.FRAMEBUFFER_COMPLETE: "+rgl.FRAMEBUFFER_COMPLETE);
+      let e = rgl.checkFramebufferStatus(this.m_fboTarget);
 
       if (e !== rgl.FRAMEBUFFER_COMPLETE) {
         console.error("FrameBufferObject::createNewFBO(), Error: create failure!!!!");
@@ -7833,28 +8072,81 @@ class FrameBufferObject {
       }
     }
 
-    FrameBufferObject.BindToBackbuffer(rgl, this.m_bufferLType);
+    FrameBufferObject.BindToBackbuffer(rgl, this.m_bufferLType, this.m_rcuid);
   }
 
-  static BindToBackbuffer(rc, frameBufferType) {
+  bind(frameBufferType) {
+    if (this.m_fbo) {
+      // console.log("bind fbo to ..., frameBufferType: ", frameBufferType);
+      const fs = FrameBufferObject.s_bindFT[this.m_rcuid];
+      const gl = this.m_gl;
+      let type = gl.FRAMEBUFFER;
+      let i = 1;
+
+      switch (frameBufferType) {
+        case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
+          i = 2;
+          type = gl.DRAW_FRAMEBUFFER;
+          break;
+
+        case FrameBufferType_1.default.READ_FRAMEBUFFER:
+          i = 3;
+          type = gl.READ_FRAMEBUFFER;
+          break;
+
+        default:
+          break;
+      }
+
+      if (fs[i] != this.m_uid) {
+        fs[i] = this.m_uid; // console.log("bind fbo to OK..., gl.FRAMEBUFFER: ", gl.FRAMEBUFFER, type);
+
+        gl.bindFramebuffer(type, this.m_fbo);
+      }
+
+      return type;
+    }
+
+    return 0;
+  }
+
+  static BindToBackbuffer(rc, frameBufferType, rcuid) {
+    const fs = FrameBufferObject.s_bindFT[rcuid]; // console.log("bind fbo to BindToBackbuffer:(), frameBufferType: ", frameBufferType);
+
     switch (frameBufferType) {
       case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
+        fs[2] = -9;
         rc.bindFramebuffer(rc.DRAW_FRAMEBUFFER, null);
         break;
 
       case FrameBufferType_1.default.READ_FRAMEBUFFER:
+        fs[3] = -9;
         rc.indFramebuffer(rc.READ_FRAMEBUFFER, null);
         break;
 
       default:
+        fs[1] = -9;
         rc.bindFramebuffer(rc.FRAMEBUFFER, null);
         break;
     }
   }
 
+  static IsFBORunning(rcuid) {
+    if (FrameBufferObject.s_bindFT) {
+      const fs = FrameBufferObject.s_bindFT[rcuid];
+
+      if (fs) {
+        return fs[1] >= 0 || fs[2] >= 0 || fs[3] >= 0;
+      }
+    }
+
+    return false;
+  }
+
 }
 
 FrameBufferObject.s_uid = 0;
+FrameBufferObject.s_bindFT = null;
 exports.default = FrameBufferObject;
 
 /***/ }),
@@ -7872,7 +8164,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7901,7 +8193,7 @@ exports.default = RenderFilter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8036,7 +8328,7 @@ exports.default = ShaderGlobalUniform;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8071,7 +8363,7 @@ exports.DisplayRenderSign = DisplayRenderSign;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8132,7 +8424,7 @@ exports.default = EmptyVDRInfo;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8215,7 +8507,7 @@ exports.default = RenderMaterialProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8250,6 +8542,11 @@ class ROVertexResource {
     this.m_rcuid = rcuid;
     this.m_gl = gl;
     this.m_vtxBuilder = vtxBuilder;
+  }
+
+  setGLCtx(gl) {
+    this.m_gl = gl;
+    this.m_vtxBuilder.setGLCtx(gl);
   }
   /**
    * set the updating times total that update vertex data to gpu in one frame time
@@ -8453,7 +8750,7 @@ exports.default = ROVertexResource;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8476,8 +8773,6 @@ Object.defineProperty(exports, "__esModule", {
 const RenderSortBlock_1 = __importDefault(__webpack_require__("264c"));
 
 const MaterialRPOBlock_1 = __importDefault(__webpack_require__("3420"));
-
-const ROTransPool_1 = __importDefault(__webpack_require__("9156"));
 
 const SortNodeLinker_1 = __webpack_require__("f571");
 
@@ -8656,7 +8951,7 @@ class RenderProcess {
   }
 
   addContainer(container) {
-    console.log("RenderProcess::addContainer() this.m_sortBlock: ", this.m_sortBlock);
+    // console.log("RenderProcess::addContainer() this.m_sortBlock: ", this.m_sortBlock);
     this.createSortBlock();
 
     if (this.m_sortBlock) {
@@ -8742,7 +9037,7 @@ class RenderProcess {
         }
 
         if (disp.__$$runit.getRPROUid() != this.uid) {
-          // console.log("RenderProcess(" + this.uid + ")::addDisp(): ", disp.ivsCount, disp, disp.drawMode);
+          // console.log("XX--XX RenderProcess(" + this.uid + ")::addDisp(): ", disp.ivsCount, disp, disp.drawMode);
           let node = this.m_rpoNodeBuilder.create();
           node.unit = this.m_rpoUnitBuilder.getNodeByUid(disp.__$ruid); // node.unit.shader = this.m_shader;
 
@@ -8818,7 +9113,8 @@ class RenderProcess {
           let transU = runit.transUniform;
 
           if (transU) {
-            ROTransPool_1.default.RemoveTransUniform(transU.key);
+            // ROTransPool.RemoveTransUniform(transU.key);
+            this.m_rc.rdataBuilder.transPool.removeTransUniform(transU.key);
           }
 
           if (this.m_sortBlock) {
@@ -8854,7 +9150,8 @@ class RenderProcess {
       let transU = runit.transUniform;
 
       if (transU) {
-        ROTransPool_1.default.RemoveTransUniform(transU.key);
+        // ROTransPool.RemoveTransUniform(transU.key);
+        this.m_rc.rdataBuilder.transPool.removeTransUniform(transU.key);
       }
 
       this.m_rpoUnitBuilder.setRPNodeParam(disp.__$ruid, this.getUid(), -1);
@@ -8913,6 +9210,7 @@ class RenderProcess {
     const total = this.m_nodesLen + this.m_containerBlocks.length + this.m_scTotal;
 
     if (this.m_enabled && total > 0) {
+      // console.log("run, proc uid: ", this.uid);
       const rc = this.m_rc;
       const linker = this.m_blockLinker;
       let node = linker.getBegin();
@@ -9013,6 +9311,7 @@ class RenderProcess {
   }
 
   setEnabled(boo) {
+    // console.log("setEnabled, proc uid: ", this.uid, ", boo: ", boo);
     this.m_enabled = boo;
   }
 
@@ -9176,7 +9475,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9202,7 +9501,7 @@ exports.default = RenderMaskBitfield;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9252,7 +9551,7 @@ exports.default = StageParamUniformBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9281,7 +9580,7 @@ exports.default = VtxNormalType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9403,6 +9702,41 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /***/ }),
 
+/***/ "899a":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2018-2023 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class DebugFlag {
+  constructor() {}
+
+  static Reset() {
+    DebugFlag.Flag_0 = 0x0;
+  }
+
+}
+
+DebugFlag.Flag_0 = 0x0;
+exports.default = DebugFlag;
+
+/***/ }),
+
 /***/ "8a0a":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -9412,7 +9746,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9653,7 +9987,7 @@ exports.default = VtxBufConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10371,7 +10705,7 @@ exports.ROIndicesRes = ROIndicesRes;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10391,6 +10725,8 @@ Object.defineProperty(exports, "__esModule", {
 
 const VROBase_1 = __importDefault(__webpack_require__("919c"));
 
+const DebugFlag_1 = __importDefault(__webpack_require__("899a"));
+
 class VertexRenderObj extends VROBase_1.default {
   constructor() {
     super();
@@ -10407,7 +10743,10 @@ class VertexRenderObj extends VROBase_1.default {
 
   run() {
     if (this.m_rc.testVROUid(this.m_uid) || this.indicesRes.test()) {
-      //console.log("VertexRenderObj::run(), B:",rc.getUid(),this.m_vtxUid,this.m_uid);
+      if (DebugFlag_1.default.Flag_0 > 0) {
+        console.log("VertexRenderObj::run(), B:", this.getUid(), this.m_vtxUid, this.m_uid);
+      }
+
       if (this.vbuf != null) {
         this.m_rc.useVtxAttribsPtrTypeFloat(this.shdp, this.vbuf, this.attribTypes, this.attribTypesLen, this.wholeOffsetList, this.wholeStride);
       } else {
@@ -10441,11 +10780,6 @@ class VertexRenderObj extends VROBase_1.default {
     VertexRenderObj.Restore(this);
   }
 
-  toString() {
-    return "VertexRenderObj(uid = " + this.m_uid + ", type=" + this.m_mid + ")";
-  } //  private static s_midMap:Map<number,VertexRenderObj> = new Map();
-
-
   static HasMid(mid) {
     return VROBase_1.default.s_midMap.has(mid);
   }
@@ -10468,13 +10802,13 @@ class VertexRenderObj extends VROBase_1.default {
 
     if (index >= 0) {
       unit = VertexRenderObj.s_unitList[index];
-      VertexRenderObj.s_unitFlagList[index] = VertexRenderObj.s_FLAG_BUSY;
+      VertexRenderObj.s_flags[index] = VertexRenderObj.s_FLAG_BUSY;
       unit.setMidAndBufUid(mid, pvtxUid);
     } else {
       unit = new VertexRenderObj();
       unit.setMidAndBufUid(mid, pvtxUid);
       VertexRenderObj.s_unitList.push(unit);
-      VertexRenderObj.s_unitFlagList.push(VertexRenderObj.s_FLAG_BUSY);
+      VertexRenderObj.s_flags.push(VertexRenderObj.s_FLAG_BUSY);
       VertexRenderObj.s_unitListLen++;
     }
 
@@ -10484,10 +10818,10 @@ class VertexRenderObj extends VROBase_1.default {
   }
 
   static Restore(pobj) {
-    if (pobj != null && pobj.m_attachCount < 1 && VertexRenderObj.s_unitFlagList[pobj.getUid()] == VertexRenderObj.s_FLAG_BUSY) {
+    if (pobj != null && pobj.m_attachCount < 1 && VertexRenderObj.s_flags[pobj.getUid()] == VertexRenderObj.s_FLAG_BUSY) {
       let uid = pobj.getUid();
       VertexRenderObj.s_freeIdList.push(uid);
-      VertexRenderObj.s_unitFlagList[uid] = VertexRenderObj.s_FLAG_FREE;
+      VertexRenderObj.s_flags[uid] = VertexRenderObj.s_FLAG_FREE;
 
       pobj.__$destroy();
     }
@@ -10498,7 +10832,7 @@ class VertexRenderObj extends VROBase_1.default {
 VertexRenderObj.s_uid = 0;
 VertexRenderObj.s_FLAG_BUSY = 1;
 VertexRenderObj.s_FLAG_FREE = 0;
-VertexRenderObj.s_unitFlagList = [];
+VertexRenderObj.s_flags = [];
 VertexRenderObj.s_unitListLen = 0;
 VertexRenderObj.s_unitList = [];
 VertexRenderObj.s_freeIdList = [];
@@ -10515,7 +10849,7 @@ exports.default = VertexRenderObj;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10528,45 +10862,52 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class ROTransPool {
-  // private static s_tcountMap: Map<number, number> = new Map();
-  static SetTransUniform(mat, uniform, shdp) {
+  constructor() {
+    this.m_transMap = new Map();
+  } // private static s_tcountMap: Map<number, number> = new Map();
+
+
+  setTransUniform(mat, uniform, shdp) {
     let k = (mat.getUid() + 1) * 131 + shdp.getUid();
 
-    if (!ROTransPool.s_transMap.has(k)) {
-      ROTransPool.s_transMap.set(k, uniform);
+    if (!this.m_transMap.has(k)) {
+      this.m_transMap.set(k, uniform);
       uniform.key = k; // let count = ROTransPool.s_tcountMap.get(mat.getUid());
       // ROTransPool.s_tcountMap.set(mat.getUid(), count+1);
-    } // ROTransPool.s_transMap.set(mat.getUid(), uniform);
+    } // this.m_transMap.set(mat.getUid(), uniform);
 
   }
 
-  static GetTransUniform(mat, shdp) {
+  getTransUniform(mat, shdp) {
     if (mat.getUid() < 0) {
       throw Error("mat.getUid() < 0");
     }
 
     let k = (mat.getUid() + 1) * 131 + shdp.getUid();
-    if (ROTransPool.s_transMap.has(k)) return ROTransPool.s_transMap.get(k); // if (ROTransPool.s_transMap.has(mat.getUid())) return ROTransPool.s_transMap.get(mat.getUid());
+    if (this.m_transMap.has(k)) return this.m_transMap.get(k); // if (this.m_transMap.has(mat.getUid())) return this.m_transMap.get(mat.getUid());
 
     return null;
   }
 
-  static HasTransUniform(mat, shdp) {
+  hasTransUniform(mat, shdp) {
     let k = (mat.getUid() + 1) * 131 + shdp.getUid();
-    return ROTransPool.s_transMap.has(k); // return ROTransPool.s_transMap.has(mat.getUid());
+    return this.m_transMap.has(k); // return this.m_transMap.has(mat.getUid());
   }
 
-  static RemoveTransUniform(key) {
-    if (ROTransPool.s_transMap.has(key)) {
+  removeTransUniform(key) {
+    if (this.m_transMap.has(key)) {
       console.log("ROTransPool::RemoveTransUniform(), key: ", key);
-      ROTransPool.s_transMap.delete(key);
-    } // ROTransPool.s_transMap.delete(mat.getUid());
+      this.m_transMap.delete(key);
+    } // this.m_transMap.delete(mat.getUid());
 
+  }
+
+  clear() {
+    this.m_transMap.clear();
   }
 
 }
 
-ROTransPool.s_transMap = new Map();
 exports.default = ROTransPool;
 
 /***/ }),
@@ -10580,7 +10921,7 @@ exports.default = ROTransPool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10663,10 +11004,7 @@ class VROBase {
 
   static GetByMid(mid) {
     return VROBase.s_midMap.get(mid);
-  } // static Reset(): void {
-  //     VROBase.s_mid = -1;
-  // }
-
+  }
 
   __$resetVRO() {
     VROBase.s_mid = -1;
@@ -10689,7 +11027,7 @@ exports.default = VROBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10805,7 +11143,7 @@ exports.default = ContainerRPOBlock;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10855,6 +11193,7 @@ class GpuTexObect {
 
 
   bindToGpu(gl) {
+    // console.log("tex gpu buf bind to gpu ... this.sampler, this.texBuf: ", this.sampler, this.texBuf);
     gl.bindTexture(this.sampler, this.texBuf);
   }
 
@@ -10880,6 +11219,12 @@ class ROTextureResource {
     this.unlocked = true;
     this.m_rcuid = rcuid;
     this.m_gl = gl;
+  }
+
+  setGLCtx(gl) {
+    this.m_gl = gl;
+    this.m_resMap.clear();
+    this.m_freeMap.clear();
   }
 
   createBuf() {
@@ -11056,7 +11401,7 @@ exports.default = ROTextureResource;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11098,7 +11443,7 @@ exports.RPStatus = RPStatus;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11177,7 +11522,7 @@ exports.RenderingStencil = RenderingStencil;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11341,7 +11686,15 @@ class RenderStateObject {
     if (RenderStateObject.s_stsMap.has(key)) {
       let po = RenderStateObject.s_stsMap.get(key);
       key = po.getUid();
+
+      if (objName != "") {
+        RenderStateObject.s_stsNameMap.set(objName, po);
+      }
     } else {
+      if (objName == "") {
+        objName = "sys_rst_" + key;
+      }
+
       let po = new RenderStateObject(cullFaceMode, blendMode, depthTestMode);
       key = po.getUid();
       RenderStateObject.s_stsMap.set(key, po);
@@ -11364,7 +11717,7 @@ class RenderStateObject {
 
 
   static UseRenderState(state) {
-    //if(RenderStateObject.s_unlocked && RenderStateObject.Rstate.roState != state)                
+    //if(RenderStateObject.s_unlocked && RenderStateObject.Rstate.roState != state)
     if (RenderStateObject.s_unlocked && RenderStateObject.s_state != state) {
       if (state > -1 && state < RenderStateObject.s_statesLen) {
         RenderStateObject.s_states[state].use();
@@ -11446,7 +11799,7 @@ exports.RenderStateObject = RenderStateObject;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11703,7 +12056,7 @@ exports.default = UniformConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11813,7 +12166,7 @@ class TextureRenderObj {
 
 
   run() {
-    //console.log("this.m_texRes.unlocked: ",this.m_texRes.unlocked,this.m_texRes.texMid != this.m_mid);
+    // console.log("this.m_texRes.unlocked: ",this.m_texRes.unlocked,this.m_texRes.texMid != this.m_mid);
     if (this.m_texRes.unlocked && this.m_texRes.texMid != this.m_mid) {
       this.m_texRes.texMid = this.m_mid; // console.log("TextureRenderObj::run(), this.m_mid: ",this.m_mid,this.m_uid, this.m_texList);
 
@@ -11821,7 +12174,7 @@ class TextureRenderObj {
       let texI = gl.TEXTURE0;
 
       if (this.direct) {
-        //console.log("this.m_gtexList: ",this.m_gtexList,", total: "+this.m_texTotal);
+        // console.log("this.m_gtexList: ",this.m_gtexList,", total: ",this.m_texTotal);
         for (let i = 0; i < this.m_texTotal; ++i) {
           gl.activeTexture(texI++);
           gl.bindTexture(this.m_samplers[i], this.m_gtexList[i]);
@@ -11901,10 +12254,12 @@ class TextureRenderObj {
       if (rtoMap.has(key)) {
         tro = rtoMap.get(key);
       } else {
-        if (TextureRenderObj.s_freeTROList.length < 1) {
-          tro = new TextureRenderObj(texRes.getRCUid(), key); //console.log("TextureRenderObj::Create use a new tex mid: " + tro.getMid(),",total: "+shdTexTotal,",key: "+key);
+        const fts = TextureRenderObj.s_freeTROList;
+
+        if (fts.length < 1) {
+          tro = new TextureRenderObj(texRes.getRCUid(), key); // console.log("TextureRenderObj::Create use a new tex mid: " + tro.getMid(),",total: "+shdTexTotal,",key: "+key);
         } else {
-          tro = TextureRenderObj.s_freeTROList.pop(); //console.log("TextureRenderObj::Create use an old tex mid: " + tro.getMid(),",total: "+shdTexTotal,",key: "+key);
+          tro = fts.pop(); // console.log("TextureRenderObj::Create use an old tex mid: " + tro.getMid(),",total: "+shdTexTotal,",key: "+key);
         }
 
         tro.collectTexList(texRes, texList, shdTexTotal);
@@ -11934,6 +12289,16 @@ class TextureRenderObj {
 
   static GetByMid(rcuid, uid) {
     return TextureRenderObj.s_troMaps[rcuid].get(uid);
+  }
+
+  static Clear(rcuid) {
+    let ls = TextureRenderObj.s_troMaps;
+    ls[rcuid].clear(); // for(let i = 0; i < ls.length; ++i) {
+    // 	ls[i].clear();
+    // }
+    // TextureRenderObj.s_freeTROList = [];
+
+    console.log("TextureRenderObj::Clear(), rcuid: ", rcuid);
   }
 
 }
@@ -11983,7 +12348,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12037,14 +12402,17 @@ class RViewElement {
     return str;
   }
 
-  createViewEle(pdocument, autoResize, pw, ph) {
+  createViewEle(pdocument, autoResize, pw, ph, autoAttachingHtmlDoc, offscreenCanvas) {
     if (this.m_div == null) {
       this.m_div = document.getElementById("voxEngineDiv");
     }
 
     if (this.m_div == null) {
       this.m_div = pdocument.createElement("div");
-      document.body.appendChild(this.m_div);
+
+      if (autoAttachingHtmlDoc) {
+        document.body.appendChild(this.m_div);
+      }
     }
 
     const style = this.m_div.style;
@@ -12067,8 +12435,15 @@ class RViewElement {
     if (this.m_canvas == null) {
       this.m_canvas = document.createElement("canvas");
       this.m_div.appendChild(this.m_canvas);
-      this.m_canvas.width = 800;
-      this.m_canvas.height = 600;
+
+      if (offscreenCanvas) {
+        this.m_canvas.width = pw;
+        this.m_canvas.height = ph;
+      } else {
+        this.m_canvas.width = 800;
+        this.m_canvas.height = 600;
+      }
+
       this.m_canvas.style.display = "bolck";
       this.m_canvas.style.left = "0px";
       this.m_canvas.style.top = "0px";
@@ -12097,6 +12472,14 @@ class RViewElement {
     return this.m_canvas;
   }
 
+  setCanvas(canvas) {
+    if (canvas && this.m_canvas != canvas) {
+      this.m_div.removeChild(this.m_canvas);
+      this.m_canvas = canvas;
+      this.m_div.appendChild(this.m_canvas);
+    }
+  }
+
 }
 
 exports.default = RViewElement;
@@ -12112,7 +12495,7 @@ exports.default = RViewElement;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12155,18 +12538,24 @@ class RenderShader {
     this.m_uniform = null; // 只有transform相关的信息uniform
 
     this.m_trsu = null;
-    this.m_shdProgramBuilder = null; // 用于记录 renderState(低10位)和ColorMask(高10位) 的状态组合
+    this.m_shdPB = null; // 用于记录 renderState(低10位)和ColorMask(高10位) 的状态组合
 
     this.drawFlag = -1;
     this.__$globalUniform = null;
     this.m_rcuid = rcuid;
     this.m_rc = gl;
     this.m_adapter = adapter;
-    this.m_shdProgramBuilder = shdProgramBuilder;
+    this.m_shdPB = shdProgramBuilder;
   }
 
   createResByParams3(resUid, param0, param1, param2) {
     return false;
+  }
+
+  setGLCtx(gl) {
+    // console.log("RenderShader::setGLCtx(), gl: ", gl);
+    this.m_rc = gl;
+    this.m_sharedUniformList = [];
   }
   /**
    * @returns return system gpu context
@@ -12261,7 +12650,7 @@ class RenderShader {
 
   hasResUid(resUid) {
     // return this.m_shdList[resUid] != null;
-    return this.m_shdProgramBuilder.hasUid(resUid);
+    return this.m_shdPB.hasUid(resUid);
   }
   /**
    * bind the renderer runtime resource(by renderer runtime resource unique id) to the current renderer context
@@ -12271,11 +12660,11 @@ class RenderShader {
 
   bindToGpu(resUid) {
     //if (this.m_unlocked && resUid > -1 && resUid < this.m_shdListLen) {
-    if (this.m_unlocked && this.m_shdProgramBuilder.containsUid(resUid)) {
+    if (this.m_unlocked && this.m_shdPB.containsUid(resUid)) {
       if (this.m_preuid != resUid) {
         this.m_preuid = resUid; //let shd: IShdProgram = this.m_shdList[resUid];
 
-        let shd = this.m_shdProgramBuilder.findShdProgramByUid(resUid);
+        let shd = this.m_shdPB.findShdProgramByUid(resUid);
         this.m_fragOutputTotal = shd.getFragOutputTotal();
 
         if (this.m_fragOutputTotal != this.getActiveAttachmentTotal()) {
@@ -12285,7 +12674,10 @@ class RenderShader {
           console.error("Error: MRT output amount is not equal to current shader( " + shd.toString() + " ) frag shader output amount !!!"); // }
         }
 
-        this.m_gpuProgram = shd.getGPUProgram();
+        this.m_gpuProgram = shd.getGPUProgram(); // if(DebugFlag.Flag_0 > 0) {
+        // 	console.log("this.m_gpuProgram: ", this.m_gpuProgram);
+        // }
+
         this.m_rc.useProgram(this.m_gpuProgram);
         shd.useTexLocation(); // console.log("use a new shader uid: ",shd.getUid(),",uns: ",shd.getUniqueShaderName());
         // if(DebugFlag.Flag_0 > 0) {
@@ -12409,6 +12801,11 @@ class RenderShader {
 
     switch (type) {
       case mc.SHADER_MAT4:
+        // if(DebugFlag.Flag_0 > 0) {
+        // 	console.log("useUniformV2 Mat4, ult:",ult);
+        // 	console.log("useUniformV2 Mat4, rc:",rc);
+        // 	console.log("useUniformV2 Mat4, f32Arr:",f32Arr,", dataSize: ",dataSize);
+        // }
         rc.uniformMatrix4fv(ult, false, f32Arr, offset, dataSize * 16);
         break;
 
@@ -12504,7 +12901,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12714,16 +13111,18 @@ class RPOUnit {
   __$$drawThis(rc) {
     const st = rc.status;
     st.drawCallTimes++;
+    const gl = rc.RContext;
     const rd = this.rdp.rd;
     st.drawTrisNumber += rd.trisNumber; // console.log("this.rdp.getUid(): ", this.rdp.getUid());
     // TODO(Vily): 下面这个判断流程需要优化(由于几何数据更改之后上传gpu的动作是一帧上传16个这样的速度下实现的，所以需要下面这句代码来保证不出错: [.WebGL-000037DC02C2B800] GL_INVALID_OPERATION: Insufficient buffer size)
     // let ivsCount = ir.getVTCount();
 
     let ivsCount = rd.ivsSize; // if (this.ivsCount <= ivsCount && ir.isCommon()) ivsCount = this.ivsCount;
-    // console.log("runit::drawThis(), ivsCount: ", ivsCount, ",ivsOffset: ", rd.ivsOffset, this.rdp.getUid(), rd.getUid());
-    // if(DebugFlag.Flag_0 > 0) {
-    //     console.log("runit::drawThis(), ivsCount: ", ivsCount, ",ivsOffset: ", rd.ivsOffset, this.rdp.getUid(), ", rd.getUid(): " ,rd.getUid());
-    //     //DebugFlag.Flag_0 = 0;
+    // console.log("runit::drawThis(), ivsCount: ", ivsCount, ",ivsOffset: ", rd.ivsOffset, this.rdp.getUid(), rd.getUid(), ",fbo: ",rc.adapter.isFBORunning());
+    // if (DebugFlag.Flag_0 > 0) {
+    // 	console.log("runit::drawThis(), gl: ", gl);
+    // 	console.log("runit::drawThis(), ivsCount: ", ivsCount, ",ivsOffset: ", rd.ivsOffset, this.rdp.getUid(), ", rd.getUid(): ", rd.getUid());
+    // 	//DebugFlag.Flag_0 = 0;
     // }
 
     if (this.polygonOffset != null) {
@@ -12732,15 +13131,14 @@ class RPOUnit {
       rc.resetPolygonOffset();
     }
 
-    const gl = rc.RContext;
-
     switch (rd.drawMode) {
       case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLES:
       case RenderConst_1.RenderDrawMode.ELEMENTS_LINES:
       case RenderConst_1.RenderDrawMode.ELEMENTS_TRIANGLE_STRIP:
       case RenderConst_1.RenderDrawMode.ELEMENTS_LINES_STRIP:
         // console.log("rd.gldm: ", rd.gldm);
-        // if(DebugFlag.Flag_0 > 0)console.log("RPOUnit::run(), drawElements(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+"),drawOffset: "+this.drawOffset);
+        // if(DebugFlag.Flag_0 > 0)console.log("RPOUnit::run(), drawElements(ivsCount="+ivsCount+", ivsOffset="+rd.ivsOffset+")");
+        // console.log("RPOUnit::run(), drawElements(ivsCount="+ivsCount+", ivsOffset="+rd.ivsOffset+")");
         //rc.RContext.drawElements(rc.TRIANGLES, this.ivsCount, rd.ibufType,this.ivsIndex * this.ibufStep);
         gl.drawElements(rd.gldm, ivsCount, rd.bufType, rd.ivsOffset);
         break;
@@ -12761,7 +13159,10 @@ class RPOUnit {
         break;
 
       case RenderConst_1.RenderDrawMode.ARRAYS_LINES:
-        //console.log("RPOUnit::run(), ARRAYS_LINES drawArrays(ivsCount="+this.ivsCount+", ivsIndex="+this.ivsIndex+")");
+        // if (DebugFlag.Flag_0 > 0) {
+        // 	console.log("RPOUnit::run(), ARRAYS_LINES rc.LINES: ", rc.LINES);
+        // 	console.log("RPOUnit::run(), ARRAYS_LINES drawArrays(ivsCount=" + ivsCount + ", ivsIndex=" + rd.ivsOffset + ")");
+        // }
         gl.drawArrays(rc.LINES, rd.ivsIndex, ivsCount);
         break;
 
@@ -12943,7 +13344,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13027,7 +13428,7 @@ exports.default = BitConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13302,7 +13703,7 @@ exports.default = ShaderUniform;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13416,7 +13817,7 @@ exports.ShaderUniformContext = ShaderUniformContext;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13478,6 +13879,7 @@ class RendererInstance {
     this.m_stage3D = null;
     this.m_fixProcess = null;
     this.textureBlock = null;
+    this.m_shdProgramBuider = null;
     this.m_uid = RendererInstance.s_uid++;
     this.m_renderInsContext = new RendererInstanceContext_1.RendererInstanceContext(this.m_uid);
   }
@@ -13564,12 +13966,23 @@ class RendererInstance {
     }
   }
 
+  setCanvas(canvas) {
+    if (this.m_renderProxy.setCanvas(canvas)) {
+      this.m_shdProgramBuider.clear();
+      this.m_dataBuilder.setGLCtx(this.m_renderProxy.RContext);
+      return true;
+    }
+
+    return false;
+  }
+
   initialize(param = null, camera = null, shdProgramBuider = null) {
     if (this.m_dataBuilder == null && camera != null) {
       this.m_batchEnabled = param.batchEnabled;
       this.m_processFixedState = param.processFixedState;
       this.m_renderProxy = this.m_renderInsContext.getRenderProxy();
       this.m_uid = this.m_renderProxy.getUid();
+      this.m_shdProgramBuider = shdProgramBuider;
       this.m_dataBuilder = new RODataBuilder_1.default(shdProgramBuider);
       this.m_roVtxBuilder = new ROVtxBuilder_1.default();
       this.m_renderInsContext.setCameraParam(param.camProjParam.x, param.camProjParam.y, param.camProjParam.z);
@@ -13814,6 +14227,7 @@ class RendererInstance {
 
   setProcessEnabledAt(i, enabled) {
     if (i > -1 && i < this.m_processesLen) {
+      // console.log("r ins, setProcessEnabledAt, i: ", i, enabled, ", uid: ", this.m_processes[i].uid);
       this.m_processes[i].setEnabled(enabled);
     }
   }
@@ -13840,23 +14254,12 @@ class RendererInstance {
     this.m_dataBuilder.getRenderShader().useUniformToCurrentShd(material.__$uniform);
   }
   /**
-   * Deprecated(废弃, 不推荐使用)
-   * 绘制已经完全加入渲染器了渲染资源已经准备完毕的entity
-   * 要锁定Material才能用这种绘制方式,再者这个,这种方式比较耗性能，只能用在特殊的地方
-   */
-  // drawEntityByLockMaterial(entity: IRenderEntity, useGlobalUniform: boolean = false, forceUpdateUniform: boolean = true): void {
-  //     if (entity != null && entity.getVisible() && entity.getRendererUid() == this.m_uid && !this.m_renderProxy.isContextLost()) {
-  //         this.m_fixProcess.drawLockMaterialByDisp(entity.getDisplay(), useGlobalUniform, forceUpdateUniform);
-  //     }
-  // }
-
-  /**
    * 在任意阶段绘制一个指定的 entity,只要其资源数据准备完整
    */
 
 
   drawEntity(entity, useGlobalUniform = false, forceUpdateUniform = true) {
-    if (entity != null && entity.getVisible() && !this.m_renderProxy.isContextLost()) {
+    if (entity && entity.getVisible() && !this.m_renderProxy.isContextLost()) {
       if (entity.getRendererUid() == this.m_uid) {
         this.m_fixProcess.drawDisp(entity.getDisplay(), useGlobalUniform, forceUpdateUniform);
       } else if (entity.__$testRendererEnabled()) {
@@ -13922,10 +14325,6 @@ class RendererInstance {
 
   removeRenderNode(node) {}
 
-  toString() {
-    return "[RendererInstance(uid = " + this.m_uid + ")]";
-  }
-
 }
 
 RendererInstance.s_uid = 0;
@@ -13943,7 +14342,7 @@ exports.default = RendererInstance;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14052,7 +14451,7 @@ class RenderProxy {
     this.m_uid = 0;
     this.m_camUBO = null;
     this.m_adapter = null;
-    this.m_adapterContext = new RAdapterContext_1.default();
+    this.m_actx = new RAdapterContext_1.default();
     this.m_rc = null;
     this.m_perspectiveEnabled = true;
     this.m_viewPortRect = new AABB2D_1.default(0, 0, 800, 600);
@@ -14062,7 +14461,7 @@ class RenderProxy {
     this.m_maxWebGLVersion = 2;
     this.m_WEBGL_VER = 2; // main camera
 
-    this.m_camera = null;
+    this.m_cam = null;
     this.m_camSwitched = false; // 是否舞台尺寸和view自动同步一致
 
     this.m_autoSynViewAndStage = true;
@@ -14119,35 +14518,35 @@ class RenderProxy {
   }
 
   cameraLock() {
-    this.m_camera.lock();
+    this.m_cam.lock();
   }
 
   cameraUnlock() {
-    this.m_camera.unlock();
+    this.m_cam.unlock();
   }
 
   getCamera() {
-    return this.m_camera;
+    return this.m_cam;
   }
 
   updateCamera() {
-    return this.m_camera.update();
+    return this.m_cam.update();
   }
 
   createCameraUBO(shd) {//  if(this.m_camUBO == null)
     //  {
     //      this.m_camUBO = ShaderUBOBuilder.createUBOWithDataFloatsCount("UBlock_Camera", shd, 32);
-    //      this.m_camUBO.setSubDataArrAt(0, m_camera.getViewMatrix().getLocalFS32());
-    //      this.m_camUBO.setSubDataArrAt(16, m_camera.getProjectMatrix().getLocalFS32());
+    //      this.m_camUBO.setSubDataArrAt(0, m_cam.getViewMatrix().getLocalFS32());
+    //      this.m_camUBO.setSubDataArrAt(16, m_cam.getProjectMatrix().getLocalFS32());
     //      this.m_camUBO.run();
     //  }
   }
 
   updateCameraDataFromCamera(camera) {
     if (camera != null) {
-      if (this.m_camSwitched || camera != this.m_camera) {
-        this.m_camSwitched = camera != this.m_camera;
-        camera.updateCamMatToUProbe(this.m_camera.matUProbe);
+      if (this.m_camSwitched || camera != this.m_cam) {
+        this.m_camSwitched = camera != this.m_cam;
+        camera.updateCamMatToUProbe(this.m_cam.matUProbe);
 
         if (this.m_camUBO != null) {
           this.m_camUBO.setSubDataArrAt(0, camera.matUProbe.getFS32At(0));
@@ -14213,11 +14612,11 @@ class RenderProxy {
   }
 
   getContext() {
-    return this.m_adapterContext;
+    return this.m_actx;
   }
 
   getStage3D() {
-    return this.m_adapterContext.getStage();
+    return this.m_actx.getStage();
   }
 
   getRenderAdapter() {
@@ -14235,8 +14634,8 @@ class RenderProxy {
   }
 
   getMouseXYWorldRay(rl_position, rl_tv) {
-    let stage = this.m_adapterContext.getStage();
-    this.m_camera.getWorldPickingRayByScreenXY(stage.mouseX, stage.mouseY, rl_position, rl_tv);
+    let stage = this.m_actx.getStage();
+    this.m_cam.getWorldPickingRayByScreenXY(stage.mouseX, stage.mouseY, rl_position, rl_tv);
   }
 
   testViewPortChanged(px, py, pw, ph) {
@@ -14244,7 +14643,11 @@ class RenderProxy {
   }
 
   testRCViewPortChanged(px, py, pw, ph) {
-    return this.m_adapterContext.testViewPortChanged(px, py, pw, ph);
+    return this.m_actx.testViewPortChanged(px, py, pw, ph);
+  }
+
+  getDevicePixelRatio() {
+    return this.adapter.getDevicePixelRatio();
   }
 
   getViewX() {
@@ -14266,19 +14669,19 @@ class RenderProxy {
   setViewPort(px, py, pw, ph) {
     this.m_autoSynViewAndStage = false;
     this.m_viewPortRect.setTo(px, py, pw, ph);
-    let stage = this.m_adapterContext.getStage();
+    let stage = this.m_actx.getStage();
 
     if (stage) {
       stage.setViewPort(pw, py, pw, ph);
       this.updateCameraView();
     }
 
-    this.m_adapterContext.setViewport(px, py, pw, ph);
+    this.m_actx.setViewport(px, py, pw, ph);
   }
 
   setRCViewPort(px, py, pw, ph, autoSynViewAndStage = false) {
     this.m_autoSynViewAndStage = autoSynViewAndStage;
-    this.m_adapterContext.setViewport(px, py, pw, ph);
+    this.m_actx.setViewport(px, py, pw, ph);
   }
 
   reseizeRCViewPort() {
@@ -14287,10 +14690,10 @@ class RenderProxy {
   }
 
   updateCameraView() {
-    if (this.m_camera != null) {
+    if (this.m_cam) {
       let rect = this.m_viewPortRect;
-      this.m_camera.setViewXY(rect.x, rect.y);
-      this.m_camera.setViewSize(rect.width, rect.height);
+      this.m_cam.setViewXY(rect.x, rect.y);
+      this.m_cam.setViewSize(rect.width, rect.height);
     }
   }
 
@@ -14298,10 +14701,10 @@ class RenderProxy {
     // console.log("XXX resizeCallback(), m_autoSynViewAndStage: "+this.m_autoSynViewAndStage);
     if (this.m_autoSynViewAndStage) {
       let rect = this.m_viewPortRect;
-      rect.setSize(this.m_adapterContext.getRCanvasWidth(), this.m_adapterContext.getRCanvasHeight());
+      rect.setSize(this.m_actx.getRCanvasWidth(), this.m_actx.getRCanvasHeight());
       this.createMainCamera();
       console.log("resizeCallback(), viewW,viewH: ", rect.width + "," + rect.height);
-      this.m_adapterContext.setViewport(rect.x, rect.y, rect.width, rect.height);
+      this.m_actx.setViewport(rect.x, rect.y, rect.width, rect.height);
       this.updateCameraView();
     }
   }
@@ -14309,13 +14712,14 @@ class RenderProxy {
   createMainCamera() {
     if (this.m_initMainCamera) {
       this.m_initMainCamera = false;
-      this.m_camera.uniformEnabled = true;
+      this.m_cam.uniformEnabled = true;
       let rect = this.m_viewPortRect;
+      console.log("RenderProxy::createMainCamera(), this.m_perspectiveEnabled: ", this.m_perspectiveEnabled);
 
       if (this.m_perspectiveEnabled) {
-        this.m_camera.perspectiveRH(Math.PI * this.m_cameraFov / 180.0, rect.width / rect.height, this.m_cameraNear, this.m_cameraFar);
+        this.m_cam.perspectiveRH(Math.PI * this.m_cameraFov / 180.0, rect.width / rect.height, this.m_cameraNear, this.m_cameraFar);
       } else {
-        this.m_camera.orthoRH(this.m_cameraNear, this.m_cameraFar, -0.5 * rect.height, 0.5 * rect.height, -0.5 * rect.width, 0.5 * rect.width);
+        this.m_cam.orthoRH(this.m_cameraNear, this.m_cameraFar, -0.5 * rect.height, 0.5 * rect.height, -0.5 * rect.width, 0.5 * rect.width);
       }
 
       this.updateCameraView();
@@ -14339,7 +14743,7 @@ class RenderProxy {
   }
 
   buildCameraParam() {
-    let camera = this.m_camera;
+    let camera = this.m_cam;
 
     if (camera.matUProbe == null) {
       camera.matUProbe = this.uniformContext.createShaderUniformProbe();
@@ -14358,25 +14762,44 @@ class RenderProxy {
     }
   }
 
+  setCanvas(canvas) {
+    if (this.m_actx.setCanvas(canvas)) {
+      this.m_rc = this.m_actx.getRC();
+      let gl = this.m_rc;
+      let selfT = this;
+      selfT.adapter.updateGLCtx();
+      selfT.Vertex.setGLCtx(gl);
+      selfT.Texture.setGLCtx(gl);
+      selfT.rshader.setGLCtx(gl);
+      selfT.rshader.renderBegin();
+      selfT.RDrawState.updateGLCtx();
+      selfT.RContext = this.m_rc;
+      return true;
+    }
+
+    return false;
+  }
+
   initialize(param, camera, stage, proxyParam) {
     if (this.m_rc != null) {
       return;
     }
 
-    this.m_camera = camera;
+    this.m_cam = camera;
     let posV3 = param.camPosition;
     let lookAtPosV3 = param.camLookAtPos;
     let upV3 = param.camUpDirect;
     if (stage != null) stage.uProbe = proxyParam.uniformContext.createUniformVec4Probe(1);
     this.m_perspectiveEnabled = param.cameraPerspectiveEnabled;
-    this.m_adapterContext.autoSyncRenderBufferAndWindowSize = param.autoSyncRenderBufferAndWindowSize;
-    this.m_adapterContext.setResizeCallback(() => {
+    this.m_actx.autoSyncRenderBufferAndWindowSize = param.autoSyncRenderBufferAndWindowSize;
+    this.m_actx.offscreenRenderEnabled = param.offscreenRenderEnabled;
+    this.m_actx.setResizeCallback(() => {
       this.resizeCallback();
     });
-    this.m_adapterContext.setWebGLMaxVersion(this.m_maxWebGLVersion);
-    this.m_adapterContext.initialize(this.m_uid, stage, param);
-    this.m_WEBGL_VER = this.m_adapterContext.getWebGLVersion();
-    this.m_rc = this.m_adapterContext.getRC();
+    this.m_actx.setWebGLMaxVersion(this.m_maxWebGLVersion);
+    this.m_actx.initialize(this.m_uid, stage, param);
+    this.m_WEBGL_VER = this.m_actx.getWebGLVersion();
+    this.m_rc = this.m_actx.getRC();
     let selfT = this;
     let gl = this.m_rc;
     let vtxRes = new ROVertexResource_1.default(this.m_uid, gl, proxyParam.vtxBuilder);
@@ -14388,7 +14811,7 @@ class RenderProxy {
     selfT.VtxBufUpdater = proxyParam.vtxBufUpdater;
     selfT.uniformContext = proxyParam.uniformContext;
     let rstate = new RODrawState_1.RODrawState();
-    rstate.setRenderContext(this.m_adapterContext);
+    rstate.setRenderContext(this.m_actx);
     let obj = RendererState_1.default;
     new RSTBuilder_1.default().initialize(obj, rstate, new VROBase_1.default());
     selfT.RDrawState = rstate;
@@ -14398,13 +14821,13 @@ class RenderProxy {
     selfT.colorMask = new RenderingColorMask_1.RenderingColorMask(RendererState_1.default);
     this.buildCameraParam();
     let rect = this.m_viewPortRect;
-    rect.setSize(this.m_adapterContext.getRCanvasWidth(), this.m_adapterContext.getRCanvasHeight());
+    rect.setSize(this.m_actx.getRCanvasWidth(), this.m_actx.getRCanvasHeight());
     this.m_adapter = new RenderAdapter_1.default(this.m_uid, texRes);
-    this.m_adapter.initialize(this.m_adapterContext, param, rstate, this.uniformContext.createUniformVec4Probe(1));
+    this.m_adapter.initialize(this.m_actx, param, rstate, this.uniformContext.createUniformVec4Probe(1));
     selfT.adapter = this.m_adapter;
 
     if (this.m_autoSynViewAndStage) {
-      let stage = this.m_adapterContext.getStage();
+      let stage = this.m_actx.getStage();
 
       if (stage != null) {
         rect.setSize(rect.width, rect.height);
@@ -14412,9 +14835,9 @@ class RenderProxy {
     }
 
     this.createMainCamera();
-    this.m_adapterContext.setViewport(rect.x, rect.y, rect.width, rect.height);
-    this.m_camera.lookAtRH(posV3, lookAtPosV3, upV3);
-    this.m_camera.update();
+    this.m_actx.setViewport(rect.x, rect.y, rect.width, rect.height);
+    this.m_cam.lookAtRH(posV3, lookAtPosV3, upV3);
+    this.m_cam.update();
     selfT.RGBA = gl.RGBA;
     selfT.UNSIGNED_BYTE = gl.UNSIGNED_BYTE;
     selfT.TRIANGLE_STRIP = gl.TRIANGLE_STRIP;
@@ -14448,7 +14871,7 @@ class RenderProxy {
     classRenderMaskBitfield.COLOR_BUFFER_BIT = gl.COLOR_BUFFER_BIT;
     classRenderMaskBitfield.DEPTH_BUFFER_BIT = gl.DEPTH_BUFFER_BIT;
     classRenderMaskBitfield.STENCIL_BUFFER_BIT = gl.STENCIL_BUFFER_BIT;
-    RenderFBOProxy_1.default.SetRenderer(this.m_adapterContext);
+    RenderFBOProxy_1.default.SetRenderer(this.m_actx);
   }
 
   flush() {
@@ -14516,7 +14939,7 @@ class RenderProxy {
   }
 
   renderBegin() {
-    this.m_camera.update();
+    this.m_cam.update();
     this.m_adapter.renderBegin();
   }
 
@@ -14527,11 +14950,11 @@ class RenderProxy {
   }
 
   setScissorEnabled(boo) {
-    this.m_adapterContext.setScissorEnabled(boo);
+    this.m_actx.setScissorEnabled(boo);
   }
 
   setScissorRect(px, py, pw, ph) {
-    this.m_adapterContext.setScissorRect(px, py, pw, ph);
+    this.m_actx.setScissorRect(px, py, pw, ph);
   }
 
   useRenderColorMask(state) {
@@ -14617,10 +15040,6 @@ class RenderProxy {
     this.m_adapter.setViewProbeValue(x, y, width, height);
   }
 
-  toString() {
-    return "[Object RenderProxy()]";
-  }
-
 }
 
 exports.RenderProxy = RenderProxy;
@@ -14637,7 +15056,7 @@ exports.default = RenderProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14651,7 +15070,7 @@ Object.defineProperty(exports, "__esModule", {
 
 class RPONodeLinker {
   constructor() {
-    this.m_uid = -1; // 用于唯一记录运行时的自己唯一id
+    this.m_uid = RPONodeLinker.s_uid++; // 用于唯一记录运行时的自己唯一id
 
     this.m_begin = null;
     this.m_end = null;
@@ -14669,7 +15088,6 @@ class RPONodeLinker {
     this.m_texfreeIList = [];
     this.m_texList = [];
     this.m_texListLen = 0;
-    this.m_uid = RPONodeLinker.s_uid++;
   }
 
   getFreeVtxId() {
@@ -15198,7 +15616,7 @@ exports.default = RSTBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15367,6 +15785,8 @@ class AABB2D {
   constructor(px = 0.0, py = 0.0, pwidth = 100.0, pheight = 100.0) {
     this.m_right = 100;
     this.m_top = 100;
+    this.m_cx = 0;
+    this.m_cy = 0;
     this.x = 0;
     this.y = 0;
     this.width = 100;
@@ -15378,13 +15798,70 @@ class AABB2D {
     this.update();
   }
 
-  copyFrom(dst) {
-    this.x = dst.x;
-    this.y = dst.y;
-    this.width = dst.width;
-    this.height = dst.height;
-    this.m_right = dst.m_right;
-    this.m_top = dst.m_top;
+  getCenterX() {
+    return this.m_cx;
+  }
+
+  getCenterY() {
+    return this.m_cy;
+  }
+
+  moveCenterTo(px, py) {
+    this.x += px - this.m_cx;
+    this.y += py - this.m_cy;
+    this.update();
+    return this;
+  }
+
+  scaleBy(s) {
+    this.x *= s;
+    this.y *= s;
+    this.width *= s;
+    this.height *= s;
+    this.m_right = this.x + this.width;
+    this.m_top = this.y + this.height;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
+  }
+
+  union(r) {
+    this.addXY(r.x, r.y);
+    this.addXY(r.getRight(), r.getTop());
+    return this;
+  }
+
+  addXY(pvx, pvy) {
+    if (this.x > pvx) this.x = pvx;
+    if (this.m_right < pvx) this.m_right = pvx;
+    if (this.y > pvy) this.y = pvy;
+    if (this.m_top < pvy) this.m_top = pvy;
+    this.width = this.m_right - this.x;
+    this.height = this.m_top - this.y;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
+  }
+
+  reset() {
+    this.x = this.y = 0xfffffff;
+    this.m_right = this.m_top = -0xfffffff;
+    this.width = this.height = 0;
+    this.m_cx = 0;
+    this.m_cy = 0;
+    return this;
+  }
+
+  copyFrom(src) {
+    this.x = src.x;
+    this.y = src.y;
+    this.width = src.width;
+    this.height = src.height;
+    this.m_right = src.getRight();
+    this.m_top = src.getTop();
+    this.m_cx = src.getCenterX();
+    this.m_cy = src.getCenterY();
+    return this;
   }
 
   clone() {
@@ -15405,14 +15882,14 @@ class AABB2D {
   }
   /**
    * 当前矩形是否包含目标矩形
-   * @param dst 目标矩形
+   * @param src 目标矩形
    * @returns 返回当前矩形是否包含目标矩形
    */
 
 
-  contains(dst) {
-    if (dst.x >= this.x && dst.m_right <= this.m_right) {
-      if (dst.y >= this.y && dst.m_top <= this.m_top) {
+  contains(src) {
+    if (src.x >= this.x && src.getRight() <= this.m_right) {
+      if (src.y >= this.y && src.getTop() <= this.m_top) {
         return true;
       }
     }
@@ -15421,16 +15898,16 @@ class AABB2D {
   }
   /**
    * 当前矩形是否和目标矩形相交
-   * @param dst 目标矩形
+   * @param src 目标矩形
    * @returns 返回当前矩形是否和目标矩形相交
    */
 
 
-  intersect(dst) {
-    if (dst.x > this.m_right) return false;
-    if (dst.m_right < this.x) return false;
-    if (dst.y > this.m_top) return false;
-    if (dst.m_top < this.y) return false;
+  intersect(src) {
+    if (src.x > this.m_right) return false;
+    if (src.getRight() < this.x) return false;
+    if (src.y > this.m_top) return false;
+    if (src.getTop() < this.y) return false;
     return true;
   }
 
@@ -15441,6 +15918,9 @@ class AABB2D {
     this.height = height;
     this.m_right = this.width + this.x;
     this.m_top = this.height + this.y;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
   }
 
   setSize(width, height) {
@@ -15448,10 +15928,13 @@ class AABB2D {
     this.height = height;
     this.m_right = this.width + this.x;
     this.m_top = this.height + this.y;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
   }
 
-  testEqual(dst) {
-    return this.x != dst.x || this.y != dst.y || this.width != dst.width || this.height != dst.height;
+  testEqual(src) {
+    return this.x != src.x || this.y != src.y || this.width != src.width || this.height != src.height;
   }
 
   testEqualWithParams(px, py, pw, ph) {
@@ -15461,11 +15944,15 @@ class AABB2D {
   update() {
     this.m_right = this.width + this.x;
     this.m_top = this.height + this.y;
+    this.m_cx = this.x + this.width * 0.5;
+    this.m_cy = this.y + this.height * 0.5;
+    return this;
   }
 
   flipY(height) {
     this.y = height - this.y;
     this.update();
+    return this;
   }
 
   getX() {
@@ -15577,7 +16064,7 @@ exports.default = RPOUnitCont;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15619,7 +16106,7 @@ exports.RenderingColorMask = RenderingColorMask;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15657,9 +16144,13 @@ class RODrawState {
     this.roColorMask = -11;
   }
 
+  updateGLCtx() {
+    this.m_gl = this.m_context.getRC();
+  }
+
   setRenderContext(context) {
     this.m_context = context;
-    this.m_gl = context.getRC();
+    this.m_gl = this.m_context.getRC();
     let rcui = this.m_gl.rcuid;
     this.m_unit = this.m_units[rcui];
 
@@ -15843,7 +16334,7 @@ exports.RODrawState = RODrawState;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16002,7 +16493,7 @@ exports.RPOUnitBuilder = RPOUnitBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16215,7 +16706,7 @@ exports.default = SortNodeLinker;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16248,7 +16739,9 @@ class VaoVertexRenderObj extends VROBase_1.default {
 
   run() {
     if (this.m_rc.testVROUid(this.m_uid) || this.indicesRes.test()) {
-      // console.log("VaoVertexRenderObj::run(), rcuid: ",this.m_rc.getRCUid(),this.m_vtxUid, this.m_uid);
+      // if(DebugFlag.Flag_0 > 0) {
+      // 	console.log("VaoVertexRenderObj::run(), rcuid: ",this.m_rc.getRCUid(),this.m_vtxUid, this.m_uid);
+      // }
       this.m_rc.bindVertexArray(this.vao);
       this.indicesRes.bindToGPU(VROBase_1.default.s_mid != this.m_mid);
       VROBase_1.default.s_mid = this.m_mid; // if (this.m_rc.testRIOUid(this.m_vtxUid) || VROBase.s_mid != this.m_mid) {
@@ -16363,7 +16856,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16476,7 +16969,7 @@ exports.default = PassMaterialWrapper;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

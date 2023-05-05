@@ -588,7 +588,7 @@ exports.PBRDecorator = PBRDecorator;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -613,6 +613,8 @@ class UniformComp {
   getTextures(shaderBuilder, outList = null) {
     return null;
   }
+
+  dataCopyFrom(src) {}
 
   reset() {}
 
@@ -736,7 +738,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -981,7 +983,7 @@ exports.create = create;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1086,7 +1088,7 @@ exports.default = ShaderUniformData;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1106,10 +1108,13 @@ const UniformComp_1 = __webpack_require__("3221");
 
 class VertUniformComp extends UniformComp_1.UniformComp {
   constructor() {
-    super();
-    this.m_uvTransParam = null;
-    this.m_curveMoveParam = null;
-    this.m_displacementParam = null;
+    super(); // uv trans param
+
+    this.m_uvs = null; // curve move param
+
+    this.m_cms = null; // displacement param
+
+    this.m_dps = null;
     this.m_uvTransformParamIndex = -1;
     this.m_curveMoveParamIndex = -1;
     this.m_displacementParamIndex = -1;
@@ -1146,23 +1151,23 @@ class VertUniformComp extends UniformComp_1.UniformComp {
         let i = this.m_uvTransformParamIndex;
 
         if (i >= 0) {
-          this.m_uvTransParam = this.m_params.subarray(i * 4, (i + 1) * 4); // u scale, v scale, translation u, translation v
+          this.m_uvs = this.m_params.subarray(i * 4, (i + 1) * 4); // u scale, v scale, translation u, translation v
 
-          this.m_uvTransParam.set([1.0, 1.0, 0.0, 0.0]);
+          this.m_uvs.set([1.0, 1.0, 0.0, 0.0]);
         }
 
         i = this.m_curveMoveParamIndex;
 
         if (i >= 0) {
-          this.m_curveMoveParam = this.m_params.subarray(i * 4, (i + 1) * 4);
+          this.m_cms = this.m_params.subarray(i * 4, (i + 1) * 4);
         }
 
         i = this.m_displacementParamIndex;
 
         if (i >= 0) {
-          this.m_displacementParam = this.m_params.subarray(i * 4, (i + 1) * 4); // displacement scale, bias, undefined, undefined
+          this.m_dps = this.m_params.subarray(i * 4, (i + 1) * 4); // displacement scale, bias, undefined, undefined
 
-          this.m_displacementParam.set([10.0, 0.0, 0.0, 0.0]);
+          this.m_dps.set([10.0, 0.0, 0.0, 0.0]);
         }
       }
     }
@@ -1208,36 +1213,36 @@ class VertUniformComp extends UniformComp_1.UniformComp {
   }
 
   setCurveMoveParam(texSize, posTotal) {
-    if (this.m_curveMoveParam != null) {
-      this.m_curveMoveParam[0] = 1.0 / texSize;
-      this.m_curveMoveParam[2] = posTotal;
+    if (this.m_cms != null) {
+      this.m_cms[0] = 1.0 / texSize;
+      this.m_cms[2] = posTotal;
     }
   }
 
   setCurveMoveDistance(index) {
-    if (this.m_curveMoveParam != null) {
-      this.m_curveMoveParam[1] = index;
+    if (this.m_cms != null) {
+      this.m_cms[1] = index;
     }
   }
 
   setUVScale(uScale, vScale) {
-    if (this.m_uvTransParam != null) {
-      this.m_uvTransParam[0] = uScale;
-      this.m_uvTransParam[1] = vScale;
+    if (this.m_uvs != null) {
+      this.m_uvs[0] = uScale;
+      this.m_uvs[1] = vScale;
     }
   }
 
   getUVScale(scaleV) {
-    if (this.m_uvTransParam != null) {
-      scaleV.x = this.m_uvTransParam[0];
-      scaleV.y = this.m_uvTransParam[1];
+    if (this.m_uvs != null) {
+      scaleV.x = this.m_uvs[0];
+      scaleV.y = this.m_uvs[1];
     }
   }
 
   setUVTranslation(tu, tv) {
-    if (this.m_uvTransParam != null) {
-      this.m_uvTransParam[2] = tu;
-      this.m_uvTransParam[3] = tv;
+    if (this.m_uvs != null) {
+      this.m_uvs[2] = tu;
+      this.m_uvs[3] = tv;
     }
   }
   /**
@@ -1248,9 +1253,37 @@ class VertUniformComp extends UniformComp_1.UniformComp {
 
 
   setDisplacementParams(scale, bias) {
-    if (this.m_displacementParam != null) {
-      this.m_displacementParam[0] = scale;
-      this.m_displacementParam[1] = bias;
+    if (this.m_dps != null) {
+      this.m_dps[0] = scale;
+      this.m_dps[1] = bias;
+    }
+  }
+
+  dataCopyFrom(src) {
+    let srcU = src;
+
+    if (srcU.m_uvs) {
+      if (this.m_uvs) {
+        this.m_uvs.set(srcU.m_uvs);
+      } else {
+        this.m_uvs = srcU.m_uvs.slice();
+      }
+    }
+
+    if (srcU.m_cms) {
+      if (this.m_cms) {
+        this.m_cms.set(srcU.m_cms);
+      } else {
+        this.m_cms = srcU.m_cms.slice();
+      }
+    }
+
+    if (srcU.m_dps) {
+      if (this.m_dps) {
+        this.m_dps.set(srcU.m_dps);
+      } else {
+        this.m_dps = srcU.m_dps.slice();
+      }
     }
   }
 
@@ -1259,6 +1292,10 @@ class VertUniformComp extends UniformComp_1.UniformComp {
     u.uvTransformEnabled = this.uvTransformEnabled;
     u.displacementMap = this.displacementMap;
     u.curveMoveMap = this.curveMoveMap;
+    this.dataCopyFrom(this);
+    u.m_uvTransformParamIndex = this.m_uvTransformParamIndex;
+    u.m_curveMoveParamIndex = this.m_uvTransformParamIndex;
+    u.m_displacementParamIndex = this.m_uvTransformParamIndex;
     return u;
   }
 

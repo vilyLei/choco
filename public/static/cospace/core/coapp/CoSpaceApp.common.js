@@ -96,7 +96,7 @@ module.exports =
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -136,7 +136,7 @@ exports.CoSystem = CoSystem;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -298,7 +298,7 @@ exports.DataReceiverBase = DataReceiverBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -642,7 +642,7 @@ exports.ReceiverSchedule = ReceiverSchedule;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -845,7 +845,7 @@ exports.DracoTaskCMD = DracoTaskCMD;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -899,6 +899,12 @@ class OBJParserListerner {
         DivLog_1.default.ShowLogOnce("obj file loading " + k + "%");
       }, (status, url) => {
         console.error("load obj mesh data error, url: ", url);
+        this.objParseFinish([{
+          vertices: null,
+          uvsList: null,
+          normals: null,
+          indices: null
+        }], url);
       });
     }
   } // 一个任务数据处理完成后的侦听器回调函数
@@ -962,7 +968,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1053,7 +1059,7 @@ exports.TaskDataRouter = TaskDataRouter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1724,7 +1730,7 @@ exports.TaskCodeStringDependency = TaskCodeStringDependency;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1933,7 +1939,13 @@ exports.ThreadTaskPool = ThreadTaskPool;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
+ // interface GeometryModelDataType {
+//   uvsList: Float32Array[];
+//   vertices: Float32Array;
+//   normals: Float32Array;
+//   indices: Uint16Array | Uint32Array;
+//   status? : number;
+// }
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -1950,7 +1962,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1976,6 +1988,7 @@ class HttpFileLoader {
    * @param progress its value is 0.0 -> 1.0
    */
   onProgress = null, onError = null, responseType = "blob", headRange = "") {
+    // console.log("HttpFileLoader::load(), A url: ", url);
     // console.log("loadBinBuffer, headRange != '': ", headRange != "");
     if (onLoad == null) {
       throw Error("onload == null !!!");
@@ -1984,7 +1997,7 @@ class HttpFileLoader {
     const reader = new FileReader();
 
     reader.onload = e => {
-      if (onLoad != null) onLoad(reader.result, url);
+      if (onLoad) onLoad(reader.result, url);
     };
 
     const request = new XMLHttpRequest();
@@ -1998,9 +2011,32 @@ class HttpFileLoader {
 
     request.onload = e => {
       // console.log("loaded binary buffer request.status: ", request.status, e);
+      // console.log("HttpFileLoader::load(), B url: ", url);
       if (request.status <= 206) {
-        reader.readAsArrayBuffer(request.response);
-      } else if (onError != null) {
+        switch (responseType) {
+          case "arraybuffer":
+          case "blob":
+            reader.readAsArrayBuffer(request.response);
+            break;
+
+          case "json":
+            if (onLoad) onLoad(request.response, url);
+            break;
+
+          case "text":
+            if (onLoad) onLoad(request.response, url);
+            break;
+
+          default:
+            if (onLoad) onLoad(request.response, url);
+            break;
+        } // if(responseType == "blob" || responseType == "arraybuffer") {
+        // 	reader.readAsArrayBuffer(request.response);
+        // }else {
+        // 	if(onLoad) onLoad(<string>request.response, url);
+        // }
+
+      } else if (onError) {
         onError(request.status, url);
       }
     };
@@ -2026,7 +2062,7 @@ class HttpFileLoader {
             console.warn("lengthComputable failed");
           }
         } //let progressInfo = k + "%";
-        //console.log("progress progressInfo: ", progressInfo);			
+        //console.log("progress progressInfo: ", progressInfo);
 
 
         onProgress(k, url);
@@ -2058,7 +2094,7 @@ exports.HttpFileLoader = HttpFileLoader;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2252,7 +2288,7 @@ exports.DataPhaseFlag = DataPhaseFlag;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2305,6 +2341,13 @@ class CTMParserListerner {
         DivLog_1.default.ShowLogOnce("ctm file loading " + k + "%");
       }, (status, url) => {
         console.error("load ctm mesh data error, url: ", url);
+        this.ctmParseFinish({
+          vertices: null,
+          uvsList: null,
+          normals: null,
+          indices: null,
+          uuid: url
+        }, url);
       });
     }
   } // 一个任务数据处理完成后的侦听器回调函数
@@ -2977,7 +3020,7 @@ exports.ResourceSchedule = ResourceSchedule;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3444,7 +3487,7 @@ exports.PNGParseTask = PNGParseTask;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3919,7 +3962,7 @@ exports.ModuleNS = ModuleNS;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3989,6 +4032,12 @@ class FBXParserListerner {
         DivLog_1.default.ShowLogOnce("fbx file loading " + k + "%");
       }, (status, url) => {
         console.error("load fbx mesh data error, url: ", url);
+        this.fbxParseFinish([{
+          vertices: null,
+          uvsList: null,
+          normals: null,
+          indices: null
+        }], null, url, 0, 0);
       });
     }
   } // 一个任务数据处理完成后的侦听器回调函数
@@ -4224,7 +4273,7 @@ exports.ThreadWFST = ThreadWFST;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4240,12 +4289,43 @@ const CoSpace_1 = __webpack_require__("cbd5");
 
 const DataFormat_1 = __webpack_require__("7a08");
 
+class ReqNode {
+  constructor() {
+    this.m_uid = ReqNode.s_uid++;
+    this.dataFormat = DataFormat_1.DataFormat.CTM;
+    this.callback = null;
+    this.url = "";
+  }
+
+  getUid() {
+    return this.m_uid;
+  }
+
+  reset() {
+    this.callback = null;
+  }
+
+}
+
+ReqNode.s_uid = 0;
+
 class Instance {
   constructor() {
+    this.m_withCredentials = false;
+    this.m_loadingTotal = 0;
+    this.m_cpuReqNodes = [];
     /**
      * (引擎)数据协同中心实例
      */
+
     this.cospace = new CoSpace_1.CoSpace();
+    /**
+     * the default value is 8
+     */
+
+    this.netLoadingMaxCount = 8;
+    this.m_timeoutId = -1;
+    this.m_updating = false;
   }
   /**
    * 设置线程中子模块间依赖关系的json描述字符串
@@ -4264,6 +4344,48 @@ class Instance {
   initialize(threadsTotal, coreCodeUrl, autoSendData = true) {
     this.cospace.initialize(threadsTotal, coreCodeUrl, autoSendData);
   }
+
+  testCPUReqNode() {
+    let len = this.m_cpuReqNodes.length;
+
+    if (len > 0) {
+      if (this.netLoadingMaxCount < len) len = this.netLoadingMaxCount;
+
+      for (let i = 0; i < len; ++i) {
+        if (this.m_loadingTotal <= this.netLoadingMaxCount) {
+          const node = this.m_cpuReqNodes.shift();
+          const url = node.url;
+          const dataFormat = node.dataFormat;
+          const callback = node.callback;
+          node.reset();
+          console.log("NNNNNNN deferred call getCPUDataByUrlAndCallback()......");
+          this.getCPUDataByUrlAndCallback(url, dataFormat, callback);
+        } else {
+          console.log("MMMMMMM 正在加载的总数量已达上限: ", this.netLoadingMaxCount);
+          break;
+        }
+      }
+    }
+  }
+
+  cpuLoadTest() {
+    if (this.m_timeoutId < 0) {
+      console.log("启动 cpuLoadTest timer !!!");
+    }
+
+    if (this.m_timeoutId > -1) {
+      clearTimeout(this.m_timeoutId);
+      this.m_timeoutId = -1;
+    }
+
+    if (this.m_cpuReqNodes.length > 0) {
+      this.testCPUReqNode();
+      this.m_timeoutId = setTimeout(this.cpuLoadTest.bind(this), 25); // 40 fps
+    } else {
+      this.m_updating = false;
+      console.log("关闭 cpuLoadTest timer !!!");
+    }
+  }
   /**
    * 注意: 不建议过多使用这个函数,因为回调函数不安全如果是lambda表达式则由性能问题。
    * 立即获得CPU侧的数据单元实例, 但是数据单元中的数据可能是空的, 因为数据获取的操作实际是异步的。
@@ -4277,23 +4399,84 @@ class Instance {
 
 
   getCPUDataByUrlAndCallback(url, dataFormat, callback, immediate = false) {
+    let reqCall = callback;
+
+    if (this.m_loadingTotal > this.netLoadingMaxCount) {
+      const node = new ReqNode();
+      node.url = url;
+      node.dataFormat = dataFormat;
+      node.callback = callback;
+      this.m_cpuReqNodes.push(node);
+
+      if (!this.m_updating) {
+        this.m_updating = true;
+        this.cpuLoadTest();
+      }
+
+      return null;
+    } else {
+      reqCall = (unit, status) => {
+        this.m_loadingTotal--;
+        console.log("*** *** loaded a req this.m_loadingTotal: ", this.m_loadingTotal);
+        callback(unit, status); // this.testCPUReqNode();
+      };
+
+      this.m_loadingTotal++;
+      return this.getCPUDataByUrlAndCallback2(url, dataFormat, reqCall, immediate);
+    } // let resShd: ResourceSchedule<DataUnit> = null;
+    // switch (dataFormat) {
+    //     case DataFormat.CTM:
+    //     case DataFormat.OBJ:
+    //     case DataFormat.Draco:
+    //     case DataFormat.FBX:
+    //     case DataFormat.GLB:
+    // 		resShd = this.cospace.geometry;
+    //         // return this.cospace.geometry.getCPUDataByUrlAndCallback(url, dataFormat, callback, immediate);
+    //         break;
+    //     case DataFormat.Jpg:
+    //     case DataFormat.Png:
+    //     case DataFormat.Gif:
+    // 		resShd = this.cospace.texture;
+    //         // return this.cospace.texture.getCPUDataByUrlAndCallback(url, dataFormat, callback, immediate);
+    //         break;
+    //     default:
+    //         break;
+    // }
+    // if(resShd != null) {
+    // 	// resShd.setWithCredentials(this.m_withCredentials);
+    // 	return resShd.getCPUDataByUrlAndCallback(url, dataFormat, callback, immediate);
+    // }
+    // return null;
+
+  }
+
+  getCPUDataByUrlAndCallback2(url, dataFormat, callback, immediate = false) {
+    let resShd = null;
+
     switch (dataFormat) {
       case DataFormat_1.DataFormat.CTM:
       case DataFormat_1.DataFormat.OBJ:
       case DataFormat_1.DataFormat.Draco:
       case DataFormat_1.DataFormat.FBX:
       case DataFormat_1.DataFormat.GLB:
-        return this.cospace.geometry.getCPUDataByUrlAndCallback(url, dataFormat, callback, immediate);
+        resShd = this.cospace.geometry; // return this.cospace.geometry.getCPUDataByUrlAndCallback(url, dataFormat, callback, immediate);
+
         break;
 
       case DataFormat_1.DataFormat.Jpg:
       case DataFormat_1.DataFormat.Png:
       case DataFormat_1.DataFormat.Gif:
-        return this.cospace.texture.getCPUDataByUrlAndCallback(url, dataFormat, callback, immediate);
+        resShd = this.cospace.texture; // return this.cospace.texture.getCPUDataByUrlAndCallback(url, dataFormat, callback, immediate);
+
         break;
 
       default:
         break;
+    }
+
+    if (resShd != null) {
+      // resShd.setWithCredentials(this.m_withCredentials);
+      return resShd.getCPUDataByUrlAndCallback(url, dataFormat, callback, immediate);
     }
 
     return null;
@@ -4458,7 +4641,7 @@ exports.DataUnitPool = DataUnitPool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4585,7 +4768,7 @@ exports.GeometryDataUnit = GeometryDataUnit;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4639,6 +4822,12 @@ class PNGParserListerner {
         DivLog_1.default.ShowLogOnce("obj file loading " + k + "%");
       }, (status, url) => {
         console.error("load png img data error, url: ", url);
+        this.pngParseFinish(null, {
+          url: url,
+          width: 0,
+          height: 0,
+          filterType: 0
+        });
       });
     }
   } // 一个任务数据处理完成后的侦听器回调函数
@@ -4691,7 +4880,7 @@ exports.PNGParserListerner = PNGParserListerner;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4813,7 +5002,7 @@ exports.TaskDescriptor = TaskDescriptor;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5032,7 +5221,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5629,7 +5818,7 @@ exports.TextureResourceSchedule = TextureResourceSchedule;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5687,6 +5876,12 @@ class DracoParserListerner {
         DivLog_1.default.ShowLogOnce("draco file loading " + k + "%");
       }, (status, url) => {
         console.error("load draco mesh data error, url: ", url);
+        this.dracoParseSingle({
+          vertices: null,
+          uvsList: null,
+          normals: null,
+          indices: null
+        }, url, 0);
       });
     }
   }

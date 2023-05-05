@@ -920,7 +920,7 @@ exports.GeometryBufferParser = GeometryBufferParser;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -949,9 +949,6 @@ const OrientationType_1 = __importDefault(__webpack_require__("abdb"));
 class Matrix4 {
   constructor(pfs32 = null, index = 0) {
     this.m_uid = -1;
-    this._mvx = new Vector3D_1.default();
-    this._mvy = new Vector3D_1.default();
-    this._mvz = new Vector3D_1.default();
     this.m_index = 0;
     this.m_fs32 = null;
     this.m_localFS32 = null;
@@ -969,10 +966,22 @@ class Matrix4 {
     }
   }
 
-  setData(data) {
-    if (data.length == 16) {
-      this.m_localFS32.set(data);
+  fromArray(array, offset = 0) {
+    const fs = this.m_localFS32;
+
+    for (let i = 0; i < 16; i++) {
+      fs[i] = array[i + offset];
     }
+
+    return this;
+  }
+
+  setData(array16) {
+    if (array16.length == 16) {
+      this.m_localFS32.set(array16);
+    }
+
+    return this;
   }
 
   getCapacity() {
@@ -1724,7 +1733,7 @@ class Matrix4 {
    */
 
 
-  decompose(orientationStyle) {
+  decompose(orientationStyle = OrientationType_1.default.EULER_ANGLES) {
     // TODO: optimize after 4 lines
     let vec = [];
     let mr = Matrix4.s_tMat4;
@@ -2561,7 +2570,7 @@ if (typeof window !== 'undefined') {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2905,7 +2914,7 @@ exports.ElementGeomData = ElementGeomData;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2931,6 +2940,7 @@ class HttpFileLoader {
    * @param progress its value is 0.0 -> 1.0
    */
   onProgress = null, onError = null, responseType = "blob", headRange = "") {
+    // console.log("HttpFileLoader::load(), A url: ", url);
     // console.log("loadBinBuffer, headRange != '': ", headRange != "");
     if (onLoad == null) {
       throw Error("onload == null !!!");
@@ -2939,7 +2949,7 @@ class HttpFileLoader {
     const reader = new FileReader();
 
     reader.onload = e => {
-      if (onLoad != null) onLoad(reader.result, url);
+      if (onLoad) onLoad(reader.result, url);
     };
 
     const request = new XMLHttpRequest();
@@ -2953,9 +2963,32 @@ class HttpFileLoader {
 
     request.onload = e => {
       // console.log("loaded binary buffer request.status: ", request.status, e);
+      // console.log("HttpFileLoader::load(), B url: ", url);
       if (request.status <= 206) {
-        reader.readAsArrayBuffer(request.response);
-      } else if (onError != null) {
+        switch (responseType) {
+          case "arraybuffer":
+          case "blob":
+            reader.readAsArrayBuffer(request.response);
+            break;
+
+          case "json":
+            if (onLoad) onLoad(request.response, url);
+            break;
+
+          case "text":
+            if (onLoad) onLoad(request.response, url);
+            break;
+
+          default:
+            if (onLoad) onLoad(request.response, url);
+            break;
+        } // if(responseType == "blob" || responseType == "arraybuffer") {
+        // 	reader.readAsArrayBuffer(request.response);
+        // }else {
+        // 	if(onLoad) onLoad(<string>request.response, url);
+        // }
+
+      } else if (onError) {
         onError(request.status, url);
       }
     };
@@ -2981,7 +3014,7 @@ class HttpFileLoader {
             console.warn("lengthComputable failed");
           }
         } //let progressInfo = k + "%";
-        //console.log("progress progressInfo: ", progressInfo);			
+        //console.log("progress progressInfo: ", progressInfo);
 
 
         onProgress(k, url);
@@ -3013,7 +3046,7 @@ exports.HttpFileLoader = HttpFileLoader;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3026,6 +3059,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class MathConst {
+  // compute euclidean modulo of m % n
+  // https://en.wikipedia.org/wiki/Modulo_operation
+  static EuclideanModulo(n, m) {
+    return (n % m + m) % m;
+  }
+
   static Clamp(value, min, max) {
     return Math.max(Math.min(value, max), min);
   }
@@ -3626,6 +3665,13 @@ class Vector3D {
 
   clone() {
     return new Vector3D(this.x, this.y, this.z, this.w);
+  }
+
+  abs() {
+    this.x = Math.abs(this.x);
+    this.y = Math.abs(this.y);
+    this.z = Math.abs(this.z);
+    return this;
   }
 
   setTo(px, py, pz, pw = 1.0) {
@@ -4272,6 +4318,7 @@ class BufferBinaryParser {
     const version = reader.getUint32();
 
     if (version < 6400) {
+      alert('FBXLoader: FBX version not supported, FileVersion: ' + version);
       throw new Error('FBXLoader: FBX version not supported, FileVersion: ' + version);
     }
 
@@ -4300,6 +4347,7 @@ class BufferBinaryParser {
     const version = reader.getUint32();
 
     if (version < 6400) {
+      alert('FBXLoader: FBX version not supported, FileVersion: ' + version);
       throw new Error('FBXLoader: FBX version not supported, FileVersion: ' + version);
     }
 
@@ -7944,7 +7992,7 @@ exports.Euler = Euler;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7974,7 +8022,7 @@ exports.default = OrientationType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

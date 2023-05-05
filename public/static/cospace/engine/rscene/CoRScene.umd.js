@@ -178,6 +178,11 @@ class RSCGraph {
     return null;
   }
 
+  getMainRendererScene() {
+    if (this.m_nodes.length > 0) return this.m_nodes[0].getRScene();
+    return null;
+  }
+
   createRendererParam(div = null) {
     return new RendererParam_1.default(div);
   }
@@ -197,13 +202,16 @@ class RSCGraph {
 
 
   createScene(rparam = null, renderProcessesTotal = 3, createNewCamera = true) {
-    // let sc = new RendererScene();
-    let sc = this.createRScene();
-    sc.initialize(rparam, renderProcessesTotal, createNewCamera);
-    let node = new RendererSceneNode_1.default(sc);
-    this.m_nodes.push(node);
-    this.m_map.set(sc.getUid(), node);
-    return sc;
+    if (this.m_nodes.length < 1) {
+      let sc = this.createRScene();
+      sc.initialize(rparam, renderProcessesTotal, createNewCamera);
+      let node = new RendererSceneNode_1.default(sc);
+      this.m_nodes.push(node);
+      this.m_map.set(sc.getUid(), node);
+      return sc;
+    }
+
+    return this.m_nodes[0].getRScene();
   }
   /**
    * @param rparam IRendererParam instance, the default value is null
@@ -363,6 +371,50 @@ exports.default = RSCGraph;
 
 /***/ }),
 
+/***/ "0188":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/***************************************************************************/
+
+/*                                                                         */
+
+/*  Copyright 2019-2022 by                                                 */
+
+/*  Vily(vily313@126.com)                                                  */
+
+/*                                                                         */
+
+/***************************************************************************/
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const URLFilter_1 = __importDefault(__webpack_require__("75b9"));
+
+class VoxSystemVerify {
+  static isEnabled() {
+    if (typeof VoxVerify !== "undefined") {
+      return VoxVerify.isEnabled();
+    }
+
+    return URLFilter_1.default.isEnabled();
+  }
+
+}
+
+exports.default = VoxSystemVerify;
+
+/***/ }),
+
 /***/ "0236":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -372,7 +424,7 @@ exports.default = RSCGraph;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -628,7 +680,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -643,7 +695,7 @@ class RCExtension {
 
     if (webVer == 1) {
       //#extension OES_standard_derivatives : enable
-      selfT.OES_standard_derivatives = gl.getExtension('OES_standard_derivatives');
+      selfT.OES_standard_derivatives = gl.getExtension("OES_standard_derivatives");
       if (selfT.OES_standard_derivatives != null) console.log("Use OES_standard_derivatives Extension success!");else console.log("OES_standard_derivatives Extension can not support!"); //#extension GL_EXT_shader_texture_lod : enable, for example: textureCubeLodEXT(envMap, dir, mipLv)
       // vec4 texture2DLodEXT(sampler2D sampler, vec2 coord, float lod)
       // vec4 texture2DProjLodEXT(sampler2D sampler, vec3 coord, float lod)
@@ -654,64 +706,62 @@ class RCExtension {
       // vec4 texture2DProjGradEXT(sampler2D sampler, vec4 P, vec2 dPdx, vec2 dPdy)
       // vec4 textureCubeGradEXT(samplerCube sampler, vec3 P, vec3 dPdx, vec3 dPdy)
 
-      selfT.EXT_shader_texture_lod = gl.getExtension('EXT_shader_texture_lod');
+      selfT.EXT_shader_texture_lod = gl.getExtension("EXT_shader_texture_lod");
       if (selfT.EXT_shader_texture_lod != null) console.log("Use EXT_shader_texture_lod Extension success!");else console.log("EXT_shader_texture_lod Extension can not support!");
       /*
       <script type="x-shader/x-fragment">
       #extension GL_EXT_shader_texture_lod : enable
       #extension GL_OES_standard_derivatives : enable
-      
       uniform sampler2D myTexture;
       varying vec2 texcoord;
-      
       void main(){
-        gl_FragColor = texture2DGradEXT(myTexture, mod(texcoord, vec2(0.1, 0.5)),
-                                        dFdx(texcoord), dFdy(texcoord));
+      gl_FragColor = texture2DGradEXT(myTexture, mod(texcoord, vec2(0.1, 0.5)),
+                            dFdx(texcoord), dFdy(texcoord));
       }
       </script>
       */
 
-      selfT.WEBGL_draw_buffers = gl.getExtension('WEBGL_draw_buffers');
+      selfT.WEBGL_draw_buffers = gl.getExtension("WEBGL_draw_buffers");
       if (selfT.WEBGL_draw_buffers != null) console.log("Use WEBGL_draw_buffers Extension success!");else console.log("WEBGL_draw_buffers Extension can not support!"); //DivLog.ShowLog("selfT.WEBGL_draw_buffers != null: "+(selfT.WEBGL_draw_buffers != null));
 
-      selfT.OES_vertex_array_object = gl.getExtension('OES_vertex_array_object');
+      selfT.OES_vertex_array_object = gl.getExtension("OES_vertex_array_object");
       if (selfT.OES_vertex_array_object != null) console.log("Use OES_vertex_array_object Extension success!");else console.log("OES_vertex_array_object Extension can not support!");
-      selfT.ANGLE_instanced_arrays = gl.getExtension('ANGLE_instanced_arrays');
+      selfT.ANGLE_instanced_arrays = gl.getExtension("ANGLE_instanced_arrays");
       if (selfT.ANGLE_instanced_arrays != null) console.log("Use ANGLE_instanced_arrays Extension success!");else console.log("ANGLE_instanced_arrays Extension can not support!");
-      selfT.EXT_color_buffer_float = gl.getExtension('EXT_color_buffer_float');
+      selfT.EXT_color_buffer_float = gl.getExtension("EXT_color_buffer_float");
       if (selfT.EXT_color_buffer_float != null) console.log("Use EXT_color_buffer_float Extension success!");else console.log("EXT_color_buffer_float Extension can not support!");
-      selfT.EXT_color_buffer_half_float = gl.getExtension('EXT_color_buffer_half_float');
+      selfT.EXT_color_buffer_half_float = gl.getExtension("EXT_color_buffer_half_float");
       if (selfT.EXT_color_buffer_half_float != null) console.log("Use EXT_color_buffer_half_float Extension success!");else console.log("EXT_color_buffer_half_float Extension can not support!");
-      selfT.OES_texture_half_float = gl.getExtension('OES_texture_half_float');
+      selfT.OES_texture_half_float = gl.getExtension("OES_texture_half_float");
       if (selfT.OES_texture_half_float != null) console.log("Use OES_texture_half_float Extension success!");else console.log("OES_texture_half_float Extension can not support!");
-      selfT.OES_texture_half_float_linear = gl.getExtension('OES_texture_half_float_linear');
+      selfT.OES_texture_half_float_linear = gl.getExtension("OES_texture_half_float_linear");
       if (selfT.OES_texture_half_float_linear != null) console.log("Use OES_texture_half_float_linear Extension success!");else console.log("OES_texture_half_float_linear Extension can not support!");
-      selfT.OES_texture_float = gl.getExtension('OES_texture_float');
+      selfT.OES_texture_float = gl.getExtension("OES_texture_float");
       if (selfT.OES_texture_float != null) console.log("Use OES_texture_float Extension success!");else console.log("OES_texture_float Extension can not support!"); //
 
-      selfT.OES_element_index_uint = gl.getExtension('OES_element_index_uint');
+      selfT.OES_element_index_uint = gl.getExtension("OES_element_index_uint");
       if (selfT.OES_element_index_uint != null) console.log("Use OES_element_index_uint Extension success!");else console.log("OES_element_index_uint Extension can not support!"); //EXT_blend_minmax
 
-      selfT.EXT_blend_minmax = gl.getExtension('EXT_blend_minmax');
+      selfT.EXT_blend_minmax = gl.getExtension("EXT_blend_minmax");
       if (selfT.EXT_blend_minmax != null) console.log("Use EXT_blend_minmax Extension success!");else console.log("EXT_blend_minmax Extension can not support!");
     } else {
-      selfT.EXT_shader_texture_lod = gl.getExtension('EXT_shader_texture_lod');
+      selfT.EXT_shader_texture_lod = gl.getExtension("EXT_shader_texture_lod");
       if (selfT.EXT_shader_texture_lod != null) console.log("Use EXT_shader_texture_lod Extension success!");else console.log("EXT_shader_texture_lod Extension can not support!");
-      selfT.EXT_color_buffer_half_float = gl.getExtension('EXT_color_buffer_half_float');
+      selfT.EXT_color_buffer_half_float = gl.getExtension("EXT_color_buffer_half_float");
       if (selfT.EXT_color_buffer_half_float != null) console.log("Use EXT_color_buffer_half_float Extension success!");else console.log("EXT_color_buffer_half_float Extension can not support!");
-      selfT.OES_texture_half_float_linear = gl.getExtension('OES_texture_half_float_linear');
+      selfT.OES_texture_half_float_linear = gl.getExtension("OES_texture_half_float_linear");
       if (selfT.OES_texture_half_float_linear != null) console.log("Use OES_texture_half_float_linear Extension success!");else console.log("OES_texture_half_float_linear Extension can not support!");
-      selfT.EXT_color_buffer_float = gl.getExtension('EXT_color_buffer_float');
+      selfT.EXT_color_buffer_float = gl.getExtension("EXT_color_buffer_float");
       if (selfT.EXT_color_buffer_float != null) console.log("Use EXT_color_buffer_float Extension success!");else console.log("EXT_color_buffer_float Extension can not support!");
     }
 
-    selfT.OES_texture_float_linear = gl.getExtension('OES_texture_float_linear');
+    selfT.OES_texture_float_linear = gl.getExtension("OES_texture_float_linear");
     if (selfT.OES_texture_float_linear != null) console.log("Use OES_texture_float_linear Extension success!");else console.log("OES_texture_float_linear Extension can not support!");
-    selfT.WEBGL_depth_texture = gl.getExtension('WEBGL_depth_texture');
+    selfT.WEBGL_depth_texture = gl.getExtension("WEBGL_depth_texture");
     if (selfT.WEBGL_depth_texture != null) console.log("Use WEBGL_depth_texture Extension success!");else console.log("WEBGL_depth_texture Extension can not support!");
-    selfT.WEBGL_debug_renderer_info = gl.getExtension('WEBGL_debug_renderer_info');
-    if (selfT.WEBGL_debug_renderer_info != null) console.log("Use WEBGL_debug_renderer_info Extension success!");else console.log("WEBGL_debug_renderer_info Extension can not support!"); //
-    //console.log("RCExtension.WEBGL_depth_texture: ",RCExtension.WEBGL_depth_texture);
+    selfT.WEBGL_debug_renderer_info = gl.getExtension("WEBGL_debug_renderer_info");
+    if (selfT.WEBGL_debug_renderer_info != null) console.log("Use WEBGL_debug_renderer_info Extension success!");else console.log("WEBGL_debug_renderer_info Extension can not support!");
+    console.log("RCExtension.Initialize(), gl: ", gl);
   }
 
 }
@@ -744,7 +794,7 @@ exports.default = RCExtension;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -959,7 +1009,7 @@ exports.MaterialPipeline = MaterialPipeline;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1035,6 +1085,7 @@ class TextureProxy {
     this.magFilter = TextureConst_1.default.LINEAR; // 用于记录自身变换的版本号，例如数据变换
 
     this.version = 0;
+    this.dataEnoughListener = null;
     this.m_slot = TextureResSlot_1.default.GetInstance();
     this.m_uid = this.m_slot.getFreeUid();
     if (texWidth < 1) texWidth = 128;
@@ -1060,7 +1111,7 @@ class TextureProxy {
   }
 
   __$setRenderProxy(rc) {
-    if (this.m_slot != null) {
+    if (this.m_slot) {
       this.m_renderProxy = rc;
     } else {
       // 这样处理可能有错误
@@ -1197,6 +1248,12 @@ class TextureProxy {
     return this.m_haveRData;
   }
 
+  testDataEnough() {
+    if (this.dataEnoughListener) {
+      this.dataEnoughListener();
+    }
+  }
+
   uploadFromFbo(texResource, fboWidth, fboHeight) {
     throw Error("Illegal operation !!!");
   }
@@ -1250,9 +1307,9 @@ class TextureProxy {
 
 
   updateDataToGpu(rc = null, deferred = true) {
-    if (rc != null) this.m_renderProxy = rc;
+    if (rc) this.m_renderProxy = rc;
 
-    if (this.m_renderProxy != null) {
+    if (this.m_renderProxy) {
       this.m_renderProxy.MaterialUpdater.updateTextureData(this, deferred);
     }
   }
@@ -1357,6 +1414,7 @@ class TextureProxy {
       this.m_slot = null;
       this.m_renderProxy = null;
       this.m_uid = -1;
+      this.dataEnoughListener = null;
     }
   }
 
@@ -1376,7 +1434,7 @@ exports.default = TextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1917,7 +1975,7 @@ exports.default = ROTransform;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1947,7 +2005,8 @@ class MaterialBase {
     this.m_sharedUniforms = null;
     this.m_shaderUniformData = null;
     this.m_pipeLine = null;
-    this.m_uniqueShaderName = ""; // sub rendering pass
+    this.m_uniqueShaderName = "";
+    this.uuid = ""; // sub rendering pass
 
     this.m_cases = null; // tex list unique hash value
 
@@ -1957,14 +2016,7 @@ class MaterialBase {
      * pipes type list for material pipeline
      */
 
-    this.pipeTypes = null; // renderState = 0;
-    // colorMask = 0;
-    // /**
-    //  * the default value is null
-    //  */
-    // stencil: Stencil = null;
-    // multiPass = false;
-
+    this.pipeTypes = null;
     /**
      * 如果是同样的 vtxInfo 内容，则一个material 实例可以对应多个entity即便是mesh不一样也可以
      * 如果 vtxInfo 内容 和 mesh 已经匹配，则附带这个vtxInfo只能用到对一个mesh的entity
@@ -2227,7 +2279,8 @@ class MaterialBase {
         }
       }
 
-      this.m_texDataEnabled = boo;
+      this.m_texDataEnabled = boo; // console.log("material tex test, texDataEnabled: ", boo, ", uuid: ", this.uuid);
+
       return boo;
     } else {
       if (this.m_shdData != null && this.m_shdData.getTexTotal() > 0) {
@@ -2338,7 +2391,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2681,7 +2734,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2717,7 +2770,7 @@ exports.default = RenderDrawMode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2828,7 +2881,7 @@ exports.default = MouseEvent;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2915,7 +2968,7 @@ exports.default = BoundsEntity;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2944,9 +2997,6 @@ const OrientationType_1 = __importDefault(__webpack_require__("abdb"));
 class Matrix4 {
   constructor(pfs32 = null, index = 0) {
     this.m_uid = -1;
-    this._mvx = new Vector3D_1.default();
-    this._mvy = new Vector3D_1.default();
-    this._mvz = new Vector3D_1.default();
     this.m_index = 0;
     this.m_fs32 = null;
     this.m_localFS32 = null;
@@ -2964,10 +3014,22 @@ class Matrix4 {
     }
   }
 
-  setData(data) {
-    if (data.length == 16) {
-      this.m_localFS32.set(data);
+  fromArray(array, offset = 0) {
+    const fs = this.m_localFS32;
+
+    for (let i = 0; i < 16; i++) {
+      fs[i] = array[i + offset];
     }
+
+    return this;
+  }
+
+  setData(array16) {
+    if (array16.length == 16) {
+      this.m_localFS32.set(array16);
+    }
+
+    return this;
   }
 
   getCapacity() {
@@ -3719,7 +3781,7 @@ class Matrix4 {
    */
 
 
-  decompose(orientationStyle) {
+  decompose(orientationStyle = OrientationType_1.default.EULER_ANGLES) {
     // TODO: optimize after 4 lines
     let vec = [];
     let mr = Matrix4.s_tMat4;
@@ -4526,7 +4588,7 @@ exports.default = Matrix4;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4586,7 +4648,7 @@ exports.RenderableMaterialBlock = RenderableMaterialBlock;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4804,7 +4866,7 @@ if (typeof window !== 'undefined') {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4875,7 +4937,7 @@ exports.default = MouseEventEntity;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4976,7 +5038,7 @@ exports.default = TextureDataType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5176,7 +5238,7 @@ exports.default = EntityFency;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5297,12 +5359,12 @@ class ShdProgram {
         }
 
         if (RendererDevice_1.default.SHADERCODE_TRACE_ENABLED) {
-          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attri aLocationTypes: " + this.m_aLocationTypes);
-          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attri m_aLocations: " + this.m_aLocations);
-          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attriNSList: " + attriNSList);
-          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attribLIndexList: " + this.m_attribLIndexList);
-          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attribTypeSizeList: " + this.m_attribTypeSizeList);
-          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attriSizeList: " + this.m_attriSizeList);
+          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attri aLocationTypes: ", this.m_aLocationTypes);
+          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attri m_aLocations: ", this.m_aLocations);
+          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attriNSList: ", attriNSList);
+          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attribLIndexList: ", this.m_attribLIndexList);
+          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attribTypeSizeList: ", this.m_attribTypeSizeList);
+          console.log("ShdProgram(" + this.m_uid + ")::createLocations(), attriSizeList: ", this.m_attriSizeList);
         }
       }
     }
@@ -5322,7 +5384,7 @@ class ShdProgram {
             ul = this.m_gl.getUniformLocation(this.m_program, uns);
 
             if (RendererDevice_1.default.SHADERCODE_TRACE_ENABLED) {
-              console.log("ShdProgram::createLocations() uniform, ul " + ul + ", uninforms[" + i + "].name: " + uns);
+              console.log("ShdProgram::createLocations() uniform, ul ", ul, ", uninforms[" + i + "].name: ", uns);
             }
 
             if (ul != null) {
@@ -5568,7 +5630,7 @@ class ShdProgram {
       console.log("frag shader code: \n" + fshd_str);
     }
 
-    let fragShader = this.loadShader(gl.FRAGMENT_SHADER, fshd_str); // Create the shader program      
+    let fragShader = this.loadShader(gl.FRAGMENT_SHADER, fshd_str); // Create the shader program
 
     let shdProgram = gl.createProgram();
     gl.attachShader(shdProgram, fragShader);
@@ -5589,6 +5651,7 @@ class ShdProgram {
     gl.detachShader(shdProgram, fragShader);
     gl.deleteShader(vertShader);
     gl.deleteShader(fragShader);
+    shdProgram.glVersion = gl.version;
     return shdProgram;
   }
 
@@ -5623,7 +5686,7 @@ class ShdProgram {
       this.m_gl = gl;
       this.m_program = this.initShdProgram();
       this.m_program.uniqueName = this.m_shdUniqueName;
-      if (null != this.m_program) this.createLocations();
+      if (this.m_program) this.createLocations();
     }
   }
   /**
@@ -5637,10 +5700,6 @@ class ShdProgram {
 
   uniformBlockBinding(uniform_block_ns, bindingIndex) {
     this.m_gl.uniformBlockBinding(this.m_program, this.m_gl.getUniformBlockIndex(this.m_program, uniform_block_ns), bindingIndex);
-  }
-
-  toString() {
-    return "[ShdProgram(uniqueName = " + this.m_shdUniqueName + ")]";
   }
   /**
    * @returns return current gpu shader  program
@@ -5660,12 +5719,15 @@ class ShdProgram {
       this.m_texTotal = 0;
     }
 
-    if (this.m_program != null) {
-      this.m_gl.deleteShader(this.m_vertShader);
-      this.m_gl.deleteShader(this.m_fragShader);
+    if (this.m_program) {
+      if (!this.m_gl.isContextLost()) {
+        this.m_gl.deleteShader(this.m_vertShader);
+        this.m_gl.deleteShader(this.m_fragShader);
+        this.m_gl.deleteProgram(this.m_program);
+      }
+
       this.m_vertShader = null;
       this.m_fragShader = null;
-      this.m_gl.deleteProgram(this.m_program);
       this.m_program = null;
     }
 
@@ -5688,7 +5750,7 @@ exports.default = ShdProgram;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5821,7 +5883,7 @@ exports.default = Matrix4Pool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6176,7 +6238,7 @@ exports.default = RendererState;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6238,7 +6300,7 @@ exports.default = AttributeLine;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6524,6 +6586,16 @@ class ShaderCodeUniform {
     this.m_uniqueNSKeys[11] = 1;
     this.m_uniqueNSKeyFlag = true;
   }
+  /**
+   * add Index of Refraction values map uniform code
+   */
+
+
+  addIORMap() {
+    this.m_codeBuilder.addTextureSample2D("VOX_IOR_MAP", true, true, false);
+    this.m_uniqueNSKeys[12] = 1;
+    this.m_uniqueNSKeyFlag = true;
+  }
 
   add2DMap(macroName = "", map2DEnabled = true, fragEnabled = true, vertEnabled = false) {
     this.m_codeBuilder.addTextureSample2D(macroName, map2DEnabled, fragEnabled, vertEnabled);
@@ -6552,7 +6624,7 @@ exports.ShaderCodeUniform = ShaderCodeUniform;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6717,7 +6789,7 @@ exports.default = Line3DMaterial;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6764,7 +6836,7 @@ exports.default = ProgressDataEvent;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7003,7 +7075,7 @@ exports.default = SurfaceNormalCalc;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7223,7 +7295,7 @@ exports.default = Stage3D;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7236,8 +7308,55 @@ Object.defineProperty(exports, "__esModule", {
 });
 const __$mcv = 1e-5;
 
+function lerp(x, y, t) {
+  return (1 - t) * x + t * y;
+}
+
+function euclideanModulo(n, m) {
+  return (n % m + m) % m;
+}
+
+function clamp(value, min, max) {
+  return Math.max(Math.min(value, max), min);
+}
+
+function hue2rgb(p, q, t) {
+  if (t < 0) t += 1;
+  if (t > 1) t -= 1;
+  if (t < 1 / 6) return p + (q - p) * 6 * t;
+  if (t < 1 / 2) return q;
+  if (t < 2 / 3) return p + (q - p) * 6 * (2 / 3 - t);
+  return p;
+}
+
+function srgbToLinear(c) {
+  return c < 0.04045 ? c * 0.0773993808 : Math.pow(c * 0.9478672986 + 0.0521327014, 2.4);
+}
+
+function linearToSRGB(c) {
+  return c < 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 0.41666) - 0.055;
+}
+
+function getHexStr(v) {
+  let t = Math.floor(v * 255.0);
+
+  if (t < 0xf) {
+    return "0" + t.toString(16);
+  } else {
+    return "" + t.toString(16);
+  }
+}
+
 class Color4 {
   constructor(pr = 1.0, pg = 1.0, pb = 1.0, pa = 1.0) {
+    this.h = 0.0;
+    this.s = 0.0;
+    this.l = 0.0;
+    this.v = 0.0;
+    this.c = 0.0;
+    this.m = 0.0;
+    this.y = 0.0;
+    this.k = 0.0;
     this.r = pr;
     this.g = pg;
     this.b = pb;
@@ -7246,6 +7365,14 @@ class Color4 {
 
   clone() {
     return new Color4(this.r, this.g, this.b, this.a);
+  }
+
+  gammaCorrect() {
+    const f = 1.0 / 2.2;
+    this.r = Math.pow(this.r, f);
+    this.g = Math.pow(this.g, f);
+    this.b = Math.pow(this.b, f);
+    return this;
   }
 
   fromArray4(arr, offset = 0) {
@@ -7303,24 +7430,35 @@ class Color4 {
     this.g = uint8G * k;
     this.b = uint8B * k;
     return this; // return this.setRGB3Bytes(r,g,b);
-  } // setRGB3Bytes(uint8R: number, uint8G: number, uint8B: number): Color4 {
-  //     let k = 1.0 / 255.0;
-  //     this.r = uint8R * k;
-  //     this.g = uint8G * k;
-  //     this.b = uint8B * k;
-  //     return this;
-  // }
-
+  }
 
   setRGBUint24(rgbUint24) {
-    this.r = (rgbUint24 >> 16 & 0x0000ff) / 255.0;
-    this.g = (rgbUint24 >> 8 & 0x0000ff) / 255.0;
-    this.b = (rgbUint24 & 0x0000ff) / 255.0;
+    const bit = 0xff;
+    this.r = (rgbUint24 >> 16 & bit) / 255.0;
+    this.g = (rgbUint24 >> 8 & bit) / 255.0;
+    this.b = (rgbUint24 & bit) / 255.0;
     return this;
   }
 
   getRGBUint24() {
     return (Math.round(this.r * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.b * 255);
+  }
+  /**
+   * @param argbUint32 example: 0xFFFF88cc
+   */
+
+
+  setARGBUint32(argbUint32) {
+    const bit = 0xff;
+    this.r = (argbUint32 >> 16 & bit) / 255.0;
+    this.g = (argbUint32 >> 8 & bit) / 255.0;
+    this.b = (argbUint32 & bit) / 255.0;
+    this.a = (argbUint32 >> 24 & bit) / 255.0;
+    return this;
+  }
+
+  getARGBUint32() {
+    return (Math.round(this.a * 255) << 24) + (Math.round(this.r * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.b * 255);
   }
 
   setRGBA4f(r, g, b, a) {
@@ -7328,6 +7466,150 @@ class Color4 {
     this.g = g;
     this.b = b;
     this.a = a;
+    return this;
+  }
+
+  setAlpha(a) {
+    this.a = a;
+    return this;
+  }
+  /**
+   *
+   * @param contrast its value range is [-50.0, 100.0]
+   */
+
+
+  setContrast(contrast) {
+    /*
+        //限制参数p;
+        if(p>0){p=p+1;}//当p>0时,函数图像无限趋近于垂直
+        else{p=1/(1-p);}//当p<0时,函数图像无限趋近于水平
+        //使函数图像绕(0.5,0.5)为中心旋转;
+        x=p*(x-0.5)+0.5;
+        //返回x限制在0-1之间的值;
+        return clamp(x, 0.0, 1.0);
+    */
+
+    /*
+        //限制参数p;
+        if(p>0){p=p+1;}//当p>0时,函数图像无限趋近于垂直
+        else{p=1/(1-p);}//当p<0时,函数图像无限趋近于水平
+        //R通道运算;
+        if(x.x>0.5){x.x=1-pow((2-x.x*2),p)/2;}
+        else{x.x=pow((x.x*2),p)/2;}
+        //G通道运算;
+        if(x.y>0.5){x.y=1-pow((2-2*x.y),p)/2;}
+        else{x.y=pow((2*x.y),p)/2;}
+        //B通道运算;
+        if(x.z>0.5){x.z=1-pow((2-2*x.z),p)/2;}
+        else{x.z=pow((2*x.z),p)/2;}
+        //返回值;
+        return x;
+        // thanks: https://zhuanlan.zhihu.com/p/415198746
+    */
+    const factor = 259.0 * (contrast + 255.0) / (255.0 * (259.0 - contrast));
+    const pr = 255.0 * this.r;
+    const pg = 255.0 * this.g;
+    const pb = 255.0 * this.b;
+    this.r = clamp(factor * (pr - 128.0) + 128.0, 0.0, 255.0) / 255.0;
+    this.g = clamp(factor * (pg - 128.0) + 128.0, 0.0, 255.0) / 255.0;
+    this.b = clamp(factor * (pb - 128.0) + 128.0, 0.0, 255.0) / 255.0;
+    return this;
+  }
+
+  toGray() {
+    this.r *= 0.2126;
+    this.g *= 0.7152;
+    this.b *= 0.0722;
+    return this;
+  }
+
+  setHSL(h, s, l) {
+    // h,s,l ranges are in 0.0 - 1.0
+    h = euclideanModulo(h, 1);
+    s = clamp(s, 0, 1);
+    l = clamp(l, 0, 1);
+
+    if (s === 0) {
+      this.r = this.g = this.b = l;
+    } else {
+      const p = l <= 0.5 ? l * (1 + s) : l + s - l * s;
+      const q = 2 * l - p;
+      this.r = hue2rgb(q, p, h + 1 / 3);
+      this.g = hue2rgb(q, p, h);
+      this.b = hue2rgb(q, p, h - 1 / 3);
+    }
+
+    return this;
+  }
+
+  getHSL(target = null) {
+    // h,s,l ranges are in 0.0 - 1.0
+    if (!target) {
+      target = new Color4();
+    }
+
+    const r = this.r,
+          g = this.g,
+          b = this.b;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let hue, saturation;
+    const lightness = (min + max) / 2.0;
+
+    if (min === max) {
+      hue = 0;
+      saturation = 0;
+    } else {
+      const delta = max - min;
+      saturation = lightness <= 0.5 ? delta / (max + min) : delta / (2 - max - min);
+
+      switch (max) {
+        case r:
+          hue = (g - b) / delta + (g < b ? 6 : 0);
+          break;
+
+        case g:
+          hue = (b - r) / delta + 2;
+          break;
+
+        case b:
+          hue = (r - g) / delta + 4;
+          break;
+      }
+
+      hue /= 6;
+    }
+
+    target.h = hue;
+    target.s = saturation;
+    target.l = lightness;
+    return target;
+  }
+
+  lerp(color, factor) {
+    this.r += (color.r - this.r) * factor;
+    this.g += (color.g - this.g) * factor;
+    this.b += (color.b - this.b) * factor;
+    return this;
+  }
+
+  lerpColors(color1, color2, factor) {
+    this.r = color1.r + (color2.r - color1.r) * factor;
+    this.g = color1.g + (color2.g - color1.g) * factor;
+    this.b = color1.b + (color2.b - color1.b) * factor;
+    return this;
+  }
+
+  lerpHSL(color, factor) {
+    const c0 = Color4.s_c0;
+    const c1 = Color4.s_c1;
+    this.getHSL(c0);
+    color.getHSL(c1);
+    const h = lerp(c0.h, c1.h, factor);
+    const s = lerp(c0.s, c1.s, factor);
+    const l = lerp(c0.l, c1.l, factor);
+    this.setHSL(h, s, l);
     return this;
   }
 
@@ -7397,6 +7679,37 @@ class Color4 {
 
     return this;
   }
+
+  rgbSizeTo(size) {
+    let d = Math.sqrt(this.r * this.r + this.g * this.g + this.b * this.b);
+    d = size / d;
+    this.r *= d;
+    this.g *= d;
+    this.b *= d;
+    return this;
+  }
+
+  copySRGBToLinear(color) {
+    this.r = srgbToLinear(color.r);
+    this.g = srgbToLinear(color.g);
+    this.b = srgbToLinear(color.b);
+    return this;
+  }
+
+  copyLinearToSRGB(color) {
+    this.r = linearToSRGB(color.r);
+    this.g = linearToSRGB(color.g);
+    this.b = linearToSRGB(color.b);
+    return this;
+  }
+
+  convertSRGBToLinear() {
+    return this.copySRGBToLinear(this);
+  }
+
+  convertLinearToSRGB() {
+    return this.copyLinearToSRGB(this);
+  }
   /**
    * @returns for example: rgba(255,255,255,1.0)
    */
@@ -7416,30 +7729,9 @@ class Color4 {
 
   getCSSHeXRGBColor() {
     let str = "#";
-    let t = Math.floor(this.r * 255.0);
-
-    if (t < 0xf) {
-      str += "0" + t.toString(16);
-    } else {
-      str += "" + t.toString(16);
-    }
-
-    t = Math.floor(this.g * 255.0);
-
-    if (t < 0xf) {
-      str += "0" + t.toString(16);
-    } else {
-      str += "" + t.toString(16);
-    }
-
-    t = Math.floor(this.b * 255.0);
-
-    if (t < 0xf) {
-      str += "0" + t.toString(16);
-    } else {
-      str += "" + t.toString(16);
-    }
-
+    str += getHexStr(this.r);
+    str += getHexStr(this.g);
+    str += getHexStr(this.b);
     return str;
   }
 
@@ -7449,6 +7741,8 @@ class Color4 {
 
 }
 
+Color4.s_c0 = new Color4();
+Color4.s_c1 = new Color4();
 exports.default = Color4;
 
 /***/ }),
@@ -7462,7 +7756,7 @@ exports.default = Color4;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7486,6 +7780,11 @@ class RendererDevice {
 
   static SetLanguage(language) {
     RendererDevice.s_language = language;
+  }
+
+  static IsChineseLanguage() {
+    let lg = RendererDevice.GetLanguage();
+    return lg == "zh-CN";
   }
 
   static GetLanguage() {
@@ -8139,7 +8438,7 @@ exports.createProgressDataEvent = createProgressDataEvent;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8192,6 +8491,7 @@ class DisplayEntity {
     this.m_parent = null;
     this.m_renderProxy = null;
     this.m_pipeLine = null;
+    this.intoRendererListener = null;
     /**
      * renderer scene entity flag, be used by the renderer system
      * 第0位到第19位总共20位存放自身在space中的 index id(最小值为1, 最大值为1048575,默认值是0, 也就是最多只能展示1048575个entitys),
@@ -8603,33 +8903,6 @@ class DisplayEntity {
     return this.m_display.ivsCount;
   }
 
-  setIvsParam(ivsIndex, ivsCount, updateBounds = false) {
-    // if (this.m_display != null) {
-    //     this.m_display.ivsIndex = ivsIndex;
-    //     this.m_display.ivsCount = ivsCount;
-    //     if (this.m_display.__$ruid > -1) {
-    //         const mh = this.m_mesh;
-    //         let ut = this.m_display.__$$runit;
-    //         ut.setIvsParam(ivsIndex, ivsCount);
-    //         if (updateBounds && this.isPolyhedral()) {
-    //             if (this.m_localBounds == mh.bounds) {
-    //                 this.m_localBounds = new AABB();
-    //                 this.m_localBounds.copyFrom(mh.bounds);
-    //             }
-    //             this.m_transStatus = ROTransform.UPDATE_TRANSFORM;
-    //             this.m_localBounds.reset();
-    //             let ivs = mh.getIVS();
-    //             this.m_localBounds.addFloat32AndIndices(mh.getVS(), ivs.subarray(ivsIndex, ivsIndex + ivsCount), mh.getVSStride());
-    //             this.m_localBounds.update();
-    //             if (this.m_trw != null) {
-    //                 this.m_trw.updateTo();
-    //             }
-    //         }
-    //     }
-    // }
-    throw Error("illagel operations ...");
-  }
-
   getMesh() {
     return this.m_mesh;
   }
@@ -8865,15 +9138,19 @@ class DisplayEntity {
   }
 
   localToGlobal(pv) {
-    if (this.m_trs != null) {
+    if (this.m_trs) {
       this.m_trs.localToGlobal(pv);
     }
+
+    return this;
   }
 
   globalToLocal(pv) {
-    if (this.m_trs != null) {
+    if (this.m_trs) {
       this.m_trs.globalToLocal(pv);
     }
+
+    return this;
   }
   /**
    * 表示没有加入任何渲染场景或者渲染器
@@ -9054,10 +9331,8 @@ class DisplayEntity {
       this.m_trw.destroy();
       this.m_trw = null;
     }
-  }
 
-  toString() {
-    return "DisplayEntity(uuid=" + this.uuid + ",uid = " + this.m_uid + ", rseFlag = " + this.__$rseFlag + ")";
+    this.intoRendererListener = null;
   }
 
 }
@@ -9116,7 +9391,7 @@ exports.MaterialContextParam = MaterialContextParam;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9219,7 +9494,7 @@ class ShaderCodeBuilder {
     return this.uniform.getUniqueNSKeyString() + ns;
   }
 
-  reset() {
+  reset(flag = true) {
     this.uns = "";
     this.m_vertObjMat = true;
     this.m_vertViewMat = true;
@@ -9268,7 +9543,13 @@ class ShaderCodeBuilder {
     this.vertMatrixInverseEnabled = false;
     this.fragMatrixInverseEnabled = false;
     this.vtxUVTransfromEnabled = false;
-    this.m_preCompileInfo = new ShaderCompileInfo_1.default();
+
+    if (flag) {
+      this.m_preCompileInfo = new ShaderCompileInfo_1.default();
+    } else {
+      this.m_preCompileInfo = null;
+    }
+
     this.uniform.reset();
   }
 
@@ -9939,7 +10220,7 @@ exports.default = ShaderCodeBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9986,7 +10267,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10078,7 +10359,7 @@ exports.default = TexturePool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10306,7 +10587,7 @@ exports.ShaderTextureBuilder = ShaderTextureBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10744,7 +11025,7 @@ exports.MaterialPipeType = MaterialPipeType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10896,7 +11177,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11046,7 +11327,7 @@ exports.default = BytesCubeTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11144,7 +11425,7 @@ exports.default = Texture3DProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11227,7 +11508,7 @@ exports.default = RenderingEntitySet;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11586,7 +11867,7 @@ exports.TextureBlock = TextureBlock;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11644,7 +11925,7 @@ exports.default = TextureTarget;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11692,7 +11973,7 @@ class ImageTextureProxy extends TextureProxy_1.default {
 
 
   setDataFromImage(img, miplevel = 0, offsetx = 0, offsety = 0, rebuild = false) {
-    if (img != null && img.width > 0 && img.height > 0) {
+    if (img && img.width > 0 && img.height > 0) {
       this.m_haveRData = true;
       if (miplevel < 0) miplevel = 0;
       if (miplevel > 15) miplevel = 15;
@@ -11748,6 +12029,7 @@ class ImageTextureProxy extends TextureProxy_1.default {
       }
 
       this.version++;
+      this.testDataEnough();
     }
   }
 
@@ -11814,7 +12096,7 @@ exports.default = ImageTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11907,7 +12189,7 @@ exports.default = BoundsMesh;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12329,7 +12611,7 @@ exports.default = MaterialConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12416,7 +12698,7 @@ exports.ShaderCodeType = ShaderCodeType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12564,7 +12846,7 @@ exports.Material = Material;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12577,6 +12859,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class MathConst {
+  // compute euclidean modulo of m % n
+  // https://en.wikipedia.org/wiki/Modulo_operation
+  static EuclideanModulo(n, m) {
+    return (n % m + m) % m;
+  }
+
   static Clamp(value, min, max) {
     return Math.max(Math.min(value, max), min);
   }
@@ -12755,7 +13043,7 @@ exports.default = MathConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12809,7 +13097,7 @@ exports.default = KeyboardEvent;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12909,7 +13197,7 @@ exports.default = ROVtxBufUidStore;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12978,7 +13266,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13007,7 +13295,7 @@ exports.default = RenderFilter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13033,6 +13321,112 @@ exports.DisplayRenderSign = DisplayRenderSign;
 
 /***/ }),
 
+/***/ "75b9":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class URLFilter {
+  static isEnabled() {
+    let hostUrl = window.location.href;
+    return hostUrl.indexOf(".artvily.com") > 0;
+  }
+
+  static filterUrl(url) {
+    if (url.indexOf("blob:") < 0) {
+      console.log("use common tex url");
+      let hostUrl = window.location.href;
+
+      if (hostUrl.indexOf(".artvily.") > 0) {
+        hostUrl = "http://www.artvily.com:9090/";
+        url = hostUrl + url;
+      }
+    }
+
+    return url;
+  }
+
+  static getFileName(url, lowerCase = false) {
+    if (url.indexOf("blob:") < 0) {
+      let i = url.lastIndexOf("/");
+
+      if (i < 0) {
+        return "";
+      }
+
+      let j = url.indexOf(".", i);
+
+      if (j < 0) {
+        return "";
+      }
+
+      if (i + 2 < j) {
+        let str = url.slice(i + 1, j);
+
+        if (lowerCase) {
+          return str.toLocaleLowerCase();
+        }
+
+        return str;
+      }
+    }
+
+    return "";
+  }
+
+  static getFileNameAndSuffixName(url, lowerCase = false) {
+    if (url.indexOf("blob:") < 0) {
+      let i = url.lastIndexOf("/");
+      let j = url.indexOf(".", i);
+
+      if (j < 0) {
+        return "";
+      }
+
+      let str = url.slice(i + 1);
+
+      if (lowerCase) {
+        return str.toLocaleLowerCase();
+      }
+
+      return str;
+    }
+
+    return "";
+  }
+
+  static getFileSuffixName(url, lowerCase = false) {
+    if (url.indexOf("blob:") < 0) {
+      let i = url.lastIndexOf("/");
+      let j = url.indexOf(".", i);
+
+      if (j < 0) {
+        return "";
+      }
+
+      let str = url.slice(j + 1);
+
+      if (lowerCase) {
+        return str.toLocaleLowerCase();
+      }
+
+      return str;
+    }
+
+    return "";
+  }
+
+}
+
+exports.default = URLFilter;
+
+/***/ }),
+
 /***/ "765c":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13042,7 +13436,7 @@ exports.DisplayRenderSign = DisplayRenderSign;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13557,7 +13951,7 @@ exports.default = MouseEvt3DController;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13711,7 +14105,7 @@ exports.TextureProxyType = TextureProxyType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13846,7 +14240,7 @@ exports.default = VtxSeparatedBuf;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13984,7 +14378,7 @@ exports.default = Entity3DNode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14244,7 +14638,7 @@ exports.default = StageBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14310,7 +14704,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14737,7 +15131,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14795,7 +15189,7 @@ exports.SpecularMode = SpecularMode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14824,7 +15218,7 @@ exports.default = VtxNormalType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15103,7 +15497,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15344,7 +15738,7 @@ exports.default = VtxBufConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15426,7 +15820,7 @@ exports.default = TextureConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15945,7 +16339,7 @@ const v_m_v1 = new Vector3D();
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16113,7 +16507,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16449,6 +16843,9 @@ class RayGpuSelector {
   gpuPick(total) {
     let rcontext = this.m_renderer.getRendererContext();
     let proxy = this.m_renderer.getRenderProxy();
+    let adp = proxy.adapter;
+    let syncBgColor = adp.getSyncBgColor();
+    adp.setSyncBgColor(false);
     let pmx = proxy.getStage3D().mouseX; //let pmy:number = proxy.getStage3D().stageHeight - proxy.getStage3D().mouseY;
 
     let pmy = proxy.getStage3D().mouseY;
@@ -16522,6 +16919,7 @@ class RayGpuSelector {
     RendererState_1.default.UnlockDepthTestMode();
     const c = this.m_initColor;
     rcontext.setClearRGBAColor4f(c.r, c.g, c.b, c.a);
+    adp.setSyncBgColor(syncBgColor);
     rcontext.resetState();
   }
 
@@ -16551,7 +16949,7 @@ exports.default = RayGpuSelector;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16850,7 +17248,7 @@ exports.default = RunnableQueue;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16989,7 +17387,7 @@ exports.default = Uint16TextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -17015,7 +17413,6 @@ class ShaderProgramBuilder {
   constructor(rcuid) {
     this.m_shdDict = new Map();
     this.m_shdList = [];
-    this.m_shdListLen = 0;
     this.m_sharedUniformList = [];
     this.m_rcuid = -1;
     this.m_rcuid = rcuid;
@@ -17033,23 +17430,22 @@ class ShaderProgramBuilder {
    */
 
 
-  create(shdData) {
-    // console.log("this.Create() begin...");
+  create(shdData, rc) {
     let uns = shdData.getUniqueShaderName();
 
     if (this.m_shdDict.has(uns)) {
       return this.m_shdDict.get(uns);
     }
 
-    let p = new ShdProgram_1.default(this.m_shdListLen);
+    let p = new ShdProgram_1.default(this.m_shdList.length);
     p.setShdData(shdData);
     this.m_shdList[p.getUid()] = p;
     this.m_sharedUniformList[p.getUid()] = null;
-    ++this.m_shdListLen;
+    ++this.m_shdList.length;
     this.m_shdDict.set(uns, p);
 
     if (RendererDevice_1.default.SHADERCODE_TRACE_ENABLED) {
-      console.log("this.Create() a new ShdProgram: ", p.toString());
+      console.log("this.Create() a new ShdProgram, uns: ", uns, ", p: ", p);
     }
 
     return p;
@@ -17082,11 +17478,22 @@ class ShaderProgramBuilder {
   }
 
   getTotal() {
-    return this.m_shdListLen;
+    return this.m_shdList.length;
   }
 
   containsUid(uid) {
-    return uid > -1 && uid < this.m_shdListLen;
+    return uid > -1 && uid < this.m_shdList.length;
+  }
+
+  clear() {
+    let map = this.m_shdDict;
+    this.m_shdList = [];
+
+    for (var [k, v] of map.entries()) {
+      v.destroy();
+    }
+
+    map.clear();
   }
 
 }
@@ -17116,7 +17523,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -17459,7 +17866,7 @@ exports.default = RendererSpace;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -17624,7 +18031,7 @@ exports.ShadowMode = ShadowMode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -17676,6 +18083,8 @@ const Matrix4_1 = __importDefault(__webpack_require__("18c7"));
 const EntityTransUpdater_1 = __importDefault(__webpack_require__("7c36"));
 
 const EntityFence_1 = __importDefault(__webpack_require__("20d6"));
+
+const VoxSystemVerify_1 = __importDefault(__webpack_require__("0188"));
 
 class RendererSceneBase {
   constructor(uidBase = 0) {
@@ -17879,19 +18288,19 @@ class RendererSceneBase {
   }
 
   setClearUint24Color(colorUint24, alpha = 1.0) {
-    this.m_rproxy.setClearUint24Color(colorUint24, alpha);
+    if (this.m_rproxy) this.m_rproxy.setClearUint24Color(colorUint24, alpha);
   }
 
   setClearRGBColor3f(pr, pg, pb) {
-    this.m_rproxy.setClearRGBColor3f(pr, pg, pb);
+    if (this.m_rproxy) this.m_rproxy.setClearRGBColor3f(pr, pg, pb);
   }
 
   setClearRGBAColor4f(pr, pg, pb, pa) {
-    this.m_rproxy.setClearRGBAColor4f(pr, pg, pb, pa);
+    if (this.m_rproxy) this.m_rproxy.setClearRGBAColor4f(pr, pg, pb, pa);
   }
 
   setClearColor(color) {
-    this.m_rproxy.setClearRGBAColor4f(color.r, color.g, color.b, color.a);
+    if (this.m_rproxy) this.m_rproxy.setClearRGBAColor4f(color.r, color.g, color.b, color.a);
   }
 
   setRenderToBackBuffer() {
@@ -17902,9 +18311,13 @@ class RendererSceneBase {
     let srcCanvas = this.getCanvas();
     dstCanvasCtx.drawImage(srcCanvas, px, py, width, height);
   }
+  /**
+   * @param sync the default value is true
+   */
 
-  updateRenderBufferSize() {
-    this.m_adapter.updateRenderBufferSize();
+
+  updateRenderBufferSize(sync = true) {
+    this.m_adapter.updateRenderBufferSize(sync);
   }
 
   setEvt3DController(evt3DCtr) {
@@ -17921,7 +18334,7 @@ class RendererSceneBase {
   }
 
   enableMouseEvent(gpuTestEnabled = true) {
-    if (this.m_evt3DCtr == null) {
+    if (this.m_evt3DCtr == null && this.m_rspace) {
       if (gpuTestEnabled) {
         this.m_rspace.setRaySelector(new RayGpuSelector_1.default());
       } else {
@@ -17951,11 +18364,11 @@ class RendererSceneBase {
   }
 
   addEventListener(type, target, func, captureEnabled = true, bubbleEnabled = false) {
-    this.m_currStage3D.addEventListener(type, target, func, captureEnabled, bubbleEnabled);
+    if (this.m_currStage3D) this.m_currStage3D.addEventListener(type, target, func, captureEnabled, bubbleEnabled);
   }
 
   removeEventListener(type, target, func) {
-    this.m_currStage3D.removeEventListener(type, target, func);
+    if (this.m_currStage3D) this.m_currStage3D.removeEventListener(type, target, func);
   }
 
   setAccessor(accessor) {
@@ -17974,8 +18387,16 @@ class RendererSceneBase {
   initThis() {// this.tickUpdate();
   }
 
+  setCanvas(canvas) {
+    return false;
+  }
+
   initialize(rparam = null, renderProcessesTotal = 3, createNewCamera = true) {
     if (this.m_renderer == null) {
+      if (!VoxSystemVerify_1.default.isEnabled()) {
+        return;
+      }
+
       if (rparam == null) rparam = new RendererParam_1.default();
       this.m_rparam = rparam;
       let selfT = this;
@@ -18457,10 +18878,6 @@ class RendererSceneBase {
 
 
   update(autoCycle = true, mouseEventEnabled = true) {
-    // if (this.m_runner) {
-    //     this.m_runner();
-    // }
-    // this.stage3D.enterFrame();
     const st = this.m_currStage3D;
 
     if (st != null) {
@@ -18596,6 +19013,7 @@ class RendererSceneBase {
 
   setProcessEnabledAt(i, enabled) {
     if (i >= 0 && i < this.m_processids.length) {
+      // console.log("rbase this.m_processids[i], enabled: ", i, this.m_processids[i], enabled);
       this.m_renderer.setProcessEnabledAt(this.m_processids[i], enabled);
       this.m_penableds[i] = enabled;
     }
@@ -18934,7 +19352,7 @@ exports.default = UniformConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -18964,7 +19382,7 @@ exports.default = OrientationType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -19060,7 +19478,7 @@ exports.default = DepthTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -19365,7 +19783,7 @@ exports.default = ShaderData;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -19463,6 +19881,7 @@ class DisplayEntityContainer {
 
     this.mouseEnabled = false;
     this.m_rendering = true;
+    this.m_rst = 0;
     this.m_rx = 0;
     this.m_ry = 0;
     this.m_rz = 0;
@@ -19677,7 +20096,7 @@ class DisplayEntityContainer {
           }
 
           if (flag != child.isSpaceEnabled()) {
-            throw Error("illegal operation !!!");
+            throw Error("flag != child.isSpaceEnabled(), illegal operation !!!");
           }
 
           if (this.m_cbvers != null) {
@@ -19925,6 +20344,22 @@ class DisplayEntityContainer {
     return false;
   }
 
+  setRenderState(rst) {
+    this.m_rst = rst;
+
+    for (let i = 0; i < this.m_entities.length; ++i) {
+      this.m_entities[i].setRenderState(rst);
+    }
+
+    for (let i = 0; i < this.m_children.length; ++i) {
+      this.m_children[i].setRenderState(rst);
+    }
+  }
+
+  getRenderState() {
+    return this.m_rst;
+  }
+
   __$getParentVisible() {
     return this.m_parentVisible;
   }
@@ -20162,10 +20597,12 @@ class DisplayEntityContainer {
 
   localToGlobal(pv) {
     this.getMatrix().transformVectorSelf(pv);
+    return this;
   }
 
   globalToLocal(pv) {
     this.getInvMatrix().transformVectorSelf(pv);
+    return this;
   }
 
   getInvMatrix() {
@@ -20439,7 +20876,7 @@ exports.default = DisplayEntityContainer;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -20511,6 +20948,8 @@ class FBOInstance {
      */
 
     this.uns = "FBOInstance";
+    this.runBeginCall = null;
+    this.runEndCall = null;
     this.m_lockRenderState = false;
     this.m_lockMaterial = false;
     this.m_autoEnd = true;
@@ -21205,6 +21644,12 @@ class FBOInstance {
 
   runBegin() {
     if (this.m_fboIndex >= 0 && this.m_rindexs != null) {
+      if (this.runBeginCall) {
+        let cf = this.runBeginCall;
+        this.runBeginCall = null;
+        cf();
+      }
+
       this.m_runFlag = true;
       this.runBeginDo();
     }
@@ -21216,6 +21661,12 @@ class FBOInstance {
 
     if (this.m_viewportLock) {
       this.m_adapter.unlockViewport();
+    }
+
+    if (this.runEndCall) {
+      let cf = this.runEndCall;
+      this.runEndCall = null;
+      cf();
     }
   }
 
@@ -21295,13 +21746,13 @@ class FBOInstance {
     this.run(this.m_lockRenderState, this.m_lockMaterial, this.m_autoEnd, this.m_autoRunBegin);
   }
   /**
-   * @param auto enable auto runnning this instance
+   * @param auto enable auto runnning this instance, the default value is true
    * @param prepend perpend this into the renderer rendering process or append, the default value is true
    * @returns instance self
    */
 
 
-  setAutoRunning(auto, prepend = true) {
+  setAutoRunning(auto = true, prepend = true) {
     if (auto != this.m_autoRRun) {
       this.m_autoRRun = auto;
 
@@ -21338,7 +21789,7 @@ exports.default = FBOInstance;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -21469,7 +21920,7 @@ exports.default = EntityNodeQueue;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -21793,7 +22244,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -21819,7 +22270,7 @@ exports.default = FrameBufferType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -21974,7 +22425,7 @@ exports.default = MouseEvt3DDispatcher;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22343,7 +22794,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22384,7 +22835,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22442,7 +22893,7 @@ exports.ShaderCode = ShaderCode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22481,13 +22932,28 @@ class RendererParam {
     this.m_polygonOffsetEnabled = false;
     this.m_ditherEnabled = false;
     this.divW = 800;
-    this.divH = 600; // display 3d view buf size auto sync window size
+    this.divH = 600;
+    this.autoAttachingHtmlDoc = true;
+    /**
+     * the default value is false
+     */
+
+    this.offscreenRenderEnabled = false; // display 3d view buf size auto sync window size
 
     this.autoSyncRenderBufferAndWindowSize = true;
     this.maxWebGLVersion = 2;
-    this.cameraPerspectiveEnabled = true; // event flow control enable
+    this.cameraPerspectiveEnabled = true;
+    /**
+     * event flow control enable
+     * the default value is false
+     */
 
     this.evtFlowEnabled = false;
+    /**
+     * receiving sys events flag
+     */
+
+    this.sysEvtReceived = true;
     /**
      * x: fov, y: near, z: far
      */
@@ -22499,6 +22965,18 @@ class RendererParam {
     this.syncBgColor = true;
     this.batchEnabled = true;
     this.processFixedState = false;
+    this.hideWindowFrame = true;
+    /**
+     * the default value is true
+     */
+
+    this.viewSizeWithTwo = true;
+    /**
+     * the default value is true
+     */
+
+    this.viewSizeToBigger = true;
+    this.m_scissorTestEanbled = false;
     this.m_mainDiv = div;
 
     if (div) {
@@ -22534,9 +23012,18 @@ class RendererParam {
     return this.m_polygonOffsetEnabled;
   }
 
-  setDitherEanbled(ditherEnabled) {
-    this.m_ditherEnabled = ditherEnabled;
+  setScissorTestEanbled(enabled) {
+    this.m_scissorTestEanbled = enabled;
   }
+
+  getScissorTestEanbled() {
+    return this.m_scissorTestEanbled;
+  }
+
+  setDitherEanbled(enabled) {
+    this.m_ditherEnabled = enabled;
+  } //SCISSOR_TEST
+
 
   getDitherEanbled() {
     return this.m_ditherEnabled;
@@ -22560,6 +23047,10 @@ class RendererParam {
 
   setAttriAlpha(boo) {
     this.m_renderContextAttri.alpha = boo;
+  }
+
+  getAttriAlpha() {
+    return this.m_renderContextAttri.alpha;
   }
 
   setAttriPremultipliedAlpha(boo) {
@@ -22643,7 +23134,7 @@ exports.default = RendererParam;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -23903,7 +24394,7 @@ exports.default = CameraBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -24316,7 +24807,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -24400,7 +24891,7 @@ exports.default = BitConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -24829,7 +25320,7 @@ exports.default = MeshBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -24918,7 +25409,7 @@ exports.EulerOrder = EulerOrder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -25105,7 +25596,7 @@ exports.RTTTextureStore = RTTTextureStore;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -25194,26 +25685,31 @@ class RTTTextureProxy extends TextureProxy_1.default {
       this.m_texWidth = fboWidth;
       this.m_texHeight = fboHeight;
 
-      this.__$buildParam(gl);
+      this.__$buildParam(gl); // console.log(">>>>>>>>>>>>> uploadFromFbo() A ...");
+
     } else if (this.getBufWidth() != fboWidth || this.getBufHeight() != fboHeight) {
       texResource.bindToGpu(this.getResUid());
       this.bindTexture(gl, fboWidth, fboHeight);
       this.m_texWidth = fboWidth;
       this.m_texHeight = fboHeight;
 
-      this.__$buildParam(gl);
+      this.__$buildParam(gl); // console.log(">>>>>>>>>>>>> uploadFromFbo() B ...");
+
     }
 
     this.mipmapEnabled = mEnabled;
+    this.testDataEnough();
   }
 
   bindTexture(rgl, fboWidth, fboHeight) {
-    let interType = TextureFormat_1.default.ToGL(rgl, this.internalFormat);
-    let format = TextureFormat_1.default.ToGL(rgl, this.srcFormat);
-    let type = TextureDataType_1.default.ToGL(rgl, this.dataType); //console.log(this,", fboWidth, fboHeight: ",fboWidth, fboHeight, interType,format);
+    const interType = TextureFormat_1.default.ToGL(rgl, this.internalFormat);
+    const format = TextureFormat_1.default.ToGL(rgl, this.srcFormat);
+    const type = TextureDataType_1.default.ToGL(rgl, this.dataType);
+    console.log("RTT Tex, fboWidth, fboHeight: ", fboWidth, fboHeight, interType, format);
 
     switch (this.m_texTarget) {
       case TextureTarget_1.default.TEXTURE_2D:
+        console.log("RTT tex 2d, fboWidth, fboHeight: ", fboWidth, fboHeight, interType, format, type);
         rgl.texImage2D(rgl.TEXTURE_2D, 0, interType, fboWidth, fboHeight, 0, format, type, null);
         break;
 
@@ -25248,7 +25744,7 @@ exports.default = RTTTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -25369,7 +25865,7 @@ exports.default = VtxDrawingInfo;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -25421,7 +25917,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -25469,6 +25965,7 @@ class ImageCubeTextureProxy extends TextureProxy_1.default {
           miplevel: miplevel
         };
         this.m_haveRData = this.m_imgDataList[index] != null;
+        this.testDataEnough();
       }
     }
   }
@@ -25481,10 +25978,6 @@ class ImageCubeTextureProxy extends TextureProxy_1.default {
       imo = this.m_imgDataList[i];
       gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, this.m_miplevel, TextureFormat_1.default.ToGL(gl, this.internalFormat), TextureFormat_1.default.ToGL(gl, this.srcFormat), TextureDataType_1.default.ToGL(gl, this.dataType), imo.imgData);
     }
-  }
-
-  toString() {
-    return "[ImageCubeTextureProxy(name:" + this.name + ",uid=" + this.getUid() + ",width=" + this.getWidth() + ",height=" + this.getHeight() + ")]";
   }
 
   __$destroy() {
@@ -25564,7 +26057,7 @@ exports.default = CameraDsistanceSorter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -25711,7 +26204,7 @@ exports.default = TextureResSlot;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -25963,7 +26456,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -26218,7 +26711,7 @@ exports.default = RawDataTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -26382,7 +26875,7 @@ exports.DepthTestMode = DepthTestMode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -26676,7 +27169,7 @@ exports.AABBCalc = AABBCalc;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -26981,7 +27474,7 @@ exports.default = Plane;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -27009,6 +27502,7 @@ class PixelPickIndexShaderBuffer extends ShaderCodeBuffer_1.default {
   constructor() {
     super();
     this.m_uniqueName = "";
+    this.codeBuilderEnabled = false;
   }
 
   initialize(texEnabled) {
@@ -27115,7 +27609,7 @@ exports.default = PixelPickIndexMaterial;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -27680,7 +28174,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -27857,7 +28351,7 @@ exports.default = FloatCubeTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -28083,7 +28577,7 @@ exports.default = CoRendererSubScene;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -28213,7 +28707,7 @@ exports.default = EvtNode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -28356,7 +28850,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -28385,7 +28879,7 @@ exports.default = VtxBufID;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -28496,7 +28990,7 @@ exports.default = VtxCombinedBuf;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -28529,7 +29023,7 @@ exports.default = ShaderCompileInfo;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -28628,7 +29122,7 @@ exports.ShaderCodeUUID = ShaderCodeUUID;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -28678,7 +29172,7 @@ exports.default = AbsGeomBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -29241,7 +29735,7 @@ exports.default = ImageTextureLoader;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -29272,31 +29766,66 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     this.normalEnabled = false;
     this.vtxMatrixTransform = true;
     this.tns = "";
+    this.fragBodyTailCode = "\n";
+    this.fragHeadTailCode = "\n";
+    this.alignScreen = false;
+    this.fixAlignScreen = false;
+    this.mapLodEnabled = false;
+    this.fragUniformData = null;
   }
 
   initialize(texEnabled) {
     super.initialize(texEnabled);
     this.m_uniqueName = "VOX_Default3DShd";
-    if (this.m_texEnabled) this.m_uniqueName += "_tex";
-    if (this.vertColorEnabled) this.m_uniqueName += "_vtxColor";
-    if (this.premultiplyAlpha) this.m_uniqueName += "_preMulAlpha";
+    if (this.m_texEnabled) this.m_uniqueName += "Tex";
+    if (this.vertColorEnabled) this.m_uniqueName += "VtxColor";
+    if (this.premultiplyAlpha) this.m_uniqueName += "PreMulAlpha";
     this.adaptationShaderVersion = false;
+
+    if (this.fixAlignScreen) {
+      this.m_uniqueName += "FixAlScr";
+    } else if (this.alignScreen) {
+      this.m_uniqueName += "AlScr";
+    }
+
+    if (this.mapLodEnabled) {
+      this.m_uniqueName += "TLod";
+    }
+
+    if (this.fragUniformData) {
+      this.m_uniqueName += "FUDL" + this.fragUniformData.length;
+    }
   }
 
   buildShader() {
     let coder = this.m_coder;
     coder.addVertLayout("vec3", "a_vs");
-    coder.addFragUniform("vec4", "u_color");
+    coder.addFragUniform("vec4", "u_fragParams", 3);
+    coder.useVertSpaceMats(false, false, false);
+
+    if (this.fixAlignScreen) {
+      this.vtxMatrixTransform = false;
+      coder.addDefine("VOX_FIX_ALIGN_SCREEN");
+    } else if (this.alignScreen) {
+      this.vtxMatrixTransform = false;
+      coder.useVertSpaceMats(true, false, false);
+      coder.addDefine("VOX_ALIGN_SCREEN");
+    }
 
     if (this.vtxMatrixTransform) {
       coder.addDefine("VOX_VTX_MAT_TRANSFORM");
       coder.useVertSpaceMats(true, true, true);
-    } else {
-      coder.useVertSpaceMats(false, false, false);
     }
+
+    if (this.fragUniformData) {
+      coder.addFragUniform("vec4", "u_fragDatas", Math.floor(this.fragUniformData.length / 4));
+    }
+
+    coder.mapLodEnabled = false;
 
     if (this.m_texEnabled) {
       this.m_uniform.addDiffuseMap();
+      coder.mapLodEnabled = this.mapLodEnabled;
       coder.addVertLayout("vec2", "a_uvs");
       coder.addVarying("vec2", "v_uv");
       coder.addVertUniform("vec4", "u_uvTrans");
@@ -29308,6 +29837,7 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     /*
     coder.addVertHeadCode(
     `
+    //  FragColor0 *= VOX_Texture2D(VOX_DIFFUSE_MAP, vec2(v_uv[0],v_uv[1]));
     float calcValue(float px) {
     if(px > 1.0) {
     float t = fract(px);
@@ -29335,26 +29865,35 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     }
 
     coder.addFragOutput("vec4", "FragColor0");
+    coder.addFragHeadCode(this.fragHeadTailCode);
     coder.addFragMainCode(`
     FragColor0 = vec4(1.0);
     #ifdef VOX_USE_2D_MAP
-        //  FragColor0 *= VOX_Texture2D(VOX_DIFFUSE_MAP, vec2(v_uv[0],v_uv[1]));
-        FragColor0 *= VOX_Texture2D(VOX_DIFFUSE_MAP, v_uv.xy);
+        #ifdef VOX_Texture2DLod
+            vec4 color4 = VOX_Texture2DLod(VOX_DIFFUSE_MAP, v_uv, u_param[2].w);
+        #else
+            FragColor0 *= VOX_Texture2D(VOX_DIFFUSE_MAP, v_uv.xy);
+        #endif
     #endif
     #ifdef VOX_USE_VTX_COLOR
         FragColor0.xyz *= v_cv.xyz;
     #endif
+    vec4 param = u_fragParams[0];
+    vec4 offsetParam = u_fragParams[1];
     #ifdef VOX_PREMULTIPLY_ALPHA
-        FragColor0.rgb *= u_color.xyz;
-        FragColor0.a *= u_color.w;
-        FragColor0.rgb *= u_color.aaa;
+        FragColor0 *= param;
+        FragColor0.xyz += offsetParam.xyz;
+        param.w += offsetParam.w;
+        FragColor0.xyz *= param.www;
     #else
-        FragColor0 *= u_color;
+        FragColor0 *= param;
+        FragColor0 += offsetParam;
     #endif
     #ifdef VOX_USE_NORMAL
         float nDotL = max(dot(v_worldNormal.xyz, direc), 0.0);
         FragColor0.xyz = FragColor0.xyz * 0.7 + 0.3 * FragColor0.xyz * vec3(nDotL);
     #endif
+	${this.fragBodyTailCode}
 `);
     coder.addVertMainCode(`
     localPosition = vec4(a_vs.xyz,1.0);
@@ -29367,7 +29906,11 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
             v_worldNormal = normalize( a_nvs.xyz * inverse(mat3(u_objMat)) );
         #endif
     #else
-        gl_Position = localPosition;
+        #ifdef VOX_ALIGN_SCREEN
+            gl_Position = u_objMat * localPosition;
+        #else
+            gl_Position = localPosition;
+        #endif
         #ifdef VOX_USE_NORMAL
             v_worldNormal = normalize( a_nvs.xyz );
         #endif
@@ -29391,14 +29934,20 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
 class Default3DMaterial extends MaterialBase_1.default {
   constructor() {
     super();
-    this.m_data = new Float32Array([1.0, 1.0, 1.0, 1.0]);
+    this.m_data = new Float32Array([1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0, 0, 0, 0, 0]);
     this.m_uvTrans = new Float32Array([0.0, 0.0, 1.0, 1.0]);
     this.name = "";
+    this.fragBodyTailCode = "";
+    this.fragHeadTailCode = "";
     this.vertColorEnabled = false;
     this.premultiplyAlpha = false;
     this.normalEnabled = false;
     this.shadowReceiveEnabled = false;
     this.vtxMatrixTransform = true;
+    this.alignScreen = false;
+    this.fixAlignScreen = false;
+    this.mapLodEnabled = false;
+    this.fragUniformData = null;
 
     if (Default3DMaterial.s_shdCodeBuffer == null) {
       Default3DMaterial.s_shdCodeBuffer = new Default3DShaderCodeBuffer();
@@ -29408,12 +29957,18 @@ class Default3DMaterial extends MaterialBase_1.default {
   buildBuf() {
     let buf = Default3DMaterial.s_shdCodeBuffer;
     buf.tns = this.name;
+    buf.fragBodyTailCode = this.fragBodyTailCode;
+    buf.fragHeadTailCode = this.fragHeadTailCode;
     buf.getShaderCodeBuilder().normalEnabled = this.normalEnabled;
     buf.vertColorEnabled = this.vertColorEnabled;
     buf.premultiplyAlpha = this.premultiplyAlpha;
     buf.normalEnabled = this.normalEnabled;
     buf.shadowReceiveEnabled = this.shadowReceiveEnabled;
     buf.vtxMatrixTransform = this.vtxMatrixTransform;
+    buf.alignScreen = this.alignScreen;
+    buf.fixAlignScreen = this.fixAlignScreen;
+    buf.mapLodEnabled = this.mapLodEnabled;
+    buf.fragUniformData = this.fragUniformData;
   }
   /**
    * get a shader code buf instance, for sub class override
@@ -29473,10 +30028,34 @@ class Default3DMaterial extends MaterialBase_1.default {
     color.fromArray4(this.m_data);
   }
 
+  setOffsetRGB3f(pr, pg, pb) {
+    this.m_data[4] = pr;
+    this.m_data[5] = pg;
+    this.m_data[6] = pb;
+  }
+
+  setOffsetRGBA4f(pr, pg, pb, pa) {
+    this.m_data[4] = pr;
+    this.m_data[5] = pg;
+    this.m_data[6] = pb;
+    this.m_data[7] = pa;
+  }
+
+  setTextureLodLevel(lodLv) {
+    this.m_data[11] = lodLv;
+  }
+
   createSelfUniformData() {
     let oum = new ShaderUniformData_1.default();
-    oum.uniformNameList = ["u_color", "u_uvTrans"];
-    oum.dataList = [this.m_data, this.m_uvTrans];
+
+    if (this.fragUniformData) {
+      oum.uniformNameList = ["u_fragParams", "u_uvTrans", "u_fragDatas"];
+      oum.dataList = [this.m_data, this.m_uvTrans, this.fragUniformData];
+    } else {
+      oum.uniformNameList = ["u_fragParams", "u_uvTrans"];
+      oum.dataList = [this.m_data, this.m_uvTrans];
+    }
+
     return oum;
   }
 
@@ -29496,7 +30075,7 @@ exports.default = Default3DMaterial;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -29595,7 +30174,7 @@ exports.default = FloatTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -29646,6 +30225,7 @@ class ShaderCodeBuffer {
      */
 
     this.adaptationShaderVersion = true;
+    this.codeBuilderEnabled = true;
 
     if (ShaderCodeBuffer.s_coder == null) {
       ShaderCodeBuffer.s_uniform = new ShaderCodeUniform_1.ShaderCodeUniform();
@@ -29661,8 +30241,13 @@ class ShaderCodeBuffer {
     this.m_coder = ShaderCodeBuffer.s_coder;
     this.m_uniform = ShaderCodeBuffer.s_uniform;
     this.m_texBuilder = ShaderCodeBuffer.s_texBulder;
-    this.m_texture = this.m_uniform;
-    this.m_coder.reset();
+    this.m_texture = this.m_uniform; // console.log(">>>>>>>>> this.codeBuilderEnabled: ", this.codeBuilderEnabled);
+    // this.m_coder.
+    // if(this.codeBuilderEnabled) {
+    // 	this.m_coder.reset();
+    // }
+
+    this.m_coder.reset(this.codeBuilderEnabled);
     this.m_texList = null;
     this.pipeTypes = null;
     this.gamma = false;
@@ -29801,10 +30386,6 @@ class ShaderCodeBuffer {
     return "";
   }
 
-  toString() {
-    return "[ShaderCodeBuffer()]";
-  }
-
 }
 
 exports.default = ShaderCodeBuffer;
@@ -29835,7 +30416,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -30087,7 +30668,7 @@ exports.default = ShaderCodeParser;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -30168,7 +30749,7 @@ exports.default = BytesTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -30290,7 +30871,7 @@ exports.default = ROIVertexBuffer;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -30596,7 +31177,7 @@ exports.default = AABB;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

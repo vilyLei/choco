@@ -96,7 +96,7 @@ module.exports =
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -814,7 +814,7 @@ exports.BillboardLineMaterial = BillboardLineMaterial;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1078,7 +1078,7 @@ exports.default = BillboardFlowGroup;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1128,7 +1128,7 @@ exports.BillboardFlareDcr = BillboardFlareDcr;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1656,7 +1656,7 @@ exports.default = BillboardFlowMesh;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2078,7 +2078,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2256,7 +2256,7 @@ exports.BillboardGroupDcrBase = BillboardGroupDcrBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2325,7 +2325,7 @@ exports.BillboardFlowDcr = BillboardFlowDcr;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2430,7 +2430,7 @@ exports.default = ShaderUniformData;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3080,19 +3080,19 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, "BillboardGroupShaderCode", function() { return /* binding */ BillboardGroupShaderCode; });
 
 // CONCATENATED MODULE: ./src/vox/material/mcase/glsl/BillboardGroup_fragBody.glsl
-/* harmony default export */ var BillboardGroup_fragBody = ("    vec4 color = VOX_Texture2D(VOX_DIFFUSE_MAP, v_texUV.xy);\r\n    #ifdef VOX_USE_CLIP_MIX\r\n        color = mix(color, VOX_Texture2D(VOX_DIFFUSE_MAP, v_texUV.zw),v_factor.x);\r\n    #endif\r\n\r\n    vec3 offsetColor = getOffsetColor();\r\n    \r\n    blendBrightnessORAlpha( color, offsetColor );\r\n\r\n    #ifdef VOX_PREMULTIPLY_ALPHA\r\n        color.xyz *= color.a;\r\n    #endif\r\n    FragColor0 = color;\r\n    // for test\r\n    // FragColor0 = vec4(vec3(0.3), 1.0);");
+/* harmony default export */ var BillboardGroup_fragBody = ("    vec4 color = VOX_Texture2D(VOX_DIFFUSE_MAP, v_texUV.xy);\r\n\t#ifdef VOX_BRN_TO_ALPHA\r\n\t\tcolor = vec4(color.xyz, max(length(color.xyz) - 0.03, 0.0));\r\n\t#endif\r\n    #ifdef VOX_USE_CLIP_MIX\r\n\t\tvec4 c1 = VOX_Texture2D(VOX_DIFFUSE_MAP, v_texUV.zw);\r\n\t\t#ifdef VOX_BRN_TO_ALPHA\r\n\t\t\tc1 = vec4(c1.xyz, max(length(c1.xyz) - 0.03, 0.0));\r\n\t\t#endif\r\n\t\tcolor = mix(color, c1,v_factor.x);\r\n    #endif\r\n\r\n    vec3 offsetColor = getOffsetColor();\r\n\r\n    blendBrightnessORAlpha( color, offsetColor );\r\n\r\n    #ifdef VOX_PREMULTIPLY_ALPHA\r\n        color.xyz *= color.aaa;\r\n    #endif\r\n    #ifdef VOX_VERTEX_COLOR\r\n\t\t#ifdef VOX_BRIGHTNESS\r\n        \tcolor.xyz *= v_vtxColor.xyz;\r\n        \tcolor.xyz *= v_vtxColor.www;\r\n\t\t#else\r\n        \tcolor *= v_vtxColor;\r\n\t\t#endif\r\n    #endif\r\n    FragColor0 = color;\r\n    // for test\r\n    // FragColor0 = vec4(vec3(0.3), 1.0);");
 // CONCATENATED MODULE: ./src/vox/material/mcase/glsl/BillboardGroup_fragHead.glsl
 /* harmony default export */ var BillboardGroup_fragHead = ("vec3 getOffsetColor() {\r\n    #ifdef VOX_OFFSET_COLOR_MAP\r\n        #ifdef VOX_USE_RAW_UV\r\n            vec3 offsetColor = clamp(v_colorOffset.xyz + VOX_Texture2D(VOX_OFFSET_COLOR_MAP, v_uv.xy).xyz,vec3(0.0),vec3(1.0));\r\n        #else\r\n            vec3 offsetColor = clamp(v_colorOffset.xyz + VOX_Texture2D(VOX_OFFSET_COLOR_MAP, v_texUV.xy).xyz,vec3(0.0),vec3(1.0));\r\n        #endif\r\n    #else\r\n        vec3 offsetColor = v_colorOffset.xyz;\r\n    #endif\r\n    return offsetColor;\r\n}\r\n\r\nvoid blendBrightnessORAlpha(inout vec4 color, in vec3 offsetColor) {\r\n\r\n    #if FADE_STATUS == 11\r\n        color.rgb = color.rgb * v_colorMult.xyz + color.aaa * offsetColor;\r\n        color *= FADE_VAR.zzzz;\r\n    #elif FADE_STATUS == 10\r\n        color.rgb = min(color.rgb * v_colorMult.xyz + color.rgb * offsetColor, vec3(1.0));\r\n        color.rgb *= FADE_VAR.zzz;\r\n    #elif FADE_STATUS == 1\r\n        color.rgb = color.rgb * v_colorMult.xyz + color.aaa * offsetColor;\r\n        color.a *= FADE_VAR.z;\r\n    #else\r\n        color.rgb = color.rgb * v_colorMult.xyz + offsetColor;\r\n        color.a *= FADE_VAR.z;\r\n    #endif\r\n}");
 // CONCATENATED MODULE: ./src/vox/material/mcase/glsl/BillboardGroup_vertBody.glsl
-/* harmony default export */ var BillboardGroup_vertBody = ("    vec4 temp = u_billParam[0];\r\n\r\n    #ifndef VOX_PARTICLE_FLARE\r\n        float time = max(a_nvs.w * temp.z - a_uvs2.w, 0.0);\r\n        #ifdef PLAY_ONCE\r\n            time = min(time, a_uvs2.x);\r\n        #endif\r\n        float kf = fract(time/a_uvs2.x);\r\n        time = kf * a_uvs2.x;\r\n    #else\r\n        float kf = fract(a_uvs2.w * temp.z/a_uvs2.x);\r\n    #endif\r\n\r\n    float fi = kf;\r\n    kf = min(kf/a_uvs2.y,1.0) * (1.0 - max((kf - a_uvs2.z)/(1.0 - a_uvs2.z), 0.0));\r\n    // scale\r\n    vec2 vtx = a_vs.xy * temp.xy * vec2(a_vs.z + kf * a_vs.w);\r\n    #ifndef VOX_PARTICLE_FLARE\r\n        viewPosition = motionCalc(time, vtx);\r\n    #else\r\n        viewPosition = u_viewMat * u_objMat * vec4(a_vs2.xyz,1.0);\r\n    #endif\r\n\r\n    viewPosition.xy += vtx.xy;\r\n    gl_Position =  u_projMat * viewPosition;\r\n    temp = u_billParam[0];\r\n    // use depth offset\r\n    gl_Position.z = ((gl_Position.z / gl_Position.w) + temp.w) * gl_Position.w;\r\n\r\n    v_factor = vec4(0.0,0.0, kf * a_vs2.w, fi);\r\n\r\n    #ifdef VOX_USE_RAW_UV\r\n        v_uv = vec4(a_uvs.xy,0.0,0.0);\r\n    #endif\r\n\r\n    #ifdef VOX_USE_CLIP\r\n        calculateClipUV( fi );\r\n    #else\r\n        v_texUV = vec4(a_uvs.xy, a_uvs.xy);\r\n    #endif\r\n    \r\n    v_colorMult = u_billParam[1];\r\n    v_colorOffset = u_billParam[2];\r\n");
+/* harmony default export */ var BillboardGroup_vertBody = ("    vec4 temp = u_billParam[0];\r\n    float zfk = 0.0;\r\n    #ifndef VOX_PARTICLE_FLARE\r\n        float time = max(a_nvs.w * temp.z - a_uvs2.w, 0.0);\r\n        #ifdef PLAY_ONCE\r\n            time = min(time, a_uvs2.x);\r\n        #endif\r\n        float kf = fract(time/a_uvs2.x);\r\n        // discard invisible vtx in the z-space.\r\n        zfk = 1.0 - max(sign(kf - 0.001), 0.0);\r\n        time = kf * a_uvs2.x;\r\n    #else\r\n        float kf = fract(a_uvs2.w * temp.z/a_uvs2.x);\r\n    #endif\r\n\r\n    float fi = kf;\r\n    kf = min(kf/a_uvs2.y,1.0) * (1.0 - max((kf - a_uvs2.z)/(1.0 - a_uvs2.z), 0.0));\r\n    // scale\r\n    vec2 vtx = a_vs.xy * temp.xy * vec2(a_vs.z + kf * a_vs.w);\r\n    #ifndef VOX_PARTICLE_FLARE\r\n        viewPosition = motionCalc(time, vtx);\r\n    #else\r\n        viewPosition = u_viewMat * u_objMat * vec4(a_vs2.xyz,1.0);\r\n    #endif\r\n\r\n    viewPosition.xy += vtx.xy;\r\n    gl_Position =  u_projMat * viewPosition;\r\n    temp = u_billParam[0];\r\n    // use depth offset\r\n    gl_Position.z = ((gl_Position.z / gl_Position.w) + temp.w) * gl_Position.w;\r\n    gl_Position.z -= zfk * 999999.0;\r\n\r\n    v_factor = vec4(0.0,0.0, kf * a_vs2.w, fi);\r\n\r\n\tvec2 uv = a_uvs.xy;\r\n\tvec4 r4;\r\n    #ifdef VOX_VTX_CLIP_RECT\r\n\t\tr4 = a_tvs;\r\n        uv = uv * r4.zw + r4.xy;\r\n    #endif\r\n    #ifdef VOX_CLIP_RECT_INDEX\r\n\t\tr4 = u_billParam[VOX_CLIP_RECT_INDEX];\r\n        uv = uv * r4.zw + r4.xy;\r\n    #endif\r\n    #ifdef VOX_USE_RAW_UV\r\n        v_uv = vec4(uv,0.0,0.0);\r\n    #endif\r\n\r\n    #ifdef VOX_USE_CLIP\r\n        calculateClipUV( fi, a_uvs.xy );\r\n\t\t#ifdef VOX_VTX_CLIP_RECT\r\n\t\t\tv_texUV *= r4.zwzw;\r\n\t\t\tv_texUV += r4.xyxy;\r\n\t\t#endif\r\n\t\t#ifdef VOX_CLIP_RECT_INDEX\r\n\t\t\tv_texUV *= r4.zwzw;\r\n\t\t\tv_texUV += r4.xyxy;\r\n\t\t#endif\r\n    #else\r\n        v_texUV = vec4(uv.xy, uv.xy);\r\n    #endif\r\n\r\n    #ifdef VOX_VERTEX_COLOR\r\n        v_vtxColor = a_cvs;\r\n    #endif\r\n    v_colorMult = u_billParam[1];\r\n    v_colorOffset = u_billParam[2];\r\n");
 // CONCATENATED MODULE: ./src/vox/material/mcase/glsl/BillboardGroup_vertHead.glsl
-/* harmony default export */ var BillboardGroup_vertHead = ("#ifdef ROTATION_DIRECT\r\n\r\n// 4.71238898038469\r\n#define MATH_3PER2PI 4.71238898\r\n// 1.5707963267948966\r\n#define MATH_1PER2PI 1.57079633\r\n\r\nfloat getRadianByXY(float dx, float dy) {\r\n\r\n    if(abs(dx) < 0.00001) {\r\n        return (dy >= 0.0) ? MATH_1PER2PI : MATH_3PER2PI;\r\n    }\r\n    float rad = atan(dy/dx);\r\n    return dx >= 0.0 ? rad: (PI + rad);\r\n}\r\n#endif\r\n\r\nconst vec3 biasV3 = vec3(0.1);\r\n\r\n#ifdef VOX_USE_CLIP\r\nvoid calculateClipUV(float fi) {\r\n    \r\n    #ifdef VOX_USE_CLIP_MIX\r\n        // calculate clip uv\r\n        vec4 temp = u_billParam[ BILL_PARAM_INDEX ];//(x:cn,y:total,z:du,w:dv)\r\n        float clipf0 = floor(fi * temp.y);\r\n        float clipf1 = min(clipf0 + 1.0, temp.y - 1.0);\r\n        clipf0 /= temp.x;\r\n        // vec2(floor(fract(clipf0) * temp.x), floor(clipf0)) -> vec2(cn u,rn v)\r\n        v_texUV.xy = (vec2(floor(fract(clipf0) * temp.x), floor(clipf0)) + a_uvs.xy) * temp.zw;\r\n\r\n        v_factor.x = fract(fi * temp.y);\r\n\r\n        clipf1 /= temp.x;\r\n        v_texUV.zw = (vec2(floor(fract(clipf1) * temp.x), floor(clipf1)) + a_uvs.xy) * temp.zw;\r\n    #else\r\n        // calculate clip uv\r\n        vec4 temp = u_billParam[ BILL_PARAM_INDEX ];//(x:cn,y:total,z:du,w:dv)\r\n        float clipf = floor(fi * temp.y);\r\n        clipf /= temp.x;\r\n        // vec2(floor(fract(clipf) * temp.x), floor(clipf)) -> vec2(cn u,rn v)\r\n        v_texUV.xy = (vec2(floor(fract(clipf) * temp.x), floor(clipf)) + a_uvs.xy) * temp.zw;\r\n    #endif\r\n}\r\n#endif\r\n#ifndef VOX_PARTICLE_FLARE\r\nvec4 motionCalc(float time, inout vec2 vtx) {\r\n    vec3 timeV = vec3(time);\r\n    vec3 acc3 = u_billParam[3].xyz + a_nvs2.xyz;\r\n    #ifdef ROTATION_DIRECT\r\n        #ifdef SPEED_SCALE\r\n            float v0scale = clamp(length(a_nvs.xyz + acc3 * timeV)/u_billParam[1].w,1.0,u_billParam[3].w);\r\n            vtx *= vec2(v0scale, 1.0);\r\n        #endif\r\n\r\n        vec3 pv0 = a_vs2.xyz + (a_nvs.xyz + acc3 * timeV) * timeV;\r\n        timeV += biasV3;\r\n        vec3 pv1 = a_vs2.xyz + (a_nvs.xyz + acc3 * timeV) * timeV;\r\n\r\n        mat4 voMat = u_viewMat * u_objMat;\r\n        vec4 pos = voMat * vec4(pv0,1.0);\r\n        vec4 pos1 = voMat * vec4(pv1,1.0);\r\n        float rad = getRadianByXY(pos1.x - pos.x, pos1.y - pos.y);\r\n        float cosv = cos(rad);\r\n        float sinv = sin(rad);\r\n\r\n        // rotate\r\n        vtx = vec2(vtx.x * cosv - vtx.y * sinv, vtx.x * sinv + vtx.y * cosv);\r\n    #else\r\n        vec4 pos = u_viewMat * u_objMat * vec4(a_vs2.xyz + (a_nvs.xyz + acc3 * timeV) * timeV,1.0);\r\n    #endif\r\n    return pos;\r\n}\r\n#endif");
+/* harmony default export */ var BillboardGroup_vertHead = ("#ifdef ROTATION_DIRECT\r\n\r\n// 4.71238898038469\r\n#define MATH_3PER2PI 4.71238898\r\n// 1.5707963267948966\r\n#define MATH_1PER2PI 1.57079633\r\n\r\nfloat getRadianByXY(float dx, float dy) {\r\n\r\n    if(abs(dx) < 0.00001) {\r\n        return (dy >= 0.0) ? MATH_1PER2PI : MATH_3PER2PI;\r\n    }\r\n    float rad = atan(dy/dx);\r\n    return dx >= 0.0 ? rad: (PI + rad);\r\n}\r\n#endif\r\n\r\nconst vec3 biasV3 = vec3(0.1);\r\n\r\n#ifdef VOX_USE_CLIP\r\nvoid calculateClipUV(float fi, in vec2 uv) {\r\n\r\n    #ifdef VOX_USE_CLIP_MIX\r\n        // calculate clip uv\r\n        vec4 temp = u_billParam[ BILL_PARAM_INDEX ];//(x:cn,y:total,z:du,w:dv)\r\n        float clipf0 = floor(fi * temp.y);\r\n        float clipf1 = min(clipf0 + 1.0, temp.y - 1.0);\r\n        clipf0 /= temp.x;\r\n        // vec2(floor(fract(clipf0) * temp.x), floor(clipf0)) -> vec2(cn u,rn v)\r\n        v_texUV.xy = (vec2(floor(fract(clipf0) * temp.x), floor(clipf0)) + uv.xy) * temp.zw;\r\n\r\n        v_factor.x = fract(fi * temp.y);\r\n\r\n        clipf1 /= temp.x;\r\n        v_texUV.zw = (vec2(floor(fract(clipf1) * temp.x), floor(clipf1)) + uv.xy) * temp.zw;\r\n    #else\r\n        // calculate clip uv\r\n        vec4 temp = u_billParam[ BILL_PARAM_INDEX ];//(x:cn,y:total,z:du,w:dv)\r\n        float clipf = floor(fi * temp.y);\r\n        clipf /= temp.x;\r\n        // vec2(floor(fract(clipf) * temp.x), floor(clipf)) -> vec2(cn u,rn v)\r\n        v_texUV.xy = (vec2(floor(fract(clipf) * temp.x), floor(clipf)) + uv.xy) * temp.zw;\r\n    #endif\r\n}\r\n#endif\r\n#ifndef VOX_PARTICLE_FLARE\r\nvec4 motionCalc(float time, inout vec2 vtx) {\r\n    vec3 timeV = vec3(time);\r\n    vec3 acc3 = u_billParam[3].xyz + a_nvs2.xyz;\r\n    #ifdef ROTATION_DIRECT\r\n        #ifdef SPEED_SCALE\r\n            float v0scale = clamp(length(a_nvs.xyz + acc3 * timeV)/u_billParam[1].w,1.0,u_billParam[3].w);\r\n            vtx *= vec2(v0scale, 1.0);\r\n        #endif\r\n\r\n        vec3 pv0 = a_vs2.xyz + (a_nvs.xyz + acc3 * timeV) * timeV;\r\n        timeV += biasV3;\r\n        vec3 pv1 = a_vs2.xyz + (a_nvs.xyz + acc3 * timeV) * timeV;\r\n\r\n        mat4 voMat = u_viewMat * u_objMat;\r\n        vec4 pos = voMat * vec4(pv0,1.0);\r\n        vec4 pos1 = voMat * vec4(pv1,1.0);\r\n        float rad = getRadianByXY(pos1.x - pos.x, pos1.y - pos.y);\r\n        float cosv = cos(rad);\r\n        float sinv = sin(rad);\r\n\r\n        // rotate\r\n        vtx = vec2(vtx.x * cosv - vtx.y * sinv, vtx.x * sinv + vtx.y * cosv);\r\n    #else\r\n        vec4 pos = u_viewMat * u_objMat * vec4(a_vs2.xyz + (a_nvs.xyz + acc3 * timeV) * timeV,1.0);\r\n    #endif\r\n    return pos;\r\n}\r\n#endif");
 // CONCATENATED MODULE: ./src/vox/material/mcase/glsl/BillboardGroupShaderCode.js
 /***************************************************************************/
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
