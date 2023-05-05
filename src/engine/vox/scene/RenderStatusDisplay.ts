@@ -3,15 +3,12 @@
 /*  Copyright 2018-2022 by                                                 */
 /*  Vily(vily313@126.com)                                                  */
 /*                                                                         */
-
-import { EventBase } from "../../cospace/voxengine/VoxRScene";
-import IEventBase from "../event/IEventBase";
-import IRendererScene from "./IRendererScene";
-
 /***************************************************************************/
-interface I_RenderStatusDisplay {
 
-}
+import IRendererScene from "./IRendererScene";
+import IEventBase from "../event/IEventBase";
+import { ICoRScene } from "../../cospace/voxengine/ICoRScene";
+declare var CoRScene: ICoRScene;
 class RenderStatusDisplay {
     private m_rsc: IRendererScene;
     private m_lastTime = 0;
@@ -23,16 +20,21 @@ class RenderStatusDisplay {
     private m_width = 128;
     private m_height = 70;
     private m_auto = false;
+	private m_dcBoo = false;
+	private m_dtBoo = false;
     delayTime = 40;
     statusInfo = "";
     statusEnbled = true;
-
     constructor(rsc: IRendererScene = null, auto: boolean = false) {
         if(rsc != null) {
             this.initialize(rsc, auto);
         }
     }
-
+	setParams(drawCallTimesEnabled: boolean, trisCountEnabled: boolean = false): RenderStatusDisplay {
+		this.m_dcBoo = drawCallTimesEnabled;
+		this.m_dtBoo = trisCountEnabled;
+		return this;
+	}
     initialize(rsc: IRendererScene = null, auto: boolean = false): void {
 
         if (this.m_canvas2D == null) {
@@ -48,19 +50,18 @@ class RenderStatusDisplay {
             catch (err) {
                 console.log("RenderStatusDisplay::initialize(), document is undefined.");
             }
-            if (pdocument != null) {
+            if (pdocument) {
                 this.m_preWidth = window.innerWidth;
-                let pwith: number = this.m_preWidth - 20;
+                let pwith = this.m_preWidth - 20;
                 this.createCanvas(pwith);
             }
-            if(rsc != null && this.m_auto) {
-                this.m_rsc.addEventListener(EventBase.ENTER_FRAME, this, this.enterFrame);
+            if(rsc && this.m_auto) {
+                this.m_rsc.addEventListener(CoRScene.EventBase.ENTER_FRAME, this, this.enterFrame);
                 this.autoUpdate();
             }
         }
     }
     private enterFrame(evt: IEventBase): void {
-
         this.updateDo(false);
     }
     private m_timeoutId: any = -1;
@@ -69,8 +70,7 @@ class RenderStatusDisplay {
         if (this.m_timeoutId > -1) {
             clearTimeout(this.m_timeoutId);
         }
-        //this.m_timeoutId = setTimeout(this.update.bind(this),16);// 60 fps
-        this.m_timeoutId = setTimeout(this.update.bind(this), 50);// 20 fps
+        this.m_timeoutId = setTimeout(this.autoUpdate.bind(this), 50);// 20 fps
 
         this.renderDo();
     }
@@ -97,7 +97,6 @@ class RenderStatusDisplay {
     }
     getFPS(): number { return this.m_fps; };
     getFPSStr(): string {
-        //return this.m_fps;
         if (this.m_fps > 60) {
             return "FPS: 60";
         }
@@ -108,15 +107,34 @@ class RenderStatusDisplay {
     }
 
     private renderDo(): void {
-        
+
         if (this.m_preWidth != window.innerWidth) {
             this.m_preWidth = window.innerWidth;
             let pwith: number = this.m_preWidth - 20;
             this.createCanvas(pwith);
         }
         if (this.statusEnbled) {
+
             this.m_ctx2D.clearRect(0, 0, this.m_width, this.m_height);
-            this.m_ctx2D.fillText("FPS:" + this.m_fps + this.statusInfo, 5, 50);
+
+			let info = "";
+            if(this.m_rsc) {
+                const st = this.m_rsc.getRenderProxy().status;
+                if(this.m_dcBoo) {
+                    info += "/" + st.drawCallTimes;
+                }
+                if(this.m_dtBoo) {
+                    info += "/" + st.drawTrisNumber;
+                }
+                if(this.statusInfo != "") {
+                    if(info != "") {
+                        info += "/" + this.statusInfo;
+                    }else {
+                        info = this.statusInfo;
+                    }
+                }
+            }
+            this.m_ctx2D.fillText(this.getFPSStr() + info, 5, 50);
             //  this.m_ctx2D.fillRect(0, 0, this.m_width, this.m_height);
         }
     }
