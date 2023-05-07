@@ -96,7 +96,7 @@ module.exports =
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -136,7 +136,7 @@ exports.CoSystem = CoSystem;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -298,7 +298,7 @@ exports.DataReceiverBase = DataReceiverBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -642,7 +642,7 @@ exports.ReceiverSchedule = ReceiverSchedule;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -845,7 +845,7 @@ exports.DracoTaskCMD = DracoTaskCMD;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -968,7 +968,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1059,7 +1059,7 @@ exports.TaskDataRouter = TaskDataRouter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1730,7 +1730,7 @@ exports.TaskCodeStringDependency = TaskCodeStringDependency;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1962,7 +1962,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2094,7 +2094,7 @@ exports.HttpFileLoader = HttpFileLoader;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2288,7 +2288,7 @@ exports.DataPhaseFlag = DataPhaseFlag;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3020,7 +3020,7 @@ exports.ResourceSchedule = ResourceSchedule;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3487,7 +3487,7 @@ exports.PNGParseTask = PNGParseTask;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3962,7 +3962,7 @@ exports.ModuleNS = ModuleNS;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4273,7 +4273,7 @@ exports.ThreadWFST = ThreadWFST;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4641,7 +4641,7 @@ exports.DataUnitPool = DataUnitPool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4768,7 +4768,7 @@ exports.GeometryDataUnit = GeometryDataUnit;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4880,7 +4880,7 @@ exports.PNGParserListerner = PNGParserListerner;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5002,7 +5002,7 @@ exports.TaskDescriptor = TaskDescriptor;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5221,7 +5221,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5818,7 +5818,7 @@ exports.TextureResourceSchedule = TextureResourceSchedule;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

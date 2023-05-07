@@ -109,7 +109,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -223,7 +223,7 @@ exports.default = RCExtension;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -438,7 +438,7 @@ exports.MaterialPipeline = MaterialPipeline;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -863,7 +863,7 @@ exports.default = TextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1404,7 +1404,7 @@ exports.default = ROTransform;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1820,7 +1820,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2163,7 +2163,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2199,7 +2199,7 @@ exports.default = RenderDrawMode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2377,7 +2377,7 @@ exports.default = SimpleStage3D;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2406,6 +2406,9 @@ const OrientationType_1 = __importDefault(__webpack_require__("abdb"));
 class Matrix4 {
   constructor(pfs32 = null, index = 0) {
     this.m_uid = -1;
+    this._mvx = new Vector3D_1.default();
+    this._mvy = new Vector3D_1.default();
+    this._mvz = new Vector3D_1.default();
     this.m_index = 0;
     this.m_fs32 = null;
     this.m_localFS32 = null;
@@ -2423,22 +2426,10 @@ class Matrix4 {
     }
   }
 
-  fromArray(array, offset = 0) {
-    const fs = this.m_localFS32;
-
-    for (let i = 0; i < 16; i++) {
-      fs[i] = array[i + offset];
+  setData(data) {
+    if (data.length == 16) {
+      this.m_localFS32.set(data);
     }
-
-    return this;
-  }
-
-  setData(array16) {
-    if (array16.length == 16) {
-      this.m_localFS32.set(array16);
-    }
-
-    return this;
   }
 
   getCapacity() {
@@ -3190,7 +3181,7 @@ class Matrix4 {
    */
 
 
-  decompose(orientationStyle = OrientationType_1.default.EULER_ANGLES) {
+  decompose(orientationStyle) {
     // TODO: optimize after 4 lines
     let vec = [];
     let mr = Matrix4.s_tMat4;
@@ -3997,7 +3988,7 @@ exports.default = Matrix4;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4057,7 +4048,7 @@ exports.RenderableMaterialBlock = RenderableMaterialBlock;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4275,7 +4266,7 @@ if (typeof window !== 'undefined') {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4376,7 +4367,7 @@ exports.default = TextureDataType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4446,7 +4437,7 @@ exports.default = ROIvsData;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4958,7 +4949,7 @@ exports.default = ShdProgram;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5091,7 +5082,7 @@ exports.default = Matrix4Pool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5410,7 +5401,7 @@ exports.default = RendererState;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5472,7 +5463,7 @@ exports.default = AttributeLine;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5796,7 +5787,7 @@ exports.ShaderCodeUniform = ShaderCodeUniform;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5961,7 +5952,7 @@ exports.default = Line3DMaterial;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6200,7 +6191,7 @@ exports.default = SurfaceNormalCalc;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6213,55 +6204,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 const __$mcv = 1e-5;
 
-function lerp(x, y, t) {
-  return (1 - t) * x + t * y;
-}
-
-function euclideanModulo(n, m) {
-  return (n % m + m) % m;
-}
-
-function clamp(value, min, max) {
-  return Math.max(Math.min(value, max), min);
-}
-
-function hue2rgb(p, q, t) {
-  if (t < 0) t += 1;
-  if (t > 1) t -= 1;
-  if (t < 1 / 6) return p + (q - p) * 6 * t;
-  if (t < 1 / 2) return q;
-  if (t < 2 / 3) return p + (q - p) * 6 * (2 / 3 - t);
-  return p;
-}
-
-function srgbToLinear(c) {
-  return c < 0.04045 ? c * 0.0773993808 : Math.pow(c * 0.9478672986 + 0.0521327014, 2.4);
-}
-
-function linearToSRGB(c) {
-  return c < 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 0.41666) - 0.055;
-}
-
-function getHexStr(v) {
-  let t = Math.floor(v * 255.0);
-
-  if (t < 0xf) {
-    return "0" + t.toString(16);
-  } else {
-    return "" + t.toString(16);
-  }
-}
-
 class Color4 {
   constructor(pr = 1.0, pg = 1.0, pb = 1.0, pa = 1.0) {
-    this.h = 0.0;
-    this.s = 0.0;
-    this.l = 0.0;
-    this.v = 0.0;
-    this.c = 0.0;
-    this.m = 0.0;
-    this.y = 0.0;
-    this.k = 0.0;
     this.r = pr;
     this.g = pg;
     this.b = pb;
@@ -6335,35 +6279,24 @@ class Color4 {
     this.g = uint8G * k;
     this.b = uint8B * k;
     return this; // return this.setRGB3Bytes(r,g,b);
-  }
+  } // setRGB3Bytes(uint8R: number, uint8G: number, uint8B: number): Color4 {
+  //     let k = 1.0 / 255.0;
+  //     this.r = uint8R * k;
+  //     this.g = uint8G * k;
+  //     this.b = uint8B * k;
+  //     return this;
+  // }
+
 
   setRGBUint24(rgbUint24) {
-    const bit = 0xff;
-    this.r = (rgbUint24 >> 16 & bit) / 255.0;
-    this.g = (rgbUint24 >> 8 & bit) / 255.0;
-    this.b = (rgbUint24 & bit) / 255.0;
+    this.r = (rgbUint24 >> 16 & 0x0000ff) / 255.0;
+    this.g = (rgbUint24 >> 8 & 0x0000ff) / 255.0;
+    this.b = (rgbUint24 & 0x0000ff) / 255.0;
     return this;
   }
 
   getRGBUint24() {
     return (Math.round(this.r * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.b * 255);
-  }
-  /**
-   * @param argbUint32 example: 0xFFFF88cc
-   */
-
-
-  setARGBUint32(argbUint32) {
-    const bit = 0xff;
-    this.r = (argbUint32 >> 16 & bit) / 255.0;
-    this.g = (argbUint32 >> 8 & bit) / 255.0;
-    this.b = (argbUint32 & bit) / 255.0;
-    this.a = (argbUint32 >> 24 & bit) / 255.0;
-    return this;
-  }
-
-  getARGBUint32() {
-    return (Math.round(this.a * 255) << 24) + (Math.round(this.r * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.b * 255);
   }
 
   setRGBA4f(r, g, b, a) {
@@ -6376,145 +6309,6 @@ class Color4 {
 
   setAlpha(a) {
     this.a = a;
-    return this;
-  }
-  /**
-   *
-   * @param contrast its value range is [-50.0, 100.0]
-   */
-
-
-  setContrast(contrast) {
-    /*
-        //限制参数p;
-        if(p>0){p=p+1;}//当p>0时,函数图像无限趋近于垂直
-        else{p=1/(1-p);}//当p<0时,函数图像无限趋近于水平
-        //使函数图像绕(0.5,0.5)为中心旋转;
-        x=p*(x-0.5)+0.5;
-        //返回x限制在0-1之间的值;
-        return clamp(x, 0.0, 1.0);
-    */
-
-    /*
-        //限制参数p;
-        if(p>0){p=p+1;}//当p>0时,函数图像无限趋近于垂直
-        else{p=1/(1-p);}//当p<0时,函数图像无限趋近于水平
-        //R通道运算;
-        if(x.x>0.5){x.x=1-pow((2-x.x*2),p)/2;}
-        else{x.x=pow((x.x*2),p)/2;}
-        //G通道运算;
-        if(x.y>0.5){x.y=1-pow((2-2*x.y),p)/2;}
-        else{x.y=pow((2*x.y),p)/2;}
-        //B通道运算;
-        if(x.z>0.5){x.z=1-pow((2-2*x.z),p)/2;}
-        else{x.z=pow((2*x.z),p)/2;}
-        //返回值;
-        return x;
-        // thanks: https://zhuanlan.zhihu.com/p/415198746
-    */
-    const factor = 259.0 * (contrast + 255.0) / (255.0 * (259.0 - contrast));
-    const pr = 255.0 * this.r;
-    const pg = 255.0 * this.g;
-    const pb = 255.0 * this.b;
-    this.r = clamp(factor * (pr - 128.0) + 128.0, 0.0, 255.0) / 255.0;
-    this.g = clamp(factor * (pg - 128.0) + 128.0, 0.0, 255.0) / 255.0;
-    this.b = clamp(factor * (pb - 128.0) + 128.0, 0.0, 255.0) / 255.0;
-    return this;
-  }
-
-  toGray() {
-    this.r *= 0.2126;
-    this.g *= 0.7152;
-    this.b *= 0.0722;
-    return this;
-  }
-
-  setHSL(h, s, l) {
-    // h,s,l ranges are in 0.0 - 1.0
-    h = euclideanModulo(h, 1);
-    s = clamp(s, 0, 1);
-    l = clamp(l, 0, 1);
-
-    if (s === 0) {
-      this.r = this.g = this.b = l;
-    } else {
-      const p = l <= 0.5 ? l * (1 + s) : l + s - l * s;
-      const q = 2 * l - p;
-      this.r = hue2rgb(q, p, h + 1 / 3);
-      this.g = hue2rgb(q, p, h);
-      this.b = hue2rgb(q, p, h - 1 / 3);
-    }
-
-    return this;
-  }
-
-  getHSL(target = null) {
-    // h,s,l ranges are in 0.0 - 1.0
-    if (!target) {
-      target = new Color4();
-    }
-
-    const r = this.r,
-          g = this.g,
-          b = this.b;
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let hue, saturation;
-    const lightness = (min + max) / 2.0;
-
-    if (min === max) {
-      hue = 0;
-      saturation = 0;
-    } else {
-      const delta = max - min;
-      saturation = lightness <= 0.5 ? delta / (max + min) : delta / (2 - max - min);
-
-      switch (max) {
-        case r:
-          hue = (g - b) / delta + (g < b ? 6 : 0);
-          break;
-
-        case g:
-          hue = (b - r) / delta + 2;
-          break;
-
-        case b:
-          hue = (r - g) / delta + 4;
-          break;
-      }
-
-      hue /= 6;
-    }
-
-    target.h = hue;
-    target.s = saturation;
-    target.l = lightness;
-    return target;
-  }
-
-  lerp(color, factor) {
-    this.r += (color.r - this.r) * factor;
-    this.g += (color.g - this.g) * factor;
-    this.b += (color.b - this.b) * factor;
-    return this;
-  }
-
-  lerpColors(color1, color2, factor) {
-    this.r = color1.r + (color2.r - color1.r) * factor;
-    this.g = color1.g + (color2.g - color1.g) * factor;
-    this.b = color1.b + (color2.b - color1.b) * factor;
-    return this;
-  }
-
-  lerpHSL(color, factor) {
-    const c0 = Color4.s_c0;
-    const c1 = Color4.s_c1;
-    this.getHSL(c0);
-    color.getHSL(c1);
-    const h = lerp(c0.h, c1.h, factor);
-    const s = lerp(c0.s, c1.s, factor);
-    const l = lerp(c0.l, c1.l, factor);
-    this.setHSL(h, s, l);
     return this;
   }
 
@@ -6593,28 +6387,6 @@ class Color4 {
     this.b *= d;
     return this;
   }
-
-  copySRGBToLinear(color) {
-    this.r = srgbToLinear(color.r);
-    this.g = srgbToLinear(color.g);
-    this.b = srgbToLinear(color.b);
-    return this;
-  }
-
-  copyLinearToSRGB(color) {
-    this.r = linearToSRGB(color.r);
-    this.g = linearToSRGB(color.g);
-    this.b = linearToSRGB(color.b);
-    return this;
-  }
-
-  convertSRGBToLinear() {
-    return this.copySRGBToLinear(this);
-  }
-
-  convertLinearToSRGB() {
-    return this.copyLinearToSRGB(this);
-  }
   /**
    * @returns for example: rgba(255,255,255,1.0)
    */
@@ -6634,9 +6406,30 @@ class Color4 {
 
   getCSSHeXRGBColor() {
     let str = "#";
-    str += getHexStr(this.r);
-    str += getHexStr(this.g);
-    str += getHexStr(this.b);
+    let t = Math.floor(this.r * 255.0);
+
+    if (t < 0xf) {
+      str += "0" + t.toString(16);
+    } else {
+      str += "" + t.toString(16);
+    }
+
+    t = Math.floor(this.g * 255.0);
+
+    if (t < 0xf) {
+      str += "0" + t.toString(16);
+    } else {
+      str += "" + t.toString(16);
+    }
+
+    t = Math.floor(this.b * 255.0);
+
+    if (t < 0xf) {
+      str += "0" + t.toString(16);
+    } else {
+      str += "" + t.toString(16);
+    }
+
     return str;
   }
 
@@ -6646,8 +6439,6 @@ class Color4 {
 
 }
 
-Color4.s_c0 = new Color4();
-Color4.s_c1 = new Color4();
 exports.default = Color4;
 
 /***/ }),
@@ -6661,7 +6452,7 @@ exports.default = Color4;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6918,7 +6709,7 @@ exports.default = RendererDevice;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7813,7 +7604,7 @@ exports.default = CoSimpleRendererScene;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8766,7 +8557,7 @@ exports.MaterialContextParam = MaterialContextParam;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9599,7 +9390,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9691,7 +9482,7 @@ exports.default = TexturePool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9919,7 +9710,7 @@ exports.ShaderTextureBuilder = ShaderTextureBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10367,7 +10158,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10517,7 +10308,7 @@ exports.default = BytesCubeTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10615,7 +10406,7 @@ exports.default = Texture3DProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10974,7 +10765,7 @@ exports.TextureBlock = TextureBlock;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11032,7 +10823,7 @@ exports.default = TextureTarget;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11385,7 +11176,7 @@ exports.default = MaterialConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11472,7 +11263,7 @@ exports.ShaderCodeType = ShaderCodeType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11620,7 +11411,7 @@ exports.Material = Material;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11633,12 +11424,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class MathConst {
-  // compute euclidean modulo of m % n
-  // https://en.wikipedia.org/wiki/Modulo_operation
-  static EuclideanModulo(n, m) {
-    return (n % m + m) % m;
-  }
-
   static Clamp(value, min, max) {
     return Math.max(Math.min(value, max), min);
   }
@@ -11817,7 +11602,7 @@ exports.default = MathConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11917,7 +11702,7 @@ exports.default = ROVtxBufUidStore;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11986,7 +11771,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12015,7 +11800,7 @@ exports.default = RenderFilter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12050,7 +11835,7 @@ exports.DisplayRenderSign = DisplayRenderSign;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12204,7 +11989,7 @@ exports.TextureProxyType = TextureProxyType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12339,7 +12124,7 @@ exports.default = VtxSeparatedBuf;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12481,7 +12266,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12908,7 +12693,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12966,7 +12751,7 @@ exports.SpecularMode = SpecularMode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12995,7 +12780,7 @@ exports.default = VtxNormalType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13274,7 +13059,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13515,7 +13300,7 @@ exports.default = VtxBufConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13970,7 +13755,7 @@ const v_m_v1 = new Vector3D();
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14212,7 +13997,7 @@ exports.default = RunnableQueue;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14351,7 +14136,7 @@ exports.default = Uint16TextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14487,7 +14272,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14812,7 +14597,7 @@ exports.default = UniformConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14842,7 +14627,7 @@ exports.default = OrientationType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14938,7 +14723,7 @@ exports.default = DepthTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15243,7 +15028,7 @@ exports.default = ShaderData;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16156,7 +15941,7 @@ exports.default = FBOInstance;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16287,7 +16072,7 @@ exports.default = EntityNodeQueue;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16611,7 +16396,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16637,7 +16422,7 @@ exports.default = FrameBufferType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -17000,7 +16785,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -17058,7 +16843,7 @@ exports.ShaderCode = ShaderCode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -17130,17 +16915,6 @@ class RendererParam {
     this.syncBgColor = true;
     this.batchEnabled = true;
     this.processFixedState = false;
-    this.hideWindowFrame = true;
-    /**
-     * the default value is true
-     */
-
-    this.viewSizeWithTwo = true;
-    /**
-     * the default value is true
-     */
-
-    this.viewSizeToBigger = true;
     this.m_scissorTestEanbled = false;
     this.m_mainDiv = div;
 
@@ -17299,7 +17073,7 @@ exports.default = RendererParam;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -18890,7 +18664,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -18974,7 +18748,7 @@ exports.default = BitConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -19403,7 +19177,7 @@ exports.default = MeshBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -19492,7 +19266,7 @@ exports.EulerOrder = EulerOrder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -19679,7 +19453,7 @@ exports.RTTTextureStore = RTTTextureStore;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -19827,7 +19601,7 @@ exports.default = RTTTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -19879,7 +19653,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -20019,7 +19793,7 @@ exports.default = CameraDsistanceSorter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -20166,7 +19940,7 @@ exports.default = TextureResSlot;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -20418,7 +20192,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -20673,7 +20447,7 @@ exports.default = RawDataTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -20837,7 +20611,7 @@ exports.DepthTestMode = DepthTestMode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -21142,7 +20916,7 @@ exports.default = Plane;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -21707,7 +21481,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -21884,7 +21658,7 @@ exports.default = FloatCubeTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22027,7 +21801,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22056,7 +21830,7 @@ exports.default = VtxBufID;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22167,7 +21941,7 @@ exports.default = VtxCombinedBuf;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22200,7 +21974,7 @@ exports.default = ShaderCompileInfo;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22299,7 +22073,7 @@ exports.ShaderCodeUUID = ShaderCodeUUID;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22349,7 +22123,7 @@ exports.default = AbsGeomBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -22912,7 +22686,7 @@ exports.default = ImageTextureLoader;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -23252,7 +23026,7 @@ exports.default = Default3DMaterial;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -23351,7 +23125,7 @@ exports.default = FloatTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -23593,7 +23367,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -23845,7 +23619,7 @@ exports.default = ShaderCodeParser;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -23926,7 +23700,7 @@ exports.default = BytesTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -24048,7 +23822,7 @@ exports.default = ROIVertexBuffer;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -24354,7 +24128,7 @@ exports.default = AABB;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

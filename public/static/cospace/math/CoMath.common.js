@@ -193,7 +193,7 @@ exports.Vector3D = Vector3D;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -206,12 +206,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class MathConst {
-  // compute euclidean modulo of m % n
-  // https://en.wikipedia.org/wiki/Modulo_operation
-  static EuclideanModulo(n, m) {
-    return (n % m + m) % m;
-  }
-
   static Clamp(value, min, max) {
     return Math.max(Math.min(value, max), min);
   }
@@ -475,7 +469,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -505,7 +499,7 @@ exports.default = OrientationType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

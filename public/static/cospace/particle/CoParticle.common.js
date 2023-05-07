@@ -96,7 +96,7 @@ module.exports =
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -814,7 +814,7 @@ exports.BillboardLineMaterial = BillboardLineMaterial;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1078,7 +1078,7 @@ exports.default = BillboardFlowGroup;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1128,7 +1128,7 @@ exports.BillboardFlareDcr = BillboardFlareDcr;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1656,7 +1656,7 @@ exports.default = BillboardFlowMesh;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2078,7 +2078,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2256,7 +2256,7 @@ exports.BillboardGroupDcrBase = BillboardGroupDcrBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2325,7 +2325,7 @@ exports.BillboardFlowDcr = BillboardFlowDcr;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2430,7 +2430,7 @@ exports.default = ShaderUniformData;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3092,7 +3092,7 @@ __webpack_require__.d(__webpack_exports__, "BillboardGroupShaderCode", function(
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

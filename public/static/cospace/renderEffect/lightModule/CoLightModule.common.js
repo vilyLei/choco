@@ -96,7 +96,7 @@ module.exports =
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -155,7 +155,7 @@ exports.MaterialPipeBase = MaterialPipeBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -244,7 +244,7 @@ if (typeof window !== 'undefined') {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -257,55 +257,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 const __$mcv = 1e-5;
 
-function lerp(x, y, t) {
-  return (1 - t) * x + t * y;
-}
-
-function euclideanModulo(n, m) {
-  return (n % m + m) % m;
-}
-
-function clamp(value, min, max) {
-  return Math.max(Math.min(value, max), min);
-}
-
-function hue2rgb(p, q, t) {
-  if (t < 0) t += 1;
-  if (t > 1) t -= 1;
-  if (t < 1 / 6) return p + (q - p) * 6 * t;
-  if (t < 1 / 2) return q;
-  if (t < 2 / 3) return p + (q - p) * 6 * (2 / 3 - t);
-  return p;
-}
-
-function srgbToLinear(c) {
-  return c < 0.04045 ? c * 0.0773993808 : Math.pow(c * 0.9478672986 + 0.0521327014, 2.4);
-}
-
-function linearToSRGB(c) {
-  return c < 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 0.41666) - 0.055;
-}
-
-function getHexStr(v) {
-  let t = Math.floor(v * 255.0);
-
-  if (t < 0xf) {
-    return "0" + t.toString(16);
-  } else {
-    return "" + t.toString(16);
-  }
-}
-
 class Color4 {
   constructor(pr = 1.0, pg = 1.0, pb = 1.0, pa = 1.0) {
-    this.h = 0.0;
-    this.s = 0.0;
-    this.l = 0.0;
-    this.v = 0.0;
-    this.c = 0.0;
-    this.m = 0.0;
-    this.y = 0.0;
-    this.k = 0.0;
     this.r = pr;
     this.g = pg;
     this.b = pb;
@@ -379,35 +332,24 @@ class Color4 {
     this.g = uint8G * k;
     this.b = uint8B * k;
     return this; // return this.setRGB3Bytes(r,g,b);
-  }
+  } // setRGB3Bytes(uint8R: number, uint8G: number, uint8B: number): Color4 {
+  //     let k = 1.0 / 255.0;
+  //     this.r = uint8R * k;
+  //     this.g = uint8G * k;
+  //     this.b = uint8B * k;
+  //     return this;
+  // }
+
 
   setRGBUint24(rgbUint24) {
-    const bit = 0xff;
-    this.r = (rgbUint24 >> 16 & bit) / 255.0;
-    this.g = (rgbUint24 >> 8 & bit) / 255.0;
-    this.b = (rgbUint24 & bit) / 255.0;
+    this.r = (rgbUint24 >> 16 & 0x0000ff) / 255.0;
+    this.g = (rgbUint24 >> 8 & 0x0000ff) / 255.0;
+    this.b = (rgbUint24 & 0x0000ff) / 255.0;
     return this;
   }
 
   getRGBUint24() {
     return (Math.round(this.r * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.b * 255);
-  }
-  /**
-   * @param argbUint32 example: 0xFFFF88cc
-   */
-
-
-  setARGBUint32(argbUint32) {
-    const bit = 0xff;
-    this.r = (argbUint32 >> 16 & bit) / 255.0;
-    this.g = (argbUint32 >> 8 & bit) / 255.0;
-    this.b = (argbUint32 & bit) / 255.0;
-    this.a = (argbUint32 >> 24 & bit) / 255.0;
-    return this;
-  }
-
-  getARGBUint32() {
-    return (Math.round(this.a * 255) << 24) + (Math.round(this.r * 255) << 16) + (Math.round(this.g * 255) << 8) + Math.round(this.b * 255);
   }
 
   setRGBA4f(r, g, b, a) {
@@ -420,145 +362,6 @@ class Color4 {
 
   setAlpha(a) {
     this.a = a;
-    return this;
-  }
-  /**
-   *
-   * @param contrast its value range is [-50.0, 100.0]
-   */
-
-
-  setContrast(contrast) {
-    /*
-        //限制参数p;
-        if(p>0){p=p+1;}//当p>0时,函数图像无限趋近于垂直
-        else{p=1/(1-p);}//当p<0时,函数图像无限趋近于水平
-        //使函数图像绕(0.5,0.5)为中心旋转;
-        x=p*(x-0.5)+0.5;
-        //返回x限制在0-1之间的值;
-        return clamp(x, 0.0, 1.0);
-    */
-
-    /*
-        //限制参数p;
-        if(p>0){p=p+1;}//当p>0时,函数图像无限趋近于垂直
-        else{p=1/(1-p);}//当p<0时,函数图像无限趋近于水平
-        //R通道运算;
-        if(x.x>0.5){x.x=1-pow((2-x.x*2),p)/2;}
-        else{x.x=pow((x.x*2),p)/2;}
-        //G通道运算;
-        if(x.y>0.5){x.y=1-pow((2-2*x.y),p)/2;}
-        else{x.y=pow((2*x.y),p)/2;}
-        //B通道运算;
-        if(x.z>0.5){x.z=1-pow((2-2*x.z),p)/2;}
-        else{x.z=pow((2*x.z),p)/2;}
-        //返回值;
-        return x;
-        // thanks: https://zhuanlan.zhihu.com/p/415198746
-    */
-    const factor = 259.0 * (contrast + 255.0) / (255.0 * (259.0 - contrast));
-    const pr = 255.0 * this.r;
-    const pg = 255.0 * this.g;
-    const pb = 255.0 * this.b;
-    this.r = clamp(factor * (pr - 128.0) + 128.0, 0.0, 255.0) / 255.0;
-    this.g = clamp(factor * (pg - 128.0) + 128.0, 0.0, 255.0) / 255.0;
-    this.b = clamp(factor * (pb - 128.0) + 128.0, 0.0, 255.0) / 255.0;
-    return this;
-  }
-
-  toGray() {
-    this.r *= 0.2126;
-    this.g *= 0.7152;
-    this.b *= 0.0722;
-    return this;
-  }
-
-  setHSL(h, s, l) {
-    // h,s,l ranges are in 0.0 - 1.0
-    h = euclideanModulo(h, 1);
-    s = clamp(s, 0, 1);
-    l = clamp(l, 0, 1);
-
-    if (s === 0) {
-      this.r = this.g = this.b = l;
-    } else {
-      const p = l <= 0.5 ? l * (1 + s) : l + s - l * s;
-      const q = 2 * l - p;
-      this.r = hue2rgb(q, p, h + 1 / 3);
-      this.g = hue2rgb(q, p, h);
-      this.b = hue2rgb(q, p, h - 1 / 3);
-    }
-
-    return this;
-  }
-
-  getHSL(target = null) {
-    // h,s,l ranges are in 0.0 - 1.0
-    if (!target) {
-      target = new Color4();
-    }
-
-    const r = this.r,
-          g = this.g,
-          b = this.b;
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let hue, saturation;
-    const lightness = (min + max) / 2.0;
-
-    if (min === max) {
-      hue = 0;
-      saturation = 0;
-    } else {
-      const delta = max - min;
-      saturation = lightness <= 0.5 ? delta / (max + min) : delta / (2 - max - min);
-
-      switch (max) {
-        case r:
-          hue = (g - b) / delta + (g < b ? 6 : 0);
-          break;
-
-        case g:
-          hue = (b - r) / delta + 2;
-          break;
-
-        case b:
-          hue = (r - g) / delta + 4;
-          break;
-      }
-
-      hue /= 6;
-    }
-
-    target.h = hue;
-    target.s = saturation;
-    target.l = lightness;
-    return target;
-  }
-
-  lerp(color, factor) {
-    this.r += (color.r - this.r) * factor;
-    this.g += (color.g - this.g) * factor;
-    this.b += (color.b - this.b) * factor;
-    return this;
-  }
-
-  lerpColors(color1, color2, factor) {
-    this.r = color1.r + (color2.r - color1.r) * factor;
-    this.g = color1.g + (color2.g - color1.g) * factor;
-    this.b = color1.b + (color2.b - color1.b) * factor;
-    return this;
-  }
-
-  lerpHSL(color, factor) {
-    const c0 = Color4.s_c0;
-    const c1 = Color4.s_c1;
-    this.getHSL(c0);
-    color.getHSL(c1);
-    const h = lerp(c0.h, c1.h, factor);
-    const s = lerp(c0.s, c1.s, factor);
-    const l = lerp(c0.l, c1.l, factor);
-    this.setHSL(h, s, l);
     return this;
   }
 
@@ -637,28 +440,6 @@ class Color4 {
     this.b *= d;
     return this;
   }
-
-  copySRGBToLinear(color) {
-    this.r = srgbToLinear(color.r);
-    this.g = srgbToLinear(color.g);
-    this.b = srgbToLinear(color.b);
-    return this;
-  }
-
-  copyLinearToSRGB(color) {
-    this.r = linearToSRGB(color.r);
-    this.g = linearToSRGB(color.g);
-    this.b = linearToSRGB(color.b);
-    return this;
-  }
-
-  convertSRGBToLinear() {
-    return this.copySRGBToLinear(this);
-  }
-
-  convertLinearToSRGB() {
-    return this.copyLinearToSRGB(this);
-  }
   /**
    * @returns for example: rgba(255,255,255,1.0)
    */
@@ -678,9 +459,30 @@ class Color4 {
 
   getCSSHeXRGBColor() {
     let str = "#";
-    str += getHexStr(this.r);
-    str += getHexStr(this.g);
-    str += getHexStr(this.b);
+    let t = Math.floor(this.r * 255.0);
+
+    if (t < 0xf) {
+      str += "0" + t.toString(16);
+    } else {
+      str += "" + t.toString(16);
+    }
+
+    t = Math.floor(this.g * 255.0);
+
+    if (t < 0xf) {
+      str += "0" + t.toString(16);
+    } else {
+      str += "" + t.toString(16);
+    }
+
+    t = Math.floor(this.b * 255.0);
+
+    if (t < 0xf) {
+      str += "0" + t.toString(16);
+    } else {
+      str += "" + t.toString(16);
+    }
+
     return str;
   }
 
@@ -690,8 +492,6 @@ class Color4 {
 
 }
 
-Color4.s_c0 = new Color4();
-Color4.s_c1 = new Color4();
 exports.default = Color4;
 
 /***/ }),
@@ -764,7 +564,7 @@ exports.createLightModule = createLightModule;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 

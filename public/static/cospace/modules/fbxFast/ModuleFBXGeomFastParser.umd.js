@@ -929,7 +929,7 @@ exports.GeometryBufferParser = GeometryBufferParser;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -958,6 +958,9 @@ const OrientationType_1 = __importDefault(__webpack_require__("abdb"));
 class Matrix4 {
   constructor(pfs32 = null, index = 0) {
     this.m_uid = -1;
+    this._mvx = new Vector3D_1.default();
+    this._mvy = new Vector3D_1.default();
+    this._mvz = new Vector3D_1.default();
     this.m_index = 0;
     this.m_fs32 = null;
     this.m_localFS32 = null;
@@ -975,22 +978,10 @@ class Matrix4 {
     }
   }
 
-  fromArray(array, offset = 0) {
-    const fs = this.m_localFS32;
-
-    for (let i = 0; i < 16; i++) {
-      fs[i] = array[i + offset];
+  setData(data) {
+    if (data.length == 16) {
+      this.m_localFS32.set(data);
     }
-
-    return this;
-  }
-
-  setData(array16) {
-    if (array16.length == 16) {
-      this.m_localFS32.set(array16);
-    }
-
-    return this;
   }
 
   getCapacity() {
@@ -1742,7 +1733,7 @@ class Matrix4 {
    */
 
 
-  decompose(orientationStyle = OrientationType_1.default.EULER_ANGLES) {
+  decompose(orientationStyle) {
     // TODO: optimize after 4 lines
     let vec = [];
     let mr = Matrix4.s_tMat4;
@@ -2579,7 +2570,7 @@ if (typeof window !== 'undefined') {
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2923,7 +2914,7 @@ exports.ElementGeomData = ElementGeomData;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3055,7 +3046,7 @@ exports.HttpFileLoader = HttpFileLoader;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3068,12 +3059,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class MathConst {
-  // compute euclidean modulo of m % n
-  // https://en.wikipedia.org/wiki/Modulo_operation
-  static EuclideanModulo(n, m) {
-    return (n % m + m) % m;
-  }
-
   static Clamp(value, min, max) {
     return Math.max(Math.min(value, max), min);
   }
@@ -8001,7 +7986,7 @@ exports.Euler = Euler;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8031,7 +8016,7 @@ exports.default = OrientationType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2023 by                                                 */
+/*  Copyright 2018-2022 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
