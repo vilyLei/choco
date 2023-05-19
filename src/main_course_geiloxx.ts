@@ -8,10 +8,9 @@ class VVF {
 let pwin: any = window;
 pwin["VoxVerify"] = new VVF();
 
+import { Course001 as Demo } from "./course/geiloxx/Course001";
 
-import { TimeClock as Demo } from "./course/TimeClock";
-
-document.title = "choco:course";
+document.title = "choco:course:geiloxx";
 // include course or experiment
 
 let ins = new Demo() as any;

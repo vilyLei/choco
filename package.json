@@ -9,9 +9,10 @@
     "build:tutorial": "vue-cli-service build --target lib --name chocoTutorial --dest dist ./src/main_tutorial.ts",
     "dev:tutorial": "vue-cli-service serve --type=dev[./src/main_tutorial.ts]",
 
-    
+
     "build:course": "vue-cli-service build --target lib --name chocoCourse --dest dist ./src/main_course.ts",
-    "dev:course": "vue-cli-service serve --type=dev[./src/main_course.ts]"
+    "dev:course": "vue-cli-service serve --type=dev[./src/main_course.ts]",
+    "dev:course:geiloxx": "vue-cli-service serve --type=dev[./src/main_course_geiloxx.ts]"
   },
   "dependencies": {
     "@tweenjs/tween.js": "^18.4.2",
