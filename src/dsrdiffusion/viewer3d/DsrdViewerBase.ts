@@ -30,7 +30,7 @@ import ISelectionEvent from "../../engine/vox/event/ISelectionEvent";
 import URLFilter from "../../engine/cospace/app/utils/URLFilter";
 import { HttpFileLoader } from "../../engine/cospace/modules/loaders/HttpFileLoader";
 import { VecValueFilter } from "./VecValueFilter";
-import { EntityLayouter } from "../../engine/cospace/app/common/EntityLayouter";
+import { CoEntityLayouter2 } from "../../engine/cospace/app/common/CoEntityLayouter2";
 import IDisplayEntityContainer from "../../engine/vox/entity/IDisplayEntityContainer";
 import { IMouseInteraction } from "../../engine/cospace/voxengine/ui/IMouseInteraction";
 
@@ -126,8 +126,8 @@ class DsrdViewerBase {
 	protected m_graph: IRendererSceneGraph = null;
 	protected m_rscene: IRendererScene = null;
 	protected m_uiScene: IVoxUIScene = null;
-	protected m_mi: IMouseInteraction = null;
 
+	protected m_mi: IMouseInteraction = null;
 	private m_posV0:IVector3D = null;
 	private m_posV1:IVector3D = null;
 	private initMouseInteract(): void {
@@ -402,7 +402,7 @@ class DsrdViewerBase {
 				break;
 		}
 	}
-	protected m_layouter = new EntityLayouter();
+	protected m_layouter = new CoEntityLayouter2();
 	protected loadModels(): void {
 		let baseUrl: string = "static/private/";
 		let url = baseUrl + "obj/base.obj";
@@ -504,6 +504,9 @@ class DsrdViewerBase {
 	private m_modelSelectCall: (urls: string[]) => void;
 	setModelSelectListener(modelSelectCall: (urls: string[]) => void): void {
 		this.m_modelSelectCall = modelSelectCall;
+	}
+	setMaterialParamWithUUID(uuid: string, param: any): void {
+
 	}
 	private mouseUpTargetListener(evt: any): void {
 		this.m_posV1.setXYZ(evt.mouseX, evt.mouseY, 0);
