@@ -1,17 +1,17 @@
-import { CoGeomDataType } from "../../cospace/app/CoSpaceAppData";
+import { CoGeomDataType } from "../../engine/cospace/app/CoSpaceAppData";
 
-import { PostOutline } from "../demo/effect/PostOutline";
-import { SelectionEvent, KeyboardEvent, Keyboard, MouseEvent, RendererDevice, VoxRScene } from "../../cospace/voxengine/VoxRScene";
+import { PostOutline } from "./effect/PostOutline";
+import { SelectionEvent, KeyboardEvent, Keyboard, MouseEvent, RendererDevice, VoxRScene } from "../../engine/cospace/voxengine/VoxRScene";
 
-import { Vector3D, VoxMath } from "../../cospace/math/VoxMath";
-import { VoxEntity } from "../../cospace/voxentity/VoxEntity";
+import { Vector3D, VoxMath } from "../../engine/cospace/math/VoxMath";
+import { VoxEntity } from "../../engine/cospace/voxentity/VoxEntity";
 
-import { CoModelTeamLoader } from "../../cospace/app/common/CoModelTeamLoader";
-import URLFilter from "../../cospace/app/utils/URLFilter";
+import { CoModelTeamLoader } from "../../engine/cospace/app/common/CoModelTeamLoader";
+import URLFilter from "../../engine/cospace/app/utils/URLFilter";
 import { SceneAccessor } from "./SceneAccessor";
 import { DsrdViewerBase } from "./DsrdViewerBase";
 import { DsrdImageViewer } from "./DsrdImageViewer";
-import { CoModuleVersion, CoModuleLoader } from "../../cospace/app/utils/CoModuleLoader";
+import { CoModuleVersion, CoModuleLoader } from "../../engine/cospace/app/utils/CoModuleLoader";
 
 // declare var CoMath: ICoMath;
 

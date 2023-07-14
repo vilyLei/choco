@@ -1,5 +1,5 @@
-import IVector3D from "../../vox/math/IVector3D";
-import { ICtrlValueFilter } from "../base/ICtrlValueFilter";
+import IVector3D from "../../engine/vox/math/IVector3D";
+import { ICtrlValueFilter } from "../../engine/modelEdit/base/ICtrlValueFilter";
 
 class VecValueFilter implements ICtrlValueFilter {
 	private m_absorb = false;

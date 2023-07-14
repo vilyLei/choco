@@ -1,5 +1,5 @@
-import IRendererScene from "../../vox/scene/IRendererScene";
-import { IRendererSceneAccessor } from "../../vox/scene/IRendererSceneAccessor";
+import IRendererScene from "../../engine/vox/scene/IRendererScene";
+import { IRendererSceneAccessor } from "../../engine/vox/scene/IRendererSceneAccessor";
 class SceneAccessor implements IRendererSceneAccessor {
 	constructor() {}
 	renderBegin(rendererScene: IRendererScene): void {

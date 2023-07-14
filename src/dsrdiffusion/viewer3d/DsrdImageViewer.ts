@@ -1,20 +1,14 @@
 
-import { MouseEvent, EventBase, RendererState, VoxRScene } from "../../cospace/voxengine/VoxRScene";
+import { MouseEvent, EventBase, RendererState, VoxRScene } from "../../engine/cospace/voxengine/VoxRScene";
 
-import { Vector3D, VoxMath } from "../../cospace/math/VoxMath";
-import { VoxEntity } from "../../cospace/voxentity/VoxEntity";
+import { VoxEntity } from "../../engine/cospace/voxentity/VoxEntity";
 
-import { CoModelTeamLoader } from "../../cospace/app/common/CoModelTeamLoader";
-import URLFilter from "../../cospace/app/utils/URLFilter";
-import { SceneAccessor } from "./SceneAccessor";
-import { DsrdViewerBase } from "./DsrdViewerBase";
-import IRenderEntity from "../../vox/render/IRenderEntity";
-import ImageResLoader from "../../cospace/app/utils/ImageResLoader";
-import IRenderTexture from "../../vox/render/texture/IRenderTexture";
-import { initialize } from "../../voxui/Lib_VoxUI";
-import IRendererScene from "../../vox/scene/IRendererScene";
-import { VoxMaterial } from "../../cospace/voxmaterial/VoxMaterial";
-import IDefault3DMaterial from "../../vox/material/mcase/IDefault3DMaterial";
+import IRenderEntity from "../../engine/vox/render/IRenderEntity";
+import ImageResLoader from "../../engine/cospace/app/utils/ImageResLoader";
+import IRenderTexture from "../../engine/vox/render/texture/IRenderTexture";
+import IRendererScene from "../../engine/vox/scene/IRendererScene";
+import { VoxMaterial } from "../../engine/cospace/voxmaterial/VoxMaterial";
+import IDefault3DMaterial from "../../engine/vox/material/mcase/IDefault3DMaterial";
 
 // declare var CoMath: ICoMath;
 

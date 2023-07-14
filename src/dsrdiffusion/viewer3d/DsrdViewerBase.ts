@@ -1,38 +1,38 @@
-import IVector3D from "../../vox/math/IVector3D";
-import { IVoxUIScene } from "../../voxui/scene/IVoxUIScene";
+import IVector3D from "../../engine/vox/math/IVector3D";
+import { IVoxUIScene } from "../../engine/voxui/scene/IVoxUIScene";
 
-import { CoModuleVersion, CoModuleLoader } from "../../cospace/app/utils/CoModuleLoader";
-import IRenderTexture from "../../vox/render/texture/IRenderTexture";
-import ITransformEntity from "../../vox/entity/ITransformEntity";
-import { CoGeomDataType } from "../../cospace/app/CoSpaceAppData";
+import { CoModuleVersion, CoModuleLoader } from "../../engine/cospace/app/utils/CoModuleLoader";
+import IRenderTexture from "../../engine/vox/render/texture/IRenderTexture";
+import ITransformEntity from "../../engine/vox/entity/ITransformEntity";
+import { CoGeomDataType } from "../../engine/cospace/app/CoSpaceAppData";
 
-import IRendererScene from "../../vox/scene/IRendererScene";
-import IRendererSceneGraph from "../../vox/scene/IRendererSceneGraph";
+import IRendererScene from "../../engine/vox/scene/IRendererScene";
+import IRendererSceneGraph from "../../engine/vox/scene/IRendererSceneGraph";
 
-import { UserEditEvent } from "../event/UserEditEvent";
-import { IButton } from "../../voxui/button/IButton";
-import { PostOutline } from "../demo/effect/PostOutline";
-import IRenderEntity from "../../vox/render/IRenderEntity";
-import { ICoTransformRecorder } from "../recorde/ICoTransformRecorder";
-import { SelectionEvent, KeyboardEvent, Keyboard, MouseEvent, RendererDevice, VoxRScene } from "../../cospace/voxengine/VoxRScene";
+import { UserEditEvent } from "../../engine/modelEdit/event/UserEditEvent";
+import { IButton } from "../../engine/voxui/button/IButton";
+import { PostOutline } from "./effect/PostOutline";
+import IRenderEntity from "../../engine/vox/render/IRenderEntity";
+import { ICoTransformRecorder } from "../../engine/modelEdit/recorde/ICoTransformRecorder";
+import { SelectionEvent, KeyboardEvent, Keyboard, MouseEvent, RendererDevice, VoxRScene } from "../../engine/cospace/voxengine/VoxRScene";
 
-import { VoxUIInteraction } from "../../cospace/voxengine/ui/VoxUIInteraction";
-import { ISelectButtonGroup } from "../../voxui/button/ISelectButtonGroup";
-import { VoxUI } from "../../voxui/VoxUI";
-import { VoxMaterial } from "../../cospace/voxmaterial/VoxMaterial";
-import { Vector3D, VoxMath } from "../../cospace/math/VoxMath";
-import { ICoKeyboardInteraction } from "../../cospace/voxengine/ui/ICoKeyboardInteraction";
-import { IRectFrameQuery, ITransformController, IUIRectLine, VoxModelEdit } from "../VoxModelEdit";
+import { VoxUIInteraction } from "../../engine/cospace/voxengine/ui/VoxUIInteraction";
+import { ISelectButtonGroup } from "../../engine/voxui/button/ISelectButtonGroup";
+import { VoxUI } from "../../engine/voxui/VoxUI";
+import { VoxMaterial } from "../../engine/cospace/voxmaterial/VoxMaterial";
+import { Vector3D, VoxMath } from "../../engine/cospace/math/VoxMath";
+import { ICoKeyboardInteraction } from "../../engine/cospace/voxengine/ui/ICoKeyboardInteraction";
+import { IRectFrameQuery, ITransformController, IUIRectLine, VoxModelEdit } from "../../engine/modelEdit/VoxModelEdit";
 
-import { CoModelTeamLoader } from "../../cospace/app/common/CoModelTeamLoader";
-import { ISelectionEntity } from "../../voxui/component/ISelectionEntity";
-import ISelectionEvent from "../../vox/event/ISelectionEvent";
-import URLFilter from "../../cospace/app/utils/URLFilter";
-import { HttpFileLoader } from "../../cospace/modules/loaders/HttpFileLoader";
+import { CoModelTeamLoader } from "../../engine/cospace/app/common/CoModelTeamLoader";
+import { ISelectionEntity } from "../../engine/voxui/component/ISelectionEntity";
+import ISelectionEvent from "../../engine/vox/event/ISelectionEvent";
+import URLFilter from "../../engine/cospace/app/utils/URLFilter";
+import { HttpFileLoader } from "../../engine/cospace/modules/loaders/HttpFileLoader";
 import { VecValueFilter } from "./VecValueFilter";
-import { EntityLayouter } from "../../cospace/app/common/EntityLayouter";
-import IDisplayEntityContainer from "../../vox/entity/IDisplayEntityContainer";
-import { IMouseInteraction } from "../../cospace/voxengine/ui/IMouseInteraction";
+import { EntityLayouter } from "../../engine/cospace/app/common/EntityLayouter";
+import IDisplayEntityContainer from "../../engine/vox/entity/IDisplayEntityContainer";
+import { IMouseInteraction } from "../../engine/cospace/voxengine/ui/IMouseInteraction";
 
 /**
  * cospace renderer

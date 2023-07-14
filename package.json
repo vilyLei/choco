@@ -9,8 +9,11 @@
     "build:tutorial": "vue-cli-service build --target lib --name chocoTutorial --dest dist ./src/main_tutorial.ts",
     "dev:tutorial": "vue-cli-service serve --type=dev[./src/main_tutorial.ts]",
 
+    "build:dsrdViewer": "vue-cli-service build --target lib --name DsrdViewer --dest ./public/static/cospace/dsrdiffusion/dsrdViewer ./src/dsrdiffusion/viewer3d/DsrdViewer.ts",
 
     "build:course": "vue-cli-service build --target lib --name chocoCourse --dest dist ./src/main_course.ts",
+
+    "dev:dsrdiffusion": "vue-cli-service serve --type=dev[./src/main_dsrdiffusion.ts]",
     "dev:course": "vue-cli-service serve --type=dev[./src/main_course.ts]",
     "dev:course:geiloxx": "vue-cli-service serve --type=dev[./src/main_course_geiloxx.ts]"
   },
