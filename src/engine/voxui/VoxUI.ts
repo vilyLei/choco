@@ -21,6 +21,8 @@ import { ModuleLoader } from "../cospace/modules/loaders/ModuleLoader";
 import { ITextParam, ILib_VoxUI } from "./ILib_VoxUI";
 import IRendererSceneGraph from "../vox/scene/IRendererSceneGraph";
 import { IParamCtrlPanel } from "./panel/IParamCtrlPanel";
+import { ISelectionEntity } from "./component/ISelectionEntity";
+import { IProgressEntity } from "./component/IProgressEntity";
 declare var Lib_VoxUI: ILib_VoxUI;
 
 interface I_Lib_VoxUI {
@@ -118,6 +120,13 @@ class T_Lib_VoxUI {
 	 */
 	createUIScene(graph: IRendererSceneGraph, uiConfig?: IUIConfig, atlasSize?: number, renderProcessesTotal?: number): IVoxUIScene {
 		return Lib_VoxUI.createUIScene(graph, uiConfig, atlasSize, renderProcessesTotal);
+	}
+	
+	createSelectionEntity(): ISelectionEntity {
+		return Lib_VoxUI.createSelectionEntity();
+	}
+	createProgressEntity(): IProgressEntity {
+		return Lib_VoxUI.createProgressEntity();
 	}
 }
 const VoxUI = new T_Lib_VoxUI();

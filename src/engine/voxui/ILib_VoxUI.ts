@@ -18,6 +18,9 @@ import { IUIConfig } from "./system/IUIConfig";
 import IRendererScene from "../vox/scene/IRendererScene";
 import IRendererSceneGraph from "../vox/scene/IRendererSceneGraph";
 import { IParamCtrlPanel } from "./panel/IParamCtrlPanel";
+import { IUIEntityContainer } from "./entity/IUIEntityContainer";
+import { ISelectionEntity } from "./component/ISelectionEntity";
+import { IProgressEntity } from "./component/IProgressEntity";
 
 interface ITextParam {
 
@@ -36,7 +39,7 @@ interface ILib_VoxUI {
 	createClipColorLabel(): IClipColorLabel;
 	createColorClipLabel(): IColorClipLabel;
 	createTextLabel(): ITextLabel;
-	
+
 	createButton(): IButton;
 	createFlagButton(): IFlagButton;
 	createSelectButtonGroup(): ISelectButtonGroup;
@@ -51,6 +54,7 @@ interface ILib_VoxUI {
 	 * @param fontName button text font name, the defaule value is ""
 	 */
 	createTextLabelButton(uuid: string, text: string, width?: number, height?: number, textColor?: IColor4, fontSize?: number, fontName?: string): IButton;
+	createUIContainer(): IUIEntityContainer;
 	createUIPanel(): IUIPanel;
 	createPromptPanel(): IPromptPanel;
 	createParamCtrlPanel(): IParamCtrlPanel;
@@ -61,5 +65,8 @@ interface ILib_VoxUI {
 	 * @param renderProcessesTotal the default value is 3
 	 */
 	createUIScene(graph: IRendererSceneGraph, uiConfig?: IUIConfig, atlasSize?: number, renderProcessesTotal?: number): IVoxUIScene;
+
+	createSelectionEntity(): ISelectionEntity;
+	createProgressEntity(): IProgressEntity;
 }
 export { ITextParam, ILib_VoxUI };
