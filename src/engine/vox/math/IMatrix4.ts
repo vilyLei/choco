@@ -7,14 +7,11 @@
 
 import IVector3D from "../../vox/math/IVector3D";
 import Float32Data from "../../vox/base/Float32Data";
+// import Matrix4 from "./Matrix4";
 
 interface IMatrix4 extends Float32Data {
-	/**
-	 * @param array matrix4 data, 16 number elements
-	 * @param offset the default value is 0
-	 */
-	fromArray(array: number[] | ArrayLike<number>, offset?: number): IMatrix4;
-	setData(array16: number[] | ArrayLike<number>): IMatrix4;
+
+	setData(data: number[]): void;
 	getCapacity(): number;
 	getUid(): number;
 	getLocalFS32(): Float32Array;
@@ -139,7 +136,7 @@ interface IMatrix4 extends Float32Data {
 	multiply(m: IMatrix4): IMatrix4;
 	invertThis(): IMatrix4;
 
-
+	
 	lookAtRH(eyePos: IVector3D, atPos: IVector3D, up: IVector3D): void;
 	lookAtLH(eyePos: IVector3D, atPos: IVector3D, up: IVector3D): void;
 

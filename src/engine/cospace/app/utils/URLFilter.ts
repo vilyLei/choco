@@ -1,15 +1,23 @@
 export default class URLFilter {
-
+	static getDomain(url: string): string {
+		var urlReg = /http:\/\/([^\/]+)/i;
+		let domain = url.match(urlReg);
+		return ((domain != null && domain.length > 0) ? domain[0] : "");
+	}
+	static getHostUrl(port?: string, end = "/"): string {
+		let host = location.href;
+		let domain = URLFilter.getDomain(host);
+		let nsList = domain.split(":");
+		host = nsList[0]+":"+nsList[1];
+		return port ? host + ":"+port+"/" : domain + end;
+	}
 	static isEnabled(): boolean {
 		let hostUrl = window.location.href;
 		return hostUrl.indexOf(".artvily.com") > 0;
 	}
 	static filterUrl(url: string): string {
 		if(url.indexOf("blob:") < 0) {
-			console.log("use common tex url");
 			let hostUrl = window.location.href;
-			console.log("KKKK >> KKKK hostUrl: ", hostUrl);
-			console.log("KKKK >> KKKK url: ", url);
 			if (hostUrl.indexOf(".artvily.") > 0) {
 				hostUrl = "http://www.artvily.com:9090/";
 				url = hostUrl + url;
@@ -17,13 +25,13 @@ export default class URLFilter {
 		}
 		return url;
 	}
-	static getFileName(url: string, lowerCase: boolean = false): string {
-		if(url.indexOf("blob:") < 0) {
+	static getFileName(url: string, lowerCase: boolean = false, force: boolean = false): string {
+		if(url.indexOf("blob:") < 0 || force) {
 			let i = url.lastIndexOf("/");
 			if(i < 0) {
 				return "";
 			}
-			let j = url.indexOf(".", i);
+			let j = url.lastIndexOf(".", url.length);
 			if(j < 0) {
 				return "";
 			}
@@ -37,10 +45,10 @@ export default class URLFilter {
 		}
 		return "";
 	}
-	static getFileNameAndSuffixName(url: string, lowerCase: boolean = false): string {
-		if(url.indexOf("blob:") < 0) {
+	static getFileNameAndSuffixName(url: string, lowerCase: boolean = false, force: boolean = false): string {
+		if(url.indexOf("blob:") < 0 || force) {
 			let i = url.lastIndexOf("/");
-			let j = url.indexOf(".", i);
+			let j = url.lastIndexOf(".", url.length);
 			if(j < 0) {
 				return "";
 			}
@@ -52,10 +60,9 @@ export default class URLFilter {
 		}
 		return "";
 	}
-	static getFileSuffixName(url: string, lowerCase: boolean = false): string {
-		if(url.indexOf("blob:") < 0) {
-			let i = url.lastIndexOf("/");
-			let j = url.indexOf(".", i);
+	static getFileSuffixName(url: string, lowerCase: boolean = false, force: boolean = false): string {
+		if(url.indexOf("blob:") < 0 || force) {
+			let j = url.lastIndexOf(".", url.length);
 			if(j < 0) {
 				return "";
 			}

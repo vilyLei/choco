@@ -398,7 +398,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-const URLFilter_1 = __importDefault(__webpack_require__("75b9"));
+const URLFilter_1 = __importDefault(__webpack_require__("7aa4"));
 
 class VoxSystemVerify {
   static isEnabled() {
@@ -3014,10 +3014,22 @@ class Matrix4 {
     }
   }
 
-  setData(data) {
-    if (data.length == 16) {
-      this.m_localFS32.set(data);
+  fromArray(array, offset = 0) {
+    const fs = this.m_localFS32;
+
+    for (let i = 0; i < 16; i++) {
+      fs[i] = array[i + offset];
     }
+
+    return this;
+  }
+
+  setData(array16) {
+    if (array16.length == 16) {
+      this.m_localFS32.set(array16);
+    }
+
+    return this;
   }
 
   getCapacity() {
@@ -7296,8 +7308,55 @@ Object.defineProperty(exports, "__esModule", {
 });
 const __$mcv = 1e-5;
 
+function lerp(x, y, t) {
+  return (1 - t) * x + t * y;
+}
+
+function euclideanModulo(n, m) {
+  return (n % m + m) % m;
+}
+
+function clamp(value, min, max) {
+  return Math.max(Math.min(value, max), min);
+}
+
+function hue2rgb(p, q, t) {
+  if (t < 0) t += 1;
+  if (t > 1) t -= 1;
+  if (t < 1 / 6) return p + (q - p) * 6 * t;
+  if (t < 1 / 2) return q;
+  if (t < 2 / 3) return p + (q - p) * 6 * (2 / 3 - t);
+  return p;
+}
+
+function srgbToLinear(c) {
+  return c < 0.04045 ? c * 0.0773993808 : Math.pow(c * 0.9478672986 + 0.0521327014, 2.4);
+}
+
+function linearToSRGB(c) {
+  return c < 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 0.41666) - 0.055;
+}
+
+function getHexStr(v) {
+  let t = Math.floor(v * 255.0);
+
+  if (t < 0xf) {
+    return "0" + t.toString(16);
+  } else {
+    return "" + t.toString(16);
+  }
+}
+
 class Color4 {
   constructor(pr = 1.0, pg = 1.0, pb = 1.0, pa = 1.0) {
+    this.h = 0.0;
+    this.s = 0.0;
+    this.l = 0.0;
+    this.v = 0.0;
+    this.c = 0.0;
+    this.m = 0.0;
+    this.y = 0.0;
+    this.k = 0.0;
     this.r = pr;
     this.g = pg;
     this.b = pb;
@@ -7371,14 +7430,7 @@ class Color4 {
     this.g = uint8G * k;
     this.b = uint8B * k;
     return this; // return this.setRGB3Bytes(r,g,b);
-  } // setRGB3Bytes(uint8R: number, uint8G: number, uint8B: number): Color4 {
-  //     let k = 1.0 / 255.0;
-  //     this.r = uint8R * k;
-  //     this.g = uint8G * k;
-  //     this.b = uint8B * k;
-  //     return this;
-  // }
-
+  }
 
   setRGBUint24(rgbUint24) {
     const bit = 0xff;
@@ -7419,6 +7471,145 @@ class Color4 {
 
   setAlpha(a) {
     this.a = a;
+    return this;
+  }
+  /**
+   *
+   * @param contrast its value range is [-50.0, 100.0]
+   */
+
+
+  setContrast(contrast) {
+    /*
+        //限制参数p;
+        if(p>0){p=p+1;}//当p>0时,函数图像无限趋近于垂直
+        else{p=1/(1-p);}//当p<0时,函数图像无限趋近于水平
+        //使函数图像绕(0.5,0.5)为中心旋转;
+        x=p*(x-0.5)+0.5;
+        //返回x限制在0-1之间的值;
+        return clamp(x, 0.0, 1.0);
+    */
+
+    /*
+        //限制参数p;
+        if(p>0){p=p+1;}//当p>0时,函数图像无限趋近于垂直
+        else{p=1/(1-p);}//当p<0时,函数图像无限趋近于水平
+        //R通道运算;
+        if(x.x>0.5){x.x=1-pow((2-x.x*2),p)/2;}
+        else{x.x=pow((x.x*2),p)/2;}
+        //G通道运算;
+        if(x.y>0.5){x.y=1-pow((2-2*x.y),p)/2;}
+        else{x.y=pow((2*x.y),p)/2;}
+        //B通道运算;
+        if(x.z>0.5){x.z=1-pow((2-2*x.z),p)/2;}
+        else{x.z=pow((2*x.z),p)/2;}
+        //返回值;
+        return x;
+        // thanks: https://zhuanlan.zhihu.com/p/415198746
+    */
+    const factor = 259.0 * (contrast + 255.0) / (255.0 * (259.0 - contrast));
+    const pr = 255.0 * this.r;
+    const pg = 255.0 * this.g;
+    const pb = 255.0 * this.b;
+    this.r = clamp(factor * (pr - 128.0) + 128.0, 0.0, 255.0) / 255.0;
+    this.g = clamp(factor * (pg - 128.0) + 128.0, 0.0, 255.0) / 255.0;
+    this.b = clamp(factor * (pb - 128.0) + 128.0, 0.0, 255.0) / 255.0;
+    return this;
+  }
+
+  toGray() {
+    this.r *= 0.2126;
+    this.g *= 0.7152;
+    this.b *= 0.0722;
+    return this;
+  }
+
+  setHSL(h, s, l) {
+    // h,s,l ranges are in 0.0 - 1.0
+    h = euclideanModulo(h, 1);
+    s = clamp(s, 0, 1);
+    l = clamp(l, 0, 1);
+
+    if (s === 0) {
+      this.r = this.g = this.b = l;
+    } else {
+      const p = l <= 0.5 ? l * (1 + s) : l + s - l * s;
+      const q = 2 * l - p;
+      this.r = hue2rgb(q, p, h + 1 / 3);
+      this.g = hue2rgb(q, p, h);
+      this.b = hue2rgb(q, p, h - 1 / 3);
+    }
+
+    return this;
+  }
+
+  getHSL(target = null) {
+    // h,s,l ranges are in 0.0 - 1.0
+    if (!target) {
+      target = new Color4();
+    }
+
+    const r = this.r,
+          g = this.g,
+          b = this.b;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let hue, saturation;
+    const lightness = (min + max) / 2.0;
+
+    if (min === max) {
+      hue = 0;
+      saturation = 0;
+    } else {
+      const delta = max - min;
+      saturation = lightness <= 0.5 ? delta / (max + min) : delta / (2 - max - min);
+
+      switch (max) {
+        case r:
+          hue = (g - b) / delta + (g < b ? 6 : 0);
+          break;
+
+        case g:
+          hue = (b - r) / delta + 2;
+          break;
+
+        case b:
+          hue = (r - g) / delta + 4;
+          break;
+      }
+
+      hue /= 6;
+    }
+
+    target.h = hue;
+    target.s = saturation;
+    target.l = lightness;
+    return target;
+  }
+
+  lerp(color, factor) {
+    this.r += (color.r - this.r) * factor;
+    this.g += (color.g - this.g) * factor;
+    this.b += (color.b - this.b) * factor;
+    return this;
+  }
+
+  lerpColors(color1, color2, factor) {
+    this.r = color1.r + (color2.r - color1.r) * factor;
+    this.g = color1.g + (color2.g - color1.g) * factor;
+    this.b = color1.b + (color2.b - color1.b) * factor;
+    return this;
+  }
+
+  lerpHSL(color, factor) {
+    const c0 = Color4.s_c0;
+    const c1 = Color4.s_c1;
+    this.getHSL(c0);
+    color.getHSL(c1);
+    const h = lerp(c0.h, c1.h, factor);
+    const s = lerp(c0.s, c1.s, factor);
+    const l = lerp(c0.l, c1.l, factor);
+    this.setHSL(h, s, l);
     return this;
   }
 
@@ -7497,6 +7688,28 @@ class Color4 {
     this.b *= d;
     return this;
   }
+
+  copySRGBToLinear(color) {
+    this.r = srgbToLinear(color.r);
+    this.g = srgbToLinear(color.g);
+    this.b = srgbToLinear(color.b);
+    return this;
+  }
+
+  copyLinearToSRGB(color) {
+    this.r = linearToSRGB(color.r);
+    this.g = linearToSRGB(color.g);
+    this.b = linearToSRGB(color.b);
+    return this;
+  }
+
+  convertSRGBToLinear() {
+    return this.copySRGBToLinear(this);
+  }
+
+  convertLinearToSRGB() {
+    return this.copyLinearToSRGB(this);
+  }
   /**
    * @returns for example: rgba(255,255,255,1.0)
    */
@@ -7514,32 +7727,11 @@ class Color4 {
    */
 
 
-  getCSSHeXRGBColor() {
-    let str = "#";
-    let t = Math.floor(this.r * 255.0);
-
-    if (t < 0xf) {
-      str += "0" + t.toString(16);
-    } else {
-      str += "" + t.toString(16);
-    }
-
-    t = Math.floor(this.g * 255.0);
-
-    if (t < 0xf) {
-      str += "0" + t.toString(16);
-    } else {
-      str += "" + t.toString(16);
-    }
-
-    t = Math.floor(this.b * 255.0);
-
-    if (t < 0xf) {
-      str += "0" + t.toString(16);
-    } else {
-      str += "" + t.toString(16);
-    }
-
+  getCSSHeXRGBColor(keyStr = "#") {
+    let str = keyStr;
+    str += getHexStr(this.r);
+    str += getHexStr(this.g);
+    str += getHexStr(this.b);
     return str;
   }
 
@@ -7549,6 +7741,8 @@ class Color4 {
 
 }
 
+Color4.s_c0 = new Color4();
+Color4.s_c1 = new Color4();
 exports.default = Color4;
 
 /***/ }),
@@ -10831,7 +11025,7 @@ exports.MaterialPipeType = MaterialPipeType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12665,6 +12859,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 class MathConst {
+  // compute euclidean modulo of m % n
+  // https://en.wikipedia.org/wiki/Modulo_operation
+  static EuclideanModulo(n, m) {
+    return (n % m + m) % m;
+  }
+
   static Clamp(value, min, max) {
     return Math.max(Math.min(value, max), min);
   }
@@ -13118,112 +13318,6 @@ var DisplayRenderSign;
 })(DisplayRenderSign || (DisplayRenderSign = {}));
 
 exports.DisplayRenderSign = DisplayRenderSign;
-
-/***/ }),
-
-/***/ "75b9":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class URLFilter {
-  static isEnabled() {
-    let hostUrl = window.location.href;
-    return hostUrl.indexOf(".artvily.com") > 0;
-  }
-
-  static filterUrl(url) {
-    if (url.indexOf("blob:") < 0) {
-      console.log("use common tex url");
-      let hostUrl = window.location.href;
-
-      if (hostUrl.indexOf(".artvily.") > 0) {
-        hostUrl = "http://www.artvily.com:9090/";
-        url = hostUrl + url;
-      }
-    }
-
-    return url;
-  }
-
-  static getFileName(url, lowerCase = false) {
-    if (url.indexOf("blob:") < 0) {
-      let i = url.lastIndexOf("/");
-
-      if (i < 0) {
-        return "";
-      }
-
-      let j = url.indexOf(".", i);
-
-      if (j < 0) {
-        return "";
-      }
-
-      if (i + 2 < j) {
-        let str = url.slice(i + 1, j);
-
-        if (lowerCase) {
-          return str.toLocaleLowerCase();
-        }
-
-        return str;
-      }
-    }
-
-    return "";
-  }
-
-  static getFileNameAndSuffixName(url, lowerCase = false) {
-    if (url.indexOf("blob:") < 0) {
-      let i = url.lastIndexOf("/");
-      let j = url.indexOf(".", i);
-
-      if (j < 0) {
-        return "";
-      }
-
-      let str = url.slice(i + 1);
-
-      if (lowerCase) {
-        return str.toLocaleLowerCase();
-      }
-
-      return str;
-    }
-
-    return "";
-  }
-
-  static getFileSuffixName(url, lowerCase = false) {
-    if (url.indexOf("blob:") < 0) {
-      let i = url.lastIndexOf("/");
-      let j = url.indexOf(".", i);
-
-      if (j < 0) {
-        return "";
-      }
-
-      let str = url.slice(j + 1);
-
-      if (lowerCase) {
-        return str.toLocaleLowerCase();
-      }
-
-      return str;
-    }
-
-    return "";
-  }
-
-}
-
-exports.default = URLFilter;
 
 /***/ }),
 
@@ -14028,6 +14122,125 @@ class VtxSeparatedBuf {
 }
 
 exports.default = VtxSeparatedBuf;
+
+/***/ }),
+
+/***/ "7aa4":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class URLFilter {
+  static getDomain(url) {
+    var urlReg = /http:\/\/([^\/]+)/i;
+    let domain = url.match(urlReg);
+    return domain != null && domain.length > 0 ? domain[0] : "";
+  }
+
+  static getHostUrl(port, end = "/") {
+    let host = location.href;
+    let domain = URLFilter.getDomain(host);
+    let nsList = domain.split(":");
+    host = nsList[0] + ":" + nsList[1];
+    return port ? host + ":" + port + "/" : domain + end;
+  }
+
+  static isEnabled() {
+    let hostUrl = window.location.href;
+    return hostUrl.indexOf(".artvily.com") > 0;
+  }
+
+  static filterUrl(url) {
+    if (url.indexOf("blob:") < 0) {
+      let hostUrl = window.location.href;
+
+      if (hostUrl.indexOf(".artvily.") > 0) {
+        hostUrl = "http://www.artvily.com:9090/";
+        url = hostUrl + url;
+      }
+    }
+
+    return url;
+  }
+
+  static getFileName(url, lowerCase = false, force = false) {
+    if (url.indexOf("blob:") < 0 || force) {
+      let i = url.lastIndexOf("/");
+
+      if (i < 0) {
+        return "";
+      }
+
+      let j = url.indexOf(".", i);
+
+      if (j < 0) {
+        return "";
+      }
+
+      if (i + 2 < j) {
+        let str = url.slice(i + 1, j);
+
+        if (lowerCase) {
+          return str.toLocaleLowerCase();
+        }
+
+        return str;
+      }
+    }
+
+    return "";
+  }
+
+  static getFileNameAndSuffixName(url, lowerCase = false, force = false) {
+    if (url.indexOf("blob:") < 0 || force) {
+      let i = url.lastIndexOf("/");
+      let j = url.indexOf(".", i);
+
+      if (j < 0) {
+        return "";
+      }
+
+      let str = url.slice(i + 1);
+
+      if (lowerCase) {
+        return str.toLocaleLowerCase();
+      }
+
+      return str;
+    }
+
+    return "";
+  }
+
+  static getFileSuffixName(url, lowerCase = false, force = false) {
+    if (url.indexOf("blob:") < 0 || force) {
+      let i = url.lastIndexOf("/");
+      let j = url.indexOf(".", i);
+
+      if (j < 0) {
+        return "";
+      }
+
+      let str = url.slice(j + 1);
+
+      if (lowerCase) {
+        return str.toLocaleLowerCase();
+      }
+
+      return str;
+    }
+
+    return "";
+  }
+
+}
+
+exports.default = URLFilter;
 
 /***/ }),
 
@@ -16084,9 +16297,7 @@ class Vector3D {
     //  // cos(x) = (a^2 + b^2 - c^2) / 2*a*b
     let pa = v0.getLengthSquared();
     let pb = v1.getLengthSquared();
-    v_m_v0.x = v0.x - v1.x;
-    v_m_v0.y = v0.y - v1.y;
-    v_m_v0.z = v0.z - v1.z;
+    v_m_v0.subVecsTo(v0, v1);
     return Math.acos((pa + pb - v_m_v0.getLengthSquared()) / (2.0 * Math.sqrt(pa) * Math.sqrt(pb)));
   }
 
@@ -22765,6 +22976,17 @@ class RendererParam {
     this.syncBgColor = true;
     this.batchEnabled = true;
     this.processFixedState = false;
+    this.hideWindowFrame = true;
+    /**
+     * the default value is true
+     */
+
+    this.viewSizeWithTwo = true;
+    /**
+     * the default value is true
+     */
+
+    this.viewSizeToBigger = true;
     this.m_scissorTestEanbled = false;
     this.m_mainDiv = div;
 
@@ -23141,6 +23363,10 @@ class CameraBase {
       this.m_rightHandEnabled = true;
       this.m_changed = true;
     }
+  }
+
+  getFOVRandian() {
+    return this.m_fovRadian;
   }
 
   getAspect() {
@@ -28140,7 +28366,7 @@ exports.default = FloatCubeTextureProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -29560,6 +29786,7 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     this.alignScreen = false;
     this.fixAlignScreen = false;
     this.mapLodEnabled = false;
+    this.useBake = false;
     this.fragUniformData = null;
   }
 
@@ -29584,6 +29811,10 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     if (this.fragUniformData) {
       this.m_uniqueName += "FUDL" + this.fragUniformData.length;
     }
+
+    if (this.useBake) {
+      this.m_uniqueName += "Bake";
+    }
   }
 
   buildShader() {
@@ -29604,6 +29835,10 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     if (this.vtxMatrixTransform) {
       coder.addDefine("VOX_VTX_MAT_TRANSFORM");
       coder.useVertSpaceMats(true, true, true);
+    }
+
+    if (this.useBake) {
+      coder.addDefine("VOX_USE_BAKE");
     }
 
     if (this.fragUniformData) {
@@ -29697,11 +29932,14 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     #else
         #ifdef VOX_ALIGN_SCREEN
             gl_Position = u_objMat * localPosition;
+			#ifdef VOX_USE_NORMAL
+				v_worldNormal = normalize( a_nvs.xyz * inverse(mat3(u_objMat)) );
+			#endif
         #else
             gl_Position = localPosition;
-        #endif
-        #ifdef VOX_USE_NORMAL
-            v_worldNormal = normalize( a_nvs.xyz );
+			#ifdef VOX_USE_NORMAL
+				v_worldNormal = normalize( a_nvs.xyz );
+			#endif
         #endif
     #endif
 
@@ -29711,6 +29949,13 @@ class Default3DShaderCodeBuffer extends ShaderCodeBuffer_1.default {
     #ifdef VOX_USE_VTX_COLOR
         v_cv = a_cvs.xyz;
     #endif
+	#ifdef VOX_USE_BAKE
+	// for test
+	vec2 uvpos = (a_uvs.xy);
+    // uvpos.y = 1.0 - uvpos.y;
+    uvpos = vec2(2.0) * vec2(uvpos - vec2(0.5));
+    gl_Position = vec4(uvpos, 0.0,1.0);
+	#endif
 `);
   }
 
@@ -29736,6 +29981,7 @@ class Default3DMaterial extends MaterialBase_1.default {
     this.alignScreen = false;
     this.fixAlignScreen = false;
     this.mapLodEnabled = false;
+    this.useBake = false;
     this.fragUniformData = null;
 
     if (Default3DMaterial.s_shdCodeBuffer == null) {
@@ -29757,6 +30003,7 @@ class Default3DMaterial extends MaterialBase_1.default {
     buf.alignScreen = this.alignScreen;
     buf.fixAlignScreen = this.fixAlignScreen;
     buf.mapLodEnabled = this.mapLodEnabled;
+    buf.useBake = this.useBake;
     buf.fragUniformData = this.fragUniformData;
   }
   /**

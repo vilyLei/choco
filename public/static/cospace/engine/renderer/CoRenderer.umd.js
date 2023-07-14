@@ -109,7 +109,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -223,7 +223,7 @@ exports.default = RCExtension;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -365,7 +365,7 @@ exports.RenderColorMask = RenderColorMask;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -424,6 +424,8 @@ class RAdapterContext {
     this.m_displayHeight = 0;
     this.m_rcanvasWidth = 0;
     this.m_rcanvasHeight = 0;
+    this.m_sizeWithTwo = true;
+    this.m_toBigger = true;
     this.m_resizeCallback = null;
   }
 
@@ -489,7 +491,7 @@ class RAdapterContext {
     this.m_offcanvas = offscreen = canvas;
 
     if (this.m_maxWebGLVersion == 2) {
-      this.m_gl = offscreen == null ? canvas.getContext('webgl2', attr) : offscreen.getContext('webgl2', attr);
+      this.m_gl = offscreen == null ? canvas.getContext("webgl2", attr) : offscreen.getContext("webgl2", attr);
 
       if (this.m_gl) {
         console.log("Use WebGL2 success!");
@@ -501,9 +503,9 @@ class RAdapterContext {
 
     if (this.m_gl == null) {
       if (offscreen == null) {
-        this.m_gl = canvas.getContext('webgl', attr) || canvas.getContext("experimental-webgl", attr);
+        this.m_gl = canvas.getContext("webgl", attr) || canvas.getContext("experimental-webgl", attr);
       } else {
-        this.m_gl = offscreen.getContext('webgl', attr) || offscreen.getContext("experimental-webgl", attr);
+        this.m_gl = offscreen.getContext("webgl", attr) || offscreen.getContext("experimental-webgl", attr);
       }
 
       if (this.m_gl != null) {
@@ -516,15 +518,15 @@ class RAdapterContext {
 
     if (!this.m_gl) {
       this.m_webGLVersion = -1;
-      alert('Unable to initialize WebGL. Your browser or machine may not support it.');
+      alert("Unable to initialize WebGL. Your browser or machine may not support it.");
       throw Error("WebGL initialization failure.");
     }
 
     this.m_gl.version = this.m_glVersion;
     canvas.version = this.m_glVersion;
     this.m_glVersion++;
-    canvas.addEventListener('webglcontextrestored', this.contextrestoredHandler, false);
-    canvas.addEventListener('webglcontextlost', this.contextlostHandler, false);
+    canvas.addEventListener("webglcontextrestored", this.contextrestoredHandler, false);
+    canvas.addEventListener("webglcontextlost", this.contextlostHandler, false);
     RCExtension_1.default.Initialize(this.m_webGLVersion, this.m_gl);
   }
 
@@ -544,7 +546,13 @@ class RAdapterContext {
 
     this.m_param = param;
 
-    if (pdocument != null) {
+    if (pdocument) {
+      if (param.hideWindowFrame) {
+        document.body.style.overflow = "hidden";
+      }
+
+      this.m_toBigger = param.viewSizeToBigger;
+      this.m_sizeWithTwo = param.viewSizeWithTwo;
       this.m_dpr = window.devicePixelRatio;
       let div = param.getDiv();
       RendererDevice_1.default.SetDevicePixelRatio(this.m_dpr);
@@ -701,7 +709,7 @@ class RAdapterContext {
 
   loseContext() {
     if (!this.m_glLoseCtx) {
-      this.m_glLoseCtx = this.m_gl.getExtension('WEBGL_lose_context');
+      this.m_glLoseCtx = this.m_gl.getExtension("WEBGL_lose_context");
       this.m_glLoseCtx.loseContext();
     }
   }
@@ -748,6 +756,20 @@ class RAdapterContext {
   getDevicePixelRatio() {
     return this.m_dpr;
   }
+
+  normlizeViewSize(pw, ph, sync, k) {
+    let calc = this.m_toBigger ? Math.round : Math.floor;
+
+    if (sync && this.m_sizeWithTwo) {
+      pw = calc(pw * k * 0.5) * 2;
+      ph = calc(ph * k * 0.5) * 2;
+    } else {
+      pw = calc(pw * k);
+      ph = calc(ph * k);
+    }
+
+    return [pw, ph];
+  }
   /**
    * @param pw buffer div width
    * @param ph buffer div height
@@ -756,14 +778,16 @@ class RAdapterContext {
 
 
   resizeBufferSize(pw, ph, sync = true) {
-    if (sync) {
-      pw = Math.round(pw * 0.5) * 2;
-      ph = Math.round(ph * 0.5) * 2;
-    } else {
-      pw = Math.round(pw);
-      ph = Math.round(ph);
-    }
-
+    // if (sync) {
+    // 	pw = Math.round(pw * 0.5) * 2;
+    // 	ph = Math.round(ph * 0.5) * 2;
+    // } else {
+    // 	pw = Math.round(pw);
+    // 	ph = Math.round(ph);
+    // }
+    let params = this.normlizeViewSize(pw, ph, sync, 1.0);
+    pw = params[0];
+    ph = params[1];
     let k = sync ? window.devicePixelRatio : 1.0;
     let dprChanged = Math.abs(k - this.m_dpr) > 0.01 || this.m_resizeFlag;
     this.m_dpr = k;
@@ -774,15 +798,19 @@ class RAdapterContext {
 
     if (this.m_displayWidth != pw || this.m_displayHeight != ph || dprChanged) {
       this.m_displayWidth = pw;
-      this.m_displayHeight = ph;
+      this.m_displayHeight = ph; // if (sync) {
+      // 	pw = Math.round(pw * k * 0.5) * 2;
+      // 	ph = Math.round(ph * k * 0.5) * 2;
+      // } else {
+      // 	pw = Math.round(pw * k);
+      // 	ph = Math.round(ph * k);
+      // }
 
-      if (sync) {
-        this.m_rcanvasWidth = Math.round(pw * k * 0.5) * 2;
-        this.m_rcanvasHeight = Math.round(ph * k * 0.5) * 2;
-      } else {
-        this.m_rcanvasWidth = Math.round(pw * k);
-        this.m_rcanvasHeight = Math.round(ph * k);
-      }
+      params = this.normlizeViewSize(pw, ph, sync, k);
+      pw = params[0];
+      ph = params[1];
+      this.m_rcanvasWidth = pw;
+      this.m_rcanvasHeight = ph;
 
       if (this.m_offcanvas == null) {
         this.m_canvas.width = this.m_rcanvasWidth;
@@ -792,8 +820,8 @@ class RAdapterContext {
         this.m_offcanvas.height = this.m_rcanvasHeight;
       }
 
-      this.m_canvas.style.width = this.m_displayWidth + 'px';
-      this.m_canvas.style.height = this.m_displayHeight + 'px';
+      this.m_canvas.style.width = this.m_displayWidth + "px";
+      this.m_canvas.style.height = this.m_displayHeight + "px";
       const st = this.m_stage;
 
       if (st) {
@@ -898,11 +926,12 @@ class RAdapterContext {
     const div = this.m_div;
 
     if (div.parentElement) {
-      let rect = div.getBoundingClientRect(); // console.log("updateRenderBufferSize() rect.width, rect.height: ", rect.width, rect.height);
+      // let rect = div.getBoundingClientRect();
+      // console.log("updateRenderBufferSize() rect.width, rect.height: ", rect.width, rect.height);
       // this.m_canvas.style.width = Math.floor(rect.width) + 'px';
       // this.m_canvas.style.height = Math.floor(rect.height) + 'px';
-
-      rect = div.getBoundingClientRect();
+      // rect = div.getBoundingClientRect();
+      let rect = div.getBoundingClientRect();
       this.resizeBufferSize(rect.width, rect.height);
     } else {
       const canvas = this.m_offcanvas ? this.m_offcanvas : this.m_canvas;
@@ -925,7 +954,7 @@ exports.default = RAdapterContext;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1366,7 +1395,7 @@ exports.default = ContextMouseEvtDispatcher;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1819,7 +1848,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -1970,7 +1999,7 @@ exports.default = RSEntityFlag;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -2305,11 +2334,14 @@ class RenderAdapter {
 
   syncHtmlColor() {
     // console.log("this.m_rtx.bodyBgColor: ", this.m_rtx.bodyBgColor);
+    // console.log("this.m_rtx.bodyBgColor: ", this.m_rtx.bodyBgColor, this.m_syncBgColor);
     if (this.m_syncBgColor) {
+      // console.log("this.m_bodyBgColor != this.m_rtx.bodyBgColor: ", this.m_bodyBgColor,this.m_rtx.bodyBgColor);
       if (document && this.m_bodyBgColor != this.m_rtx.bodyBgColor) {
         this.m_bodyBgColor = this.m_rtx.bodyBgColor;
         const body = document.body;
-        body.style.background = this.m_bodyBgColor; // console.log("syncHtmlColor(), color: ", this.m_bodyBgColor);
+        body.style.background = this.m_bodyBgColor;
+        console.log("syncHtmlColor(), color: ", this.m_bodyBgColor);
       }
     }
   }
@@ -2814,7 +2846,7 @@ exports.default = RenderAdapter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3136,7 +3168,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3172,7 +3204,7 @@ exports.default = RenderDrawMode;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3397,7 +3429,7 @@ if (typeof window !== 'undefined') {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3420,7 +3452,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3521,7 +3553,7 @@ exports.default = TextureDataType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -3575,7 +3607,7 @@ exports.default = CameraUniformBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4227,7 +4259,7 @@ exports.default = PoolNodeBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4282,7 +4314,7 @@ exports.default = UniformVec4Probe;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4474,7 +4506,7 @@ exports.default = ShaderUniformProbe;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -4879,7 +4911,7 @@ exports.default = MaterialRPOBlock;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5001,7 +5033,7 @@ exports.default = PassProcess;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5587,7 +5619,7 @@ exports.default = RODataBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5844,7 +5876,7 @@ exports.default = RendererDevice;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -5959,7 +5991,7 @@ exports.default = RPONodeBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6465,7 +6497,7 @@ exports.createRendererInstance = createRendererInstance;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6773,7 +6805,7 @@ exports.default = ShdUniformTool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6833,7 +6865,7 @@ exports.UniformDataSlot = UniformDataSlot;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6887,7 +6919,7 @@ exports.RenderingState = RenderingState;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -6950,7 +6982,7 @@ exports.default = RenderFBOProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7008,7 +7040,7 @@ exports.default = TextureTarget;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7335,7 +7367,7 @@ exports.default = MaterialConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -7433,7 +7465,7 @@ exports.GpuVtxObject = GpuVtxObject;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8079,7 +8111,7 @@ class FrameBufferObject {
       }
 
       if (fs[i] != this.m_uid) {
-        fs[i] = this.m_uid; // console.log("bind fbo to OK..., gl.FRAMEBUFFER: ", gl.FRAMEBUFFER, type);
+        fs[i] = this.m_uid; // console.log("XXXXX fbo A0 bind fbo to OK..., gl.FRAMEBUFFER: ", gl.FRAMEBUFFER, type);
 
         gl.bindFramebuffer(type, this.m_fbo);
       }
@@ -8091,7 +8123,7 @@ class FrameBufferObject {
   }
 
   static BindToBackbuffer(rc, frameBufferType, rcuid) {
-    const fs = FrameBufferObject.s_bindFT[rcuid]; // console.log("bind fbo to BindToBackbuffer:(), frameBufferType: ", frameBufferType);
+    const fs = FrameBufferObject.s_bindFT[rcuid]; // console.log("XXXXX fbo A1 bind fbo to BindToBackbuffer:(), frameBufferType: ", frameBufferType);
 
     switch (frameBufferType) {
       case FrameBufferType_1.default.DRAW_FRAMEBUFFER:
@@ -8144,7 +8176,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8173,7 +8205,7 @@ exports.default = RenderFilter;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8308,7 +8340,7 @@ exports.default = ShaderGlobalUniform;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8343,7 +8375,7 @@ exports.DisplayRenderSign = DisplayRenderSign;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8404,7 +8436,7 @@ exports.default = EmptyVDRInfo;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8487,7 +8519,7 @@ exports.default = RenderMaterialProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -8730,7 +8762,7 @@ exports.default = ROVertexResource;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9455,7 +9487,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9481,7 +9513,7 @@ exports.default = RenderMaskBitfield;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9531,7 +9563,7 @@ exports.default = StageParamUniformBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9560,7 +9592,7 @@ exports.default = VtxNormalType;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9691,7 +9723,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9726,7 +9758,7 @@ exports.default = DebugFlag;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -9967,7 +9999,7 @@ exports.default = VtxBufConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10541,8 +10573,9 @@ class ROIndicesRes {
         vrc.eleBufSubData(ivs, ivtx.getBufDataUsage());
       }
 
-      size = ivs.length;
-      stride = size > 65536 ? 4 : 2;
+      size = ivs.length; // stride = size > 65536 ? 4 : 2;
+
+      stride = ivs.BYTES_PER_ELEMENT;
       bytesSize = newBytesSize;
     } else {
       let offset = 0;
@@ -10685,7 +10718,7 @@ exports.ROIndicesRes = ROIndicesRes;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10829,7 +10862,7 @@ exports.default = VertexRenderObj;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -10901,7 +10934,7 @@ exports.default = ROTransPool;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11007,7 +11040,7 @@ exports.default = VROBase;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11123,7 +11156,7 @@ exports.default = ContainerRPOBlock;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11381,7 +11414,7 @@ exports.default = ROTextureResource;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11423,7 +11456,7 @@ exports.RPStatus = RPStatus;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11502,7 +11535,7 @@ exports.RenderingStencil = RenderingStencil;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -11779,7 +11812,7 @@ exports.RenderStateObject = RenderStateObject;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12036,7 +12069,7 @@ exports.default = UniformConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12328,7 +12361,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12475,7 +12508,7 @@ exports.default = RViewElement;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -12881,7 +12914,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13324,7 +13357,7 @@ Object.defineProperty(exports, "__esModule", {
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13408,7 +13441,7 @@ exports.default = BitConst;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13683,7 +13716,7 @@ exports.default = ShaderUniform;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -13797,7 +13830,7 @@ exports.ShaderUniformContext = ShaderUniformContext;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -14322,7 +14355,7 @@ exports.default = RendererInstance;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15036,7 +15069,7 @@ exports.default = RenderProxy;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -15596,7 +15629,7 @@ exports.default = RSTBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16044,7 +16077,7 @@ exports.default = RPOUnitCont;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16086,7 +16119,7 @@ exports.RenderingColorMask = RenderingColorMask;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16314,7 +16347,7 @@ exports.RODrawState = RODrawState;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16473,7 +16506,7 @@ exports.RPOUnitBuilder = RPOUnitBuilder;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16686,7 +16719,7 @@ exports.default = SortNodeLinker;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16836,7 +16869,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
@@ -16949,7 +16982,7 @@ exports.default = PassMaterialWrapper;
 
 /*                                                                         */
 
-/*  Copyright 2018-2022 by                                                 */
+/*  Copyright 2018-2023 by                                                 */
 
 /*  Vily(vily313@126.com)                                                  */
 
