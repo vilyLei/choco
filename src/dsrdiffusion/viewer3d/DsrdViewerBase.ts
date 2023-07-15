@@ -33,6 +33,7 @@ import { VecValueFilter } from "./VecValueFilter";
 import { CoEntityLayouter2 } from "../../engine/cospace/app/common/CoEntityLayouter2";
 import IDisplayEntityContainer from "../../engine/vox/entity/IDisplayEntityContainer";
 import { IMouseInteraction } from "../../engine/cospace/voxengine/ui/IMouseInteraction";
+import { ModelScene } from "./scene/ModelScene";
 
 /**
  * cospace renderer
@@ -43,6 +44,7 @@ class DsrdViewerBase {
 	protected m_edit3DUIRScene: IRendererScene = null;
 	protected m_outline: PostOutline;
 	protected m_entityContainer: IDisplayEntityContainer;
+	modelScene = new ModelScene();
 	constructor() {}
 
 	protected loadInfo(): void {
@@ -415,7 +417,7 @@ class DsrdViewerBase {
 		loader.load([url], (models: CoGeomDataType[], transforms: Float32Array[]): void => {
 			this.m_layouter.layoutReset();
 			for (let i = 0; i < models.length; ++i) {
-				this.createEntity(models[i], transforms != null ? transforms[i] : null, 1.0);
+				this.createEntity(models[i], transforms != null ? transforms[i] : null);
 			}
 			this.m_layouter.layoutUpdate(200, VoxMath.createVec3(0, 0, 0));
 		});
@@ -423,7 +425,7 @@ class DsrdViewerBase {
 	private m_entityQuery: IRectFrameQuery = null;
 	private m_entities: ITransformEntity[] = [];
 	protected m_modelTexUrl = "";
-	protected createEntity(model: CoGeomDataType, transform: Float32Array = null, index: number = 1.0, url = ""): ITransformEntity {
+	protected createEntity(model: CoGeomDataType, transform: Float32Array = null, url = ""): ITransformEntity {
 		let material = VoxRScene.createDefaultMaterial(true);
 		material.setRGB3f(0.85, 0.85, 0.85);
 		material.setTextureList([this.createTexByUrl(this.m_modelTexUrl)]);

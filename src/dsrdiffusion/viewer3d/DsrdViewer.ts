@@ -12,6 +12,7 @@ import { SceneAccessor } from "./SceneAccessor";
 import { DsrdViewerBase } from "./DsrdViewerBase";
 import { DsrdImageViewer } from "./DsrdImageViewer";
 import { CoModuleVersion, CoModuleLoader } from "../../engine/cospace/app/utils/CoModuleLoader";
+import { ModelScene } from "./scene/ModelScene";
 
 // declare var CoMath: ICoMath;
 
@@ -186,7 +187,7 @@ class DsrdViewer extends DsrdViewerBase {
 			this.m_layouter.layoutReset();
 			for (let i = 0; i < models.length; ++i) {
 				console.log("VVVVVV models[",i,"].url: ", models[i].url);
-				this.createEntity(models[i], transforms != null ? transforms[i] : null, 2.0, models[i].url);
+				this.createEntity(models[i], transforms != null ? transforms[i] : null, models[i].url);
 			}
 			this.m_modelDataUrl = urls[0] + "." + types[0];
 			console.log("XXXXXX initSceneByUrls() this.m_modelDataUrl: ", this.m_modelDataUrl);
