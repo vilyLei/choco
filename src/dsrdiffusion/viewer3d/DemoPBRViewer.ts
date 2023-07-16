@@ -30,7 +30,7 @@ export class DemoPBRViewer {
 		// document.onmousedown = (evt: any): void => {
 		// 	this.mouseDown(evt);
 		// };
-		let scDataJsonUrl = "static/assets/scene/sc01.json";
+		let scDataJsonUrl = "static/assets/scene/dsrdCfg.json";
 		let textLoader = new TextPackedLoader(1, (): void => {
 			this.m_scData = JSON.parse(textLoader.getDataByUrl(scDataJsonUrl) as string);
 			this.initEngineModule();

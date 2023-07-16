@@ -156,8 +156,6 @@ class DsrdViewer extends DsrdViewerBase {
 			this.imgViewer.setViewImageUrl(imgUrls[0], true);
 			// this.imgViewer.setViewImageAlpha(0.1);
 		}
-
-		// this.loadModels();
 	}
 
 	private initModels(): void {
