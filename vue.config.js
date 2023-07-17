@@ -5,14 +5,14 @@ let argv = venv.npm_config_argv;
 let argvObj = JSON.parse(argv);
 
 let lcScript = process.env.npm_lifecycle_script;
-
+let devDstStr = lcScript;
 if(lcScript.indexOf("vue-cli-service serve ") >= 0) {
     if(vcmd != "") {
         // represent dev process
         let srcCodeUrl = process.env.npm_lifecycle_script;
         let i = srcCodeUrl.indexOf("./src");
         srcCodeUrl = srcCodeUrl.slice(i, -1);
-        
+
         let demoName = "";
         if(argvObj.original && argvObj.original.length > 1) {
             demoName = argvObj.original[1];

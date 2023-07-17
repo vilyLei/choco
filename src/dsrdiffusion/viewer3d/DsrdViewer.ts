@@ -13,18 +13,23 @@ import { DsrdViewerBase } from "./DsrdViewerBase";
 import { DsrdImageViewer } from "./DsrdImageViewer";
 import { CoModuleVersion, CoModuleLoader } from "../../engine/cospace/app/utils/CoModuleLoader";
 import { ModelScene } from "./scene/ModelScene";
+import { CameraView } from "./scene/CameraView";
+import { IDsrdViewer } from "./IDsrdViewer";
 
 // declare var CoMath: ICoMath;
 
 /**
  * cospace renderer
  */
-class DsrdViewer extends DsrdViewerBase {
+class DsrdViewer extends DsrdViewerBase implements IDsrdViewer {
+
 	private m_viewDiv: HTMLDivElement = null;
 	private m_initCallback: () => void = null;
 	private m_zAxisUp = false;
 	private m_debugDev = false;
-	imgViewer: DsrdImageViewer;
+	// readonly imgViewer: DsrdImageViewer;
+	readonly imgViewer = new DsrdImageViewer();
+	readonly camView = new CameraView();
 	constructor() {
 		super();
 	}
@@ -45,43 +50,6 @@ class DsrdViewer extends DsrdViewerBase {
 		this.loadInfo();
 	}
 
-	/**
-	 * @param fov_angle_degree the default value is 45.0
-	 * @param near the default value is 10.0
-	 * @param far the default value is 5000.0
-	 */
-	setCamProjectParam(fov_angle_degree: number, near: number, far: number): void {
-		if (this.m_rscene) {
-			let cam = this.m_rscene.getCamera();
-			cam.perspectiveRH((Math.PI * fov_angle_degree) / 180.0, cam.getAspect(), near, far);
-		}
-	}
-	updateCamera(): void {
-		if (this.m_rscene) {
-			this.m_rscene.updateCamera();
-		}
-	}
-	updateCameraWithF32Arr16(fs32Arr16: number[] | Float32Array, updateCamera = true): void {
-		if (fs32Arr16.length == 16) {
-			this.applyCamvs(fs32Arr16, updateCamera);
-		}
-	}
-	getCameraData(posScale: number, transpose: boolean = false): Float32Array {
-		if (this.m_rscene) {
-			let cam = this.m_rscene.getCamera();
-			let mat = cam.getViewMatrix().clone();
-			mat.invert();
-			if (transpose) {
-				mat.transpose();
-			}
-			let vs = mat.getLocalFS32().slice(0);
-			vs[3] *= posScale;
-			vs[7] *= posScale;
-			vs[11] *= posScale;
-			return vs;
-		}
-		return null;
-	}
 	protected initRenderer(): void {
 		// document.body.style.overflow = "hidden";
 
@@ -96,7 +64,7 @@ class DsrdViewer extends DsrdViewerBase {
 
 		let sizeW = 512;
 		let sizeH = 512;
-		let zAxisUp: boolean = this.m_zAxisUp;
+		let zAxisUp = this.m_zAxisUp;
 		// let debugDev: boolean = this.m_debugDev;
 		let div: HTMLDivElement = this.m_viewDiv;
 
@@ -126,8 +94,10 @@ class DsrdViewer extends DsrdViewerBase {
 		graph.addScene(this.m_edit3DUIRScene);
 		this.m_outline = new PostOutline(this.m_rscene, this.m_verTool);
 
-		this.imgViewer = new DsrdImageViewer();
+		// this.imgViewer = new DsrdImageViewer();
 		this.imgViewer.initialize(this.m_rscene);
+
+		this.camView.initialize( this.m_rscene );
 
 		this.init3DScene();
 		if(this.m_initCallback) {
@@ -223,58 +193,6 @@ class DsrdViewer extends DsrdViewerBase {
 	private m_modelDataUrl = "";
 	private m_baseSize = 200.0;
 	private m_forceRot90 = false;
-
-	private applyCamvs(cdvs: number[] | Float32Array, updateCamera: boolean): void {
-		if (cdvs == null) {
-			cdvs = [
-				0.7071067690849304,
-				-0.40824827551841736,
-				0.5773502588272095,
-				2.390000104904175,
-				0.7071067690849304,
-				0.40824827551841736,
-				-0.5773502588272095,
-				-2.390000104904175,
-				0.0,
-				0.8164965510368347,
-				0.5773502588272095,
-				2.390000104904175,
-				0,
-				0,
-				0,
-				1
-			];
-		}
-
-		let mat4 = VoxMath.createMat4(new Float32Array(cdvs));
-		mat4.transpose();
-		let camvs = mat4.getLocalFS32();
-		let i = 0;
-		// let vx = new Vector3D(camvs[i], camvs[i+1], camvs[i+2], camvs[i+3]);
-		i = 4;
-		let vy = VoxMath.createVec3(camvs[i], camvs[i + 1], camvs[i + 2], camvs[i + 3]);
-		// i = 8;
-		// let vz = new Vector3D(camvs[i], camvs[i+1], camvs[i+2], camvs[i+3]);
-		i = 12;
-		let pos = VoxMath.createVec3(camvs[i], camvs[i + 1], camvs[i + 2]);
-
-		// console.log("		  vy: ", vy);
-		let cam = this.m_rscene.getCamera();
-
-		// console.log("cam.getUV(): ", cam.getUV());
-		// console.log("");
-		// console.log("cam.getNV(): ", cam.getNV());
-		// vz.negate();
-		// console.log("		  vz: ", vz);
-		// console.log("		 pos: ", pos);
-		if (pos.getLength() > 0.001) {
-			let camPos = pos.clone().scaleBy(100.0);
-			cam.lookAtRH(camPos, VoxMath.createVec3(), vy);
-			if (updateCamera) {
-				cam.update();
-			}
-		}
-	}
 }
 
 export { DsrdViewer };

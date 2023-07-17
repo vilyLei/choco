@@ -9,13 +9,11 @@ import IRenderTexture from "../../engine/vox/render/texture/IRenderTexture";
 import IRendererScene from "../../engine/vox/scene/IRendererScene";
 import { VoxMaterial } from "../../engine/cospace/voxmaterial/VoxMaterial";
 import IDefault3DMaterial from "../../engine/vox/material/mcase/IDefault3DMaterial";
+import {IDsrdImageViewer} from "./IDsrdImageViewer";
 
 // declare var CoMath: ICoMath;
 
-/**
- * cospace renderer
- */
-class DsrdImageViewer {
+class DsrdImageViewer implements IDsrdImageViewer {
 	protected m_rscene: IRendererScene = null;
 	private m_imgViewEntity: IRenderEntity = null;
 	private m_imageAlpha = 1.0;

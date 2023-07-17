@@ -6,7 +6,7 @@ import { ModelScene } from "./dsrd/rscene/ModelScene";
 import { RTaskSystem } from "./dsrd/task/RTaskSystem";
 import { DivTool } from "./dsrd/utils/HtmlDivUtils";
 import EnvSysDevice from "./env/EnvSysDevice";
-// declare var CURR_PAGE_ST_INFO_LIST: any;
+
 class DsrdShell {
 	private m_init = true;
 	private m_rscene = new DsrdScene();
@@ -243,7 +243,7 @@ class DsrdShell {
 		}
 
 
-		this.m_rtaskBeginUI.open();
+		// this.m_rtaskBeginUI.open();
 
 		let win = window as any;
 		let flagInfo = win["CURR_PAGE_ST_INFO_LIST"];

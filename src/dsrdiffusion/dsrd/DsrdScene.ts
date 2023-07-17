@@ -1,5 +1,6 @@
 // declare var SceneViewer: any;
 declare var DsrdViewer: any;
+import { IDsrdViewer } from "../viewer3d/IDsrdViewer";
 import { IDsrdSceneCtrl } from "./rscene/IDsrdSceneCtrl";
 import { ModelScene } from "./rscene/ModelScene";
 import { RTaskData, RTaskSystem } from "./task/RTaskSystem";
@@ -8,7 +9,7 @@ class DsrdScene implements IDsrdSceneCtrl{
 	private m_rscViewerInited = false;
 	// ui: DsrdUI = null;
 	// taskSys: RTaskSystem = null;
-	readonly rscViewer: any = null;
+	readonly rscViewer: IDsrdViewer = null;
 	readonly modelScene = new ModelScene();
 	data:RTaskData = null;
 	onaction: (idns: string, type: string) => void = null;
@@ -56,14 +57,14 @@ class DsrdScene implements IDsrdSceneCtrl{
 
 		//const params = this.m_camParams;
 		if (this.m_rscViewerInited) {
-			this.rscViewer.setCamProjectParam(params[0], params[1], params[2]);
+			this.rscViewer.camView.setCamProjectParam(params[0], params[1], params[2]);
 		}
 	}
 	private m_camvs16: number[] = null;
 	setCameraWithF32Arr16(camvs16: number[]): void {
 		this.m_camvs16 = camvs16;
 		if (this.m_rscViewerInited && this.m_camvs16) {
-			this.rscViewer.updateCameraWithF32Arr16(this.m_camvs16);
+			this.rscViewer.camView.updateCameraWithF32Arr16(this.m_camvs16);
 		}
 	}
 	private m_viewImgUrls: string[] = null;
@@ -96,7 +97,7 @@ class DsrdScene implements IDsrdSceneCtrl{
 				}
 				const params = this.m_camParams;
 				if(params) {
-					this.rscViewer.setCamProjectParam(params[0], params[1], params[2]);
+					this.rscViewer.camView.setCamProjectParam(params[0], params[1], params[2]);
 				}
 				if (this.m_camvs16) {
 					rscViewer.updateCameraWithF32Arr16(this.m_camvs16);
