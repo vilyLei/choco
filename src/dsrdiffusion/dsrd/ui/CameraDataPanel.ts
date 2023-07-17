@@ -3,8 +3,8 @@ import {SettingDataPanel} from "./SettingDataPanel"
 import {DataItemComponentParam, DataItemComponent} from "./DataItemComponent"
 class CameraDataPanel extends SettingDataPanel {
 	constructor() {super()}
-	getCamMatrixData(): number[] {
-		return this.rscViewer.getCameraData(0.01, true);
+	getCamMatrixData(): number[] | Float32Array {
+		return this.rscViewer.camView.getCameraData(0.01, true);
 		// return [];
 	}
 

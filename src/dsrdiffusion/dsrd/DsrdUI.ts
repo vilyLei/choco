@@ -212,6 +212,9 @@ class DsrdUI implements IRTJsonData {
 				break;
 		}
 	}
+	setRTDataFromRNode(rnode: any): void {
+		console.log("DsrdUI::setRTDataFromRNode(), rnode: ", rnode);
+	}
 	getRTJsonStrByKeyNames(keyNames: string[], parentEnabled = true): string {
 
 		let total = keyNames.length;

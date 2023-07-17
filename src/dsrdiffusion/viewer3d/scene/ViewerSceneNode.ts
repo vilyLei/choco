@@ -2,7 +2,7 @@ import IRenderMaterial from "../../../engine/vox/render/IRenderMaterial";
 import IRenderEntity from "../../../engine/vox/render/IRenderEntity";
 import ITransformEntity from "../../../engine/vox/entity/ITransformEntity";
 import IRendererScene from "../../../engine/vox/scene/IRendererScene";
-import PBRMaterialCtx from "../material/PBRMaterialCtx";
+import {PBRMaterialCtx} from "../material/PBRMaterialCtx";
 
 import { CoMaterialContextParam, ICoRScene } from "../../../engine/cospace/voxengine/ICoRScene";
 
@@ -25,9 +25,9 @@ class ModelData {
 class ViewerSceneNode implements IRenderNode {
 	private m_rscene: IRendererScene = null;
 	private m_modelLoader = new CoModelTeamLoader();
+	protected m_layouter = new CoEntityLayouter2();
 
 	private m_postOutline: IOcclusionPostOutline;
-	protected m_layouter = new CoEntityLayouter2();
 	private m_models: ModelData[] = [];
 
 	readonly pbrCtx = new PBRMaterialCtx();

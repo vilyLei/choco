@@ -11,5 +11,6 @@ interface IRTJsonData {
 	getRTJsonStrByKeyNames(keyNames: string[], parentEnabled?: boolean): string;
 
 	isRTJsonActiveByKeyName(keyName: string): boolean;
+	setRTDataFromRNode(rnode: any): void;
 }
 export { IRTJsonData };

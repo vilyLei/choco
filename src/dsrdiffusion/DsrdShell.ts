@@ -242,7 +242,6 @@ class DsrdShell {
 			this.m_rtaskBeginUI.initialize(beginUILayer, width, height * 2);
 		}
 
-
 		// this.m_rtaskBeginUI.open();
 
 		let win = window as any;

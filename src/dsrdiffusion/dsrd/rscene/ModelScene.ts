@@ -3,9 +3,10 @@ import { RTaskInfoViewer } from "../task/RTaskInfoViewer";
 import { RTaskProcess } from "../task/RTaskProcess";
 import { RTaskRquest } from "../task/RTaskRequest";
 import { IDsrdSceneCtrl } from "../rscene/IDsrdSceneCtrl";
+import { IDsrdViewer } from "../../viewer3d/IDsrdViewer";
 
 class ModelScene {
-	private m_rscViewer: any = null;
+	private m_rscViewer: IDsrdViewer = null;
 	request: RTaskRquest = null;
 	process: RTaskProcess = null;
 	data: RTaskData = null;
@@ -67,6 +68,19 @@ class ModelScene {
 							(prog: any) => {
 								console.log("3d viewer drc model loading prog: ", prog);
 								if (prog >= 1.0) {
+									// console.log("xxxxvvv this.data.rnode: ", this.data.rnode);
+									let rnode = this.data.rnode;
+									if(rnode) {
+										let materials = rnode.materials as any[];
+										if(materials) {
+											for(let i = 0; i < materials.length; ++i) {
+												let mo = materials[i];
+												//mo.modelName
+												this.m_rscViewer.modelScene.setMaterialParamToNodeByJsonObj(mo.modelName, mo);
+											}
+										}
+										this.data.rtJsonData.setRTDataFromRNode(this.data.rnode);
+									}
 								}
 							},
 							200

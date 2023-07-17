@@ -1,11 +1,12 @@
 import { IDsrdImageViewer } from "./IDsrdImageViewer";
 import { ICameraView } from "./scene/ICameraView";
+import { IModelScene } from "./scene/IModelScene";
 
 interface IDsrdViewer {
 	imgViewer: IDsrdImageViewer;
 	camView: ICameraView;
+	modelScene: IModelScene;
 	/**
-	 *
 	 * @param urls url array
 	 * @param types type array
 	 * @param loadingCallback call back lambda function

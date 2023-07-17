@@ -8,6 +8,7 @@ class VVF {
 let pwin: any = window;
 pwin["VoxVerify"] = new VVF();
 
+// import {DemoPBRViewer2 as Demo} from "./dsrdiffusion/viewer3d/DemoPBRViewer2";
 // import {DemoPBRViewer as Demo} from "./dsrdiffusion/viewer3d/DemoPBRViewer";
 
 // import {DsrdViewerDemo as Demo} from "./dsrdiffusion/viewer3d/DsrdViewerDemo";

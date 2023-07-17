@@ -2,6 +2,7 @@ import { IItemData } from "./IItemData";
 import { DataItemComponentParam, DataItemComponent } from "./DataItemComponent";
 import { DivTool } from "../utils/HtmlDivUtils";
 import { IParamInputPanel } from "./IParamInputPanel";
+import { IDsrdViewer } from "../../viewer3d/IDsrdViewer";
 class SettingDataPanel {
 	protected m_viewerLayer: HTMLDivElement = null;
 	protected m_container: HTMLDivElement = null;
@@ -11,7 +12,7 @@ class SettingDataPanel {
 	protected m_itemCompDict: Map<string, DataItemComponent> = new Map();
 	protected m_params: DataItemComponentParam[];
 	protected m_isActive = false;
-	rscViewer: any;
+	rscViewer: IDsrdViewer;
 	paramInputPanel: IParamInputPanel = null;
 	constructor() {}
 	initialize(viewerLayer: HTMLDivElement, areaWidth: number, areaHeight: number, data: IItemData): void {
@@ -29,6 +30,38 @@ class SettingDataPanel {
 		this.init(viewerLayer);
 		this.setVisible(false);
 	}
+	setJsonObj(jsonObj: any): void {
+		this.setJsonDataToItems(jsonObj);
+	}
+	setStringValueToItem(keyName: string, valueStr: string): void {
+		if (keyName != "") {
+			const item = this.getItemParamByKeyName(keyName);
+			if (item) {
+				item.updateValueWithStr(valueStr + "", true);
+			}
+		}
+	}
+	setJsonDataToItems(jsonObj: any): void {
+		if (jsonObj != null) {
+			for (var key in jsonObj) {
+				if (jsonObj[key]) {
+					const item = this.getItemParamByKeyName(key);
+					if (item) {
+						// console.log("bbbbbbbbbb key: ", key, ", item.compType: ", item.compType);
+						switch(item.compType) {
+							case "color":
+								item.updateValueWithStr(jsonObj[key].toString(16), true);
+								break;
+							default:
+								item.updateValueWithStr(jsonObj[key] + "", true);
+								break;
+						}
+					}
+					//item.numberValue = jsonObj[keyStr];
+				}
+			}
+		}
+	}
 	getName(): string {
 		return this.m_itemData.name;
 	}
@@ -38,7 +71,6 @@ class SettingDataPanel {
 	getType(): string {
 		return this.m_itemData.type;
 	}
-
 	getJsonBodyStr(beginStr = "{", endStr = "}"): string {
 		let params = this.m_params;
 		let jsonStr = beginStr;
@@ -65,7 +97,7 @@ class SettingDataPanel {
 	}
 	getItemParamByKeyName(keyName: string): DataItemComponentParam {
 		let item = this.m_itemCompDict.get(keyName);
-		if(item) {
+		if (item) {
 			return item.getParam();
 		}
 		return null;

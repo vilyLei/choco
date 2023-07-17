@@ -24,9 +24,9 @@ interface IDataItemComponentParam {
 	toBoolean(): void;
 	toText(): void;
 	toColor(): void;
-	updateColorInput(input: HTMLInputElement): void;
-	updateFloatNumberInput(input: HTMLInputElement): void;
-	updateIntegerNumberInput(input: HTMLInputElement): void;
+	// updateColorInput(input: HTMLInputElement): void;
+	// updateFloatNumberInput(input: HTMLInputElement): void;
+	// updateIntegerNumberInput(input: HTMLInputElement): void;
 	initEvents(): void;
 	/**
 	 * @param viewing the default value is true

@@ -680,6 +680,68 @@ exports.VoxEntity = VoxEntity;
 
 /***/ }),
 
+/***/ "15e2":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class MaterialJsonNode {
+  constructor() {
+    this.modelName = "";
+    this.color = 0xffffff;
+    this.metallic = 1.0;
+    this.roughness = 0.1;
+    this.uvScales = [1, 1];
+    this.normalStrength = 1.0;
+    this.specular = 0.5;
+    this.act = "update";
+  }
+
+  copyFromJsonObj(src) {
+    if (src) {
+      let dst = this;
+
+      for (var key in src) {
+        dst[key] = src[key];
+      }
+
+      if (src["uvScales"]) {
+        this.uvScales = src["uvScales"].slice();
+      }
+    }
+  }
+
+  clone() {
+    let node = new MaterialJsonNode();
+    let dst = node;
+    let src = this;
+
+    for (var key in src) {
+      dst[key] = src[key];
+    }
+
+    node.uvScales = this.uvScales.slice(); // node.modelName = this.modelName;
+    // node.color = this.color;
+    // node.metallic = this.metallic;
+    // node.roughness = this.roughness;
+    // node.uvScales = this.uvScales.slice();
+    // node.normalStrength = this.normalStrength;
+    // node.specular = this.specular;
+
+    return node;
+  }
+
+}
+
+exports.MaterialJsonNode = MaterialJsonNode;
+
+/***/ }),
+
 /***/ "1c7d":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2355,12 +2417,7 @@ const DsrdImageViewer_1 = __webpack_require__("033e");
 
 const CoModuleLoader_1 = __webpack_require__("1c7d");
 
-const CameraView_1 = __webpack_require__("2513"); // declare var CoMath: ICoMath;
-
-/**
- * cospace renderer
- */
-
+const CameraView_1 = __webpack_require__("2513");
 
 class DsrdViewer extends DsrdViewerBase_1.DsrdViewerBase {
   constructor() {
@@ -2368,8 +2425,7 @@ class DsrdViewer extends DsrdViewerBase_1.DsrdViewerBase {
     this.m_viewDiv = null;
     this.m_initCallback = null;
     this.m_zAxisUp = false;
-    this.m_debugDev = false; // readonly imgViewer: DsrdImageViewer;
-
+    this.m_debugDev = false;
     this.imgViewer = new DsrdImageViewer_1.DsrdImageViewer();
     this.camView = new CameraView_1.CameraView();
     this.m_loadingCallback = null;
@@ -2392,8 +2448,33 @@ class DsrdViewer extends DsrdViewerBase_1.DsrdViewerBase {
     this.loadInfo();
   }
 
+  keyDownDoes(evt) {
+    console.log("DsrdViewer::keyDown() ..., evt: ", evt); // switch (evt.key) {
+    // 	case "t":
+    // 		// let node = this.modelScene.getModelNode("export_1");
+    // 		// console.log("node: ", node);
+    // 		// let entity = node.entity;
+    // 		// if (entity) {
+    // 		// 	let material = entity.getMaterial();
+    // 		// 	console.log("material: ", material);
+    // 		// }
+    // 		let pbrParam: PBRMaterialParam = {};
+    // 		pbrParam.roughness = 0.5;
+    // 		pbrParam.pipeline = true;
+    // 		pbrParam.scatterEnabled = false;
+    // 		pbrParam.toneMapingExposure = 3.0;
+    // 		pbrParam.fogEnabled = false;
+    // 		pbrParam.albedoColor = [0.1, 1.0, 0.1];
+    // 		this.modelScene.setMaterialParamToNode("export_0", pbrParam);
+    // 		break;
+    // 	default:
+    // 		break;
+    // }
+
+    return true;
+  }
+
   initRenderer() {
-    // document.body.style.overflow = "hidden";
     let RD = VoxRScene_1.RendererDevice;
     /**
      * 开启打印输出shader构建的相关信息
@@ -2484,21 +2565,48 @@ class DsrdViewer extends DsrdViewerBase_1.DsrdViewerBase {
     this.m_loadingCallback = loadingCallback;
     let loader = this.m_teamLoader;
     loader.loadWithTypes(urls, types, (models, transforms) => {
-      this.m_layouter.layoutReset();
+      // this.m_layouter.layoutReset();
+      // for (let i = 0; i < models.length; ++i) {
+      // 	console.log("VVVVVV models[",i,"].url: ", models[i].url);
+      // 	this.createEntity(models[i], transforms != null ? transforms[i] : null, models[i].url);
+      // }
+      this.m_modelDataUrl = urls[0] + "." + types[0];
+      console.log("XXX -^- XXX initSceneByUrls() this.m_modelDataUrl: ", this.m_modelDataUrl); // this.fitEntitiesSize();
+      // if (this.m_loadingCallback) {
+      // 	this.m_loadingCallback(1.0);
+      // }
 
       for (let i = 0; i < models.length; ++i) {
-        console.log("VVVVVV models[", i, "].url: ", models[i].url);
-        this.createEntity(models[i], transforms != null ? transforms[i] : null, models[i].url);
+        let md = new DsrdViewerBase_1.ModelData();
+        md.url = models[i].url;
+        md.models = models;
+        md.transforms = transforms;
+        this.m_models.push(md);
       }
 
-      this.m_modelDataUrl = urls[0] + "." + types[0];
-      console.log("XXXXXX initSceneByUrls() this.m_modelDataUrl: ", this.m_modelDataUrl);
+      this.initModelScene();
+    });
+  }
+
+  initModelScene() {
+    if (this.m_models.length > 0 && this.m_materialEanbled) {
+      this.m_layouter.layoutReset();
+
+      for (let i = 0; i < this.m_models.length; ++i) {
+        let model = this.m_models[i];
+        let models = model.models;
+        let transforms = model.transforms; // this.createEntity(models[i], transforms != null ? transforms[i] : null, 1.0);
+
+        this.createEntity(models[i], transforms != null ? transforms[i] : null, model.url);
+      } // this.m_layouter.layoutUpdate(200);
+
+
       this.fitEntitiesSize();
 
       if (this.m_loadingCallback) {
         this.m_loadingCallback(1.0);
       }
-    });
+    }
   }
 
   setForceRotate90(force) {
@@ -2532,6 +2640,260 @@ class DsrdViewer extends DsrdViewerBase_1.DsrdViewerBase {
 }
 
 exports.DsrdViewer = DsrdViewer;
+
+/***/ }),
+
+/***/ "702c":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const ShaderCodeUUID_1 = __webpack_require__("ea2a");
+
+const HttpFileLoader_1 = __webpack_require__("521d");
+
+class PBRModule {
+  constructor() {
+    this.m_effect = null;
+    this.m_preLoadMaps = true;
+    this.m_loadSpecularData = true;
+    this.m_specEnvMapBuf = null;
+    this.m_specEnvMap = null;
+    this.m_loadSpecCallback = null;
+    this.m_hdrBrnEnabled = true;
+    this.preloadMaps = true;
+    this.envMapUrl = "";
+    this.hdrBrnEnabled = true;
+  }
+
+  initialize(materialData) {
+    this.m_materialData = materialData;
+
+    if (materialData && materialData.pbr) {
+      this.m_texData = materialData.pbr.map;
+    }
+  }
+
+  preload(callback) {
+    if (this.m_loadSpecCallback == null && callback != null) {
+      this.loadSpecularData(this.hdrBrnEnabled);
+      this.m_loadSpecCallback = callback;
+    }
+  }
+
+  active(rscene, materialCtx, shadowEnabled) {
+    this.m_materialCtx = materialCtx;
+
+    if (this.m_effect == null) {
+      this.m_rscene = rscene;
+      this.m_effect = PBREffect.create();
+      this.m_effect.initialize(this.m_rscene);
+    }
+
+    this.preloadMap();
+  }
+
+  loadSpecularData(hdrBrnEnabled) {
+    if (this.m_loadSpecularData) {
+      this.m_hdrBrnEnabled = hdrBrnEnabled;
+      let url = this.envMapUrl;
+
+      if (this.m_texData) {
+        url = this.m_texData.envBrnMap;
+
+        if (hdrBrnEnabled) {
+          url = this.m_texData.envBrnMap;
+        }
+      }
+
+      console.log("start load spec map data, url: ", url);
+      new HttpFileLoader_1.HttpFileLoader().load(url, (buf, url) => {
+        this.m_specEnvMapBuf = buf;
+
+        if (this.m_effect != null) {
+          this.m_specEnvMap = this.m_effect.createSpecularTex(this.m_specEnvMapBuf, true, this.m_specEnvMap);
+        }
+
+        if (this.m_loadSpecCallback != null) {
+          this.m_loadSpecCallback();
+          this.m_loadSpecCallback = null;
+        }
+      });
+      this.m_loadSpecularData = false;
+    }
+  }
+
+  preloadMap() {
+    if (this.m_preLoadMaps) {
+      let texData = this.m_texData;
+
+      if (this.preloadMaps && texData) {
+        if (texData.diffuseMap !== undefined) this.m_materialCtx.getTextureByUrl(texData.diffuseMap);
+        if (texData.normalMap !== undefined) this.m_materialCtx.getTextureByUrl(texData.normalMap);
+        if (texData.armMap !== undefined) this.m_materialCtx.getTextureByUrl(texData.armMap);
+        if (texData.displacementMap !== undefined) this.m_materialCtx.getTextureByUrl(texData.displacementMap);
+      }
+
+      this.m_preLoadMaps = false;
+    }
+  }
+
+  getUUID() {
+    return ShaderCodeUUID_1.ShaderCodeUUID.PBR;
+  }
+
+  isEnabled() {
+    const mctx = this.m_materialCtx;
+    let boo = mctx != null && mctx.hasShaderCodeObjectWithUUID(this.getUUID());
+    return boo;
+  }
+
+  createMaterial(shadowReceiveEnabled, materialParam = null, texData = null) {
+    // console.log("### pbr createMaterial().");
+    if (this.m_specEnvMap == null) {
+      if (this.m_specEnvMapBuf == null) {
+        throw Error("this.m_specEnvMapBuf is null !!!");
+      }
+
+      this.m_specEnvMap = this.m_effect.createSpecularTex(this.m_specEnvMapBuf, true, this.m_specEnvMap);
+
+      this.m_specEnvMap.__$attachThis();
+    }
+
+    let param;
+
+    if (materialParam) {
+      param = materialParam;
+    } else {
+      if (this.m_materialData.pbr) {
+        param = this.m_materialData.pbr.defaultParam;
+      }
+    }
+
+    const mctx = this.m_materialCtx;
+    texData = texData == null ? this.m_texData : texData;
+    let mapData = {
+      envMap: param.specEnvMap !== undefined ? param.specEnvMap : this.m_specEnvMap,
+      diffuseMap: texData && texData.diffuseMap !== undefined ? mctx.getTextureByUrl(texData.diffuseMap) : null,
+      normalMap: texData && texData.normalMap !== undefined ? mctx.getTextureByUrl(texData.normalMap) : null,
+      armMap: texData && texData.armMap !== undefined ? mctx.getTextureByUrl(texData.armMap) : null,
+      displacementMap: texData && texData.displacementMap !== undefined ? mctx.getTextureByUrl(texData.displacementMap) : null,
+      parallaxMap: texData && texData.parallaxMap !== undefined ? mctx.getTextureByUrl(texData.parallaxMap) : null,
+      aoMap: null
+    };
+    let m = this.m_effect.createMaterial();
+    let decor = m.getDecorator();
+    let vertUniform = decor.vertUniform;
+
+    if (param.pipeline) {
+      m.setMaterialPipeline(mctx.pipeline);
+    }
+
+    if (param.scatterEnabled !== undefined) decor.scatterEnabled = param.scatterEnabled;
+    if (param.woolEnabled !== undefined) decor.woolEnabled = param.woolEnabled;
+    if (param.absorbEnabled !== undefined) decor.absorbEnabled = param.absorbEnabled;
+    if (param.normalNoiseEnabled !== undefined) decor.normalNoiseEnabled = param.normalNoiseEnabled;
+    decor.hdrBrnEnabled = this.m_hdrBrnEnabled;
+    if (param.metallic !== undefined) decor.setMetallic(param.metallic);
+    if (param.roughness !== undefined) decor.setRoughness(param.roughness);
+    if (param.ao !== undefined) decor.setAO(param.ao);
+
+    if (param.shadowReceiveEnabled !== undefined) {
+      decor.shadowReceiveEnabled = param.shadowReceiveEnabled && shadowReceiveEnabled && mctx.vsmModule != null;
+    }
+
+    if (param.pipeline !== undefined && param.pipeline) {
+      decor.fogEnabled = mctx.envLightModule && param.fogEnabled;
+    } // for test
+    // decor.scatterEnabled = false;
+    // decor.woolEnabled = false;
+    // decor.absorbEnabled = false;
+    // decor.normalNoiseEnabled = false;
+    // param.scatterIntensity = 1.0;
+    // param.sideIntensity = 1.0;
+    // decor.setMetallic(0.1);
+    // decor.setRoughness(0.5);
+    // decor.setAO(1.0);
+    // decor.shadowReceiveEnabled = false;
+    // decor.fogEnabled = false;
+    // init maps
+
+
+    decor.specularEnvMap = mapData.envMap;
+    decor.armMap = mapData.armMap;
+    decor.diffuseMap = mapData.diffuseMap;
+    decor.normalMap = mapData.normalMap;
+    decor.aoMap = mapData.aoMap;
+    decor.parallaxMap = mapData.parallaxMap;
+    vertUniform.displacementMap = mapData.displacementMap;
+    decor.initialize();
+    vertUniform.initialize();
+    let vs = param.displacementParams;
+
+    if (vs !== undefined) {
+      vertUniform.setDisplacementParams(vs[0], vs[1]);
+    }
+
+    vs = param.uvScales;
+
+    if (vs !== undefined) {
+      vertUniform.setUVScale(vs[0], vs[1]);
+    }
+
+    vs = param.albedoColor;
+
+    if (vs !== undefined) {
+      decor.setAlbedoColor(vs[0], vs[1], vs[2]);
+    }
+
+    vs = param.parallaxParams;
+
+    if (vs !== undefined) {
+      decor.setParallaxParams(vs[0], vs[1], vs[2], vs[3]);
+    }
+
+    if (param.sideIntensity !== undefined) decor.setSideIntensity(param.sideIntensity);
+    if (param.toneMapingExposure !== undefined) decor.setToneMapingExposure(param.toneMapingExposure);
+    if (param.scatterIntensity !== undefined) decor.setScatterIntensity(param.scatterIntensity); // decor.scatterEnabled = false;
+    // decor.setToneMapingExposure(3.0);
+    // decor.setAlbedoColor(1.0, 1.0, 1.0);
+    // decor.setScatterIntensity(1.0);
+    // decor.setParallaxParams(1, 10, 5.0, 0.02);
+    // decor.setSideIntensity(1.0);
+    // decor.setRoughness(0.5);
+    // decor.setMetallic(0.1);
+    // decor.setAO(1.0);
+
+    return m;
+  }
+
+  destroy() {
+    this.m_rscene = null;
+
+    if (this.m_effect != null) {
+      this.m_effect.destroy();
+      this.m_effect = null;
+    }
+
+    this.m_materialCtx = null;
+    this.m_materialData = null;
+    this.m_texData = null;
+
+    if (this.m_specEnvMap != null) {
+      this.m_specEnvMap.__$detachThis();
+
+      this.m_specEnvMap = null;
+    }
+  }
+
+}
+
+exports.PBRModule = PBRModule;
 
 /***/ }),
 
@@ -2638,17 +3000,31 @@ const VecValueFilter_1 = __webpack_require__("2dfe");
 const CoEntityLayouter2_1 = __webpack_require__("4312");
 
 const ModelScene_1 = __webpack_require__("cc0e");
+
+const PBRMaterialCtx_1 = __webpack_require__("e175");
+
+const TextPackedLoader_1 = __webpack_require__("a0f6");
+
+class ModelData {
+  constructor() {}
+
+}
+
+exports.ModelData = ModelData;
 /**
  * cospace renderer
  */
-
 
 class DsrdViewerBase {
   constructor() {
     this.m_verTool = null;
     this.m_teamLoader = new CoModelTeamLoader_1.CoModelTeamLoader();
     this.m_edit3DUIRScene = null;
+    this.m_materialEanbled = false;
+    this.m_scData = null;
+    this.m_models = [];
     this.modelScene = new ModelScene_1.ModelScene();
+    this.pbrCtx = new PBRMaterialCtx_1.PBRMaterialCtx();
     this.m_graph = null;
     this.m_rscene = null;
     this.m_uiScene = null;
@@ -2699,14 +3075,44 @@ class DsrdViewerBase {
             VoxMath_1.VoxMath.initialize();
             VoxModelEdit_1.VoxModelEdit.initialize();
             this.initRenderer();
+
+            this.modelScene.__$init();
+
             this.initMouseInteract();
             this.createEditEntity();
             this.initUIScene();
+            let scDataJsonUrl = "static/assets/scene/dsrdCfg02.json";
+            let textLoader = new TextPackedLoader_1.TextPackedLoader(1, () => {
+              this.m_scData = JSON.parse(textLoader.getDataByUrl(scDataJsonUrl));
+              this.pbrCtx.pbrModule.envMapUrl = "static/bytes/spb.bin";
+              this.pbrCtx.pbrModule.preloadMaps = false;
+              this.pbrCtx.initialize(this.m_rscene, this.m_scData.material, () => {
+                console.log("pbrCtx.initialize() ...");
+                this.m_materialEanbled = true;
+                this.initModelScene();
+              });
+            }).load(scDataJsonUrl);
           }, this.m_verTool).load(url3).load(url6).load(url7).load(url9).load(url10).load(url11);
         }, this.m_verTool).load(url2).load(url5).load(url8);
       }
     }, this.m_verTool).addLoader(uiInteractML).load(url0).load(url1);
     uiInteractML.load(url);
+  }
+
+  initModelScene() {
+    if (this.m_models.length > 0 && this.m_materialEanbled) {
+      this.m_layouter.layoutReset();
+
+      for (let i = 0; i < this.m_models.length; ++i) {
+        let model = this.m_models[i];
+        let models = model.models;
+        let transforms = model.transforms; // this.createEntity(models[i], transforms != null ? transforms[i] : null, 1.0);
+
+        this.createEntity(models[i], transforms != null ? transforms[i] : null, model.url);
+      }
+
+      this.m_layouter.layoutUpdate(200);
+    }
   }
 
   initMouseInteract() {
@@ -2968,25 +3374,33 @@ class DsrdViewerBase {
     return tex;
   }
 
+  keyDownDoes(evt) {
+    console.log("DsrdViewer::keyDown() ..., evt.keyCode: ", evt.keyCode);
+    return true;
+  }
+
   keyDown(evt) {
     console.log("DsrdViewer::keyDown() ..., evt.keyCode: ", evt.keyCode);
-    let KEY = VoxRScene_1.Keyboard;
 
-    switch (evt.keyCode) {
-      case KEY.W:
-        this.m_transCtr.toTranslation();
-        break;
+    if (this.keyDownDoes(evt)) {
+      let KEY = VoxRScene_1.Keyboard;
 
-      case KEY.E:
-        this.m_transCtr.toScale();
-        break;
+      switch (evt.keyCode) {
+        case KEY.W:
+          this.m_transCtr.toTranslation();
+          break;
 
-      case KEY.R:
-        this.m_transCtr.toRotation();
-        break;
+        case KEY.E:
+          this.m_transCtr.toScale();
+          break;
 
-      default:
-        break;
+        case KEY.R:
+          this.m_transCtr.toRotation();
+          break;
+
+        default:
+          break;
+      }
     }
   }
 
@@ -3011,17 +3425,38 @@ class DsrdViewerBase {
   }
 
   createEntity(model, transform = null, url = "") {
-    let material = VoxRScene_1.VoxRScene.createDefaultMaterial(true);
-    material.setRGB3f(0.85, 0.85, 0.85);
-    material.setTextureList([this.createTexByUrl(this.m_modelTexUrl)]);
-    material.initializeByCodeBuf(true);
-    let mesh = VoxRScene_1.VoxRScene.createDataMeshFromModel(model, material);
-    let entity = VoxRScene_1.VoxRScene.createMouseEventEntity();
+    // let material = VoxRScene.createDefaultMaterial(true);
+    // material.setRGB3f(0.85, 0.85, 0.85);
+    // material.setTextureList([this.createTexByUrl(this.m_modelTexUrl)]);
+    // material.initializeByCodeBuf(true);
+    let material = null;
+    let flag = false;
+    flag = this.pbrCtx.isMCTXEnabled(); // flag = false;
 
-    if (url != "") {
-      entity.uuid = url;
+    if (flag) {
+      // material = this.pbrCtx.pbrModule.createMaterial(true);
+      let pbrParam = {};
+      pbrParam.roughness = 0.5;
+      pbrParam.pipeline = true;
+      pbrParam.scatterEnabled = false;
+      pbrParam.toneMapingExposure = 3.0;
+      pbrParam.fogEnabled = false;
+      pbrParam.albedoColor = [1.0, 1.0, 1.0];
+      let pbrMapUrl = {}; // pbrMapUrl.diffuseMap = "static/assets/white.jpg";
+
+      pbrMapUrl.diffuseMap = "";
+      material = this.pbrCtx.pbrModule.createMaterial(true, pbrParam, pbrMapUrl);
+    } else {
+      let m = VoxRScene_1.VoxRScene.createDefaultMaterial(true);
+      m.setRGB3f(0.85, 0.85, 0.85);
+      m.setTextureList([this.createTexByUrl(this.m_modelTexUrl)]);
+      m.initializeByCodeBuf(true);
+      material = m;
     }
 
+    let mesh = VoxRScene_1.VoxRScene.createDataMeshFromModel(model, material);
+    let entity = VoxRScene_1.VoxRScene.createMouseEventEntity();
+    entity.uuid = url;
     entity.setMaterial(material);
     entity.setMesh(mesh); // entity.setPosition(cv);
     // entity.setRenderState(rst.NONE_CULLFACE_NORMAL_STATE);
@@ -3040,6 +3475,7 @@ class DsrdViewerBase {
     entity.addEventListener(VoxRScene_1.MouseEvent.MOUSE_UP, this, this.mouseUpTargetListener);
     this.m_entities.push(entity);
     this.m_layouter.layoutAppendItem(entity, VoxRScene_1.VoxRScene.createMat4(transform));
+    this.modelScene.addModelNode(URLFilter_1.default.getFileName(url), entity);
     return entity;
   }
 
@@ -3674,6 +4110,64 @@ exports.SceneAccessor = SceneAccessor;
 
 /***/ }),
 
+/***/ "a0f6":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const PackedLoader_1 = __webpack_require__("4604");
+
+class TextPackedLoader extends PackedLoader_1.PackedLoader {
+  constructor() {
+    super(...arguments);
+    this.m_dataMap = new Map();
+  } // /**
+  //  * @param times 记录总共需要的加载完成操作的响应次数。这个次数可能是由load直接产生，也可能是由于别的地方驱动。
+  //  * @param callback 完成所有响应的之后的回调
+  //  * @param urlChecker url 转换与检查
+  //  */
+  // constructor(times: number, callback: (m?: PackedLoader) => void = null, urlChecker: (url: string) => string = null) {
+  // 	super(times, callback, urlChecker);
+  // }
+
+
+  loadData(url) {
+    let req = new XMLHttpRequest();
+    req.open("GET", url, true);
+
+    req.onerror = function (err) {
+      console.error("load error: ", err);
+    }; // req.onprogress = e => { };
+
+
+    req.onload = evt => {
+      // this.loadedData(req.response, url);
+      this.m_dataMap.set(url, req.response);
+      this.loadedUrl(url);
+    };
+
+    req.send(null);
+  }
+
+  getDataByUrl(url) {
+    return this.m_dataMap.get(url);
+  }
+
+  clearAllData() {
+    this.m_dataMap.clear();
+  }
+
+}
+
+exports.TextPackedLoader = TextPackedLoader;
+
+/***/ }),
+
 /***/ "a811":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4157,10 +4651,111 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+const VoxMath_1 = __webpack_require__("7c47");
+
+const MaterialJsonNode_1 = __webpack_require__("15e2");
+
+const VoxMaterial_1 = __webpack_require__("8f2d");
+
+class ModelMaterialJsonNode {
+  constructor() {
+    this.modelName = "";
+    this.m_vec3A = null;
+    this.m_colorA = null;
+    this.mdecor = null;
+    this.jsonNode = new MaterialJsonNode_1.MaterialJsonNode();
+    this.changed = true;
+  }
+
+  getJsonObj() {
+    return this.jsonNode.clone();
+  }
+
+  copyFromMDecor() {
+    if (this.m_colorA == null) {
+      this.m_colorA = VoxMaterial_1.VoxMaterial.createColor4();
+      this.m_vec3A = VoxMath_1.VoxMath.createVec3();
+    } // this.changed = true;
+
+
+    const jnode = this.jsonNode;
+    let decor = this.mdecor;
+
+    if (decor) {
+      jnode.metallic = decor.getMetallic();
+      jnode.roughness = decor.getRoughness();
+      let c = this.m_colorA;
+      decor.getAlbedoColor(c);
+      jnode.color = c.getRGBUint24();
+      let vertUniform = decor.vertUniform;
+      let v3 = this.m_vec3A;
+
+      if (vertUniform) {
+        vertUniform.getUVScale(v3);
+        jnode.uvScales[0] = v3.x;
+        jnode.uvScales[1] = v3.y;
+      }
+    }
+  }
+
+  setJsonObj(jsonObj) {
+    if (this.m_colorA == null) {
+      this.m_colorA = VoxMaterial_1.VoxMaterial.createColor4();
+      this.m_vec3A = VoxMath_1.VoxMath.createVec3();
+    }
+
+    this.changed = true;
+    console.log("setJsonObj(), modelName: ", this.modelName, ", changed: ", this.changed);
+    const jnode = this.jsonNode;
+    jnode.copyFromJsonObj(jsonObj);
+    jnode.modelName = this.modelName;
+    let decor = this.mdecor;
+
+    if (decor) {
+      let value = jsonObj["metallic"];
+
+      if (value) {
+        decor.setMetallic(value);
+      }
+
+      value = jsonObj["roughness"];
+
+      if (value) {
+        decor.setRoughness(value);
+      }
+
+      let c = this.m_colorA;
+      value = jsonObj["color"];
+
+      if (value) {
+        c.setRGBUint24(value);
+        decor.setAlbedoColor(c.r, c.g, c.b);
+      }
+
+      let vertUniform = decor.vertUniform;
+      let vs = null;
+
+      if (vertUniform) {
+        vs = jsonObj["uvScales"];
+
+        if (vs) {
+          vertUniform.setUVScale(vs[0], vs[1]);
+        }
+      }
+    }
+  }
+
+}
+
 class ModelNode {
   constructor() {
     this.uuid = "";
     this.entity = null;
+    this.materialNode = new ModelMaterialJsonNode();
+  }
+
+  copyEntityDataToMaterialNode() {
+    this.materialNode.copyFromMDecor();
   }
 
 }
@@ -4168,15 +4763,130 @@ class ModelNode {
 exports.ModelNode = ModelNode;
 
 class ModelScene {
-  constructor() {}
+  constructor() {
+    this.m_modelMap = new Map();
+  }
+
+  __$init() {}
 
   initialize(scData) {}
+  /**
+   * @param force the default value is false
+   * @returns IMaterialJsonNode instance list
+   */
+
+
+  getMaterialJsonObjs(force = false) {
+    let list = [];
+    let map = this.m_modelMap;
+
+    for (var [key, value] of map) {
+      console.log(value.materialNode.modelName, ", value.materialNode.changed: ", value.materialNode.changed);
+
+      if (value.materialNode.changed || force) {
+        list.push(value.materialNode.getJsonObj());
+        value.materialNode.changed = false;
+      }
+    }
+
+    return list;
+  }
+
+  getMaterialJsonObjFromNode(uuid) {
+    if (this.m_modelMap.has(uuid)) {
+      let node = this.m_modelMap.get(uuid);
+      return node.materialNode.getJsonObj();
+    }
+
+    return null;
+  }
+
+  setMaterialParamToNodeByJsonObj(uuid, jsonObj) {
+    if (this.m_modelMap.has(uuid)) {
+      let node = this.m_modelMap.get(uuid);
+      node.materialNode.setJsonObj(jsonObj);
+    }
+  }
+
+  setMaterialParamToNode(uuid, param) {
+    if (this.m_modelMap.has(uuid)) {
+      let node = this.m_modelMap.get(uuid);
+
+      if (node.entity != null) {
+        let material = node.entity.getMaterial();
+
+        if (material) {
+          let decor = material.getDecorator();
+
+          if (decor) {
+            if (param.metallic !== undefined) decor.setMetallic(param.metallic);
+            if (param.roughness !== undefined) decor.setRoughness(param.roughness);
+            if (param.ao !== undefined) decor.setAO(param.ao);
+            let vs = param.displacementParams;
+            let vertUniform = decor.vertUniform;
+
+            if (vertUniform) {
+              if (vs !== undefined) {
+                vertUniform.setDisplacementParams(vs[0], vs[1]);
+              }
+
+              vs = param.uvScales;
+
+              if (vs !== undefined) {
+                vertUniform.setUVScale(vs[0], vs[1]);
+              }
+            }
+
+            vs = param.albedoColor;
+
+            if (vs !== undefined) {
+              decor.setAlbedoColor(vs[0], vs[1], vs[2]);
+            }
+
+            vs = param.parallaxParams;
+
+            if (vs !== undefined) {
+              decor.setParallaxParams(vs[0], vs[1], vs[2], vs[3]);
+            }
+
+            if (param.sideIntensity !== undefined) decor.setSideIntensity(param.sideIntensity);
+            if (param.toneMapingExposure !== undefined) decor.setToneMapingExposure(param.toneMapingExposure);
+            if (param.scatterIntensity !== undefined) decor.setScatterIntensity(param.scatterIntensity);
+          }
+        }
+      }
+    }
+  }
 
   getModelNode(uuid) {
+    if (this.m_modelMap.has(uuid)) {
+      let node = this.m_modelMap.get(uuid);
+      return node;
+    }
+
     return null;
   }
 
   addModelNode(uuid, entity) {
+    if (!this.m_modelMap.has(uuid)) {
+      let node = new ModelNode();
+      node.uuid = uuid;
+      node.entity = entity;
+      let mnode = node.materialNode;
+      mnode.modelName = uuid;
+      mnode.mdecor = null;
+      let material = node.entity.getMaterial();
+
+      if (material) {
+        mnode.mdecor = material.getDecorator();
+      }
+
+      console.log("ModelScene::addModelNode(), uuid: ", uuid, entity);
+      this.m_modelMap.set(uuid, node);
+      node.copyEntityDataToMaterialNode();
+      mnode.changed = false;
+    }
+
     return null;
   }
 
@@ -4366,6 +5076,265 @@ class T_CoUIInteraction {
 
 const VoxUIInteraction = new T_CoUIInteraction();
 exports.VoxUIInteraction = VoxUIInteraction;
+
+/***/ }),
+
+/***/ "e175":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+const PBRModule_1 = __webpack_require__("702c");
+
+exports.PBRParam = PBRModule_1.PBRParam;
+exports.PBRMapUrl = PBRModule_1.PBRMapUrl;
+exports.PBRModule = PBRModule_1.PBRModule;
+
+const CoModuleLoader_1 = __webpack_require__("1c7d");
+
+class PBRMaterialCtx {
+  constructor() {
+    this.m_mctxFlag = 0;
+    this.m_callback = null;
+    this.pbrModule = new PBRModule_1.PBRModule();
+  }
+
+  getMaterialCtx() {
+    return this.m_mctx;
+  }
+
+  initialize(rscene, materialData, callback) {
+    if (this.m_rscene == null && rscene != null) {
+      this.m_rscene = rscene;
+      this.m_materialData = materialData;
+      this.m_callback = callback;
+      this.pbrModule.initialize(materialData);
+      this.initMaterialModule();
+    }
+  }
+
+  initMaterialModule() {
+    this.pbrModule.preload(() => {
+      console.log("pbrModule.preload()....");
+      this.updateMCTXInit();
+    });
+    let url0 = "static/cospace/renderEffect/pbr/PBREffect.umd.js";
+    let url1 = "static/cospace/renderEffect/lightModule/CoLightModule.umd.js";
+    let url2 = "static/cospace/renderEffect/envLight/CoEnvLightModule.umd.js";
+    let url3 = "static/cospace/renderEffect/vsmShadow/VSMShadowModule.umd.js";
+    new CoModuleLoader_1.CoModuleLoader(4, () => {
+      this.updateMCTXInit();
+    }).load(url0).load(url1).load(url2).load(url3);
+  }
+
+  updateMCTXInit() {
+    this.m_mctxFlag++;
+
+    if (this.isMCTXEnabled()) {
+      this.initMaterialCtx();
+    }
+  }
+
+  isMCTXEnabled() {
+    return this.m_mctxFlag == 2;
+  }
+
+  buildEnvLight(mctx, param, data) {
+    let module = CoEnvLightModule.create(this.m_rscene);
+    module.initialize();
+
+    if (data != undefined && data != null) {
+      module.setFogDensity(data.density);
+      let rgb = data.rgb;
+      module.setFogColorRGB3f(rgb[0], rgb[1], rgb[2]);
+    } else {
+      module.setFogDensity(0.0005);
+      module.setFogColorRGB3f(0.0, 0.8, 0.1);
+    }
+
+    mctx.envLightModule = module;
+  }
+
+  buildLightModule(mctx, param, data) {
+    param.pointLightsTotal = 0;
+    param.spotLightsTotal = 0;
+    param.directionLightsTotal = 0;
+    let lightModule = CoLightModule.createLightModule(this.m_rscene);
+
+    if (data) {
+      if (data.pointLights != undefined && data.pointLights != null) {
+        param.pointLightsTotal = data.pointLights.length;
+      }
+
+      if (data.spotLights != undefined && data.spotLights != null) {
+        param.spotLightsTotal = data.spotLights.length;
+      }
+
+      if (data.directionLights != undefined && data.directionLights != null) {
+        param.directionLightsTotal = data.directionLights.length;
+      }
+
+      for (let i = 0; i < param.pointLightsTotal; ++i) {
+        lightModule.appendPointLight();
+      }
+
+      for (let i = 0; i < param.spotLightsTotal; ++i) {
+        lightModule.appendSpotLight();
+      }
+
+      for (let i = 0; i < param.directionLightsTotal; ++i) {
+        lightModule.appendDirectionLight();
+      }
+    }
+
+    this.initLightModuleData(lightModule, param, data);
+    mctx.lightModule = lightModule;
+  }
+
+  initLightModuleData(lightModule, param, data) {
+    if (data) {
+      for (let i = 0; i < param.pointLightsTotal; ++i) {
+        let lo = data.pointLights[i];
+        let light = lightModule.getPointLightAt(i);
+        light.position.fromArray(lo.position);
+        light.color.fromArray4(lo.rgb);
+        light.attenuationFactor1 = lo.factor1;
+        light.attenuationFactor2 = lo.factor2;
+      }
+
+      for (let i = 0; i < param.spotLightsTotal; ++i) {
+        let lo = data.spotLights[i];
+        let light = lightModule.getSpotLightAt(i);
+        light.position.fromArray(lo.position);
+        light.direction.fromArray(lo.direction);
+        light.color.fromArray4(lo.rgb);
+        light.attenuationFactor1 = lo.factor1;
+        light.attenuationFactor2 = lo.factor2;
+      }
+
+      for (let i = 0; i < param.directionLightsTotal; ++i) {
+        let lo = data.directionLights[i];
+        let light = lightModule.getDirectionLightAt(i);
+        light.direction.fromArray(lo.direction);
+        light.color.fromArray4(lo.rgb);
+        light.attenuationFactor1 = lo.factor1;
+        light.attenuationFactor2 = lo.factor2;
+      }
+    }
+
+    lightModule.update();
+  }
+
+  initMaterialCtx() {
+    console.log("initMaterialCtx() ....");
+    this.m_mctx = CoRScene.createMaterialContext();
+    let mctx = this.m_mctx;
+    let md = this.m_materialData;
+    let mc = md.context;
+    console.log("		md: ", md);
+    console.log("		mc: ", mc);
+    let mcParam = CoRScene.creatMaterialContextParam();
+    mcParam.shaderLibVersion = mc.shaderLibVersion;
+    mcParam.loadAllShaderCode = true;
+    mcParam.shaderCodeBinary = true;
+    mcParam.pbrMaterialEnabled = true;
+    mcParam.lambertMaterialEnabled = false;
+    mcParam.shaderFileNickname = true;
+    mcParam.vsmFboIndex = 0;
+    mcParam.vsmEnabled = true; // mcParam.vsmEnabled = false;
+    // mcParam.buildBinaryFile = true;
+
+    this.buildEnvLight(mctx, mcParam, md.fog);
+    this.buildLightModule(mctx, mcParam, md.light);
+    this.buildShadowModule(mctx, mcParam, md.shadow);
+    mctx.addShaderLibListener(this);
+    mctx.initialize(this.m_rscene, mcParam);
+    this.pbrModule.active(this.m_rscene, mctx, mcParam.vsmEnabled); // console.log("initMaterialCtx() ... 2");
+  }
+
+  shaderLibLoadComplete(loadingTotal, loadedTotal) {
+    console.log("############## shaderLibLoadComplete().................");
+
+    if (this.m_callback != null) {
+      this.m_callback();
+      this.m_callback = null;
+    }
+  }
+
+  buildShadowModule(mctx, param, data) {
+    let v3 = CoRScene.createVec3();
+    v3.fromArray(data.cameraPosition);
+    let vsmModule = VSMShadowModule.create(param.vsmFboIndex);
+    vsmModule.setCameraPosition(v3);
+    vsmModule.setCameraNear(data.cameraNear);
+    vsmModule.setCameraFar(data.cameraFar);
+    let mapSize = data.mapSize;
+    let cameraViewSize = data.cameraViewSize;
+    vsmModule.setMapSize(mapSize[0], mapSize[1]);
+    vsmModule.setCameraViewSize(cameraViewSize[0], cameraViewSize[1]);
+    vsmModule.setShadowRadius(data.radius);
+    vsmModule.setShadowBias(data.bias);
+    vsmModule.initialize(this.m_rscene, [0], 3000);
+    vsmModule.setShadowIntensity(data.shadowIntensity);
+    vsmModule.setColorIntensity(data.colorIntensity);
+    mctx.vsmModule = vsmModule;
+  }
+
+  run() {
+    if (this.m_mctx) {
+      this.m_mctx.run();
+    }
+  }
+
+}
+
+exports.PBRMaterialCtx = PBRMaterialCtx;
+
+/***/ }),
+
+/***/ "ea2a":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/**
+ * IShaderCodeObject instance uuid
+ */
+
+var ShaderCodeUUID;
+
+(function (ShaderCodeUUID) {
+  /**
+   * nothing shader code object
+   */
+  ShaderCodeUUID["None"] = "";
+  /**
+   * the default value is PBR light shader code object that it comes from the system shader lib.
+   */
+
+  ShaderCodeUUID["Default"] = "pbr";
+  /**
+   * lambert light shader code object that it comes from the system shader lib.
+   */
+
+  ShaderCodeUUID["Lambert"] = "lambert";
+  /**
+   * PBR light shader code object that it comes from the system shader lib.
+   */
+
+  ShaderCodeUUID["PBR"] = "pbr";
+})(ShaderCodeUUID || (ShaderCodeUUID = {}));
+
+exports.ShaderCodeUUID = ShaderCodeUUID;
 
 /***/ }),
 

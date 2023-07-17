@@ -75,6 +75,7 @@ class DataItemComponentParam implements IDataItemComponentParam {
 	autoEncoding = true;
 
 	paramPanel: IParamInputPanel;
+	onchange: (keyName: string) => void = null;
 	constructor() {}
 	getJsonStr(): string {
 		let valueStr = this.getCurrValueString(false);
@@ -93,21 +94,21 @@ class DataItemComponentParam implements IDataItemComponentParam {
 	toColor(): void {
 		this.compType = "color";
 	}
-	updateColorInput(input: HTMLInputElement): void {
-		let str = checkCSSHexRGBColorStr(input.value);
-		input.value = str + this.unit;
-		this.numberValue = parseInt("0x" + str);
-	}
-	updateFloatNumberInput(input: HTMLInputElement): void {
-		let str = checkFloatNumberStr(input.value, this.numberMinValue, this.numberMaxValue);
-		input.value = str + this.unit;
-		this.numberValue = parseFloat(str);
-	}
-	updateIntegerNumberInput(input: HTMLInputElement): void {
-		let str = checkIntegerNumberStr(input.value, this.numberMinValue, this.numberMaxValue);
-		input.value = str + this.unit;
-		this.numberValue = parseInt(str);
-	}
+	// updateColorInput(input: HTMLInputElement): void {
+	// 	let str = checkCSSHexRGBColorStr(input.value);
+	// 	input.value = str + this.unit;
+	// 	this.numberValue = parseInt("0x" + str);
+	// }
+	// updateFloatNumberInput(input: HTMLInputElement): void {
+	// 	let str = checkFloatNumberStr(input.value, this.numberMinValue, this.numberMaxValue);
+	// 	input.value = str + this.unit;
+	// 	this.numberValue = parseFloat(str);
+	// }
+	// updateIntegerNumberInput(input: HTMLInputElement): void {
+	// 	let str = checkIntegerNumberStr(input.value, this.numberMinValue, this.numberMaxValue);
+	// 	input.value = str + this.unit;
+	// 	this.numberValue = parseInt(str);
+	// }
 
 	updateColorValueStr(valueStr: string): void {
 		let str = checkCSSHexRGBColorStr(valueStr);
@@ -121,29 +122,47 @@ class DataItemComponentParam implements IDataItemComponentParam {
 		let str = checkIntegerNumberStr(valueStr, this.numberMinValue, this.numberMaxValue);
 		this.numberValue = parseInt(str);
 	}
+	/**
+	 * @param valueStr value string
+	 * @param syncViewing the default value is true
+	 */
 	updateValueWithStr(valueStr: string, syncViewing: boolean = true): void {
 		// console.log("updateValueWithStr(), this.compType: ", this.compType, ", valueStr: ", valueStr, ", syncViewing: ",syncViewing);
+		let changed = false;
 		switch (this.compType) {
 			case "color":
+				let preColor = this.numberValue;
 				this.updateColorValueStr(valueStr);
+				// this.updateFloatNumberValueStr(valueStr);
+				changed = this.numberValue != preColor;
 				break;
 			case "number":
-				console.log("ZZZZZZ this.floatNumberEnabled: ", this.floatNumberEnabled);
+				console.log("ZZZZZZ this.floatNumberEnabled: ", this.floatNumberEnabled, ", valueStr: ", valueStr);
+				let preNumV = this.numberValue;
 				if (this.floatNumberEnabled) {
 					this.updateFloatNumberValueStr(valueStr);
 				} else {
 					this.updateIntegerNumberValueStr(valueStr);
 				}
+				changed = Math.abs(this.numberValue - preNumV) > 0.0001;
 				break;
 			case "text":
+				let preText = "";
+				if (this.textContent !== undefined) {
+					preText = this.textContent;
+				} else if (this.textValue !== undefined) {
+					preText = this.textValue;
+				}
 				if (this.textContent !== undefined) {
 					this.textContent = valueStr;
 				} else if (this.textValue !== undefined) {
 					this.textValue = valueStr;
 				}
+				changed = valueStr != preText;
 				break;
 			case "boolean":
 				valueStr = valueStr.toLowerCase();
+				let boo = this.booleanValue;
 				switch (valueStr) {
 					case "是":
 					case "1":
@@ -158,12 +177,16 @@ class DataItemComponentParam implements IDataItemComponentParam {
 						this.booleanValue = false;
 						break;
 				}
+				changed = boo != this.booleanValue;
 				break;
 			default:
 				break;
 		}
 		if (syncViewing) {
 			this.displayToViewer();
+		}
+		if(changed && this.onchange && this.editEnabled) {
+			this.onchange(this.keyName);
 		}
 	}
 	initEvents(): void {
@@ -183,35 +206,23 @@ class DataItemComponentParam implements IDataItemComponentParam {
 				switch (this.compType) {
 					case "color":
 						if (this.inputType == "text") {
-							// input.onkeyup = evt => {
-							// input.onkeyup = evt => {
-							// 	this.updateColorContent(input);
-							// }
 							input.onblur = evt => {
-								this.updateColorInput(input);
+								// this.updateColorInput(input);
+								this.updateValueWithStr(input.value);
 							};
 						}
 						break;
 					default:
 						if (this.inputType == "number") {
 							if (this.floatNumberEnabled) {
-								// input.onkeyup = evt => {
-								// 	// let str = checkFloatNumberStr( input.value, this.numberMinValue, this.numberMaxValue );
-								// 	// input.value = str + this.unit;
-								// 	// this.numberValue = parseFloat(str);
-								// 	this.updateFloatNumberInput(input);
-								// }
 								input.onblur = evt => {
-									this.updateFloatNumberInput(input);
+									// this.updateFloatNumberInput(input);
+									this.updateValueWithStr(input.value);
 								};
 							} else {
-								// input.onkeyup = evt => {
-								// 	let str = checkIntegerNumberStr( input.value, this.numberMinValue, this.numberMaxValue );
-								// 	input.value = str + this.unit;
-								// 	this.numberValue = parseInt(str);
-								// }
 								input.onblur = evt => {
-									this.updateIntegerNumberInput(input);
+									// this.updateIntegerNumberInput(input);
+									this.updateValueWithStr(input.value);
 								};
 							}
 						}
@@ -223,7 +234,8 @@ class DataItemComponentParam implements IDataItemComponentParam {
 				case "boolean":
 					div.onmouseup = evt => {
 						this.booleanValue = !this.booleanValue;
-						this.displayToViewer();
+						this.updateValueWithStr(this.booleanValue + "");
+						// this.displayToViewer();
 					};
 					break;
 			}

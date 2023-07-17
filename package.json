@@ -10,6 +10,7 @@
     "dev:tutorial": "vue-cli-service serve --type=dev[./src/main_tutorial.ts]",
 
     "build:dsrdViewer": "vue-cli-service build --target lib --name DsrdViewer --dest ./public/static/cospace/dsrdiffusion/dsrdViewer ./src/dsrdiffusion/viewer3d/DsrdViewer.ts",
+	"build:dsrdShell": "vue-cli-service build --target lib --name DSRDShell --dest ./public/static/cospace/dsrdiffusion/shell ./src/dsrdiffusion/DsrdShell.ts",
 
     "build:course": "vue-cli-service build --target lib --name chocoCourse --dest dist ./src/main_course.ts",
 

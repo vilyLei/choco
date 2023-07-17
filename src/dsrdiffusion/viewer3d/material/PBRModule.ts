@@ -7,53 +7,13 @@ import { ShaderCodeUUID } from "../../../engine/vox/material/ShaderCodeUUID";
 import IMaterialModule from "../../../engine/cospace/voxengine/material/IMaterialModule";
 import IRenderTexture from "../../../engine/vox/render/texture/IRenderTexture";
 import { HttpFileLoader } from "../../../engine/cospace/modules/loaders/HttpFileLoader";
+import { PBRMaterialMap, PBRMaterialMapUrl,PBRMaterialParam  } from "./PBRMaterialParam";
 
 declare var PBREffect: IPBREffect;
-type PBRMapUrl = {
-	envMap?: string;
-	envBrnMap?: string;
-	diffuseMap?: string;
-	normalMap?: string;
-	armMap?: string;
-	parallaxMap?: string;
-	displacementMap?: string;
-};
 
-type PBRMap = {
-	envMap?: IRenderTexture;
-	diffuseMap?: IRenderTexture;
-	normalMap?: IRenderTexture;
-	armMap?: IRenderTexture;
-	parallaxMap?: IRenderTexture;
-	displacementMap?: IRenderTexture;
-	aoMap?: IRenderTexture;
-	roughnessMap?: IRenderTexture;
-	metallicMap?: IRenderTexture;
-	specularMap?: IRenderTexture;
-};
-
-type PBRParam = {
-	metallic?: number;
-	roughness?: number;
-	ao?: number;
-
-	scatterIntensity?: number;
-	sideIntensity?: number;
-
-	shadowReceiveEnabled?: boolean;
-	fogEnabled?: boolean;
-
-	scatterEnabled?: boolean;
-	woolEnabled?: boolean;
-	absorbEnabled?: boolean;
-	normalNoiseEnabled?: boolean;
-
-	displacementParams?: number[];
-	albedoColor?: number[];
-	parallaxParams?: number[];
-	pipeline?: boolean;
-	specEnvMap?: IRenderTexture;
-};
+type PBRMapUrl = PBRMaterialMapUrl;
+type PBRMap = PBRMaterialMap;
+type PBRParam = PBRMaterialParam;
 
 class PBRModule implements IMaterialModule {
 	private m_rscene: IRendererScene;
@@ -74,7 +34,7 @@ class PBRModule implements IMaterialModule {
 	constructor() {}
 	initialize(materialData: any): void {
 		this.m_materialData = materialData;
-		if (materialData.pbr) {
+		if (materialData && materialData.pbr) {
 			this.m_texData = materialData.pbr.map as PBRMapUrl;
 		}
 	}
@@ -214,26 +174,39 @@ class PBRModule implements IMaterialModule {
 
 		decor.initialize();
 		vertUniform.initialize();
-		let vs: number[] = null;
-		if (param.displacementParams !== undefined) {
-			vs = param.displacementParams;
+		let vs: number[] = param.displacementParams;
+		if (vs !== undefined) {
 			vertUniform.setDisplacementParams(vs[0], vs[1]);
 		}
-		if (param.albedoColor !== undefined) {
-			vs = param.albedoColor;
+		vs = param.uvScales;
+		if (vs !== undefined) {
+			vertUniform.setUVScale(vs[0], vs[1]);
+		}
+		vs = param.albedoColor;
+		if (vs !== undefined) {
 			decor.setAlbedoColor(vs[0], vs[1], vs[2]);
 		}
-		if (param.scatterIntensity !== undefined) {
-			decor.setScatterIntensity(param.scatterIntensity);
-		}
-		if (param.parallaxParams !== undefined) {
-			vs = param.parallaxParams;
+		vs = param.parallaxParams;
+		if (vs !== undefined) {
 			decor.setParallaxParams(vs[0], vs[1], vs[2], vs[3]);
 		}
-		if (param.sideIntensity !== undefined) {
-			decor.setSideIntensity(param.sideIntensity);
-		}
 
+		if (param.sideIntensity !== undefined)
+			decor.setSideIntensity(param.sideIntensity);
+		if (param.toneMapingExposure !== undefined)
+			decor.setToneMapingExposure(param.toneMapingExposure);
+		if (param.scatterIntensity !== undefined)
+			decor.setScatterIntensity(param.scatterIntensity);
+
+		// decor.scatterEnabled = false;
+		// decor.setToneMapingExposure(3.0);
+		// decor.setAlbedoColor(1.0, 1.0, 1.0);
+		// decor.setScatterIntensity(1.0);
+		// decor.setParallaxParams(1, 10, 5.0, 0.02);
+		// decor.setSideIntensity(1.0);
+		// decor.setRoughness(0.5);
+		// decor.setMetallic(0.1);
+		// decor.setAO(1.0);
 		return m;
 	}
 	destroy(): void {

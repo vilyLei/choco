@@ -9,31 +9,32 @@ import { VoxEntity } from "../../engine/cospace/voxentity/VoxEntity";
 import { CoModelTeamLoader } from "../../engine/cospace/app/common/CoModelTeamLoader";
 import URLFilter from "../../engine/cospace/app/utils/URLFilter";
 import { SceneAccessor } from "./SceneAccessor";
-import { DsrdViewerBase } from "./DsrdViewerBase";
+import { ModelData, DsrdViewerBase } from "./DsrdViewerBase";
 import { DsrdImageViewer } from "./DsrdImageViewer";
 import { CoModuleVersion, CoModuleLoader } from "../../engine/cospace/app/utils/CoModuleLoader";
 import { ModelScene } from "./scene/ModelScene";
 import { CameraView } from "./scene/CameraView";
 import { IDsrdViewer } from "./IDsrdViewer";
+import { PBRMaterialMap, PBRMaterialMapUrl, PBRMaterialParam } from "../viewer3d/material/PBRMaterialParam";
 
-// declare var CoMath: ICoMath;
-
-/**
- * cospace renderer
- */
 class DsrdViewer extends DsrdViewerBase implements IDsrdViewer {
-
 	private m_viewDiv: HTMLDivElement = null;
 	private m_initCallback: () => void = null;
 	private m_zAxisUp = false;
 	private m_debugDev = false;
-	// readonly imgViewer: DsrdImageViewer;
+
 	readonly imgViewer = new DsrdImageViewer();
 	readonly camView = new CameraView();
 	constructor() {
 		super();
 	}
-	initialize(div: HTMLDivElement = null, initCallback: () => void = null, zAxisUp: boolean = false, debugDev: boolean = false, forceReleaseEnabled: boolean = false): void {
+	initialize(
+		div: HTMLDivElement = null,
+		initCallback: () => void = null,
+		zAxisUp: boolean = false,
+		debugDev: boolean = false,
+		forceReleaseEnabled: boolean = false
+	): void {
 		document.oncontextmenu = function(e) {
 			e.preventDefault();
 		};
@@ -50,9 +51,32 @@ class DsrdViewer extends DsrdViewerBase implements IDsrdViewer {
 		this.loadInfo();
 	}
 
+	protected keyDownDoes(evt: any): boolean {
+		console.log("DsrdViewer::keyDown() ..., evt: ", evt);
+		// switch (evt.key) {
+		// 	case "t":
+		// 		// let node = this.modelScene.getModelNode("export_1");
+		// 		// console.log("node: ", node);
+		// 		// let entity = node.entity;
+		// 		// if (entity) {
+		// 		// 	let material = entity.getMaterial();
+		// 		// 	console.log("material: ", material);
+		// 		// }
+		// 		let pbrParam: PBRMaterialParam = {};
+		// 		pbrParam.roughness = 0.5;
+		// 		pbrParam.pipeline = true;
+		// 		pbrParam.scatterEnabled = false;
+		// 		pbrParam.toneMapingExposure = 3.0;
+		// 		pbrParam.fogEnabled = false;
+		// 		pbrParam.albedoColor = [0.1, 1.0, 0.1];
+		// 		this.modelScene.setMaterialParamToNode("export_0", pbrParam);
+		// 		break;
+		// 	default:
+		// 		break;
+		// }
+		return true;
+	}
 	protected initRenderer(): void {
-		// document.body.style.overflow = "hidden";
-
 		let RD = RendererDevice;
 		/**
 		 * 开启打印输出shader构建的相关信息
@@ -97,10 +121,10 @@ class DsrdViewer extends DsrdViewerBase implements IDsrdViewer {
 		// this.imgViewer = new DsrdImageViewer();
 		this.imgViewer.initialize(this.m_rscene);
 
-		this.camView.initialize( this.m_rscene );
+		this.camView.initialize(this.m_rscene);
 
 		this.init3DScene();
-		if(this.m_initCallback) {
+		if (this.m_initCallback) {
 			this.m_initCallback();
 		}
 	}
@@ -152,18 +176,44 @@ class DsrdViewer extends DsrdViewerBase implements IDsrdViewer {
 		this.m_loadingCallback = loadingCallback;
 		let loader = this.m_teamLoader;
 		loader.loadWithTypes(urls, types, (models: CoGeomDataType[], transforms: Float32Array[]): void => {
-			this.m_layouter.layoutReset();
-			for (let i = 0; i < models.length; ++i) {
-				console.log("VVVVVV models[",i,"].url: ", models[i].url);
-				this.createEntity(models[i], transforms != null ? transforms[i] : null, models[i].url);
-			}
+			// this.m_layouter.layoutReset();
+			// for (let i = 0; i < models.length; ++i) {
+			// 	console.log("VVVVVV models[",i,"].url: ", models[i].url);
+			// 	this.createEntity(models[i], transforms != null ? transforms[i] : null, models[i].url);
+			// }
 			this.m_modelDataUrl = urls[0] + "." + types[0];
-			console.log("XXXXXX initSceneByUrls() this.m_modelDataUrl: ", this.m_modelDataUrl);
+			console.log("XXX -^- XXX initSceneByUrls() this.m_modelDataUrl: ", this.m_modelDataUrl);
+			// this.fitEntitiesSize();
+			// if (this.m_loadingCallback) {
+			// 	this.m_loadingCallback(1.0);
+			// }
+			for (let i = 0; i < models.length; ++i) {
+				let md = new ModelData();
+				md.url = models[i].url;
+				md.models = models;
+				md.transforms = transforms;
+				this.m_models.push(md);
+			}
+			this.initModelScene();
+		});
+	}
+
+	protected initModelScene(): void {
+		if (this.m_models.length > 0 && this.m_materialEanbled) {
+			this.m_layouter.layoutReset();
+			for (let i = 0; i < this.m_models.length; ++i) {
+				let model = this.m_models[i];
+				let models = model.models;
+				let transforms = model.transforms;
+				// this.createEntity(models[i], transforms != null ? transforms[i] : null, 1.0);
+				this.createEntity(models[i], transforms != null ? transforms[i] : null, model.url);
+			}
+			// this.m_layouter.layoutUpdate(200);
 			this.fitEntitiesSize();
 			if (this.m_loadingCallback) {
 				this.m_loadingCallback(1.0);
 			}
-		});
+		}
 	}
 	setForceRotate90(force: boolean): void {
 		this.m_forceRot90 = force;

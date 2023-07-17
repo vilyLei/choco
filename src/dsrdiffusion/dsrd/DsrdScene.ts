@@ -34,7 +34,7 @@ class DsrdScene implements IDsrdSceneCtrl{
 					this.setCamProjectParam(cam.viewAngle, cam.near, cam.far);
 				}
 				let camMatrix = cam.matrix;
-				console.log("camMatrix: ", camMatrix);
+				console.log("updateDataWithCurrRNode(), camMatrix: ", camMatrix);
 				if (camMatrix !== undefined) {
 					this.setCameraWithF32Arr16(camMatrix);
 				}
@@ -62,6 +62,7 @@ class DsrdScene implements IDsrdSceneCtrl{
 	}
 	private m_camvs16: number[] = null;
 	setCameraWithF32Arr16(camvs16: number[]): void {
+		console.log("DsrdScene::setCameraWithF32Arr16(), xxx.");
 		this.m_camvs16 = camvs16;
 		if (this.m_rscViewerInited && this.m_camvs16) {
 			this.rscViewer.camView.updateCameraWithF32Arr16(this.m_camvs16);
@@ -75,7 +76,6 @@ class DsrdScene implements IDsrdSceneCtrl{
 		}
 	}
 	private init3DScene(): void {
-		// let rscViewer = new SceneViewer.SceneViewer();
 		let rscViewer = new DsrdViewer.DsrdViewer();
 
 		let selfT: any = this;

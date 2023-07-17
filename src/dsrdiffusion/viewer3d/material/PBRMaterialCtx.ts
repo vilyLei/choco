@@ -6,7 +6,7 @@ import { IVSMShadowModule } from "../../../engine/cospace/renderEffect/shadow/IV
 
 import { IMaterialContext } from "../../../engine/materialLab/base/IMaterialContext";
 import { ILightModule } from "../../../engine/light/base/ILightModule";
-import { PBRModule } from "./PBRModule";
+import { PBRParam, PBRMapUrl, PBRModule } from "./PBRModule";
 import { CoModuleVersion, CoModuleLoader } from "../../../engine/cospace/app/utils/CoModuleLoader";
 
 declare var CoRScene: ICoRScene;
@@ -14,7 +14,7 @@ declare var CoLightModule: ICoLightModule;
 declare var CoEnvLightModule: ICoEnvLightModule;
 declare var VSMShadowModule: IVSMShadowModule;
 
-export class PBRMaterialCtx {
+class PBRMaterialCtx {
 	private m_rscene: IRendererScene;
 	private m_mctx: IMaterialContext;
 
@@ -160,6 +160,8 @@ export class PBRMaterialCtx {
 		let md = this.m_materialData;
 		let mc = md.context;
 
+		console.log("		md: ", md);
+		console.log("		mc: ", mc);
 		let mcParam = CoRScene.creatMaterialContextParam();
 		mcParam.shaderLibVersion = mc.shaderLibVersion;
 		mcParam.loadAllShaderCode = true;
@@ -218,4 +220,4 @@ export class PBRMaterialCtx {
 	}
 }
 
-export default PBRMaterialCtx;
+export {PBRParam, PBRMapUrl, PBRModule, PBRMaterialCtx};

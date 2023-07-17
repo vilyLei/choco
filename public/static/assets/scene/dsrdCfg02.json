@@ -30,7 +30,7 @@
             "defaultParam": {
 				"pipeline": true,
                 "metallic": 1.0,
-                "roughness": 0.4,
+                "roughness": 0.5,
                 "ao": 1,
                 "scatterIntensity": 8,
                 "sideIntensity": 8,
@@ -59,44 +59,18 @@
         },
         "light": {
             "pointLights": [
-                {
-                    "position": [
-                        0,
-                        190,
-                        0
-                    ],
-                    "rgb": [
-                        0,
-                        2.2,
-                        0
-                    ],
-                    "factor1": 0.00001,
-                    "factor2": 0.00005
-                }
             ],
             "directionLights": [
                 {
                     "direction": [
-                        -1,
-                        -1,
-                        0
+                        1,
+                        0,
+                        -1
                     ],
                     "rgb": [
-                        2,
-                        0,
-                        0
-                    ]
-                },
-                {
-                    "direction": [
                         1,
                         1,
-                        0
-                    ],
-                    "rgb": [
-                        0,
-                        0,
-                        2
+                        1
                     ]
                 }
             ]

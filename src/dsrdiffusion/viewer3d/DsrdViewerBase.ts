@@ -34,7 +34,16 @@ import { CoEntityLayouter2 } from "../../engine/cospace/app/common/CoEntityLayou
 import IDisplayEntityContainer from "../../engine/vox/entity/IDisplayEntityContainer";
 import { IMouseInteraction } from "../../engine/cospace/voxengine/ui/IMouseInteraction";
 import { ModelScene } from "./scene/ModelScene";
+import { PBRParam, PBRMapUrl, PBRMaterialCtx } from "./material/PBRMaterialCtx";
+import { TextPackedLoader } from "../../engine/cospace/modules/loaders/TextPackedLoader";
+import IRenderMaterial from "../../engine/vox/render/IRenderMaterial";
 
+class ModelData {
+	models: CoGeomDataType[];
+	transforms: Float32Array[];
+	url: string;
+	constructor() {}
+}
 /**
  * cospace renderer
  */
@@ -44,7 +53,11 @@ class DsrdViewerBase {
 	protected m_edit3DUIRScene: IRendererScene = null;
 	protected m_outline: PostOutline;
 	protected m_entityContainer: IDisplayEntityContainer;
-	modelScene = new ModelScene();
+	protected m_materialEanbled = false;
+	protected m_scData: any = null;
+	protected m_models: ModelData[] = [];
+	readonly modelScene = new ModelScene();
+	readonly pbrCtx = new PBRMaterialCtx();
 	constructor() {}
 
 	protected loadInfo(): void {
@@ -96,9 +109,22 @@ class DsrdViewerBase {
 									VoxModelEdit.initialize();
 
 									this.initRenderer();
+									this.modelScene.__$init();
 									this.initMouseInteract();
 									this.createEditEntity();
 									this.initUIScene();
+
+									let scDataJsonUrl = "static/assets/scene/dsrdCfg02.json";
+									let textLoader = new TextPackedLoader(1, (): void => {
+										this.m_scData = JSON.parse(textLoader.getDataByUrl(scDataJsonUrl) as string);
+										this.pbrCtx.pbrModule.envMapUrl = "static/bytes/spb.bin";
+										this.pbrCtx.pbrModule.preloadMaps = false;
+										this.pbrCtx.initialize(this.m_rscene, this.m_scData.material, (): void => {
+											console.log("pbrCtx.initialize() ...");
+											this.m_materialEanbled = true;
+											this.initModelScene();
+										});
+									}).load(scDataJsonUrl);
 								},
 								this.m_verTool
 							)
@@ -125,13 +151,26 @@ class DsrdViewerBase {
 		uiInteractML.load(url);
 	}
 
+	protected initModelScene(): void {
+		if (this.m_models.length > 0 && this.m_materialEanbled) {
+			this.m_layouter.layoutReset();
+			for (let i = 0; i < this.m_models.length; ++i) {
+				let model = this.m_models[i];
+				let models = model.models;
+				let transforms = model.transforms;
+				// this.createEntity(models[i], transforms != null ? transforms[i] : null, 1.0);
+				this.createEntity(models[i], transforms != null ? transforms[i] : null, model.url);
+			}
+			this.m_layouter.layoutUpdate(200);
+		}
+	}
 	protected m_graph: IRendererSceneGraph = null;
 	protected m_rscene: IRendererScene = null;
 	protected m_uiScene: IVoxUIScene = null;
 
 	protected m_mi: IMouseInteraction = null;
-	private m_posV0:IVector3D = null;
-	private m_posV1:IVector3D = null;
+	private m_posV0: IVector3D = null;
+	private m_posV1: IVector3D = null;
 	private initMouseInteract(): void {
 		const mi = VoxUIInteraction.createMouseInteraction();
 		mi.initialize(this.m_rscene, 0).setAutoRunning(true, 1);
@@ -385,23 +424,27 @@ class DsrdViewerBase {
 		request.send(null);
 		return tex;
 	}
-
+	protected keyDownDoes(evt: any): boolean {
+		console.log("DsrdViewer::keyDown() ..., evt.keyCode: ", evt.keyCode);
+		return true;
+	}
 	private keyDown(evt: any): void {
 		console.log("DsrdViewer::keyDown() ..., evt.keyCode: ", evt.keyCode);
-
-		let KEY = Keyboard;
-		switch (evt.keyCode) {
-			case KEY.W:
-				this.m_transCtr.toTranslation();
-				break;
-			case KEY.E:
-				this.m_transCtr.toScale();
-				break;
-			case KEY.R:
-				this.m_transCtr.toRotation();
-				break;
-			default:
-				break;
+		if (this.keyDownDoes(evt)) {
+			let KEY = Keyboard;
+			switch (evt.keyCode) {
+				case KEY.W:
+					this.m_transCtr.toTranslation();
+					break;
+				case KEY.E:
+					this.m_transCtr.toScale();
+					break;
+				case KEY.R:
+					this.m_transCtr.toRotation();
+					break;
+				default:
+					break;
+			}
 		}
 	}
 	protected m_layouter = new CoEntityLayouter2();
@@ -426,16 +469,39 @@ class DsrdViewerBase {
 	private m_entities: ITransformEntity[] = [];
 	protected m_modelTexUrl = "";
 	protected createEntity(model: CoGeomDataType, transform: Float32Array = null, url = ""): ITransformEntity {
-		let material = VoxRScene.createDefaultMaterial(true);
-		material.setRGB3f(0.85, 0.85, 0.85);
-		material.setTextureList([this.createTexByUrl(this.m_modelTexUrl)]);
-		material.initializeByCodeBuf(true);
+		// let material = VoxRScene.createDefaultMaterial(true);
+		// material.setRGB3f(0.85, 0.85, 0.85);
+		// material.setTextureList([this.createTexByUrl(this.m_modelTexUrl)]);
+		// material.initializeByCodeBuf(true);
+		let material: IRenderMaterial = null;
+		let flag = false;
+		flag = this.pbrCtx.isMCTXEnabled();
+		// flag = false;
+		if (flag) {
+			// material = this.pbrCtx.pbrModule.createMaterial(true);
+			let pbrParam: PBRParam = {};
+			pbrParam.roughness = 0.5;
+			pbrParam.pipeline = true;
+			pbrParam.scatterEnabled = false;
+			pbrParam.toneMapingExposure = 3.0;
+			pbrParam.fogEnabled = false;
+			pbrParam.albedoColor = [1.0, 1.0, 1.0];
+			let pbrMapUrl: PBRMapUrl = {};
+			// pbrMapUrl.diffuseMap = "static/assets/white.jpg";
+			pbrMapUrl.diffuseMap = "";
+			material = this.pbrCtx.pbrModule.createMaterial(true, pbrParam, pbrMapUrl);
+		} else {
+			let m = VoxRScene.createDefaultMaterial(true);
+			m.setRGB3f(0.85, 0.85, 0.85);
+			m.setTextureList([this.createTexByUrl(this.m_modelTexUrl)]);
+			m.initializeByCodeBuf(true);
+			material = m;
+		}
 
 		let mesh = VoxRScene.createDataMeshFromModel(model, material);
 		let entity = VoxRScene.createMouseEventEntity();
-		if (url != "") {
-			entity.uuid = url;
-		}
+		entity.uuid = url;
+
 		entity.setMaterial(material);
 		entity.setMesh(mesh);
 		// entity.setPosition(cv);
@@ -455,6 +521,8 @@ class DsrdViewerBase {
 		this.m_entities.push(entity);
 
 		this.m_layouter.layoutAppendItem(entity, VoxRScene.createMat4(transform));
+
+		this.modelScene.addModelNode(URLFilter.getFileName(url), entity);
 
 		return entity;
 	}
@@ -507,13 +575,11 @@ class DsrdViewerBase {
 	setModelSelectListener(modelSelectCall: (urls: string[]) => void): void {
 		this.m_modelSelectCall = modelSelectCall;
 	}
-	setMaterialParamWithUUID(uuid: string, param: any): void {
-
-	}
+	setMaterialParamWithUUID(uuid: string, param: any): void {}
 	private mouseUpTargetListener(evt: any): void {
 		this.m_posV1.setXYZ(evt.mouseX, evt.mouseY, 0);
 		this.m_posV0.subtractBy(this.m_posV1);
-		if(this.m_posV0.getLength() < 0.5) {
+		if (this.m_posV0.getLength() < 0.5) {
 			let entity = evt.target as ITransformEntity;
 			this.selectEntities([entity], evt.wpos);
 		}
@@ -551,4 +617,4 @@ class DsrdViewerBase {
 	}
 }
 
-export { DsrdViewerBase };
+export { ModelData, DsrdViewerBase };
