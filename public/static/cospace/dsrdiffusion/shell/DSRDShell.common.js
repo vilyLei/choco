@@ -215,18 +215,53 @@ class OutputDataPanel extends SettingDataPanel_1.SettingDataPanel {
     super();
   }
 
+  setJsonObj(jsonObj) {
+    console.log("jsonObj: ", jsonObj);
+    super.setJsonObj(jsonObj);
+
+    if (jsonObj["resolution"]) {
+      let sizes = jsonObj["resolution"];
+      this.setStringValueToItem("imageWidth", sizes[0] + "");
+      this.setStringValueToItem("imageHeight", sizes[1] + "");
+    }
+  }
+
   getJsonStr(beginStr = "{", endStr = "}") {
-    let paramW = this.getItemCompByKeyName("image_width").getParam();
-    let paramH = this.getItemCompByKeyName("image_height").getParam();
+    let paramW = this.getItemCompByKeyName("imageWidth").getParam();
+    let paramH = this.getItemCompByKeyName("imageHeight").getParam();
     let sizes = [paramW.numberValue, paramH.numberValue];
     let jsonStr = `${beginStr}"path":"", "resolution":[${sizes}]`;
     return super.getJsonStr(jsonStr, endStr);
   }
 
   init(viewerLayer) {
+    let param;
+
+    let onchange = keyName => {
+      console.log("OutputDataPanel::init(), on change...keyName: ", keyName);
+      let srcP = this.getItemParamByKeyName(keyName);
+
+      switch (keyName) {
+        case "imageWidth":
+          param = this.getItemParamByKeyName("imageHeight");
+          param.updateValueWithStr(srcP.getCurrValueString(), true, false);
+          break;
+
+        case "imageHeight":
+          param = this.getItemParamByKeyName("imageWidth");
+          param.updateValueWithStr(srcP.getCurrValueString(), true, false);
+          break;
+
+        default:
+          break;
+      }
+
+      if (this.m_unlockDataChanged) {}
+    };
+
     let params = [];
-    let param = new DataItemComponent_1.DataItemComponentParam();
-    param.keyName = "image_width";
+    param = new DataItemComponent_1.DataItemComponentParam();
+    param.keyName = "imageWidth";
     param.name = "图像宽";
     param.numberValue = 512;
     param.inputType = "number";
@@ -235,9 +270,10 @@ class OutputDataPanel extends SettingDataPanel_1.SettingDataPanel {
     param.editEnabled = true;
     param.autoEncoding = false;
     param.toNumber();
+    param.onchange = onchange;
     params.push(param);
     param = new DataItemComponent_1.DataItemComponentParam();
-    param.keyName = "image_height";
+    param.keyName = "imageHeight";
     param.name = "图像高";
     param.numberValue = 512;
     param.inputType = "number";
@@ -246,6 +282,7 @@ class OutputDataPanel extends SettingDataPanel_1.SettingDataPanel {
     param.editEnabled = true;
     param.autoEncoding = false;
     param.toNumber();
+    param.onchange = onchange;
     params.push(param);
     param = new DataItemComponent_1.DataItemComponentParam();
     param.keyName = "bgTransparent";
@@ -264,7 +301,7 @@ class OutputDataPanel extends SettingDataPanel_1.SettingDataPanel {
     param = new DataItemComponent_1.DataItemComponentParam();
     param.keyName = "bgColor";
     param.name = "背景色";
-    param.numberValue = 0x1668a;
+    param.numberValue = 0xffffff;
     param.editEnabled = true;
     param.toColor();
     params.push(param);
@@ -1034,14 +1071,37 @@ class DsrdUI {
 
   setRTDataFromRNode(rnode) {
     console.log("DsrdUI::setRTDataFromRNode(), rnode: ", rnode);
-    let materials = rnode.materials;
 
-    if (materials) {
-      let panel = this.getPanelByKeyName("material");
+    if (rnode) {
+      let panel = this.getPanelByKeyName('output');
+
+      if (rnode['output']) {
+        panel.updateData(rnode['output']);
+      }
+
+      panel = this.getPanelByKeyName("camera");
+
+      if (rnode['camera']) {
+        panel.updateData(rnode['camera']);
+      }
+
+      panel = this.getPanelByKeyName("env");
+
+      if (rnode['env']) {
+        panel.updateData(rnode['env']);
+      }
+
+      let materials = rnode.materials;
+
+      if (materials) {
+        panel = this.getPanelByKeyName("material");
+        panel.updateData(materials[0]);
+      }
     }
   }
 
   getRTJsonStrByKeyNames(keyNames, parentEnabled = true) {
+    console.log("getRTJsonStrByKeyNames(), keyNames: ", keyNames);
     let total = keyNames.length;
     let jsonStr = "";
 
@@ -1080,8 +1140,8 @@ class DsrdUI {
 
   getRSettingJsonStr() {
     // let items = this.m_items;
-    let panel = this.getPanelByKeyName("output");
-    console.log("panel: ", panel);
+    let panel = this.getPanelByKeyName("output"); // console.log("panel: ", panel);
+
     let jsonBody = "";
     let jsonStr = panel.getJsonStr();
     jsonBody = jsonStr; // console.log("output jsonStr: ", jsonStr);
@@ -1178,7 +1238,6 @@ class MaterialDataPanel extends SettingDataPanel_1.SettingDataPanel {
   constructor() {
     super();
     this.m_preModelName = "";
-    this.m_unlockDataChanged = true;
     this.modelNames = [];
     this.uvScales = [1.0, 1.0];
   }
@@ -1201,6 +1260,7 @@ class MaterialDataPanel extends SettingDataPanel_1.SettingDataPanel {
   }
 
   setJsonObj(jsonObj) {
+    console.log("jsonObj: ", jsonObj);
     super.setJsonObj(jsonObj);
 
     if (jsonObj["uvScales"]) {
@@ -1227,19 +1287,7 @@ class MaterialDataPanel extends SettingDataPanel_1.SettingDataPanel {
         this.modelNames.push(ns); // console.log("setModelNameWithUrl(), ns: >" + ns + "<");
       }
 
-      if (this.modelNames.length > 0) {
-        const mns = this.modelNames[0];
-
-        if (this.m_preModelName != mns) {
-          const ms = this.rscViewer.modelScene;
-          let jsonObj = ms.getMaterialJsonObjFromNode(mns);
-          this.m_unlockDataChanged = false; // jsonObj = {color:0xffffff} as any;
-          // console.log("vvvvvvvvvvv jsonObj: ", jsonObj);
-
-          this.setJsonObj(jsonObj);
-          this.m_unlockDataChanged = true; // ms.setMaterialParamToNodeByJsonObj(mns, jsonObj);
-        }
-      }
+      this.updateData();
     } else {
       this.modelNames = [];
     }
@@ -1248,46 +1296,35 @@ class MaterialDataPanel extends SettingDataPanel_1.SettingDataPanel {
   }
 
   getJsonStr(beginStr = "{", endStr = "}") {
-    // let jsonObj: any = { materials: null };
-    // jsonObj.materials = this.rscViewer.modelScene.getMaterialJsonObjs();
-    let jsonObj = this.rscViewer.modelScene.getMaterialJsonObjs(); // let materials = this.rscViewer.modelScene.getMaterialJsonObjs();
-    // for (let i = 0; i < materials.length; i++) {
-    // }
-
+    let jsonObj = this.rscViewer.modelScene.getMaterialJsonObjs();
     let jsonStr = `"materials":${JSON.stringify(jsonObj)}`; // jsonStr = jsonStr.slice(1, jsonStr.length - 1)
+    // console.log("xxxx materials jsonStr: ", jsonStr);
 
-    console.log("xxxx materials jsonStr: ", jsonStr);
     return jsonStr;
   }
 
-  getJsonStr2(beginStr = "{", endStr = "}") {
-    let jsonBody = "";
-
+  updateData(dataObj = null) {
     if (this.modelNames.length > 0) {
-      let ls = this.modelNames;
+      const mns = this.modelNames[0];
 
-      for (let i = 0; i < ls.length; i++) {
-        const modelName = ls[i];
-
-        if (modelName != "") {
-          let uvSX = this.getItemCompByKeyName("uvScaleX").getParam();
-          let uvSY = this.getItemCompByKeyName("uvScaleY").getParam();
-          let uvScales = [uvSX.numberValue, uvSY.numberValue];
-          let jsonStr = `${beginStr}"modelName":"${modelName}", "uvScales":[${uvScales}],"act":"update"`; // return super.getJsonStr(jsonStr,endStr);
-
-          if (jsonBody != "") {
-            jsonBody += "," + this.getJsonBodyStr(jsonStr, endStr);
-          } else {
-            jsonBody = this.getJsonBodyStr(jsonStr, endStr);
-          }
-        }
+      if (this.m_preModelName != mns) {
+        const ms = this.rscViewer.modelScene;
+        let jsonObj = ms.getMaterialJsonObjFromNode(mns);
+        dataObj = jsonObj;
       }
     }
 
-    return `"materials":[${jsonBody}]`;
+    if (dataObj != null) {
+      this.m_unlockDataChanged = false; // jsonObj = {color:0xffffff} as any;
+      // console.log("vvvvvvvvvvv jsonObj: ", jsonObj);
+
+      this.setJsonObj(dataObj);
+      this.m_unlockDataChanged = true;
+    }
   }
 
   init(viewerLayer) {
+    // for test
     // this.m_viewerLayer.onmousedown = evt => {
     // 	console.log("viewerLayer.onmousedown() ...");
     // 	// this.test();
@@ -1384,7 +1421,7 @@ class MaterialDataPanel extends SettingDataPanel_1.SettingDataPanel {
     this.m_params = params;
 
     let onchange = keyName => {
-      console.log("on change...keyName: ", keyName);
+      console.log("MaterialDataPalen::init(), on change...keyName: ", keyName);
 
       if (this.m_unlockDataChanged) {
         this.rscViewer.imgViewer.setViewImageAlpha(0.1);
@@ -1870,6 +1907,27 @@ class CameraDataPanel extends SettingDataPanel_1.SettingDataPanel {
   init(viewerLayer) {
     let params = [];
     let param = new DataItemComponent_1.DataItemComponentParam();
+
+    let onchange = keyName => {
+      console.log("CameraDataPanel::init(), on change...keyName: ", keyName);
+
+      if (this.m_unlockDataChanged) {
+        switch (keyName) {
+          case "viewAngle":
+          case "near":
+          case "far":
+            let pViewAngle = this.getItemParamByKeyName("viewAngle");
+            let pNear = this.getItemParamByKeyName("near");
+            let pFar = this.getItemParamByKeyName("far");
+            this.rscViewer.camView.setCamProjectParam(pViewAngle.numberValue, pNear.numberValue * 100.0, pFar.numberValue * 100.0);
+            break;
+
+          default:
+            break;
+        }
+      }
+    };
+
     param.keyName = "type";
     param.name = "类型";
     param.textValue = "perspective";
@@ -1885,6 +1943,7 @@ class CameraDataPanel extends SettingDataPanel_1.SettingDataPanel {
     param.unit = "度";
     param.editEnabled = true;
     param.toNumber();
+    param.onchange = onchange;
     params.push(param);
     param = new DataItemComponent_1.DataItemComponentParam();
     param.keyName = "near";
@@ -1897,6 +1956,7 @@ class CameraDataPanel extends SettingDataPanel_1.SettingDataPanel {
     param.editEnabled = true;
     param.unit = "m";
     param.toNumber();
+    param.onchange = onchange;
     params.push(param);
     param = new DataItemComponent_1.DataItemComponentParam();
     param.keyName = "far";
@@ -1909,6 +1969,7 @@ class CameraDataPanel extends SettingDataPanel_1.SettingDataPanel {
     param.editEnabled = true;
     param.unit = "m";
     param.toNumber();
+    param.onchange = onchange;
     params.push(param);
     this.m_params = params;
     let startY = 95;
@@ -2229,12 +2290,11 @@ class RTaskRquest {
     let keyNames = ["output", "env", "camera"];
     let rtdj = this.data.rtJsonData;
     let keyName = "material";
-    console.log("rtdj.isRTJsonActiveByKeyName(", keyName, "): ", rtdj.isRTJsonActiveByKeyName(keyName));
+    console.log("rtdj.isRTJsonActiveByKeyName(", keyName, "): ", rtdj.isRTJsonActiveByKeyName(keyName)); // if (rtdj.isRTJsonActiveByKeyName(keyName) || forceMaterial) {
+    // 	keyNames.push(keyName);
+    // }
 
-    if (rtdj.isRTJsonActiveByKeyName(keyName) || forceMaterial) {
-      keyNames.push(keyName);
-    }
-
+    keyNames.push(keyName);
     let rnodeJson = rtdj.getRTJsonStrByKeyNames(keyNames, true);
     let rnodeJsonObj = JSON.parse(rnodeJson);
     this.data.rnode = rnodeJsonObj;
@@ -2718,7 +2778,7 @@ class DataItemComponentParam {
    */
 
 
-  updateValueWithStr(valueStr, syncViewing = true) {
+  updateValueWithStr(valueStr, syncViewing = true, onchangeEnabled = true) {
     // console.log("updateValueWithStr(), this.compType: ", this.compType, ", valueStr: ", valueStr, ", syncViewing: ",syncViewing);
     let changed = false;
 
@@ -2792,8 +2852,10 @@ class DataItemComponentParam {
       this.displayToViewer();
     }
 
-    if (changed && this.onchange && this.editEnabled) {
-      this.onchange(this.keyName);
+    if (onchangeEnabled) {
+      if (changed && this.onchange && this.editEnabled) {
+        this.onchange(this.keyName);
+      }
     }
   }
 
@@ -3486,7 +3548,7 @@ class Entity3DScene {
           data.drcNames = list.slice(0);
           const rviewer = this.m_rscViewer;
 
-          if (rviewer != null) {
+          if (rviewer) {
             rviewer.initSceneByUrls(drcUrls, types, prog => {
               console.log("3d viewer drc model loading prog: ", prog);
 
@@ -3561,6 +3623,7 @@ class SettingDataPanel extends HTMLViewerLayer_1.HTMLViewerLayer {
     this.m_areaHeight = 512;
     this.m_itemCompDict = new Map();
     this.m_isActive = false;
+    this.m_unlockDataChanged = true;
     this.paramInputPanel = null;
   }
 
@@ -3672,20 +3735,7 @@ class SettingDataPanel extends HTMLViewerLayer_1.HTMLViewerLayer {
     return this.m_params;
   }
 
-  init(viewerLayer) {} // setVisible(v: boolean): void {
-  // 	let c = this.m_container;
-  // 	let style = c.style;
-  // 	if (v) {
-  // 		style.visibility = "visible";
-  // 		this.m_isActive = true;
-  // 	} else {
-  // 		style.visibility = "hidden";
-  // 	}
-  // }
-  // isVisible(): boolean {
-  // 	return this.m_container.style.visibility == "visible";
-  // }
-
+  init(viewerLayer) {}
 
   isActive() {
     return this.m_isActive;
@@ -3697,6 +3747,14 @@ class SettingDataPanel extends HTMLViewerLayer_1.HTMLViewerLayer {
     itemComp.initialize(this.m_areaWidth, this.m_areaHeight, this.m_container, param);
     this.addItemComp(itemComp);
     return itemComp;
+  }
+
+  updateData(dataObj = null) {
+    if (dataObj) {
+      this.m_unlockDataChanged = false;
+      this.setJsonObj(dataObj);
+      this.m_unlockDataChanged = true;
+    }
   }
 
 }
@@ -4788,16 +4846,10 @@ class DsrdShell {
         switch (idns) {
           case "rsc_viewer_loaded":
             let rviewer = rsc.rscViewer;
-            this.m_ui.setRSCViewer(rviewer); // this.m_rtaskSys.setRSCViewer(rviewer);
-
+            this.m_ui.setRSCViewer(rviewer);
             break;
 
           case "select_a_model":
-            // let uuidStr = type;
-            // console.log("DsrdShell::initialize() select uuidStr: ", uuidStr);
-            // let rviewer = this.m_rscene.rscViewer;
-            // this.m_ui.setRSCViewer(rviewer);
-            // this.m_rtaskSys.setRSCViewer(rviewer);
             let panel = this.m_ui.getMaterialPanel();
             panel.setModelNamesWithUrls(this.m_rscene.selectedModelUrls);
             break;
@@ -4948,21 +5000,6 @@ class DsrdShell {
           break;
 
         case "update-rnode":
-          // let rnode = data.rnode;
-          // console.log("xxxx shell, rnode: ", rnode);
-          // if (rnode) {
-          // 	const cam = rnode.camera;
-          // 	if (cam !== undefined) {
-          // 		if (cam.viewAngle !== undefined && cam.near !== undefined && cam.far !== undefined) {
-          // 			this.m_rscene.setCamProjectParam(cam.viewAngle, cam.near, cam.far);
-          // 		}
-          // 		let camMatrix = cam.matrix;
-          // 		console.log("camMatrix: ", camMatrix);
-          // 		if (camMatrix !== undefined) {
-          // 			this.m_rscene.setCameraWithF32Arr16(camMatrix);
-          // 		}
-          // 	}
-          // }
           this.m_rscene.updateDataWithCurrRNode();
           break;
         // case "current_rendering_begin":

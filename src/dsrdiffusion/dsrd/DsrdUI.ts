@@ -172,6 +172,7 @@ class DsrdUI implements IRTJsonData {
 			// for test
 			// this.rtaskSys.request.sendRerenderingReq("", true);
 		}
+
 		div = DivTool.createDivT1(1, py, pw, ph, "flex", "absolute", true);
 		container.appendChild(div);
 		divs.push(div);
@@ -214,13 +215,32 @@ class DsrdUI implements IRTJsonData {
 	}
 	setRTDataFromRNode(rnode: any): void {
 		console.log("DsrdUI::setRTDataFromRNode(), rnode: ", rnode);
-		let materials = rnode.materials;
-		if(materials) {
-			let panel = this.getPanelByKeyName("material");
+
+		if(rnode) {
+
+			let panel = this.getPanelByKeyName('output');
+			if(rnode['output']) {
+				panel.updateData( rnode['output'] );
+			}
+			panel = this.getPanelByKeyName("camera");
+			if(rnode['camera']) {
+				panel.updateData( rnode['camera'] );
+			}
+			panel = this.getPanelByKeyName("env");
+			if(rnode['env']) {
+				panel.updateData( rnode['env'] );
+			}
+
+			let materials = rnode.materials;
+			if(materials) {
+				panel = this.getPanelByKeyName("material");
+				panel.updateData( materials[0] );
+			}
 		}
 	}
 	getRTJsonStrByKeyNames(keyNames: string[], parentEnabled = true): string {
 
+		console.log("getRTJsonStrByKeyNames(), keyNames: ", keyNames);
 		let total = keyNames.length;
 		let jsonStr = "";
 		for(let i = 0; i < total; i++) {
@@ -253,7 +273,7 @@ class DsrdUI implements IRTJsonData {
 	private getRSettingJsonStr(): string {
 		// let items = this.m_items;
 		let panel = this.getPanelByKeyName("output");
-		console.log("panel: ", panel);
+		// console.log("panel: ", panel);
 		let jsonBody = "";
 		let jsonStr = panel.getJsonStr();
 		jsonBody = jsonStr;

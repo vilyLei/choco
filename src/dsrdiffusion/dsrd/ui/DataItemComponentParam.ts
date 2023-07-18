@@ -126,7 +126,7 @@ class DataItemComponentParam implements IDataItemComponentParam {
 	 * @param valueStr value string
 	 * @param syncViewing the default value is true
 	 */
-	updateValueWithStr(valueStr: string, syncViewing: boolean = true): void {
+	updateValueWithStr(valueStr: string, syncViewing: boolean = true, onchangeEnabled: boolean = true): void {
 		// console.log("updateValueWithStr(), this.compType: ", this.compType, ", valueStr: ", valueStr, ", syncViewing: ",syncViewing);
 		let changed = false;
 		switch (this.compType) {
@@ -171,7 +171,15 @@ class DataItemComponentParam implements IDataItemComponentParam {
 					case "ok":
 					case "t":
 					case "true":
+					case "on":
 						this.booleanValue = true;
+						break;
+					case "undefined":
+					case "notfound":
+					case "ignore":
+					case "off":
+					case "n":
+						this.booleanValue = false;
 						break;
 					default:
 						this.booleanValue = false;
@@ -185,8 +193,10 @@ class DataItemComponentParam implements IDataItemComponentParam {
 		if (syncViewing) {
 			this.displayToViewer();
 		}
-		if(changed && this.onchange && this.editEnabled) {
-			this.onchange(this.keyName);
+		if(onchangeEnabled) {
+			if(changed && this.onchange && this.editEnabled) {
+				this.onchange(this.keyName);
+			}
 		}
 	}
 	initEvents(): void {

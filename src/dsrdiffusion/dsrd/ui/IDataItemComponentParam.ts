@@ -36,7 +36,8 @@ interface IDataItemComponentParam {
 	/**
 	 * @param valueStr value string
 	 * @param syncViewing the default value is true
+	 * @param onchangeEnabled the default value is true
 	 */
-	updateValueWithStr(valueStr: string, syncViewing?: boolean): void;
+	updateValueWithStr(valueStr: string, syncViewing?: boolean, onchangeEnabled?: boolean): void;
 }
 export { IDataItemComponentParam };

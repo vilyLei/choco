@@ -138,7 +138,7 @@ class ModelScene implements IModelScene {
 	setMaterialParamToNode(uuid: string, param: PBRMaterialParam): void {
 		if (this.m_modelMap.has(uuid)) {
 			let node = this.m_modelMap.get(uuid);
-			if (node.entity != null) {
+			if (node.entity) {
 				let material = node.entity.getMaterial();
 				if (material) {
 					let decor = (material as any).getDecorator() as IPBRMaterialDecorator;

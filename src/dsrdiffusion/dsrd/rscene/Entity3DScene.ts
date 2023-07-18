@@ -68,7 +68,7 @@ class Entity3DScene {
 					console.log("drcUrls: ", drcUrls);
 					data.drcNames = list.slice(0);
 					const rviewer = this.m_rscViewer;
-					if (rviewer != null) {
+					if (rviewer) {
 						rviewer.initSceneByUrls(
 							drcUrls,
 							types,
@@ -79,7 +79,7 @@ class Entity3DScene {
 								}
 							},
 							200
-						);
+						)
 						rviewer.imgViewer.setViewImageFakeAlpha(0.1);
 					}
 					data.modelLoadStatus = 2;

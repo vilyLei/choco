@@ -13,6 +13,7 @@ class SettingDataPanel extends HTMLViewerLayer {
 	protected m_itemCompDict: Map<string, DataItemComponent> = new Map();
 	protected m_params: DataItemComponentParam[];
 	protected m_isActive = false;
+	protected m_unlockDataChanged = true;
 	rscViewer: IDsrdViewer;
 	paramInputPanel: IParamInputPanel = null;
 	constructor() {super();}
@@ -106,19 +107,6 @@ class SettingDataPanel extends HTMLViewerLayer {
 		return this.m_params;
 	}
 	protected init(viewerLayer: HTMLDivElement): void {}
-	// setVisible(v: boolean): void {
-	// 	let c = this.m_container;
-	// 	let style = c.style;
-	// 	if (v) {
-	// 		style.visibility = "visible";
-	// 		this.m_isActive = true;
-	// 	} else {
-	// 		style.visibility = "hidden";
-	// 	}
-	// }
-	// isVisible(): boolean {
-	// 	return this.m_container.style.visibility == "visible";
-	// }
 	isActive(): boolean {
 		return this.m_isActive;
 	}
@@ -128,6 +116,13 @@ class SettingDataPanel extends HTMLViewerLayer {
 		itemComp.initialize(this.m_areaWidth, this.m_areaHeight, this.m_container, param);
 		this.addItemComp(itemComp);
 		return itemComp;
+	}
+	updateData(dataObj: any = null): void {
+		if(dataObj) {
+			this.m_unlockDataChanged = false;
+			this.setJsonObj( dataObj );
+			this.m_unlockDataChanged = true;
+		}
 	}
 }
 export { SettingDataPanel };

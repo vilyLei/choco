@@ -7,7 +7,6 @@ class MaterialDataPanel extends SettingDataPanel {
 		super();
 	}
 	private m_preModelName = "";
-	private m_unlockDataChanged = true;
 	modelNames: string[] = [];
 	uvScales = [1.0, 1.0];
 
@@ -29,6 +28,7 @@ class MaterialDataPanel extends SettingDataPanel {
 		// this.getJsonStr();
 	}
 	setJsonObj(jsonObj: any): void {
+		console.log("jsonObj: ", jsonObj);
 		super.setJsonObj(jsonObj);
 		if (jsonObj["uvScales"]) {
 			let uvScales = jsonObj["uvScales"];
@@ -50,63 +50,42 @@ class MaterialDataPanel extends SettingDataPanel {
 				this.modelNames.push(ns);
 				// console.log("setModelNameWithUrl(), ns: >" + ns + "<");
 			}
-			if (this.modelNames.length > 0) {
-				const mns = this.modelNames[0];
-				if (this.m_preModelName != mns) {
-					const ms = this.rscViewer.modelScene;
-					let jsonObj = ms.getMaterialJsonObjFromNode(mns);
-					this.m_unlockDataChanged = false;
-					// jsonObj = {color:0xffffff} as any;
-					// console.log("vvvvvvvvvvv jsonObj: ", jsonObj);
-					this.setJsonObj(jsonObj);
-					this.m_unlockDataChanged = true;
-					// ms.setMaterialParamToNodeByJsonObj(mns, jsonObj);
-				}
-			}
+			this.updateData();
 		} else {
 			this.modelNames = [];
 		}
 		console.log("this.modelNames: ", this.modelNames);
 	}
 	getJsonStr(beginStr = "{", endStr = "}"): string {
-		// let jsonObj: any = { materials: null };
-		// jsonObj.materials = this.rscViewer.modelScene.getMaterialJsonObjs();
 		let jsonObj = this.rscViewer.modelScene.getMaterialJsonObjs();
-		// let materials = this.rscViewer.modelScene.getMaterialJsonObjs();
-		// for (let i = 0; i < materials.length; i++) {
-		// }
 		let jsonStr = `"materials":${JSON.stringify(jsonObj)}`;
 		// jsonStr = jsonStr.slice(1, jsonStr.length - 1)
-		console.log("xxxx materials jsonStr: ", jsonStr);
+		// console.log("xxxx materials jsonStr: ", jsonStr);
 		return jsonStr;
 	}
-	getJsonStr2(beginStr = "{", endStr = "}"): string {
-		let jsonBody = "";
+	updateData(dataObj: any = null): void {
 		if (this.modelNames.length > 0) {
-			let ls = this.modelNames;
-			for (let i = 0; i < ls.length; i++) {
-				const modelName = ls[i];
-				if (modelName != "") {
-					let uvSX = this.getItemCompByKeyName("uvScaleX").getParam();
-					let uvSY = this.getItemCompByKeyName("uvScaleY").getParam();
-					let uvScales = [uvSX.numberValue, uvSY.numberValue];
-					let jsonStr = `${beginStr}"modelName":"${modelName}", "uvScales":[${uvScales}],"act":"update"`;
-					// return super.getJsonStr(jsonStr,endStr);
-					if (jsonBody != "") {
-						jsonBody += "," + this.getJsonBodyStr(jsonStr, endStr);
-					} else {
-						jsonBody = this.getJsonBodyStr(jsonStr, endStr);
-					}
-				}
+			const mns = this.modelNames[0];
+			if (this.m_preModelName != mns) {
+				const ms = this.rscViewer.modelScene;
+				let jsonObj = ms.getMaterialJsonObjFromNode(mns);
+
+				dataObj = jsonObj;
 			}
 		}
-		return `"materials":[${jsonBody}]`;
+		if (dataObj != null) {
+			this.m_unlockDataChanged = false;
+			// jsonObj = {color:0xffffff} as any;
+			// console.log("vvvvvvvvvvv jsonObj: ", jsonObj);
+			this.setJsonObj(dataObj);
+			this.m_unlockDataChanged = true;
+		}
 	}
 	protected init(viewerLayer: HTMLDivElement): void {
+		// for test
 		// this.m_viewerLayer.onmousedown = evt => {
 		// 	console.log("viewerLayer.onmousedown() ...");
 		// 	// this.test();
-
 		// 	window.onkeydown = evt => {
 		// 		console.log("viewerLayer.onkeydown() ...");
 		// 		if(evt.key == 'u') {
@@ -202,7 +181,7 @@ class MaterialDataPanel extends SettingDataPanel {
 		this.m_params = params;
 
 		let onchange = (keyName: string): void => {
-			console.log("on change...keyName: ", keyName);
+			console.log("MaterialDataPalen::init(), on change...keyName: ", keyName);
 			if (this.m_unlockDataChanged) {
 				this.rscViewer.imgViewer.setViewImageAlpha(0.1);
 				let jsonStr = "";

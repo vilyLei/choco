@@ -60,9 +60,10 @@ class RTaskRquest {
 		let rtdj = this.data.rtJsonData;
 		let keyName = "material";
 		console.log("rtdj.isRTJsonActiveByKeyName(", keyName, "): ", rtdj.isRTJsonActiveByKeyName(keyName));
-		if (rtdj.isRTJsonActiveByKeyName(keyName) || forceMaterial) {
-			keyNames.push(keyName);
-		}
+		// if (rtdj.isRTJsonActiveByKeyName(keyName) || forceMaterial) {
+		// 	keyNames.push(keyName);
+		// }
+		keyNames.push(keyName);
 		let rnodeJson = rtdj.getRTJsonStrByKeyNames(keyNames, true);
 		let rnodeJsonObj = JSON.parse(rnodeJson);
 		this.data.rnode = rnodeJsonObj;
