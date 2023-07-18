@@ -2,7 +2,7 @@
 import { DsrdScene } from "./dsrd/DsrdScene";
 import { DsrdUI } from "./dsrd/DsrdUI";
 import { RTaskBeginUI } from "./dsrd/RTaskBeginUI";
-import { ModelScene } from "./dsrd/rscene/ModelScene";
+import { Entity3DScene } from "./dsrd/rscene/Entity3DScene";
 import { RTaskSystem } from "./dsrd/task/RTaskSystem";
 import { DivTool } from "./dsrd/utils/HtmlDivUtils";
 import EnvSysDevice from "./env/EnvSysDevice";
@@ -13,7 +13,7 @@ class DsrdShell {
 	private m_ui = new DsrdUI();
 	private m_rtaskBeginUI = new RTaskBeginUI();
 	private m_rtaskSys = new RTaskSystem();
-	private m_modelScene: ModelScene = null;
+	private m_entity3DScene: Entity3DScene = null;
 	private m_isMobileWeb = false;
 	constructor() {}
 	initialize(): void {
@@ -29,10 +29,10 @@ class DsrdShell {
 
 			this.m_isMobileWeb = EnvSysDevice.IsMobileWeb();
 			const rsc = this.m_rscene;
-			this.m_modelScene = rsc.modelScene;
+			this.m_entity3DScene = rsc.entity3DScene;
 			const rtsys = this.m_rtaskSys;
 			rsc.data = rtsys.data;
-			const modelsc = this.m_modelScene;
+			const modelsc = this.m_entity3DScene;
 			rtsys.modelScene = modelsc;
 
 			modelsc.data = rtsys.data;
@@ -44,14 +44,8 @@ class DsrdShell {
 					case "rsc_viewer_loaded":
 						let rviewer = rsc.rscViewer;
 						this.m_ui.setRSCViewer(rviewer);
-						// this.m_rtaskSys.setRSCViewer(rviewer);
 						break;
 					case "select_a_model":
-						// let uuidStr = type;
-						// console.log("DsrdShell::initialize() select uuidStr: ", uuidStr);
-						// let rviewer = this.m_rscene.rscViewer;
-						// this.m_ui.setRSCViewer(rviewer);
-						// this.m_rtaskSys.setRSCViewer(rviewer);
 						let panel = this.m_ui.getMaterialPanel();
 						panel.setModelNamesWithUrls(this.m_rscene.selectedModelUrls);
 						break;
@@ -102,6 +96,7 @@ class DsrdShell {
 	private m_areaHeight = 512;
 	private m_layoutHorizon = true;
 	private createLayers(width: number, height: number): HTMLDivElement[] {
+
 		let divs: HTMLDivElement[] = [];
 		let borderWidth = 2;
 		let borderHeight = 2;
@@ -201,21 +196,6 @@ class DsrdShell {
 					}
 					break;
 				case "update-rnode":
-					// let rnode = data.rnode;
-					// console.log("xxxx shell, rnode: ", rnode);
-					// if (rnode) {
-					// 	const cam = rnode.camera;
-					// 	if (cam !== undefined) {
-					// 		if (cam.viewAngle !== undefined && cam.near !== undefined && cam.far !== undefined) {
-					// 			this.m_rscene.setCamProjectParam(cam.viewAngle, cam.near, cam.far);
-					// 		}
-					// 		let camMatrix = cam.matrix;
-					// 		console.log("camMatrix: ", camMatrix);
-					// 		if (camMatrix !== undefined) {
-					// 			this.m_rscene.setCameraWithF32Arr16(camMatrix);
-					// 		}
-					// 	}
-					// }
 					this.m_rscene.updateDataWithCurrRNode();
 					break;
 				// case "current_rendering_begin":

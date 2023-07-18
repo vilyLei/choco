@@ -2,10 +2,10 @@ import { RTaskData } from "../task/RTaskData";
 import { RTaskInfoViewer } from "../task/RTaskInfoViewer";
 import { RTaskProcess } from "../task/RTaskProcess";
 import { RTaskRquest } from "../task/RTaskRequest";
-import { IDsrdSceneCtrl } from "../rscene/IDsrdSceneCtrl";
+import { IDsrdSceneCtrl } from "./IDsrdSceneCtrl";
 import { IDsrdViewer } from "../../viewer3d/IDsrdViewer";
 
-class ModelScene {
+class Entity3DScene {
 	private m_rscViewer: IDsrdViewer = null;
 	request: RTaskRquest = null;
 	process: RTaskProcess = null;
@@ -15,7 +15,7 @@ class ModelScene {
 	constructor() {}
 	setRSCViewer(rscViewer: any): void {
 		this.m_rscViewer = rscViewer;
-		console.log("ModelScene::setRSCViewer(), rscViewer: ", rscViewer);
+		console.log("Entity3DScene::setRSCViewer(), rscViewer: ", rscViewer);
 	}
 	isModelDataLoaded(): boolean {
 		return this.data.modelLoadStatus == 2;
@@ -24,13 +24,20 @@ class ModelScene {
 		console.log("XXXXXXX rscViewer.imgViewer.setViewImageAlpha(0.1)");
 		this.m_rscViewer.imgViewer.setViewImageAlpha(0.1);
 	}
+	updateMaterials(): void {
+		// console.log("xxxxvvv this.data.rnode: ", this.data.rnode);
+		let rnode = this.data.rnode;
+		if (rnode) {
+			this.m_rscViewer.modelScene.setMaterialParamToNodesByJsonObjs(rnode.materials as any[]);
+			this.data.rtJsonData.setRTDataFromRNode(this.data.rnode);
+		}
+	}
 	loadModel(): boolean {
-
 		const data = this.data;
 		const process = this.process;
 
 		if (data.modelLoadStatus == 0 && process.isModelFinish()) {
-			if(process.isAllFinish() || process.isSyncModelStatus()) {
+			if (process.isAllFinish() || process.isSyncModelStatus()) {
 				this.infoViewer.showSpecInfo("正在载入模型数据");
 			}
 			data.modelLoadStatus = 1;
@@ -68,19 +75,7 @@ class ModelScene {
 							(prog: any) => {
 								console.log("3d viewer drc model loading prog: ", prog);
 								if (prog >= 1.0) {
-									// console.log("xxxxvvv this.data.rnode: ", this.data.rnode);
-									let rnode = this.data.rnode;
-									if(rnode) {
-										let materials = rnode.materials as any[];
-										if(materials) {
-											for(let i = 0; i < materials.length; ++i) {
-												let mo = materials[i];
-												//mo.modelName
-												this.m_rscViewer.modelScene.setMaterialParamToNodeByJsonObj(mo.modelName, mo);
-											}
-										}
-										this.data.rtJsonData.setRTDataFromRNode(this.data.rnode);
-									}
+									this.updateMaterials();
 								}
 							},
 							200
@@ -93,10 +88,10 @@ class ModelScene {
 			});
 			return true;
 		}
-		if(process.isSyncModelStatus()) {
+		if (process.isSyncModelStatus()) {
 			process.running = false;
 			this.request.notifyModelInfoToSvr();
-		}else if(process.isFirstRendering()) {
+		} else if (process.isFirstRendering()) {
 			this.testTaskFinish();
 		}
 		return false;
@@ -107,7 +102,7 @@ class ModelScene {
 		if (process.isAllFinish()) {
 			if (!data.currentTaskAlive && this.isModelDataLoaded()) {
 				data.currentTaskAlive = true;
-				console.log("XXXXXXX ModelScene::testTaskFinish(), scene.setViewImageUrls(), urls: ", data.miniImgUrls);
+				console.log("XXXXXXX Entity3DScene::testTaskFinish(), scene.setViewImageUrls(), urls: ", data.miniImgUrls);
 				// this.m_rscViewer.imgViewer.setViewImageUrls(data.miniImgUrls);
 				this.scene.setViewImageUrls(data.miniImgUrls);
 				process.toSyncRStatus();
@@ -116,4 +111,4 @@ class ModelScene {
 	}
 }
 
-export { ModelScene }
+export { Entity3DScene };

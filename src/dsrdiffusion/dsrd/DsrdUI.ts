@@ -214,6 +214,10 @@ class DsrdUI implements IRTJsonData {
 	}
 	setRTDataFromRNode(rnode: any): void {
 		console.log("DsrdUI::setRTDataFromRNode(), rnode: ", rnode);
+		let materials = rnode.materials;
+		if(materials) {
+			let panel = this.getPanelByKeyName("material");
+		}
 	}
 	getRTJsonStrByKeyNames(keyNames: string[], parentEnabled = true): string {
 

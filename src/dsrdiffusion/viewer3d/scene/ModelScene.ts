@@ -121,6 +121,14 @@ class ModelScene implements IModelScene {
 		}
 		return null;
 	}
+	setMaterialParamToNodesByJsonObjs(materials: IMaterialJsonNode[]): void {
+		if (materials) {
+			for (let i = 0; i < materials.length; ++i) {
+				let mo = materials[i];
+				this.setMaterialParamToNodeByJsonObj(mo.modelName, mo);
+			}
+		}
+	}
 	setMaterialParamToNodeByJsonObj(uuid: string, jsonObj: any): void {
 		if (this.m_modelMap.has(uuid)) {
 			let node = this.m_modelMap.get(uuid);

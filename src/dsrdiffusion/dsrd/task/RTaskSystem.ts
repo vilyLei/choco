@@ -2,7 +2,7 @@ import { IRTaskDataParam, RTaskData } from "./RTaskData";
 import { RTaskInfoViewer } from "./RTaskInfoViewer";
 import { RTaskRquest } from "./RTaskRequest";
 import { RTPType, RTaskProcess } from "./RTaskProcess";
-import { ModelScene } from "../rscene/ModelScene";
+import { Entity3DScene } from "../rscene/Entity3DScene";
 
 class RTaskSystem {
 	private m_startup = true;
@@ -10,7 +10,7 @@ class RTaskSystem {
 	readonly data = new RTaskData();
 	readonly request = new RTaskRquest();
 	readonly infoViewer = new RTaskInfoViewer();
-	modelScene: ModelScene = null;
+	modelScene: Entity3DScene = null;
 	onaction: (idns: string, type: string) => void = null;
 	constructor() {}
 	initialize(): void {

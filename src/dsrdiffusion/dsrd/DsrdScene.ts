@@ -2,7 +2,7 @@
 declare var DsrdViewer: any;
 import { IDsrdViewer } from "../viewer3d/IDsrdViewer";
 import { IDsrdSceneCtrl } from "./rscene/IDsrdSceneCtrl";
-import { ModelScene } from "./rscene/ModelScene";
+import { Entity3DScene } from "./rscene/Entity3DScene";
 import { RTaskData, RTaskSystem } from "./task/RTaskSystem";
 class DsrdScene implements IDsrdSceneCtrl{
 	private m_viewerLayer: HTMLDivElement = null;
@@ -10,14 +10,14 @@ class DsrdScene implements IDsrdSceneCtrl{
 	// ui: DsrdUI = null;
 	// taskSys: RTaskSystem = null;
 	readonly rscViewer: IDsrdViewer = null;
-	readonly modelScene = new ModelScene();
+	readonly entity3DScene = new Entity3DScene();
 	data:RTaskData = null;
 	onaction: (idns: string, type: string) => void = null;
 	constructor() {}
 	initialize(viewerLayer: HTMLDivElement): void {
 		console.log("DsrdScene::initialize()......");
 		this.m_viewerLayer = viewerLayer;
-		this.modelScene.scene = this;
+		this.entity3DScene.scene = this;
 
 		// let url = "static/cospace/dsrdiffusion/scViewer/SceneViewer.umd.js";
 		let url = "static/cospace/dsrdiffusion/dsrdViewer/DsrdViewer.umd.js";
@@ -28,6 +28,7 @@ class DsrdScene implements IDsrdSceneCtrl{
 		let rnode = this.data.rnode;
 		console.log("xxxx shell, rnode: ", rnode);
 		if (rnode) {
+			this.entity3DScene.updateMaterials();
 			const cam = rnode.camera;
 			if (cam !== undefined) {
 				if (cam.viewAngle !== undefined && cam.near !== undefined && cam.far !== undefined) {
@@ -109,7 +110,7 @@ class DsrdScene implements IDsrdSceneCtrl{
 		);
 		// 增加三角面数量的信息显示
 		rscViewer.setForceRotate90(true);
-		this.modelScene.setRSCViewer(rscViewer);
+		this.entity3DScene.setRSCViewer(rscViewer);
 		// rscViewer.setMouseUpListener((evt: any): void => {
 		// 	console.log("upupup XXX, evt: ", evt);
 		// 	if (evt.uuid == "") {

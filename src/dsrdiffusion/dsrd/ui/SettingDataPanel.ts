@@ -3,7 +3,8 @@ import { DataItemComponentParam, DataItemComponent } from "./DataItemComponent";
 import { DivTool } from "../utils/HtmlDivUtils";
 import { IParamInputPanel } from "./IParamInputPanel";
 import { IDsrdViewer } from "../../viewer3d/IDsrdViewer";
-class SettingDataPanel {
+import { HTMLViewerLayer } from "../base/HTMLViewerLayer";
+class SettingDataPanel extends HTMLViewerLayer {
 	protected m_viewerLayer: HTMLDivElement = null;
 	protected m_container: HTMLDivElement = null;
 	protected m_itemData: IItemData = null;
@@ -14,7 +15,7 @@ class SettingDataPanel {
 	protected m_isActive = false;
 	rscViewer: IDsrdViewer;
 	paramInputPanel: IParamInputPanel = null;
-	constructor() {}
+	constructor() {super();}
 	initialize(viewerLayer: HTMLDivElement, areaWidth: number, areaHeight: number, data: IItemData): void {
 		console.log("SettingDataController::initialize()......");
 
@@ -23,11 +24,10 @@ class SettingDataPanel {
 		this.m_areaHeight = areaHeight;
 
 		this.m_itemData = data;
-		// this.m_container = this.createDiv(0, 0, areaWidth, areaWidth, "", "", "absolute");
 		this.m_container = DivTool.createDivT1(0, 0, areaWidth, areaWidth, "", "absolute", false);
-
 		viewerLayer.appendChild(this.m_container);
-		this.init(viewerLayer);
+		this.setViewer(this.m_container);
+		this.init(this.m_container);
 		this.setVisible(false);
 	}
 	setJsonObj(jsonObj: any): void {
@@ -106,19 +106,19 @@ class SettingDataPanel {
 		return this.m_params;
 	}
 	protected init(viewerLayer: HTMLDivElement): void {}
-	setVisible(v: boolean): void {
-		let c = this.m_container;
-		let style = c.style;
-		if (v) {
-			style.visibility = "visible";
-			this.m_isActive = true;
-		} else {
-			style.visibility = "hidden";
-		}
-	}
-	isVisible(): boolean {
-		return this.m_container.style.visibility == "visible";
-	}
+	// setVisible(v: boolean): void {
+	// 	let c = this.m_container;
+	// 	let style = c.style;
+	// 	if (v) {
+	// 		style.visibility = "visible";
+	// 		this.m_isActive = true;
+	// 	} else {
+	// 		style.visibility = "hidden";
+	// 	}
+	// }
+	// isVisible(): boolean {
+	// 	return this.m_container.style.visibility == "visible";
+	// }
 	isActive(): boolean {
 		return this.m_isActive;
 	}

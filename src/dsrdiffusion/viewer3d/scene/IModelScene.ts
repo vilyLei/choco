@@ -13,6 +13,7 @@ interface IModelScene {
 	 */
 	getMaterialJsonObjs(force?: boolean): IMaterialJsonNode[];
 	getMaterialJsonObjFromNode(uuid: string): IMaterialJsonNode;
+	setMaterialParamToNodesByJsonObjs(materials: IMaterialJsonNode[]): void;
 	setMaterialParamToNodeByJsonObj(uuid: string, jsonObj: any): void;
 	initialize(scData: any): void;
 	setMaterialParamToNode(uuid: string, param: PBRMaterialParam): void;

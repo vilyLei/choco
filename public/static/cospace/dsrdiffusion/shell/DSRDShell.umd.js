@@ -1043,6 +1043,11 @@ class DsrdUI {
 
   setRTDataFromRNode(rnode) {
     console.log("DsrdUI::setRTDataFromRNode(), rnode: ", rnode);
+    let materials = rnode.materials;
+
+    if (materials) {
+      let panel = this.getPanelByKeyName("material");
+    }
   }
 
   getRTJsonStrByKeyNames(keyNames, parentEnabled = true) {
@@ -1671,143 +1676,6 @@ class RModelUploadingUI {
 }
 
 exports.RModelUploadingUI = RModelUploadingUI;
-
-/***/ }),
-
-/***/ "3b8d":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-class ModelScene {
-  constructor() {
-    this.m_rscViewer = null;
-    this.request = null;
-    this.process = null;
-    this.data = null;
-    this.infoViewer = null;
-    this.scene = null;
-  }
-
-  setRSCViewer(rscViewer) {
-    this.m_rscViewer = rscViewer;
-    console.log("ModelScene::setRSCViewer(), rscViewer: ", rscViewer);
-  }
-
-  isModelDataLoaded() {
-    return this.data.modelLoadStatus == 2;
-  }
-
-  rerendering() {
-    console.log("XXXXXXX rscViewer.imgViewer.setViewImageAlpha(0.1)");
-    this.m_rscViewer.imgViewer.setViewImageAlpha(0.1);
-  }
-
-  loadModel() {
-    const data = this.data;
-    const process = this.process;
-
-    if (data.modelLoadStatus == 0 && process.isModelFinish()) {
-      if (process.isAllFinish() || process.isSyncModelStatus()) {
-        this.infoViewer.showSpecInfo("正在载入模型数据");
-      }
-
-      data.modelLoadStatus = 1;
-      let req = this.request;
-      let params = "";
-      let url = req.createReqUrlStr(req.taskInfoGettingUrl, "modelToDrc", 0, data.taskid, data.taskname, params);
-      console.log("### ######02 loadModel(), url: ", url);
-      req.sendACommonGetReq(url, (purl, content) => {
-        console.log("### ###### loadDrcModels() loaded, content: ", content);
-        var infoObj = JSON.parse(content);
-        console.log("loadDrcModels() loaded, infoObj: ", infoObj);
-        let resBaseUrl = req.getHostUrl(9090) + infoObj.filepath.slice(2);
-        let statusUrl = resBaseUrl + "status.json";
-        req.sendACommonGetReq(statusUrl, (pstatusUrl, content) => {
-          let statusObj = JSON.parse(content);
-          console.log("statusObj: ", statusObj);
-          let list = statusObj.list;
-          let drcsTotal = list.length;
-          let drcUrls = [];
-          let types = [];
-
-          for (let i = 0; i < drcsTotal; i++) {
-            let drcUrl = resBaseUrl + list[i];
-            drcUrls.push(drcUrl);
-            types.push("drc");
-          }
-
-          console.log("drcs list: ", list);
-          console.log("drcUrls: ", drcUrls);
-          data.drcNames = list.slice(0);
-          const rviewer = this.m_rscViewer;
-
-          if (rviewer != null) {
-            rviewer.initSceneByUrls(drcUrls, types, prog => {
-              console.log("3d viewer drc model loading prog: ", prog);
-
-              if (prog >= 1.0) {
-                // console.log("xxxxvvv this.data.rnode: ", this.data.rnode);
-                let rnode = this.data.rnode;
-
-                if (rnode) {
-                  let materials = rnode.materials;
-
-                  if (materials) {
-                    for (let i = 0; i < materials.length; ++i) {
-                      let mo = materials[i]; //mo.modelName
-
-                      this.m_rscViewer.modelScene.setMaterialParamToNodeByJsonObj(mo.modelName, mo);
-                    }
-                  }
-
-                  this.data.rtJsonData.setRTDataFromRNode(this.data.rnode);
-                }
-              }
-            }, 200);
-            rviewer.imgViewer.setViewImageFakeAlpha(0.1);
-          }
-
-          data.modelLoadStatus = 2;
-          this.testTaskFinish();
-        });
-      });
-      return true;
-    }
-
-    if (process.isSyncModelStatus()) {
-      process.running = false;
-      this.request.notifyModelInfoToSvr();
-    } else if (process.isFirstRendering()) {
-      this.testTaskFinish();
-    }
-
-    return false;
-  }
-
-  testTaskFinish() {
-    const data = this.data;
-    const process = this.process;
-
-    if (process.isAllFinish()) {
-      if (!data.currentTaskAlive && this.isModelDataLoaded()) {
-        data.currentTaskAlive = true;
-        console.log("XXXXXXX ModelScene::testTaskFinish(), scene.setViewImageUrls(), urls: ", data.miniImgUrls); // this.m_rscViewer.imgViewer.setViewImageUrls(data.miniImgUrls);
-
-        this.scene.setViewImageUrls(data.miniImgUrls);
-        process.toSyncRStatus();
-      }
-    }
-  }
-
-}
-
-exports.ModelScene = ModelScene;
 
 /***/ }),
 
@@ -2526,7 +2394,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-const ModelScene_1 = __webpack_require__("3b8d");
+const Entity3DScene_1 = __webpack_require__("9f0f");
 
 class DsrdScene {
   constructor() {
@@ -2535,7 +2403,7 @@ class DsrdScene {
     // taskSys: RTaskSystem = null;
 
     this.rscViewer = null;
-    this.modelScene = new ModelScene_1.ModelScene();
+    this.entity3DScene = new Entity3DScene_1.Entity3DScene();
     this.data = null;
     this.onaction = null;
     this.m_camParams = null;
@@ -2547,7 +2415,7 @@ class DsrdScene {
   initialize(viewerLayer) {
     console.log("DsrdScene::initialize()......");
     this.m_viewerLayer = viewerLayer;
-    this.modelScene.scene = this; // let url = "static/cospace/dsrdiffusion/scViewer/SceneViewer.umd.js";
+    this.entity3DScene.scene = this; // let url = "static/cospace/dsrdiffusion/scViewer/SceneViewer.umd.js";
 
     let url = "static/cospace/dsrdiffusion/dsrdViewer/DsrdViewer.umd.js";
     this.loadModule(url);
@@ -2558,6 +2426,7 @@ class DsrdScene {
     console.log("xxxx shell, rnode: ", rnode);
 
     if (rnode) {
+      this.entity3DScene.updateMaterials();
       const cam = rnode.camera;
 
       if (cam !== undefined) {
@@ -2646,7 +2515,7 @@ class DsrdScene {
     }, true, debugDev, releaseModule); // 增加三角面数量的信息显示
 
     rscViewer.setForceRotate90(true);
-    this.modelScene.setRSCViewer(rscViewer); // rscViewer.setMouseUpListener((evt: any): void => {
+    this.entity3DScene.setRSCViewer(rscViewer); // rscViewer.setMouseUpListener((evt: any): void => {
     // 	console.log("upupup XXX, evt: ", evt);
     // 	if (evt.uuid == "") {
     // 		console.log("clear model ops !!!");
@@ -3543,6 +3412,138 @@ exports.DataItemComponent = DataItemComponent;
 
 /***/ }),
 
+/***/ "9f0f":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+class Entity3DScene {
+  constructor() {
+    this.m_rscViewer = null;
+    this.request = null;
+    this.process = null;
+    this.data = null;
+    this.infoViewer = null;
+    this.scene = null;
+  }
+
+  setRSCViewer(rscViewer) {
+    this.m_rscViewer = rscViewer;
+    console.log("Entity3DScene::setRSCViewer(), rscViewer: ", rscViewer);
+  }
+
+  isModelDataLoaded() {
+    return this.data.modelLoadStatus == 2;
+  }
+
+  rerendering() {
+    console.log("XXXXXXX rscViewer.imgViewer.setViewImageAlpha(0.1)");
+    this.m_rscViewer.imgViewer.setViewImageAlpha(0.1);
+  }
+
+  updateMaterials() {
+    // console.log("xxxxvvv this.data.rnode: ", this.data.rnode);
+    let rnode = this.data.rnode;
+
+    if (rnode) {
+      this.m_rscViewer.modelScene.setMaterialParamToNodesByJsonObjs(rnode.materials);
+      this.data.rtJsonData.setRTDataFromRNode(this.data.rnode);
+    }
+  }
+
+  loadModel() {
+    const data = this.data;
+    const process = this.process;
+
+    if (data.modelLoadStatus == 0 && process.isModelFinish()) {
+      if (process.isAllFinish() || process.isSyncModelStatus()) {
+        this.infoViewer.showSpecInfo("正在载入模型数据");
+      }
+
+      data.modelLoadStatus = 1;
+      let req = this.request;
+      let params = "";
+      let url = req.createReqUrlStr(req.taskInfoGettingUrl, "modelToDrc", 0, data.taskid, data.taskname, params);
+      console.log("### ######02 loadModel(), url: ", url);
+      req.sendACommonGetReq(url, (purl, content) => {
+        console.log("### ###### loadDrcModels() loaded, content: ", content);
+        var infoObj = JSON.parse(content);
+        console.log("loadDrcModels() loaded, infoObj: ", infoObj);
+        let resBaseUrl = req.getHostUrl(9090) + infoObj.filepath.slice(2);
+        let statusUrl = resBaseUrl + "status.json";
+        req.sendACommonGetReq(statusUrl, (pstatusUrl, content) => {
+          let statusObj = JSON.parse(content);
+          console.log("statusObj: ", statusObj);
+          let list = statusObj.list;
+          let drcsTotal = list.length;
+          let drcUrls = [];
+          let types = [];
+
+          for (let i = 0; i < drcsTotal; i++) {
+            let drcUrl = resBaseUrl + list[i];
+            drcUrls.push(drcUrl);
+            types.push("drc");
+          }
+
+          console.log("drcs list: ", list);
+          console.log("drcUrls: ", drcUrls);
+          data.drcNames = list.slice(0);
+          const rviewer = this.m_rscViewer;
+
+          if (rviewer != null) {
+            rviewer.initSceneByUrls(drcUrls, types, prog => {
+              console.log("3d viewer drc model loading prog: ", prog);
+
+              if (prog >= 1.0) {
+                this.updateMaterials();
+              }
+            }, 200);
+            rviewer.imgViewer.setViewImageFakeAlpha(0.1);
+          }
+
+          data.modelLoadStatus = 2;
+          this.testTaskFinish();
+        });
+      });
+      return true;
+    }
+
+    if (process.isSyncModelStatus()) {
+      process.running = false;
+      this.request.notifyModelInfoToSvr();
+    } else if (process.isFirstRendering()) {
+      this.testTaskFinish();
+    }
+
+    return false;
+  }
+
+  testTaskFinish() {
+    const data = this.data;
+    const process = this.process;
+
+    if (process.isAllFinish()) {
+      if (!data.currentTaskAlive && this.isModelDataLoaded()) {
+        data.currentTaskAlive = true;
+        console.log("XXXXXXX Entity3DScene::testTaskFinish(), scene.setViewImageUrls(), urls: ", data.miniImgUrls); // this.m_rscViewer.imgViewer.setViewImageUrls(data.miniImgUrls);
+
+        this.scene.setViewImageUrls(data.miniImgUrls);
+        process.toSyncRStatus();
+      }
+    }
+  }
+
+}
+
+exports.Entity3DScene = Entity3DScene;
+
+/***/ }),
+
 /***/ "a7c5":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3557,8 +3558,11 @@ const DataItemComponent_1 = __webpack_require__("9bbe");
 
 const HtmlDivUtils_1 = __webpack_require__("7191");
 
-class SettingDataPanel {
+const HTMLViewerLayer_1 = __webpack_require__("2403");
+
+class SettingDataPanel extends HTMLViewerLayer_1.HTMLViewerLayer {
   constructor() {
+    super();
     this.m_viewerLayer = null;
     this.m_container = null;
     this.m_itemData = null;
@@ -3574,11 +3578,11 @@ class SettingDataPanel {
     this.m_viewerLayer = viewerLayer;
     this.m_areaWidth = areaWidth;
     this.m_areaHeight = areaHeight;
-    this.m_itemData = data; // this.m_container = this.createDiv(0, 0, areaWidth, areaWidth, "", "", "absolute");
-
+    this.m_itemData = data;
     this.m_container = HtmlDivUtils_1.DivTool.createDivT1(0, 0, areaWidth, areaWidth, "", "absolute", false);
     viewerLayer.appendChild(this.m_container);
-    this.init(viewerLayer);
+    this.setViewer(this.m_container);
+    this.init(this.m_container);
     this.setVisible(false);
   }
 
@@ -3677,23 +3681,20 @@ class SettingDataPanel {
     return this.m_params;
   }
 
-  init(viewerLayer) {}
+  init(viewerLayer) {} // setVisible(v: boolean): void {
+  // 	let c = this.m_container;
+  // 	let style = c.style;
+  // 	if (v) {
+  // 		style.visibility = "visible";
+  // 		this.m_isActive = true;
+  // 	} else {
+  // 		style.visibility = "hidden";
+  // 	}
+  // }
+  // isVisible(): boolean {
+  // 	return this.m_container.style.visibility == "visible";
+  // }
 
-  setVisible(v) {
-    let c = this.m_container;
-    let style = c.style;
-
-    if (v) {
-      style.visibility = "visible";
-      this.m_isActive = true;
-    } else {
-      style.visibility = "hidden";
-    }
-  }
-
-  isVisible() {
-    return this.m_container.style.visibility == "visible";
-  }
 
   isActive() {
     return this.m_isActive;
@@ -4758,7 +4759,7 @@ class DsrdShell {
     this.m_ui = new DsrdUI_1.DsrdUI();
     this.m_rtaskBeginUI = new RTaskBeginUI_1.RTaskBeginUI();
     this.m_rtaskSys = new RTaskSystem_1.RTaskSystem();
-    this.m_modelScene = null;
+    this.m_entity3DScene = null;
     this.m_isMobileWeb = false;
     this.m_viewerLayer = null; // private m_infoLayer: HTMLDivElement = null;
 
@@ -4782,10 +4783,10 @@ class DsrdShell {
       this.m_init = false;
       this.m_isMobileWeb = EnvSysDevice_1.default.IsMobileWeb();
       const rsc = this.m_rscene;
-      this.m_modelScene = rsc.modelScene;
+      this.m_entity3DScene = rsc.entity3DScene;
       const rtsys = this.m_rtaskSys;
       rsc.data = rtsys.data;
-      const modelsc = this.m_modelScene;
+      const modelsc = this.m_entity3DScene;
       rtsys.modelScene = modelsc;
       modelsc.data = rtsys.data;
       modelsc.request = rtsys.request;
